@@ -117,19 +117,31 @@ class SessionForecaster:
 
 
 class SeriesForecaster:
-    """History-only forecaster (B0/B1): one time series per (target, class, horizon)."""
+    """History-only forecaster (B0/B1): one time series per (target, class, horizon).
+
+    A truth observed at time t_obs for horizon h describes the window (t_obs, t_obs + h]; it is
+    only usable as history once that window has fully elapsed, i.e. at ticks t >= t_obs + h.
+    """
 
     def __init__(self, series: SeriesPredictor, horizons: list[float], n: int = 512, max_history: int = 500):
-        self.series, self.horizons, self.n = series, list(horizons), n
+        self.series, self.horizons, self.n, self.max_history = series, list(horizons), n, max_history
+        self._pending: dict[tuple[str, str, int], deque] = defaultdict(deque)  # (t_obs, value)
         self.history: dict[tuple[str, str, int], deque] = defaultdict(lambda: deque(maxlen=max_history))
 
     def observe(self, t: float, truth: dict) -> None:
         for tgt in TARGETS:
             for c in CLASSES:
                 for k in range(len(self.horizons)):
-                    self.history[(tgt, c, k)].append(float(truth[tgt][c][k]))
+                    self._pending[(tgt, c, k)].append((t, float(truth[tgt][c][k])))
+
+    def _realize(self, t: float) -> None:
+        for key, q in self._pending.items():
+            h = self.horizons[key[2]]
+            while q and q[0][0] + h <= t:
+                self.history[key].append(q.popleft()[1])
 
     def forecast(self, t: float, states: list[SessionState], rng: np.random.Generator) -> ForecastSnapshot:
+        self._realize(t)
         samples = _empty(self.horizons, self.n)
         for tgt in TARGETS:
             for c in CLASSES:

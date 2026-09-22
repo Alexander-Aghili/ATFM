@@ -43,3 +43,16 @@ def test_series_forecaster():
                      "prefill_tokens": {"interactive": np.array([80.0]), "background": np.array([0.0])}})
     snap = sf.forecast(10.0, [], np.random.default_rng(0))
     assert np.all(snap.samples["kv_blocks"]["interactive"] == 5.0)
+
+def test_series_forecaster_only_uses_realized_windows():
+    sf = SeriesForecaster(ConstantSeries(), horizons=[10.0, 100.0], n=4)
+    def truth(v):
+        return {"kv_blocks": {"interactive": np.array([v, v]), "background": np.array([0.0, 0.0])},
+                "prefill_tokens": {"interactive": np.array([v, v]), "background": np.array([0.0, 0.0])}}
+    sf.observe(0.0, truth(1.0))
+    sf.observe(50.0, truth(2.0))
+    s60 = sf.forecast(60.0, [], np.random.default_rng(0)).samples["kv_blocks"]["interactive"]
+    assert np.all(s60[0] == 2.0)   # h=10: window (50,60] realized
+    assert np.all(s60[1] == 0.0)   # h=100: no realized window yet
+    s100 = sf.forecast(100.0, [], np.random.default_rng(0)).samples["kv_blocks"]["interactive"]
+    assert np.all(s100[1] == 1.0)  # h=100: only the window (0,100] is realized
