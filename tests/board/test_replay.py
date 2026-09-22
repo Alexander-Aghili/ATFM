@@ -34,6 +34,19 @@ def test_demand_truth():
     assert d["endogenous_kv_blocks"]["interactive"].tolist() == [0, 20]
     assert d["prefill_tokens"]["interactive"].tolist() == [0, 320]
 
+def test_demand_truth_counts_first_call_per_session():
+    # session c hops three times inside the window: it must count once (KV required on resumption)
+    c = [TraceRow(session_id="c", cls="background", tenant="t", turn_index=i, t_request=20.0 + 5 * i,
+                  t_first_token=21.0 + 5 * i, t_last_token=22.0 + 5 * i, isl=160, osl=1,
+                  tool_name="bash" if i < 2 else None, t_tool_start=(22.0 + 5 * i) if i < 2 else None,
+                  t_tool_end=(25.0 + 5 * i) if i < 2 else None, source="test") for i in range(3)]
+    rep = FleetReplayer(TraceTable.from_rows(c))
+    d = rep.demand_truth(10.0, [30.0], block_size=16)
+    assert d["kv_blocks"]["background"].tolist() == [10]
+    assert d["prefill_tokens"]["background"].tolist() == [160]
+    d2 = rep.demand_truth(21.0, [30.0], block_size=16)   # active at t=21 -> endogenous, next call at 25
+    assert d2["endogenous_kv_blocks"]["background"].tolist() == [10] and d2["kv_blocks"]["background"].tolist() == [10]
+
 def test_one_shot_session_ends():
     t = TraceTable.from_rows([TraceRow(session_id="q", cls="interactive", tenant="t", turn_index=0, t_request=0.0,
                                        t_first_token=1.0, t_last_token=3.0, isl=16, osl=1, tool_name=None, source="test")])

@@ -95,6 +95,11 @@ class FleetReplayer:
         return None
 
     def demand_truth(self, t: float, horizons: list[float], block_size: int = 16) -> dict:
+        """KV blocks and prefill tokens required by sessions that (re)start an LLM call within each horizon.
+
+        Each session counts once per horizon, with its first call after t: this is the
+        "KV required on resumption" quantity from the plan, not the number of hops.
+        """
         H = len(horizons)
         classes = ("interactive", "background")
         kv = {c: np.zeros(H) for c in classes}
@@ -102,8 +107,13 @@ class FleetReplayer:
         endo = {c: np.zeros(H) for c in classes}
         lo = np.searchsorted(self._t_req_sorted, t, side="right")
         hi = np.searchsorted(self._t_req_sorted, t + max(horizons), side="right")
+        seen: set = set()
         for j in range(lo, hi):
-            tr, isl, c, sid = self._t_req_sorted[j], self._isl_sorted[j], self._cls_sorted[j], self._sid_sorted[j]
+            sid = self._sid_sorted[j]
+            if sid in seen:
+                continue
+            seen.add(sid)
+            tr, isl, c = self._t_req_sorted[j], self._isl_sorted[j], self._cls_sorted[j]
             blocks = math.ceil(isl / block_size)
             active = self._start[sid] <= t < self._end[sid]
             for k, h in enumerate(horizons):
