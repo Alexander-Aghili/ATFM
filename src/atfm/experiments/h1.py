@@ -46,9 +46,15 @@ def _tables(cfg: H1Config) -> tuple[TraceTable, TraceTable]:
     table = TraceTable.from_parquet(cfg.tracelab_parquet)
     train, test = split_by_time_blocks(table, cfg.block_seconds, cfg.test_fraction, cfg.seed)
     if cfg.overlay_rate_per_hour:
-        train = overlay_sessions(train, cfg.overlay_rate_per_hour, cfg.overlay_duration_s, cfg.seed + 1)
+        # Predictors fit on the real train sessions; only the test fleet is replayed as a Poisson overlay.
         test = overlay_sessions(test, cfg.overlay_rate_per_hour, cfg.overlay_duration_s, cfg.seed + 2)
     return train, test
+
+
+def _session_starts(df: pd.DataFrame) -> pd.DataFrame:
+    """Exogenous arrivals: first calls of root sessions. Children are endogenous (forecast via spawn)."""
+    root = df["parent_session_id"].isna()
+    return df[(df["turn_index"] == 0) & root][["t_request", "class"]].sort_values("t_request")
 
 
 def _build(cfg: H1Config, train: TraceTable) -> dict:
@@ -92,7 +98,7 @@ def run_h1(cfg: H1Config) -> pd.DataFrame:
     df = test.df
     ended = df[df["t_tool_end"].notna()][["t_tool_end", "backend_id", "tool_name", "t_tool_start"]].sort_values("t_tool_end")
     ended_t = ended["t_tool_end"].to_numpy(float)
-    starts = df[df["turn_index"] == 0][["t_request", "class"]].sort_values("t_request")
+    starts = _session_starts(df)
     starts_t = starts["t_request"].to_numpy(float)
     records = []
     series = {m: {"truth": [], "q90": []} for m in models}

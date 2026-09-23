@@ -28,12 +28,15 @@ class DurationModel:
         self._overhead: dict[str, float] = {}
         self._isl_delta: dict[str, np.ndarray] = {}
         self._spawn_rate: dict[str, float] = {}
+        self._llm: dict[str, np.ndarray] = {}  # per-class LLM call durations (t_last_token - t_request)
 
     def fit(self, train: TraceTable) -> "DurationModel":
-        durs, last, gaps, deltas, spawns = (defaultdict(list) for _ in range(5))
+        durs, last, gaps, deltas, spawns, llm = (defaultdict(list) for _ in range(6))
         for _, g in train.sessions():
             rows = g.to_dict("records")
             for i, r in enumerate(rows):
+                if not _isnan(r["t_last_token"]):
+                    llm[r["class"]].append(max(float(r["t_last_token"] - r["t_request"]), 1e-3))
                 tool = r["tool_name"]
                 if tool is None or _isnan(r["t_tool_start"]) or _isnan(r["t_tool_end"]):
                     continue
@@ -59,6 +62,7 @@ class DurationModel:
             self._overhead[tool] = float(np.median(gaps[tool])) if gaps[tool] else 0.0
             self._isl_delta[tool] = np.asarray(deltas[tool] or [0], int)
             self._spawn_rate[tool] = float(np.mean(spawns[tool]))
+        self._llm = {c: np.asarray(v) for c, v in llm.items()}
         if POOLED not in self.durations:
             self.durations[POOLED] = np.array([1.0])
             self.lognorm[POOLED] = (0.0, 0.5)
@@ -96,6 +100,12 @@ class DurationModel:
             out[filled:] = elapsed * rng.lognormal(0.0, 0.5, size=n - filled) + elapsed
         return out
 
+    def llm_duration(self, cls: str, n: int, rng: np.random.Generator) -> np.ndarray:
+        arr = self._llm.get(cls)
+        if arr is None or len(arr) == 0:
+            arr = np.concatenate(list(self._llm.values())) if self._llm else np.array([1.0])
+        return rng.choice(arr, size=n, replace=True)
+
     def mean(self, tool: str | None) -> float:
         return float(self.durations[self._key(tool)].mean())
 
@@ -127,9 +137,17 @@ class HistoryPredictor(SessionPredictor):
     def _draw_duration(self, s: SessionState, now: float, n: int, rng) -> np.ndarray:
         return self.dm.sample(s.tool_name, n, rng)
 
+    def _off_tool(self, s: SessionState, now: float, n: int, rng: np.random.Generator) -> np.ndarray:
+        """Sessions not running a tool: pending calls are due now; a decoding call is followed by an
+        unknown tool, so its next request comes after the remaining decode plus a pooled tool draw."""
+        if s.phase == "llm_running":
+            decode_left = np.maximum(self.dm.llm_duration(s.cls, n, rng) - s.elapsed(now), 0.0)
+            return decode_left + self.dm.sample(None, n, rng) + self.dm.overhead(None)
+        return np.zeros(n)
+
     def resumption(self, s: SessionState, now: float, n: int, rng: np.random.Generator) -> np.ndarray:
         if s.phase != "tool_running":
-            return np.zeros(n)
+            return self._off_tool(s, now, n, rng)
         d = self._draw_duration(s, now, n, rng)
         r = np.maximum(d - s.elapsed(now), 0.0) + self.dm.overhead(s.tool_name)
         p = self.dm.no_return_prob(s.tool_name)

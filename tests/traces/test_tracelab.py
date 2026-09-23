@@ -46,7 +46,8 @@ def test_error_and_spawn_flags():
     rounds = [_round(0, [_ev(T0, "user_message", "user.message"), _ev(T1, "tool_call", "assistant.content.tool_use")],
                      [_tool("Agent", T1, T5, 11000, err=True)])]
     r = rounds_to_rows(rounds)[0]
-    assert r.tool_exit_status == 1 and r.spawned_children == 1
+    # subagent calls are not separate sessions in TraceLab, so no child sessions are declared
+    assert r.tool_exit_status == 1 and r.spawned_children == 0
 
 def test_load_gz(tmp_path):
     p = tmp_path / "t.jsonl.gz"

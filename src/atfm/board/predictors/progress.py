@@ -49,8 +49,15 @@ class ProgressPredictor(SurvivalPredictor):
                 t_end = r["t_tool_end"]
                 if r["tool_name"] is None or not ev or t_end is None or (isinstance(t_end, float) and math.isnan(t_end)):
                     continue
-                last_t = max(e["t"] for e in ev)
+                last = max(ev, key=lambda e: e["t"])
+                last_t = float(last["t"])
                 resid = max(0.0, float(t_end) - last_t)
+                # Residual = end-phase time beyond what extrapolating the observed rate already covers.
+                total, done = last.get("total"), last.get("completed")
+                t_start = r["t_tool_start"]
+                if total and done and done > 0 and not (isinstance(t_start, float) and math.isnan(t_start)):
+                    extrapolated = (float(total) - float(done)) * (last_t - float(t_start)) / float(done)
+                    resid = max(0.0, resid - extrapolated)
                 res[r["tool_name"]].append(resid)
                 res[POOLED].append(resid)
         self._residual = {k: np.asarray(v) for k, v in res.items()}
@@ -83,7 +90,7 @@ class ProgressPredictor(SurvivalPredictor):
     def resumption(self, s: SessionState, now: float, n: int, rng: np.random.Generator, *,
                    factors: dict[str, np.ndarray] | None = None) -> np.ndarray:
         if s.phase != "tool_running":
-            return np.zeros(n)
+            return self._off_tool(s, now, n, rng)
         rem = self._remaining_from_progress(s, now, n, rng)
         if rem is None:
             d = self._draw_duration(s, now, n, rng)

@@ -55,3 +55,14 @@ def test_b2_vs_m1():
     assert np.all(m1.resumption(_state(0.0, phase="llm_pending"), 100.0, 5, rng) == 0.0)
     isl = m1.next_call_isl(s, 100, rng)
     assert isl.min() >= 110 and isl.dtype.kind == "i"
+
+def test_llm_running_forecasts_next_call_not_current():
+    # while the current call decodes, the next request comes after the remaining decode plus the next tool
+    m1 = SurvivalPredictor().fit(_train())   # LLM time 2 s per call, pooled tool durations 10..49 s
+    s = SessionState(session_id="x", cls="background", tenant="t", parent_session_id=None, phase="llm_running",
+                     turn_index=0, tool_name=None, backend_id=None, ctx_tokens=110, t_phase_start=100.0)
+    r = m1.resumption(s, 100.5, 2000, np.random.default_rng(0))
+    assert (r > 0).all() and 15.0 < np.median(r) < 50.0
+    pending = SessionState(session_id="y", cls="background", tenant="t", parent_session_id=None, phase="llm_pending",
+                           turn_index=0, ctx_tokens=110, t_phase_start=100.0)
+    assert np.all(m1.resumption(pending, 100.5, 5, np.random.default_rng(0)) == 0.0)

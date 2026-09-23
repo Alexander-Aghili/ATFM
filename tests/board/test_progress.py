@@ -55,3 +55,12 @@ def test_backend_factor_and_m3():
     shared = {"ci": np.full(5, 3.0)}
     r_shared = m3.resumption(s, 10.0, 5, np.random.default_rng(1), factors=shared)
     assert np.all(r_shared > 200.0)
+
+def test_m2_residual_not_double_counted():
+    # deterministic 100 s tools with progress every 10 s; observed at 55 s with 50% done -> ~45 s remain
+    m2 = ProgressPredictor().fit(_train())
+    s = SessionState(session_id="x", cls="background", tenant="t", parent_session_id=None, phase="tool_running",
+                     turn_index=0, tool_name="pytest", backend_id="ci", t_tool_start=0.0, ctx_tokens=110, t_phase_start=0.0,
+                     progress=[{"t": 10.0 * j, "completed": 10.0 * j, "total": 100, "phase": "run"} for j in range(1, 6)])
+    r = m2.resumption(s, 55.0, 4000, np.random.default_rng(0))
+    assert 40.0 < np.median(r) < 50.0

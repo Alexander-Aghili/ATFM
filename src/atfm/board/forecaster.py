@@ -71,9 +71,9 @@ class SessionForecaster:
     """Monte Carlo aggregate of per-session resumption draws, children and exogenous arrivals (spec 5.3)."""
 
     def __init__(self, predictor: SessionPredictor, exo: ExogenousModel, horizons: list[float], n: int = 512,
-                 block_size: int = 16, spawn_depth: int = 2):
+                 block_size: int = 16):
         self.predictor, self.exo, self.horizons, self.n = predictor, exo, list(horizons), n
-        self.block_size, self.spawn_depth = block_size, spawn_depth
+        self.block_size = block_size
 
     def forecast(self, t: float, states: list[SessionState], rng: np.random.Generator) -> ForecastSnapshot:
         H, n = len(self.horizons), self.n
@@ -93,7 +93,7 @@ class SessionForecaster:
             samples["kv_blocks"][s.cls] += due * kv[None, :]
             samples["prefill_tokens"][s.cls] += due * isl[None, :]
             endo[s.cls] += due * kv[None, :]
-            self._children(s, R, samples, rng, depth=1)
+            self._children(s, R, samples, rng)
         for c in CLASSES:
             for k, h in enumerate(self.horizons):
                 kv, pf = self.exo.draw(c, h, n, rng)
@@ -107,9 +107,8 @@ class SessionForecaster:
         return ForecastSnapshot(t=t, horizons=self.horizons, model_id=self.predictor.name,
                                 samples=samples, endogenous_fraction=endo_frac)
 
-    def _children(self, s: SessionState, R: np.ndarray, samples, rng, depth: int) -> None:
-        if depth > self.spawn_depth:
-            return
+    def _children(self, s: SessionState, R: np.ndarray, samples, rng) -> None:
+        """One level of fan-out: children spawned by this session's next turn, each with a first call."""
         hmax = self.horizons[-1]
         k = self.predictor.spawn(s, hmax, len(R), rng)
         if not k.any():

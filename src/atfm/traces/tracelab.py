@@ -8,7 +8,6 @@ from pathlib import Path
 
 from atfm.schema.trace import TraceRow, TraceTable
 
-SPAWN_TOOLS = {"Agent", "Task"}
 THINK = "__think__"
 
 
@@ -46,7 +45,9 @@ def _round_to_row(rec: dict, turn_index: int, next_t_request: float | None) -> T
             t_end = t_start
         exit_status = 1 if any(t.get("is_error") for t in tools) else 0
         backend = "local"
-        spawned = sum(1 for t in tools if t["tool_name"] in SPAWN_TOOLS)
+        # Subagent calls (Agent/Task) run inside the parent's session in TraceLab; no separate child
+        # sessions exist, so spawned_children stays 0 (otherwise the forecaster adds phantom children).
+        spawned = 0
     elif next_t_request is not None:
         tool_name = THINK
         t_start = t_last if t_last is not None else t_request
