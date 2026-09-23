@@ -60,3 +60,14 @@ def test_minisweagent_classes_importable_or_skipped():
     env = SidecarLocalEnvironment(sidecar=SidecarConfig(session_id="l1", bus=InMemoryBus()))
     out = env.execute({"command": "echo local"}, cwd="/tmp")
     assert out["output"] == "local\n" and out["returncode"] == 0
+
+def test_mixin_host_cwd_separate_from_container_cwd_and_failure_is_a_result():
+    bus = InMemoryBus()
+    env = _Env(SidecarConfig(session_id="d1", cls="interactive", bus=bus))
+    # container cwd "/w" does not exist on the host; with host_cwd=None the tool still runs
+    out = env.sidecar_execute("echo ok", cwd="/w", timeout=5, argv_builder=lambda c: ["bash", "-lc", c], host_cwd=None)
+    assert out["returncode"] == 0 and out["output"] == "ok\n"
+    # a launch failure becomes a -1 result with exception_info, never an exception
+    out = env.sidecar_execute("echo ok", cwd="/nonexistent-atfm-dir", timeout=5, argv_builder=lambda c: ["bash", "-lc", c])
+    assert out["returncode"] == -1 and "No such file" in out["exception_info"]
+    assert [e.kind for e in bus.drain()][-1] == "tool.end"

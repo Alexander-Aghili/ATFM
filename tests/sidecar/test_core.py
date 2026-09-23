@@ -35,3 +35,11 @@ def test_parser_exception_does_not_break_tool():
     bus = InMemoryBus()
     res = run_tool("echo hello", CTX, bus, parsers=[Bad()])
     assert res.returncode == 0 and res.output == b"hello\n"
+
+def test_launch_failure_emits_tool_end_and_raises():
+    import pytest
+    bus = InMemoryBus()
+    with pytest.raises(OSError):
+        run_tool(["bash", "-lc", "echo x"], CTX, bus, shell=False, cwd="/nonexistent-atfm-dir")
+    kinds = [(e.kind, getattr(e, "exit_status", None)) for e in bus.drain()]
+    assert kinds == [("tool.start", None), ("tool.end", -1)]

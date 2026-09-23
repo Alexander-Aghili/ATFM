@@ -47,8 +47,12 @@ class SidecarMixin:
 
     sidecar: SidecarConfig
 
-    def sidecar_execute(self, command: str, cwd: str, timeout: float | None, argv_builder) -> dict:
+    def sidecar_execute(self, command: str, cwd: str, timeout: float | None, argv_builder, host_cwd: str | None = "") -> dict:
+        """`cwd` is the tool's working directory as the harness understands it (inside the container for
+        Docker); `host_cwd` is where the launching subprocess runs on this host (default: same as cwd)."""
         cfg = self.sidecar
+        if host_cwd == "":
+            host_cwd = cwd
         tool = classify_tool(command)
         if cfg.deferrable:
             allowed = gate_allowed_at(cfg.gate_url, cfg.session_id, "tool")
@@ -59,8 +63,14 @@ class SidecarMixin:
         ctx = ToolContext(session_id=cfg.session_id, turn_index=cfg.turn_index, tool_name=tool,
                           backend_id=cfg.backend_for(tool))
         cfg.turn_index += 1
-        res = run_tool(argv_builder(command), ctx, cfg.bus, cwd=cwd or None, timeout=timeout, shell=False,
-                       clock=cfg.clock)
+        try:
+            res = run_tool(argv_builder(command), ctx, cfg.bus, cwd=host_cwd or None, timeout=timeout, shell=False,
+                           clock=cfg.clock)
+        except OSError as e:
+            output = {"output": "", "returncode": -1,
+                      "exception_info": f"An error occurred while executing the command: {e}"}
+            self._check_finished(output)
+            return output
         output = {"output": res.output.decode("utf-8", errors="replace"), "returncode": res.returncode,
                   "exception_info": "" if not res.timed_out else f"timeout after {timeout}s"}
         self._check_finished(output)
@@ -105,7 +115,7 @@ if LocalEnvironment is not None:
                         cmd.extend(["-e", f"{key}={value}"])
                 return cmd + [self.container_id, "bash", "-lc", c]
 
-            return self.sidecar_execute(command, cwd, timeout or self.config.timeout, argv)
+            return self.sidecar_execute(command, cwd, timeout or self.config.timeout, argv, host_cwd=None)
 
 else:
 

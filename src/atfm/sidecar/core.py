@@ -69,8 +69,13 @@ def run_tool(cmd, ctx: ToolContext, bus, *, cwd=None, env=None, timeout: float |
     t_start = clock()
     _safe_publish(bus, ToolStart(t=t_start, session_id=ctx.session_id, turn_index=ctx.turn_index, call_id=call_id,
                                  tool_name=ctx.tool_name, backend_id=ctx.backend_id, args_hash=ctx.args_hash))
-    proc = subprocess.Popen(cmd, cwd=cwd, env=env, shell=shell, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                            start_new_session=True)
+    try:
+        proc = subprocess.Popen(cmd, cwd=cwd, env=env, shell=shell, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                start_new_session=True)
+    except OSError:
+        # The tool never launched: still close the state path so the board sees the phase end.
+        _safe_publish(bus, ToolEnd(t=clock(), session_id=ctx.session_id, call_id=call_id, exit_status=-1, output_chars=0))
+        raise
     assert proc.stdout is not None
     q: _queue.Queue = _queue.Queue()
 
