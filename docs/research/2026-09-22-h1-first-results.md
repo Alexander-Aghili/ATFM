@@ -1,7 +1,14 @@
-# H1 first results: forecast skill of the predictor ladder (2026-09-22)
+# H1 first results: forecast skill of the predictor ladder (2026-09-22, revised 2026-09-23)
 
 Runs: `uv run python scripts/run_h1.py experiments/<config>.yaml`, outputs under `runs/<name>/`.
-Metric shown: mean pinball loss at q90 of forecast KV blocks per horizon (lower is better; under-forecasts are penalised 9x over-forecasts, matching capacity decisions). Ground truth per tick: KV blocks required by every session that (re)starts an LLM call within the horizon, counted once per session (detail.md 3.2). History baselines B0/B1 only see windows that have fully elapsed (no future leak).
+
+**How to read every number below.** Hypothesis H1a (demand board: in-flight session state versus history) is what these runs test. H1b (sidecar progress beyond elapsed time) is only testable on long-tool workloads with progress events; TraceLab has none, so M2 equals M1 there by construction and the synthetic fleet is the only H1b evidence so far. Nothing here is a controller result (H2).
+
+- Metric: mean pinball loss of the forecast's 90th percentile (q90) of KV blocks demanded within the horizon, averaged over ticks. Lower is better. Under-forecasts cost 9x over-forecasts, matching capacity decisions. "x times better" always means the ratio of these losses at the stated horizon.
+- Ground truth per tick: KV blocks (`ceil(isl / 16)`) required by every session that (re)starts an LLM call within the horizon, counted once per session (detail.md 3.2); exogenous new sessions included.
+- Horizons: 10 s, 30 s, 2 min, 5 min, 15 min. Tick: 30 s. Monte Carlo samples: 256.
+- Split: TraceLab sessions are assigned to calendar weeks; 30% of weeks are held out (seed 0), predictors are fitted on the remaining weeks' real sessions, and the held-out sessions are replayed as a Poisson fleet at 200 sessions/hour for 4 hours. Synthetic train and test are independent seeds of the same workload spec.
+- History baselines B0/B1 only see demand windows that have fully elapsed (no future leak).
 
 ## Synthetic mixed fleet (`experiments/h1_synthetic.yaml`, run `h1_synth_mixed`)
 

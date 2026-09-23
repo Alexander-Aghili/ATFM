@@ -91,7 +91,7 @@ td.k{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
 <header>
   <h1>ATFM Architecture</h1>
   <p class="sub">Air-traffic-style flow management for agent fleets on a shared NVIDIA Dynamo GPU pool: forecast demand from in-flight sessions, order calls by class, delay deferrable work on the ground.</p>
-  <div class="meta">Design v1 · 2026-09-22 · source: docs/superpowers/specs/2026-09-22-atfm-architecture-design.md</div>
+  <div class="meta">Design v1.1 · revised 2026-09-23 after external review · source: docs/superpowers/specs/2026-09-22-atfm-architecture-design.md</div>
 </header>
 
 <h2 id="decisions">Decisions this design commits to</h2>
@@ -99,9 +99,9 @@ td.k{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
 <div class="tablewrap"><table>
 <thead><tr><th>#</th><th>Decision</th><th>Chosen</th><th>Rejected</th><th>Why</th></tr></thead>
 <tbody>
-<tr><td class="k">D1</td><td>Where the class-aware queue lives</td><td>Hybrid: a hold queue in the harness proxy above Dynamo, with the index rank written into <code>nvext.agent_hints.priority</code> so the router and engine keep the proxy's order for everything released</td><td>Rust <code>request_classifier</code> plugin in the router; engine-only priority</td><td>Only the proxy sees a session before its next LLM call exists. Ground delay and spawn gating are impossible below it. Pure Python, testable against Mocker on a laptop.</td></tr>
+<tr><td class="k">D1</td><td>Where the class-aware queue lives</td><td>Hybrid: a hold queue in the harness proxy above Dynamo with a <b>global</b> admission window, and a stable priority <b>tier</b> (not a rank) written into <code>nvext.agent_hints</code> so the router and engine keep class order for everything released</td><td>Rust <code>request_classifier</code> plugin in the router; engine-only priority; proxy-side worker selection via the KvRouter bindings (a separate integration project)</td><td>Only the proxy sees a session before its next LLM call exists. A per-worker window cannot be enforced above the router because the proxy does not know which worker Dynamo will pick.</td></tr>
 <tr><td class="k">D2</td><td>Simulation strategy</td><td>Own discrete-event fleet simulator with pluggable policies, validated against Mocker (CPU) and paired real-GPU cells</td><td>DynoSim alone</td><td>DynoSim runs on a virtual clock the real-time proxy cannot join. We need thousands of policy configurations and a controllable tool-duration tail. DynoSim remains the router and engine fidelity check.</td></tr>
-<tr><td class="k">D3</td><td>KV tiering mechanism</td><td>Engine-native tiers through adapters: vLLM CPU offload, SGLang HiCache with TTL pinning, LMCache or KVCR later</td><td>KVBM</td><td>KVBM is deprecated in Dynamo v1.5.0 and removed in v1.6.0.</td></tr>
+<tr><td class="k">D3</td><td>KV tiering mechanism</td><td><b>Future work.</b> No shipped API pins, demotes or promotes one paused session today. v1 measures the KV side effects of holding on the real backend</td><td>KVBM; treating experimental pin APIs as dependencies</td><td>A design that depends on an unshipped API cannot be evaluated.</td></tr>
 <tr><td class="k">D4</td><td>Trace format</td><td>One canonical event schema with adapters in (TraceLab, AgentX, sidecar logs) and out (DynoSim agentic Mooncake, AIPerf)</td><td>Per-source formats</td><td>Every experiment, real or simulated, reads the same rows.</td></tr>
 <tr><td class="k">D5</td><td>Forecast representation</td><td>Monte Carlo samples of fleet demand per horizon with a shared latent backend factor</td><td>Closed-form moments</td><td>Fan-out, correlated slowdowns and heavy tails make moments misleading. Samples feed CRPS, pinball loss and chance constraints directly.</td></tr>
 <tr><td class="k">D6</td><td>Predictor interface</td><td>Every rung B0 to M3 implements one interface: session state in, distribution over time-to-next-call and call size out</td><td>Separate code paths per model</td><td>Gains are attributable only if rungs differ by information used, not by code.</td></tr>
@@ -109,6 +109,8 @@ td.k{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
 <tr><td class="k">D8</td><td>Hardware</td><td>Laptop simulation and functional tests, then 1×H100, then 2×H100 with Mocker padding</td><td>8×H100 nodes, two-node runs</td><td>The literature demonstrates on 1 to 4 GPUs.</td></tr>
 <tr><td class="k">D9</td><td>Sidecar contract</td><td>Result path untouched; separate state path emits progress and data events; fail-open</td><td>Modifying tool output; blocking on the bus</td><td>Agents must see identical tool results with and without the sidecar.</td></tr>
 <tr><td class="k">D10</td><td>Control-loop safety</td><td>Every controller fails open: default hints if the board is down, hard caps on holds, advisory pre-staging</td><td>Fail-closed</td><td>A forecasting bug must never stall a fleet.</td></tr>
+<tr><td class="k">D11</td><td>Central claim</td><td>Three separable hypotheses. <b>H1a</b> demand board: in-flight session state forecasts fleet demand at 30 s to 15 min better than history (evidence exists). <b>H1b</b> sidecar: live tool progress improves on elapsed time, testable only on long-tool workloads. <b>H2</b> controller: admission on those forecasts lowers interactive latency after tool return or GPU cost at a stated background delay budget, beyond native Dynamo priority and ThunderAgent</td><td>One combined claim</td><td>A null M2 minus M1 on sub-second tools says nothing about the sidecar; a forecast gain says nothing about a controller until a closed-loop run shows it.</td></tr>
+<tr><td class="k">D12</td><td>What counts as a policy result</td><td>Closed-loop runs only: the simulator generating sessions that react to reply times, or live agents on hardware. Trace replay scores forecasts and calibrates the simulator</td><td>Policy sweeps on replayed traces</td><td>A policy changes when agents get replies, which changes what they launch next; a fixed replay cannot see that feedback.</td></tr>
 </tbody></table></div>
 
 <h2 id="context">System context: what talks to what</h2>
@@ -266,7 +268,7 @@ td.k{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
 </figure>
 
 <h2 id="queue">Where the queue lives, and why a window is needed</h2>
-<p>Ordering only sticks at the layer that holds the backlog. If the proxy forwards everything immediately, the backlog forms inside the engine and the engine's policy decides. The proxy therefore keeps at most a fixed window of requests in flight per worker and orders the rest itself. The index rank is written into the priority hint so that any backlog that still forms below keeps the same order.</p>
+<p>Ordering only sticks at the layer that holds the backlog. If the proxy forwards everything immediately, the backlog forms inside the engine and the engine's policy decides. The proxy therefore keeps at most a fixed <b>global</b> window of requests in flight across the pool and orders the rest itself. A per-worker window is not enforceable here: Dynamo picks the worker after the proxy releases the request, and owning selection means owning reservations, forwarding, streaming and cleanup too. The class tier is written into the priority hint so that any backlog that still forms below keeps class order.</p>
 
 <figure>
 <div class="diag">
@@ -305,7 +307,7 @@ td.k{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
 <text x="805" y="98" text-anchor="middle" font-size="11">int int bg bg bg bg …</text>
 <text x="805" y="118" text-anchor="middle" font-size="11">held: deferrable bg (GDP)</text>
 <text x="805" y="140" text-anchor="middle" font-size="11" fill="var(--hold)">backlog here, by design</text>
-<text x="805" y="156" text-anchor="middle" font-size="11" fill="var(--hold)">releases ≤ W per worker</text>
+<text x="805" y="156" text-anchor="middle" font-size="11" fill="var(--hold)">releases ≤ W in flight (global)</text>
 <rect x="930" y="50" width="120" height="44" rx="4" fill="var(--surface)" stroke="currentColor"/>
 <text x="990" y="77" text-anchor="middle">router</text>
 <rect x="930" y="130" width="120" height="70" rx="4" fill="var(--kv-soft)" stroke="var(--kv)"/>
@@ -314,26 +316,29 @@ td.k{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
 <text x="990" y="186" text-anchor="middle" font-size="11">priority preempts</text>
 <line x1="680" y1="72" x2="718" y2="72" stroke="currentColor" marker-end="url(#ar3)"/>
 <line x1="890" y1="72" x2="928" y2="72" stroke="currentColor" marker-end="url(#ar3)"/>
-<text x="909" y="62" text-anchor="middle" font-size="10" fill="var(--hold)">priority=rank</text>
+<text x="909" y="62" text-anchor="middle" font-size="10" fill="var(--hold)">tier + bucket</text>
 <line x1="990" y1="94" x2="990" y2="128" stroke="currentColor" marker-end="url(#ar3)"/>
 <path d="M990 200 L990 240 L805 240 L805 172" fill="none" stroke="var(--fcast)" stroke-dasharray="4 3" marker-end="url(#ar3)"/>
-<text x="900" y="256" text-anchor="middle" font-size="11" fill="var(--fcast)">worker.metrics → window W_k</text>
+<text x="900" y="256" text-anchor="middle" font-size="11" fill="var(--fcast)">worker.metrics → window W</text>
 <text x="570" y="290" font-size="11" fill="var(--muted)">W too small starves the GPU; W too large leaks ordering to the engine.</text>
-<text x="570" y="306" font-size="11" fill="var(--muted)">Default W_k = max batch + slack, from metrics; swept in the simulator.</text>
+<text x="570" y="306" font-size="11" fill="var(--muted)">Default W = sum of batch capacities + slack; swept in the simulator.</text>
 </svg>
 </div>
-<figcaption><b>The window is the whole trick.</b> Option A gives the proxy visibility without authority. Option B moves the backlog up to where the sidecar signal, the deadline and the forecast are visible, and uses Dynamo's own priority mechanism to keep the order below. A Rust plugin in the router would still only see calls that already arrived.</figcaption>
+<figcaption><b>The window is the whole trick.</b> Option A gives the proxy visibility without authority. Option B moves the backlog up to where the sidecar signal, the deadline and the forecast are visible, and uses Dynamo's own priority mechanism to keep class order below. Dynamo guarantees ordering only among requests waiting in one router queue plus engine-level priority; it does not preempt work admitted at the router, so the window must keep the backlog below small. The L2 study verifies contention actually forms at the proxy queue.</figcaption>
 </figure>
 
-<h3>The index</h3>
-<pre>π_i = w(class_i) · (1 + β · E[T_tool_next,i]) / E[S_i]
+<h3>The index, its objective, and what goes into the hint</h3>
+<pre>objective   minimize Σ w(class_i)·C_i + λ_int·(interactive SLO misses on TTFT after tool return)
+                     + λ_bg·(background deadline misses)     s.t. per-class delay budgets
 
-w(class)          large for interactive, small for background
-E[S_i]            predicted LLM service time for this call (ISL, predicted OSL, batch state)
-E[T_tool_next,i]  predicted duration of the tool this turn will launch (per-tool model, transition history)
-β                 weight on the unblocking bonus
-slack override    if deadline_i − now − E[S_i] &lt; threshold → strict tier above all background
-priority hint     rank position in the hold queue, scaled to 0..1000; strict_priority=1 for slack overrides</pre>
+π_i = w(class_i) · (1 + β · E[T_tool_next,i]) / E[S_i]
+
+w / E[S]          c-mu rule: optimal for weighted completion time on one server with known sizes
+E[T_tool_next,i]  unblocking term: a critical-path heuristic, always ablated with β = 0
+slack override    if deadline_i − now − E[S_i] &lt; threshold → top tier
+hint              strict_priority ∈ {2 slack, 1 interactive, 0 background}; priority = coarse bucket of π
+                  tiers are class and deadline facts, so a released request's hint never goes stale;
+                  fine ordering is recomputed inside the proxy on every arrival</pre>
 
 <h2 id="board">Demand board: from per-session posteriors to a fleet forecast</h2>
 <p>Each session in <code>TOOL_RUNNING</code> gets a distribution over when it will next need the GPU and how much. Draws from all sessions are summed, children are spawned recursively, and exogenous arrivals are added. The output is a set of samples per horizon, never a point estimate.</p>
@@ -415,8 +420,8 @@ priority hint     rank position in the hold queue, scaled to 0..1000; strict_pri
 <h3>What M2 does with a progress stream</h3>
 <p>For a tool reporting completed work <span class="num">w</span> of total <span class="num">W</span>, the board keeps a Gamma posterior over the work rate updated by each (Δw, Δt) increment, and a small phase model for tools whose end phase reports nothing (teardown, upload). Remaining time is <code>(W − w)/r</code> drawn from the posterior plus the end-phase residual. Data events (loss curves, failing test counts) update an early-stop probability that truncates the distribution. When no progress events arrive, M2 is exactly M1.</p>
 
-<h2 id="gdp">Ground delay: holding background work before it lands</h2>
-<p>Every 30 s the ground delay program looks 15 minutes ahead in 30-second slots. Interactive demand is a random variable per slot from the forecast samples. Deferrable background sessions with a forecast natural resumption slot are assigned a release slot such that the chance of overflow stays below ε in every slot, in ration-by-schedule order.</p>
+<h2 id="gdp">Ground delay: holding background work, at a stated cost</h2>
+<p>Holding a deferrable call in the proxy trades background completion time for interactive latency. It is a cost, charged against a per-class delay budget, not a free action. The proxy can only act on a request that has arrived: while a tool runs, the program plans provisionally, and the decision is made at arrival. Delaying earlier than that needs the separate launch gate in the sidecar. Every 30 s the program looks 15 minutes ahead in 30-second slots, with interactive demand per slot as a random variable from the forecast samples for both KV blocks and prefill tokens per second, and assigns deferrable sessions provisional release slots so the overflow chance stays below ε per slot and per resource, in ration-by-schedule order.</p>
 
 <figure>
 <div class="diag">
@@ -463,11 +468,11 @@ priority hint     rank position in the hold queue, scaled to 0..1000; strict_pri
 <text x="70" y="318" font-size="11" fill="var(--muted)">minimize Σ c_i (τ − τ⁰_i)⁺   s.t.  P(I_τ + Σ K_i x_iτ ≤ C_τ) ≥ 1−ε  on the forecast samples; hard cap 10 min; per-tenant max delay tracked</text>
 </svg>
 </div>
-<figcaption><b>Delay is absorbed before departure.</b> Sessions s7, s9 and s12 would naturally resume into the surge, where the q90 interactive band plus their KV exceeds capacity. They are held in the proxy and released in their original order once the band recedes. v1 solves this greedily in ration-by-schedule order on the samples, which is exact for that fairness rule; an MILP sits behind the same interface later.</figcaption>
+<figcaption><b>A provisional plan, enforced at arrival.</b> Sessions s7, s9 and s12 are forecast to resume into the surge, where the q90 interactive band plus their KV exceeds capacity. When each one's call actually arrives at the proxy it is held and released in original order once the band recedes. v1 solves the plan greedily in ration-by-schedule order on the samples; this is a heuristic with the fairness property, not an optimum, and per-slot constraints do not bound overflow across the horizon (union bound: 30ε), so the realized overflow rate is reported.</figcaption>
 </figure>
 
-<h2 id="tiers">Memory tiers: promote and demote on the resumption distribution</h2>
-<p>The same per-session distribution decides where a paused session's KV should live. Sessions likely to resume within the hot threshold stay in HBM with a TTL pin. Sessions unlikely to resume for a long time are demoted. A promotion, or a speculative prefill, is issued when the lower quantile of the remaining time falls inside the tier's transfer lead time.</p>
+<h2 id="tiers">Memory tiers: future work, and what v1 measures instead</h2>
+<p>The same per-session distribution would decide where a paused session's KV should live: keep and pin when likely to resume soon, demote when not, promote or speculatively prefill when the lower quantile of the remaining time falls inside the tier's lead time. No shipped API implements that placement for one session today, so this is deferred until a mechanism is demonstrated end to end. What v1 measures on the real backend is the cost of holding: a held session's prefix stays in the engine's cache subject to its eviction policy, so the cost is cache occupancy while held, evictions of other prefixes it causes, recomputed prefill when it resumes, and the background delay itself.</p>
 
 <figure>
 <div class="diag">
@@ -507,7 +512,7 @@ priority hint     rank position in the hold queue, scaled to 0..1000; strict_pri
 <text x="40" y="286" font-size="11" fill="var(--muted)">thresholds T_hot, T_cold and lead times are measured at L2 and swept in the simulator; the simulator and the real run log identical TierDirectives</text>
 </svg>
 </div>
-<figcaption><b>Ground holding applied to memory.</b> The controller is advisory: the engine owns eviction, and where a mechanism is missing the directive is logged so simulated and real runs stay comparable. Pre-staging is policy P5 in the plan.</figcaption>
+<figcaption><b>Ground holding applied to memory, when a mechanism exists.</b> Until then the controller only logs the directive it would have issued, so simulated and real runs stay comparable, and the four hold costs above are reported with every policy result.</figcaption>
 </figure>
 
 <h2 id="sidecar">Sidecar: two paths out of every tool call</h2>
@@ -572,7 +577,7 @@ priority hint     rank position in the hold queue, scaled to 0..1000; strict_pri
 <tbody>
 <tr><td class="k">L0</td><td>Laptop simulation: board, ladder, own DES, DynoSim cross-check</td><td class="num">$0</td><td>H1 forecast skill on TraceLab and synthetic fleets; regime map of where prediction beats observation; policy sweeps and oracle bounds</td></tr>
 <tr><td class="k">L1</td><td>Laptop functional: real agents, sidecar, proxy, Mocker workers, tiny or hosted LLM</td><td class="num">$0 GPU</td><td>End-to-end plumbing, signal coverage, real tool-progress traces (tools run on CPU regardless)</td></tr>
-<tr><td class="k">L2</td><td>1×H100, 20 to 80 hours</td><td class="num">$100–300</td><td>Priority and preemption verification, HiCache pinning, simulator calibration, single-worker H2</td></tr>
+<tr><td class="k">L2</td><td>1×H100, 20 to 80 hours</td><td class="num">$100–300</td><td>The factored closed-loop serving experiment, one backend and one model, proxy admission only: native Dynamo tuned, proxy with class and deadline rules, proxy with elapsed-time forecast (M1), proxy with sidecar forecast (M2), oracle; ThunderAgent where operable; both short-tool and long-tool regimes; hold costs measured (H2)</td></tr>
 <tr><td class="k">L3</td><td>2×H100, 100 to 300 GPU-hours</td><td class="num">$500–2k</td><td>Headline H2 and H3 with real tiers; surge, release wave and capacity-loss scenarios; Continuum, InferCept, ThunderAgent baselines</td></tr>
 <tr><td class="k">L4</td><td>2×H100 real workers + N Mocker workers</td><td class="num">same hours</td><td>Fleet-scale routing and replica floor with emulated load</td></tr>
 <tr><td class="k">L5</td><td>8×H100, optional</td><td class="num">$1–2k</td><td>70B+ config or MLPerf Agentic number, only if a reviewer needs it</td></tr>
@@ -594,11 +599,11 @@ priority hint     rank position in the hold queue, scaled to 0..1000; strict_pri
     eval/      forecast metrics, serving metrics, paired bootstrap, reports
   tests/  scripts/  experiments/  docs/</pre>
 <ol>
-<li><b>L0 core.</b> Schema, TraceLab adapter, synthetic generator, predictors B0/B2/M1/M2, forecaster, forecast metrics. First result: H1 on TraceLab and on synthetic fleets with the regime map.</li>
-<li><b>L0 policies.</b> Simulator with P0, P1, P3, P4 and oracle variants; serving metrics; sweeps over β, class weights, slack, window.</li>
-<li><b>L1 plumbing.</b> Proxy with hold queue and hints against Mocker; sidecar for mini-swe-agent with the pytest parser; bus; coverage report.</li>
-<li><b>L2.</b> Dynamo adapters on one H100; simulator calibration; Continuum baseline via HiCache pinning.</li>
-<li><b>L3 and L4.</b> Pre-staging, ground delay on hardware, planner plugin with the virtual connector, headline scenarios.</li>
+<li><b>L0 core (done).</b> Schema, TraceLab adapter, synthetic generator, predictors B0 to M3, forecaster, forecast metrics, H1 runner. H1a evidence: elapsed-time conditioning beats the Kalman baseline on held-out TraceLab weeks by 1.9x at 2 min and 3.4x at 15 min on q90 pinball loss.</li>
+<li><b>L1.</b> Sidecar for mini-SWE-agent with pytest and build parsers, launch gate, bus, proxy with global window and tiered hints against Mocker; real long-tool traces collected on the laptop; progress-signal coverage and an honest M2-versus-M1 result (H1b).</li>
+<li><b>L0 policies.</b> Closed-loop simulator with the five arms and the β ablation.</li>
+<li><b>L2.</b> The factored serving experiment on one H100 (H2), both regimes, hold costs measured.</li>
+<li><b>Later, only if H2 holds.</b> Tier placement with a demonstrated mechanism, replica floor with the virtual connector, two-worker scenarios.</li>
 </ol>
 <div class="callout"><p>Safety rule that spans every component: <b>fail open</b>. Board unreachable for 50 ms, forward with default hints. Hold queue over its cap, forward FCFS and alarm. Sidecar parser throws, drop the line. Directive without a fresh snapshot, expire. A forecasting bug must never stall a fleet.</p></div>
 </main>
