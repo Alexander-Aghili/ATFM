@@ -20,8 +20,9 @@ from atfm.traces.transform import overlay_sessions, split_by_time_blocks
 
 class H1Config(BaseModel):
     name: str
-    source: Literal["tracelab", "synthetic"]
+    source: Literal["tracelab", "synthetic", "sidecar"]
     tracelab_parquet: str | None = None
+    sidecar_events: str | None = None
     synthetic: WorkloadSpec | None = None
     overlay_rate_per_hour: float | None = None
     overlay_duration_s: float = 4 * 3600.0
@@ -42,6 +43,12 @@ def _tables(cfg: H1Config) -> tuple[TraceTable, TraceTable]:
         train = generate(cfg.synthetic.model_copy(update={"seed": cfg.synthetic.seed + 1000}))
         test = generate(cfg.synthetic)
         return train, test
+    if cfg.source == "sidecar":
+        from atfm.bus import read_events
+        from atfm.traces.sidecar import events_to_trace_table
+        assert cfg.sidecar_events is not None
+        table = events_to_trace_table(read_events(cfg.sidecar_events))
+        return split_by_time_blocks(table, cfg.block_seconds, cfg.test_fraction, cfg.seed)
     assert cfg.tracelab_parquet is not None
     table = TraceTable.from_parquet(cfg.tracelab_parquet)
     train, test = split_by_time_blocks(table, cfg.block_seconds, cfg.test_fraction, cfg.seed)
@@ -93,7 +100,12 @@ def run_h1(cfg: H1Config) -> pd.DataFrame:
     models = _build(cfg, train)
     rep = FleetReplayer(test)
     t_min, t_max = test.time_range()
-    window = cfg.synthetic.duration_s if cfg.source == "synthetic" and cfg.synthetic else cfg.overlay_duration_s
+    if cfg.source == "synthetic" and cfg.synthetic:
+        window = cfg.synthetic.duration_s
+    elif cfg.source == "sidecar":
+        window = t_max - t_min  # the collection is already a fleet; score its whole span
+    else:
+        window = cfg.overlay_duration_s
     ticks = _ticks(t_min, t_max, window, cfg.horizons, cfg.tick_s)
     df = test.df
     ended = df[df["t_tool_end"].notna()][["t_tool_end", "backend_id", "tool_name", "t_tool_start"]].sort_values("t_tool_end")
