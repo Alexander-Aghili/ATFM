@@ -97,6 +97,10 @@ def _perturbed_at(cfg: H1Config, t: float) -> bool:
 def run_h1(cfg: H1Config) -> pd.DataFrame:
     rng = np.random.default_rng(cfg.seed)
     train, test = _tables(cfg)
+    if len(train) == 0:
+        raise ValueError("train split is empty: use smaller block_seconds or a lower test_fraction for this table")
+    if len(test) == 0:
+        raise ValueError("test split is empty: use a higher test_fraction or more data")
     models = _build(cfg, train)
     rep = FleetReplayer(test)
     t_min, t_max = test.time_range()
@@ -107,6 +111,9 @@ def run_h1(cfg: H1Config) -> pd.DataFrame:
     else:
         window = cfg.overlay_duration_s
     ticks = _ticks(t_min, t_max, window, cfg.horizons, cfg.tick_s)
+    if len(ticks) == 0:
+        raise ValueError(f"test span ({min(t_max - t_min, window):.0f} s) is shorter than the longest horizon "
+                         f"({max(cfg.horizons):.0f} s): no tick can be scored; shorten the horizons or collect more")
     df = test.df
     ended = df[df["t_tool_end"].notna()][["t_tool_end", "backend_id", "tool_name", "t_tool_start"]].sort_values("t_tool_end")
     ended_t = ended["t_tool_end"].to_numpy(float)

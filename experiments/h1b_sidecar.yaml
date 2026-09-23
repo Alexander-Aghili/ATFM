@@ -1,10 +1,10 @@
 name: h1b_sidecar_l1
 source: sidecar
 sidecar_events: runs/collect/l1_events.jsonl
-block_seconds: 600
+block_seconds: 120
 test_fraction: 0.5
 tick_s: 10
-horizons: [10, 30, 120, 300]
+horizons: [10, 30, 60]
 n_samples: 256
 models: [B0, B1, B2, M1, M2]
 seed: 0
