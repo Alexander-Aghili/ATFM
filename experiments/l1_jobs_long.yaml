@@ -1,0 +1,46 @@
+# Long-tool regime: minutes-long tools with strong progress signals (H1b needs these).
+proxy_url: null
+model: Qwen/Qwen3-0.6B
+events_path: runs/collect/l1_events.jsonl
+concurrency: 2
+jobs:
+  - name: pytest-numpy
+    class: background
+    tenant: t1
+    image: python:3.12-slim
+    repeat: 2
+    timeout_s: 3600
+    setup:
+      - "pip install -q numpy pytest hypothesis typing_extensions >/dev/null 2>&1"
+    turns:
+      - {cmd: "python -m pytest --pyargs numpy -v -p no:cacheprovider -x --deselect numpy/f2py 2>/dev/null | cat"}
+  - name: build-fmt
+    class: background
+    tenant: t2
+    image: gcc:13
+    repeat: 2
+    timeout_s: 3600
+    setup:
+      - "apt-get update -qq >/dev/null && apt-get install -y -qq cmake git >/dev/null"
+      - "git clone -q --depth 1 https://github.com/fmtlib/fmt /w/fmt"
+    turns:
+      - {cmd: "cd /w/fmt && cmake -S . -B build -DFMT_TEST=ON >/dev/null && cmake --build build -j2"}
+      - {cmd: "cd /w/fmt/build && ctest --output-on-failure 2>&1 | cat"}
+  - name: pipeline-strong-long
+    class: background
+    tenant: t3
+    image: python:3.12-slim
+    repeat: 2
+    setup:
+      - {file: scripts/tools/pipeline.py, to: /w/pipeline.py}
+    turns:
+      - {cmd: "python /w/pipeline.py --rows 1500 --rate 5 --signal strong"}
+  - name: pipeline-weak-long
+    class: background
+    tenant: t3
+    image: python:3.12-slim
+    repeat: 2
+    setup:
+      - {file: scripts/tools/pipeline.py, to: /w/pipeline.py}
+    turns:
+      - {cmd: "python /w/pipeline.py --rows 1200 --rate 5 --signal weak"}
