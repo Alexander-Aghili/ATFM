@@ -12,7 +12,7 @@ from atfm.board.forecaster import CLASSES, TARGETS, ExogenousModel, SeriesForeca
 from atfm.board.predictors import (BackendPredictor, ConstantSeries, HistoryPredictor, KalmanSeries,
                                    ProgressPredictor, SurvivalPredictor)
 from atfm.board.replay import FleetReplayer
-from atfm.eval.forecast import score_run, surge_events
+from atfm.eval.forecast import aggregate_scores, score_tick, surge_events
 from atfm.schema.trace import TraceTable
 from atfm.traces.synthetic import WorkloadSpec, generate
 from atfm.traces.transform import overlay_sessions, split_by_time_blocks
@@ -52,16 +52,27 @@ def _tables(cfg: H1Config) -> tuple[TraceTable, TraceTable]:
 
 
 def _build(cfg: H1Config, train: TraceTable) -> dict:
-    exo = ExogenousModel().fit(train)
+    # Each session model owns its ExogenousModel: they are updated once per model per tick.
+    def exo():
+        return ExogenousModel().fit(train)
     reg = {
         "B0": lambda: SeriesForecaster(ConstantSeries(), cfg.horizons, cfg.n_samples),
         "B1": lambda: SeriesForecaster(KalmanSeries(), cfg.horizons, cfg.n_samples),
-        "B2": lambda: SessionForecaster(HistoryPredictor().fit(train), exo, cfg.horizons, cfg.n_samples),
-        "M1": lambda: SessionForecaster(SurvivalPredictor().fit(train), exo, cfg.horizons, cfg.n_samples),
-        "M2": lambda: SessionForecaster(ProgressPredictor().fit(train), exo, cfg.horizons, cfg.n_samples),
-        "M3": lambda: SessionForecaster(BackendPredictor().fit(train), exo, cfg.horizons, cfg.n_samples),
+        "B2": lambda: SessionForecaster(HistoryPredictor().fit(train), exo(), cfg.horizons, cfg.n_samples),
+        "M1": lambda: SessionForecaster(SurvivalPredictor().fit(train), exo(), cfg.horizons, cfg.n_samples),
+        "M2": lambda: SessionForecaster(ProgressPredictor().fit(train), exo(), cfg.horizons, cfg.n_samples),
+        "M3": lambda: SessionForecaster(BackendPredictor().fit(train), exo(), cfg.horizons, cfg.n_samples),
     }
+    unknown = [m for m in cfg.models if m not in reg]
+    if unknown:
+        raise ValueError(f"unknown models {unknown}; choose from {sorted(reg)}")
     return {m: reg[m]() for m in cfg.models}
+
+
+def _ticks(t_min: float, t_max: float, window_s: float, horizons: list[float], tick_s: float) -> np.ndarray:
+    """Ticks cover the fleet window only; sessions may run past it but are not scored there."""
+    end = min(t_max, t_min + window_s) - max(horizons)
+    return np.arange(t_min, end + 1e-9, tick_s)
 
 
 def _perturbed_at(cfg: H1Config, t: float) -> bool:
@@ -76,7 +87,8 @@ def run_h1(cfg: H1Config) -> pd.DataFrame:
     models = _build(cfg, train)
     rep = FleetReplayer(test)
     t_min, t_max = test.time_range()
-    ticks = np.arange(t_min, t_max - max(cfg.horizons), cfg.tick_s)
+    window = cfg.synthetic.duration_s if cfg.source == "synthetic" and cfg.synthetic else cfg.overlay_duration_s
+    ticks = _ticks(t_min, t_max, window, cfg.horizons, cfg.tick_s)
     df = test.df
     ended = df[df["t_tool_end"].notna()][["t_tool_end", "backend_id", "tool_name", "t_tool_start"]].sort_values("t_tool_end")
     ended_t = ended["t_tool_end"].to_numpy(float)
@@ -106,15 +118,13 @@ def run_h1(cfg: H1Config) -> pd.DataFrame:
             snap = fc.forecast(t, states, rng)
             for tgt in TARGETS:
                 for c in CLASSES:
-                    for k, h in enumerate(cfg.horizons):
-                        records.append({"t": t, "model": snap.model_id, "target": tgt, "class": c, "h_index": k, "h": h,
-                                        "samples": snap.samples[tgt][c][k], "truth": float(truth[tgt][c][k]),
-                                        "perturbed": pert, "endogenous_fraction": float(snap.endogenous_fraction[c][k])})
+                    records.append(score_tick(t, snap.model_id, tgt, c, cfg.horizons, snap.samples[tgt][c],
+                                              truth[tgt][c], pert, snap.endogenous_fraction[c]))
             series[name]["truth"].append(float(sum(truth["kv_blocks"][c][k300] for c in CLASSES)))
             series[name]["q90"].append(float(np.quantile(snap.total("kv_blocks")[k300], 0.9)))
             if isinstance(fc, SeriesForecaster):
                 fc.observe(t, truth)
-    metrics = score_run(records)
+    metrics = aggregate_scores(records)
     out = Path(cfg.out_dir) / cfg.name
     out.mkdir(parents=True, exist_ok=True)
     metrics.to_csv(out / "metrics.csv", index=False)

@@ -87,3 +87,25 @@ def score_run(records: list[dict]) -> pd.DataFrame:
     agg["n"] = df.groupby(keys).size()
     pert = df[df["perturbed"]].groupby(keys)[metrics[:5]].mean().add_suffix("_pert")
     return agg.join(pert, how="left").reset_index()
+
+
+def score_tick(t: float, model: str, target: str, cls: str, horizons: list[float], samples: np.ndarray,
+               truth: np.ndarray, perturbed: bool, endogenous_fraction: np.ndarray) -> pd.DataFrame:
+    """Score one (tick, model, target, class) across horizons; keeps scalars only, never the samples."""
+    return pd.DataFrame({
+        "t": t, "model": model, "target": target, "class": cls, "h": list(horizons), "perturbed": perturbed,
+        "crps": crps(samples, truth), "pinball90": pinball(samples, truth, 0.9),
+        "pinball95": pinball(samples, truth, 0.95),
+        "cov80": coverage(samples, truth, 0.8).astype(float), "cov90": coverage(samples, truth, 0.9).astype(float),
+        "endogenous_fraction": np.asarray(endogenous_fraction, float),
+    })
+
+
+def aggregate_scores(frames: list[pd.DataFrame]) -> pd.DataFrame:
+    df = pd.concat(frames, ignore_index=True)
+    keys = ["model", "target", "class", "h"]
+    metrics = ["crps", "pinball90", "pinball95", "cov80", "cov90", "endogenous_fraction"]
+    agg = df.groupby(keys)[metrics].mean()
+    agg["n"] = df.groupby(keys).size()
+    pert = df[df["perturbed"]].groupby(keys)[metrics[:5]].mean().add_suffix("_pert")
+    return agg.join(pert, how="left").reset_index()

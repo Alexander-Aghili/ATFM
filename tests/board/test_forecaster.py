@@ -56,3 +56,16 @@ def test_series_forecaster_only_uses_realized_windows():
     assert np.all(s60[1] == 0.0)   # h=100: no realized window yet
     s100 = sf.forecast(100.0, [], np.random.default_rng(0)).samples["kv_blocks"]["interactive"]
     assert np.all(s100[1] == 1.0)  # h=100: only the window (0,100] is realized
+
+def test_exogenous_rate_independent_of_model_count_and_warmup():
+    tr = _train()
+    a = SessionForecaster(SurvivalPredictor().fit(tr), ExogenousModel().fit(tr), horizons=[10.0], n=8)
+    b = SessionForecaster(SurvivalPredictor().fit(tr), ExogenousModel().fit(tr), horizons=[10.0], n=8)
+    starts = [(5.0, "background"), (20.0, "background")]
+    a.exo.update(60.0, starts)
+    b.exo.update(60.0, starts)
+    # two models, two starts each: neither sees the other's update, and the rate uses the observed span
+    assert a.exo.rate("background", 60.0) == b.exo.rate("background", 60.0)
+    assert abs(a.exo.rate("background", 60.0) - 2 / 55.0) < 1e-12  # span from earliest known start (5 s)
+    a.exo.update(3000.0, [])
+    assert abs(a.exo.rate("background", 3000.0) - 0.0) < 1e-12  # both starts fell out of the 1800 s window

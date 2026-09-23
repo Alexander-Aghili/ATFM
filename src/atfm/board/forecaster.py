@@ -21,6 +21,8 @@ class ExogenousModel:
         self.window_s, self.block_size = window_s, block_size
         self.first_isl: dict[str, np.ndarray] = {c: np.array([256]) for c in CLASSES}
         self._starts: dict[str, deque] = {c: deque() for c in CLASSES}
+        self._t_first: float | None = None  # first update time: the rate divides by the observed span
+        self._now: float = 0.0
 
     def fit(self, train: TraceTable) -> "ExogenousModel":
         firsts = train.df[train.df["turn_index"] == 0]
@@ -31,17 +33,24 @@ class ExogenousModel:
         return self
 
     def update(self, t: float, new_session_starts: list[tuple[float, str]]) -> None:
+        if self._t_first is None:
+            self._t_first = min([t] + [ts for ts, _ in new_session_starts])
+        self._now = t
         for ts, c in new_session_starts:
             self._starts[c].append(ts)
         for c in CLASSES:
             while self._starts[c] and self._starts[c][0] < t - self.window_s:
                 self._starts[c].popleft()
 
-    def rate(self, cls: str, now: float) -> float:
-        return len(self._starts[cls]) / self.window_s
+    def rate(self, cls: str, now: float | None = None) -> float:
+        if self._t_first is None:
+            return 0.0
+        now = self._now if now is None else now
+        span = min(self.window_s, max(now - self._t_first, 1.0))
+        return len(self._starts[cls]) / span
 
     def draw(self, cls: str, horizon: float, n: int, rng: np.random.Generator) -> tuple[np.ndarray, np.ndarray]:
-        k = rng.poisson(self.rate(cls, 0.0) * horizon, size=n)
+        k = rng.poisson(self.rate(cls) * horizon, size=n)
         kv = np.zeros(n)
         pf = np.zeros(n)
         for i in np.nonzero(k)[0]:
