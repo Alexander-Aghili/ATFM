@@ -121,7 +121,7 @@ def create_app(cfg: ProxyConfig, *, upstream_client: httpx.AsyncClient | None = 
         st.queue.submit(entry)
         await entry.released.wait()
         t_rel = clock()
-        bucket = priority_bucket(idx, st.queue.tier_indices(tr) + [idx])
+        bucket = priority_bucket(idx, st.queue.tier_indices(tr))  # against the others still waiting in the tier
         hints = {"priority": bucket, "strict_priority": tr, "osl": meta.predicted_osl}
         body = dict(body)
         body["nvext"] = dict(body.get("nvext") or {})
