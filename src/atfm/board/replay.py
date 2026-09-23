@@ -91,7 +91,8 @@ class FleetReplayer:
             history.append((r["tool_name"], max(0.0, te - ts)))
             nxt = s.rows[i + 1] if i + 1 < len(s.rows) else None
             if nxt is None or t < nxt["t_request"]:
-                return SessionState(phase="llm_pending", t_phase_start=te, tool_history=list(history), **base)
+                return SessionState(phase="llm_pending", tool_name=r["tool_name"], backend_id=r["backend_id"],
+                                    t_phase_start=te, tool_history=list(history), **base)
         return None
 
     def demand_truth(self, t: float, horizons: list[float], block_size: int = 16) -> dict:

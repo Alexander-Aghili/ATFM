@@ -96,11 +96,7 @@ class ProgressPredictor(SurvivalPredictor):
             d = self._draw_duration(s, now, n, rng)
             rem = np.maximum(d - s.elapsed(now), 0.0)
         rem = self._scale(s, rem, n, rng, factors)
-        r = rem + self.dm.overhead(s.tool_name)
-        p = self.dm.no_return_prob(s.tool_name)
-        if p > 0:
-            r = np.where(rng.random(n) < p, np.inf, r)
-        return r
+        return self._finish(s, rem, n, rng)
 
     def _scale(self, s, rem, n, rng, factors):
         return rem
