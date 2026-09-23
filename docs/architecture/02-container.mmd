@@ -1,0 +1,33 @@
+C4Container
+    title Container diagram for ATFM (v1.1)
+
+    Person(operator, "Platform operator", "Configures budgets and SLOs; reads results.")
+    System_Ext(harness, "Agent harness", "mini-SWE-agent / OpenHands / Harbor process running the agent loop.")
+    System_Ext(dynamo, "NVIDIA Dynamo pool", "Frontend + KV router + vLLM/SGLang or Mocker workers + planner.")
+
+    System_Boundary(atfm, "ATFM") {
+        Container(sidecar, "Tool-runtime sidecar", "Python library, in-process with the harness", "Wraps tool subprocesses: result path byte-for-byte, state path emits tool.start/progress/data/end; consults the launch gate. Fail-open.")
+        Container(proxy, "Harness proxy", "Python 3.12, FastAPI/ASGI", "OpenAI-compatible endpoint: classifies sessions, computes the index, holds or releases calls in a global window, writes nvext priority tiers, logs every call.")
+        ContainerQueue(bus, "Event bus", "Redis Streams (deploy), in-memory or JSONL (dev/replay)", "Carries session, tool and worker events; never on the blocking request path.")
+        Container(board, "Demand board", "Python 3.12 service, numpy", "Session registry + predictor ladder B0..M3; every 5 s draws Monte Carlo futures and publishes demand per horizon and class; answers per-request predictions.")
+        Container(control, "Controllers", "Python 3.12, co-located with the board", "Ground delay program (heuristic, provisional plan enforced at arrival); pre-staging and replica floor are future work and only log directives.")
+        ContainerDb(store, "Trace and run store", "Parquet + JSON files", "Canonical trace table (one row per LLM call), forecast snapshots, run metrics.")
+        Container(sim, "Simulator and evaluation", "Python 3.12, offline CLI", "Closed-loop discrete-event fleet model using the same predictor, policy and controller classes; forecast and serving metrics with bootstrap CIs.")
+    }
+
+    Rel(harness, sidecar, "Executes each tool through", "Python call, execute(action)")
+    Rel(harness, proxy, "Sends chat completions to", "HTTP/JSON, OpenAI API")
+    Rel(proxy, dynamo, "Forwards admitted calls with priority tier and OSL hints to", "HTTP/JSON, nvext.agent_hints")
+    Rel(sidecar, bus, "Publishes tool.start/progress/data/end events to", "Redis Streams")
+    Rel(sidecar, proxy, "Asks the launch gate whether a deferrable tool or spawn may start", "HTTP/JSON")
+    Rel(proxy, bus, "Publishes llm.request/first_token/done events to", "Redis Streams")
+    Rel(proxy, dynamo, "Scrapes worker KV blocks, queue depth and tier occupancy from", "HTTP/Prometheus")
+    Rel(bus, board, "Delivers session, tool and worker events to", "Redis Streams consumer")
+    Rel(board, proxy, "Returns E[service time], E[next tool duration], predicted OSL for pending calls to", "HTTP/JSON or in-process")
+    Rel(board, control, "Publishes ForecastSnapshot samples per horizon to", "in-process")
+    Rel(control, proxy, "Issues HoldDirectives with release-not-before times to", "HTTP/JSON")
+    Rel(proxy, store, "Appends trace rows for every call to", "Parquet")
+    Rel(board, store, "Writes forecast snapshots to", "JSON")
+    Rel(sim, store, "Reads trace tables and writes run metrics to", "Parquet, JSON")
+    Rel(operator, sim, "Runs experiments and reads metrics with", "CLI, YAML configs")
+    Rel(operator, proxy, "Sets class weights, delay budgets and SLOs on", "YAML config")
