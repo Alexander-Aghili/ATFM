@@ -1,0 +1,32 @@
+name: h1_synth_mixed
+source: synthetic
+overlay_duration_s: 7200
+tick_s: 30
+n_samples: 256
+synthetic:
+  duration_s: 7200
+  seed: 0
+  perturbations:
+    - {backend_id: ci, t_start: 3000, t_end: 4200, factor: 2.0}
+  classes:
+    - cls: background
+      rate_per_hour: 120
+      turns_mean: 10
+      isl0: 3000
+      isl_growth: 600
+      osl_mean: 200
+      tools:
+        - {name: bash, weight: 0.7, log_mu: 1.1, log_sigma: 0.6, signal: none, backend_id: local}
+        - {name: pytest, weight: 0.2, log_mu: 5.3, log_sigma: 0.7, signal: strong, backend_id: ci, spawn_prob: 0.05}
+        - {name: build, weight: 0.1, log_mu: 6.2, log_sigma: 0.5, signal: weak, backend_id: ci}
+    - cls: interactive
+      rate_per_hour: 60
+      turns_mean: 6
+      isl0: 4000
+      isl_growth: 800
+      osl_mean: 150
+      think_log_mu: 3.0
+      think_log_sigma: 0.8
+      tools:
+        - {name: bash, weight: 0.9, log_mu: 1.1, log_sigma: 0.6, signal: none, backend_id: local}
+        - {name: pytest, weight: 0.1, log_mu: 4.6, log_sigma: 0.7, signal: strong, backend_id: ci}
