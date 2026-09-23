@@ -23,17 +23,22 @@ def events_to_trace_table(events: list[Event]) -> TraceTable:
         m = meta.get(sid, {"class": "background", "tenant": "unknown", "parent": None})
         calls = [e for e in evs if e.kind == "llm.request"]
         tools = _tools(evs)
-        if not calls:  # tool-only session: synthesize one LLM row per tool phase
-            for i, tl in enumerate(tools):
-                rows.append(_row(sid, m, i, tl["t_start"] - 0.01, tl["t_start"], tl["t_start"], 1, 0, tl))
-            continue
+        first_call_t = calls[0].t if calls else float("inf")
+        # Tools that ran before the session's first LLM call (setup steps) or in a tool-only session get
+        # synthetic one-token rows with negative turn indices so their phases are still measured.
+        pre = [t for t in tools if t["t_start"] < first_call_t]
+        for k, tl in enumerate(pre):
+            rows.append(_row(sid, m, -(k + 1), tl["t_start"] - 0.01, tl["t_start"], tl["t_start"], 1, 0, tl))
         for i, c in enumerate(calls):
             first = next((e.t for e in evs if e.kind == "llm.first_token" and e.request_id == c.request_id), None)
             done = next((e for e in evs if e.kind == "llm.done" and e.request_id == c.request_id), None)
             t_last = done.t if done else first
             nxt = calls[i + 1].t if i + 1 < len(calls) else float("inf")
-            tl = next((t for t in tools if c.t <= t["t_start"] < nxt), None)
-            rows.append(_row(sid, m, c.turn_index, c.t, first, t_last, c.isl, done.osl if done else 0, tl))
+            between = [t for t in tools if c.t <= t["t_start"] < nxt]
+            rows.append(_row(sid, m, c.turn_index, c.t, first, t_last, c.isl, done.osl if done else 0,
+                             between[0] if between else None))
+            for tl in between[1:]:  # extra tools in the same turn: one synthetic row each
+                rows.append(_row(sid, m, c.turn_index, tl["t_start"] - 0.01, tl["t_start"], tl["t_start"], 1, 0, tl))
     return TraceTable.from_rows(rows)
 
 
@@ -59,6 +64,6 @@ def _row(sid, m, turn, t_req, t_first, t_last, isl, osl, tl) -> TraceRow:
               t_request=t_req, t_first_token=t_first, t_last_token=t_last, isl=int(isl), osl=int(osl), source="sidecar")
     if tl is not None:
         kw.update(tool_name=tl["name"], backend_id=tl["backend"], t_tool_start=tl["t_start"],
-                  t_tool_end=tl["t_end"] if tl["t_end"] is not None else tl["t_start"],
+                  t_tool_end=tl["t_end"],  # None when the tool never finished
                   tool_exit_status=tl["exit"], progress_events=tl["progress"], data_events=tl["data"])
     return TraceRow(**kw)

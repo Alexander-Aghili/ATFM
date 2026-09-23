@@ -60,3 +60,10 @@ def priority_bucket(index: float, tier_indices: list[float]) -> int:
         return 3
     rank = float(np.mean(np.asarray(tier_indices) < index))  # share of the tier strictly below this call
     return min(3, int(rank * 4))
+
+
+def promote_at(meta: CallMeta, cfg: ProxyConfig, e_service_s: float) -> float | None:
+    """Time at which a waiting interactive call falls under the slack threshold (None if never)."""
+    if meta.cls != "interactive" or meta.deadline is None:
+        return None
+    return meta.deadline - e_service_s - cfg.slack_threshold_s

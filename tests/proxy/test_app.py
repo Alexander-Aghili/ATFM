@@ -87,3 +87,36 @@ async def test_gate_endpoint_reports_directive():
         assert (await c.post("/gate", json={"session_id": "z", "kind": "tool"})).json()["allowed_at"] is None
         await c.post("/directives", json={"session_id": "z", "release_not_before": 5000.0, "reason": "gdp"})
         assert (await c.post("/gate", json={"session_id": "z", "kind": "tool"})).json()["allowed_at"] == 5000.0
+
+async def test_cancel_and_upstream_exception_release_slots():
+    class Boom:
+        async def post(self, *a, **k):
+            raise RuntimeError("boom")
+    bus = InMemoryBus()
+    app = create_app(_cfg(window=1, max_hold_s=5.0), upstream_client=Boom(), bus=bus)
+    async with _client(app) as c:
+        # upstream raising a non-HTTP exception must still free the slot
+        r = await c.post("/v1/chat/completions", json=BODY, headers=_headers("x1"))
+        assert r.status_code == 502
+        st = (await c.get("/state")).json()
+        assert st["in_flight"] == 0 and st["queued"] == 0
+        # a request cancelled while held must leave nothing behind
+        await c.post("/directives", json={"session_id": "held", "release_not_before": time.time() + 3, "reason": "gdp"})
+        task = asyncio.create_task(c.post("/v1/chat/completions", json=BODY, headers=_headers("held")))
+        await asyncio.sleep(0.1)
+        assert (await c.get("/state")).json()["held"] == 1
+        task.cancel()
+        try:
+            await task
+        except (asyncio.CancelledError, Exception):
+            pass
+        st = (await c.get("/state")).json()
+        assert st["queued"] == 0 and st["in_flight"] == 0
+    assert all(e.status == 502 for e in bus.drain() if e.kind == "llm.done")
+
+async def test_malformed_deadline_is_ignored():
+    up = _upstream()
+    app = create_app(_cfg(window=2), upstream_client=_up_client(up))
+    async with _client(app) as c:
+        r = await c.post("/v1/chat/completions", json=BODY, headers={**_headers("m", "interactive"), "x-atfm-deadline": "soon"})
+    assert r.status_code == 200 and up.state.seen[0]["body"]["nvext"]["agent_hints"]["strict_priority"] == 1

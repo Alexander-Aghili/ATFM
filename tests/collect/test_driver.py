@@ -28,3 +28,15 @@ def test_collection_records_sessions_and_tools(tmp_path):
     with_tools = df[df.tool_name.notna()]
     assert (with_tools["progress_events"].apply(len) >= 2).sum() == 2      # one pytest-shaped tool per session
     assert set(with_tools.tool_name) >= {"printf", "echo"}
+
+def test_driver_reports_last_error():
+    class Broken(SidecarMixin):
+        def __init__(self, cfg):
+            self.sidecar = cfg
+        def execute(self, action, cwd="", *, timeout=None):
+            raise RuntimeError("docker exploded")
+    bus = InMemoryBus()
+    spec = CollectionSpec(proxy_url=None, model="m", events_path="unused", jobs=[
+        JobSpec(name="bad", cls="background", tenant="t", image=None, repeat=1, turns=[TurnSpec(cmd="echo x")])])
+    out = run_collection(spec, env_factory=lambda job, cfg: Broken(cfg), llm=no_llm(bus), bus=bus)
+    assert out["errors"] == 1 and "docker exploded" in out["last_error"]

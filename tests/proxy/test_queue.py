@@ -30,3 +30,19 @@ async def test_directive_hold_and_cap():
     now[0] = 111.0
     q.tick()
     await asyncio.wait_for(e.released.wait(), 1.0)
+
+async def test_waiting_interactive_is_promoted_when_slack_runs_out():
+    now = [100.0]
+    q = HoldQueue(window=1, clock=lambda: now[0], max_hold_s=600.0)
+    filler = _entry("f", 0, 1.0, 99.0)
+    q.submit(filler)                                   # takes the only slot
+    waiting = Entry(session_id="i", tier=1, index=5.0, t_arrival=100.0, promote_at=104.0)
+    q.submit(waiting)
+    assert waiting.tier == 1
+    now[0] = 105.0
+    q.tick()
+    assert waiting.tier == 2 and not waiting.released.is_set()
+    q.complete(filler)
+    assert waiting.released.is_set() and q.stats()["in_flight"] == 1
+    q.complete(waiting); q.complete(waiting)           # idempotent per entry
+    assert q.stats()["in_flight"] == 0

@@ -3,7 +3,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 mkdir -p runs
 uv run python scripts/dynamo_local.py up
-uv run python scripts/run_proxy.py --upstream http://127.0.0.1:8000 --port 8799 --window 4 &
+uv run python scripts/run_proxy.py --upstream http://127.0.0.1:8000 --port 8799 --window 4 --events runs/collect/l1_events.jsonl --trace runs/collect/calls.jsonl &
 PROXY=$!
 trap 'kill $PROXY 2>/dev/null || true; uv run python scripts/dynamo_local.py down' EXIT
 sleep 2

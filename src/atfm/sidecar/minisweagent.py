@@ -47,7 +47,8 @@ class SidecarMixin:
 
     sidecar: SidecarConfig
 
-    def sidecar_execute(self, command: str, cwd: str, timeout: float | None, argv_builder, host_cwd: str | None = "") -> dict:
+    def sidecar_execute(self, command: str, cwd: str, timeout: float | None, argv_builder, host_cwd: str | None = "",
+                        env: dict | None = None) -> dict:
         """`cwd` is the tool's working directory as the harness understands it (inside the container for
         Docker); `host_cwd` is where the launching subprocess runs on this host (default: same as cwd)."""
         cfg = self.sidecar
@@ -64,8 +65,8 @@ class SidecarMixin:
                           backend_id=cfg.backend_for(tool))
         cfg.turn_index += 1
         try:
-            res = run_tool(argv_builder(command), ctx, cfg.bus, cwd=host_cwd or None, timeout=timeout, shell=False,
-                           clock=cfg.clock)
+            res = run_tool(argv_builder(command), ctx, cfg.bus, cwd=host_cwd or None, env=env, timeout=timeout,
+                           shell=False, clock=cfg.clock)
         except OSError as e:
             output = {"output": "", "returncode": -1,
                       "exception_info": f"An error occurred while executing the command: {e}"}
@@ -96,7 +97,8 @@ if LocalEnvironment is not None:
         def execute(self, action: dict, cwd: str = "", *, timeout: int | None = None) -> dict:
             command = action.get("command", "")
             cwd = cwd or self.config.cwd or os.getcwd()
-            return self.sidecar_execute(command, cwd, timeout or self.config.timeout, lambda c: ["bash", "-lc", c])
+            return self.sidecar_execute(command, cwd, timeout or self.config.timeout, lambda c: ["bash", "-lc", c],
+                                        env=os.environ | dict(self.config.env or {}))
 
     class SidecarDockerEnvironment(SidecarMixin, DockerEnvironment):
         def __init__(self, *, sidecar: SidecarConfig, **kwargs):
@@ -113,7 +115,10 @@ if LocalEnvironment is not None:
                 for key in self.config.forward_env:
                     if (value := os.getenv(key)) is not None:
                         cmd.extend(["-e", f"{key}={value}"])
-                return cmd + [self.container_id, "bash", "-lc", c]
+                for key, value in (self.config.env or {}).items():
+                    cmd.extend(["-e", f"{key}={value}"])
+                interpreter = list(getattr(self.config, "interpreter", None) or ["bash", "-lc"])
+                return cmd + [self.container_id, *interpreter, c]
 
             return self.sidecar_execute(command, cwd, timeout or self.config.timeout, argv, host_cwd=None)
 

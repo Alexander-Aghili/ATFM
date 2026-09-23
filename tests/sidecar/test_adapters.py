@@ -71,3 +71,9 @@ def test_mixin_host_cwd_separate_from_container_cwd_and_failure_is_a_result():
     out = env.sidecar_execute("echo ok", cwd="/nonexistent-atfm-dir", timeout=5, argv_builder=lambda c: ["bash", "-lc", c])
     assert out["returncode"] == -1 and "No such file" in out["exception_info"]
     assert [e.kind for e in bus.drain()][-1] == "tool.end"
+
+def test_local_environment_forwards_config_env():
+    pytest.importorskip("minisweagent")
+    from atfm.sidecar.minisweagent import SidecarLocalEnvironment
+    env = SidecarLocalEnvironment(sidecar=SidecarConfig(session_id="e1", bus=InMemoryBus()), env={"ATFM_PROBE": "42"})
+    assert env.execute({"command": "echo $ATFM_PROBE"}, cwd="/tmp")["output"] == "42\n"

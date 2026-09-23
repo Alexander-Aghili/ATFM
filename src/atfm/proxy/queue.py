@@ -12,8 +12,10 @@ class Entry:
     index: float
     t_arrival: float
     not_before: float = 0.0
+    promote_at: float | None = None   # when a waiting interactive call's slack runs out -> tier 2
     released: asyncio.Event = field(default_factory=asyncio.Event)
     t_release: float | None = None
+    done: bool = False
 
 
 class HoldQueue:
@@ -49,12 +51,28 @@ class HoldQueue:
         self.pending.append(e)
         self.tick()
 
-    def complete(self) -> None:
+    def complete(self, e: Entry | None = None) -> None:
+        """Free the slot held by `e`; idempotent per entry (a second call is a no-op)."""
+        if e is not None:
+            if e.done or not e.released.is_set():
+                return
+            e.done = True
         self.in_flight = max(0, self.in_flight - 1)
         self.tick()
 
+    def cancel(self, e: Entry) -> None:
+        """Drop a still-waiting entry (client went away); a released one is freed via complete()."""
+        if e in self.pending:
+            self.pending.remove(e)
+            self.tick()
+        elif e.released.is_set():
+            self.complete(e)
+
     def tick(self) -> None:
         now = self.clock()
+        for e in self.pending:
+            if e.tier == 1 and e.promote_at is not None and e.promote_at <= now:
+                e.tier = 2
         while self.in_flight < self.window:
             eligible = [e for e in self.pending if e.not_before <= now]
             if not eligible:

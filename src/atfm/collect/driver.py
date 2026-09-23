@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import tempfile
 import time
 import urllib.request
@@ -14,6 +15,8 @@ from atfm.schema.events import LlmDone, LlmRequest, SessionStart
 from atfm.sidecar.minisweagent import SidecarConfig
 
 from .jobs import CollectionSpec, JobSpec
+
+log = logging.getLogger(__name__)
 
 
 def no_llm(bus):
@@ -72,6 +75,7 @@ def _run_session(job: JobSpec, k: int, spec: CollectionSpec, bus, env_factory, l
     cfg = SidecarConfig(session_id=sid, tenant=job.tenant, cls=job.cls, bus=bus, gate_url=spec.proxy_url, clock=clock)
     tools = errors = 0
     env = None
+    last_error = ""
     try:
         env = env_factory(job, cfg)
         for s in job.setup:
@@ -86,8 +90,10 @@ def _run_session(job: JobSpec, k: int, spec: CollectionSpec, bus, env_factory, l
             if out["returncode"] not in (0, 1):  # test failures (1) are legitimate outcomes
                 errors += 1
         llm(sid, job.cls, job.tenant, deadline, "final", 8)
-    except Exception:
+    except Exception as e:
         errors += 1
+        last_error = f"{type(e).__name__}: {e}"
+        log.exception("session %s failed", sid)
     finally:
         cleanup = getattr(env, "cleanup", None)
         if callable(cleanup):
@@ -95,7 +101,7 @@ def _run_session(job: JobSpec, k: int, spec: CollectionSpec, bus, env_factory, l
                 cleanup()
             except Exception:
                 pass
-    return {"tools": tools, "errors": errors}
+    return {"tools": tools, "errors": errors, "last_error": last_error}
 
 
 def run_collection(spec: CollectionSpec, env_factory=None, llm=None, bus=None, clock=time.time) -> dict:
@@ -103,10 +109,12 @@ def run_collection(spec: CollectionSpec, env_factory=None, llm=None, bus=None, c
     env_factory = env_factory or _default_env_factory
     llm = llm or (proxy_chat(spec.proxy_url, spec.model) if spec.proxy_url else no_llm(bus))
     work = [(job, k) for job in spec.jobs for k in range(job.repeat)]
-    totals = {"sessions": 0, "tools": 0, "errors": 0}
+    totals = {"sessions": 0, "tools": 0, "errors": 0, "last_error": ""}
     with ThreadPoolExecutor(max_workers=max(1, spec.concurrency)) as pool:
         for r in pool.map(lambda jk: _run_session(jk[0], jk[1], spec, bus, env_factory, llm, clock), work):
             totals["sessions"] += 1
             totals["tools"] += r["tools"]
             totals["errors"] += r["errors"]
+            if r["last_error"]:
+                totals["last_error"] = r["last_error"]
     return totals

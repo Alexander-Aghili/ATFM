@@ -39,7 +39,7 @@ def test_collection_through_proxy_and_mocker(tmp_path):
     reqs = [e for e in ev if e.kind == "llm.request"]
     assert reqs and all(e.hints.get("strict_priority") in (0, 1, 2) for e in reqs)
     assert any(e.hints.get("strict_priority") == 2 for e in reqs)
-    assert peak[0] <= 2
+    assert 1 <= peak[0] <= 2
     df = events_to_trace_table(ev).df
     tools = df[df.tool_name.notna()]
     assert (tools["t_tool_end"] > tools["t_tool_start"]).all()

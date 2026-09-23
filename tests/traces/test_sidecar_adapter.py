@@ -29,3 +29,25 @@ def test_events_to_trace_table_pairs_calls_and_tools():
     assert pd.isna(a.iloc[1]["tool_name"])   # pandas 3 str dtype stores missing as NaN
     b = df[df.session_id == "b"]
     assert len(b) == 1 and b.iloc[0]["isl"] == 1 and b.iloc[0]["t_tool_start"] == 100.0 and b.iloc[0]["source"] == "sidecar"
+
+def test_pre_call_tools_and_multiple_tools_per_turn_are_kept():
+    ev = [
+        _e(kind="session.start", t=0.0, session_id="a", tenant="t1", **{"class": "background"}),
+        _e(kind="tool.start", t=1.0, session_id="a", turn_index=0, call_id="s1", tool_name="install", backend_id="pkg"),
+        _e(kind="tool.end", t=9.0, session_id="a", call_id="s1", exit_status=0),
+        _e(kind="tool.start", t=9.5, session_id="a", turn_index=1, call_id="s2", tool_name="clone", backend_id="git"),
+        _e(kind="tool.end", t=12.0, session_id="a", call_id="s2", exit_status=0),
+        _e(kind="llm.request", t=13.0, session_id="a", turn_index=0, request_id="r1", isl=500),
+        _e(kind="llm.done", t=14.0, session_id="a", request_id="r1", osl=5),
+        _e(kind="tool.start", t=14.2, session_id="a", turn_index=2, call_id="c1", tool_name="pytest", backend_id="ci"),
+        _e(kind="tool.end", t=30.0, session_id="a", call_id="c1", exit_status=0),
+        _e(kind="tool.start", t=30.5, session_id="a", turn_index=3, call_id="c2", tool_name="build", backend_id="ci"),
+        _e(kind="tool.end", t=40.0, session_id="a", call_id="c2", exit_status=0),
+        _e(kind="llm.request", t=41.0, session_id="a", turn_index=1, request_id="r2", isl=600),
+        _e(kind="llm.done", t=42.0, session_id="a", request_id="r2", osl=5),
+    ]
+    df = events_to_trace_table(ev).df
+    assert sorted(df.tool_name.dropna()) == ["build", "clone", "install", "pytest"]
+    assert (df[df.tool_name.isin(["install", "clone"])]["turn_index"] < 0).all()      # pre-call setup phases
+    assert df[df.tool_name == "pytest"]["isl"].iloc[0] == 500 and df[df.tool_name == "build"]["isl"].iloc[0] == 1
+    assert len(df) == 4 + 1    # two setup rows, the pytest call row, the extra build row, the final call row

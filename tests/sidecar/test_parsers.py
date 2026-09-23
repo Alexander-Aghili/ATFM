@@ -30,3 +30,11 @@ def test_classify_tool():
     assert classify_tool("pip install -e .") == "install"
     assert classify_tool("git clone https://x/y") == "clone"
     assert classify_tool("cd /w && ls -la") == "ls"
+
+def test_classify_tool_installs_and_token_position():
+    assert classify_tool("pip install -q pytest hypothesis") == "install"
+    assert classify_tool("apt-get update -qq && apt-get install -y cmake git") == "install"
+    assert classify_tool("python -m pytest --pyargs numpy -v") == "pytest"
+    assert classify_tool("cd /w/x && pytest -q tests") == "pytest"
+    assert classify_tool("echo pytest") == "echo"
+    assert classify_tool("cd /w/fmt && cmake -S . -B build && cmake --build build -j2") == "build"

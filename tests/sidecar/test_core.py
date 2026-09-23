@@ -43,3 +43,19 @@ def test_launch_failure_emits_tool_end_and_raises():
         run_tool(["bash", "-lc", "echo x"], CTX, bus, shell=False, cwd="/nonexistent-atfm-dir")
     kinds = [(e.kind, getattr(e, "exit_status", None)) for e in bus.drain()]
     assert kinds == [("tool.start", None), ("tool.end", -1)]
+
+def test_timeout_kills_grandchildren(tmp_path):
+    pidfile = tmp_path / "pid"
+    bus = InMemoryBus()
+    res = run_tool(f"sleep 30 & echo $! > {pidfile}; wait", CTX, bus, timeout=1.0)
+    assert res.timed_out
+    pid = int(pidfile.read_text().strip())
+    time.sleep(0.2)
+    assert not os.path.exists(f"/proc/{pid}"), "grandchild survived the process-group kill"
+
+def test_launch_failure_non_oserror_still_emits_tool_end():
+    import pytest
+    bus = InMemoryBus()
+    with pytest.raises(ValueError):
+        run_tool(["bash", "-lc", "echo\x00x"], CTX, bus, shell=False)
+    assert [e.kind for e in bus.drain()] == ["tool.start", "tool.end"]

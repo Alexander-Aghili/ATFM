@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import queue as _queue
+import re
 import signal
 import subprocess
 import threading
@@ -36,16 +37,21 @@ _BUILD = ("make", "cmake", "ninja", "cargo build", "npm run build", "gradle")
 _INSTALL = ("pip install", "npm install", "apt-get", "uv sync", "uv pip")
 
 
+_PYTEST_CMD = re.compile(r"(^|&&|;|\|)\s*(python(3)?( -m)?\s+)?pytest\b")
+
+
 def classify_tool(command: str) -> str:
+    """Coarse tool class from the command text. Installs and clones are checked first so that
+    `pip install pytest` or `apt-get install cmake` are not mistaken for test or build runs."""
     c = command.strip()
-    if "pytest" in c:
-        return "pytest"
-    if any(b in c for b in _BUILD):
-        return "build"
     if any(i in c for i in _INSTALL):
         return "install"
     if "git clone" in c:
         return "clone"
+    if _PYTEST_CMD.search(c):
+        return "pytest"
+    if any(b in c for b in _BUILD):
+        return "build"
     last = c.split("&&")[-1].strip()
     return last.split()[0] if last else "sh"
 
@@ -72,8 +78,8 @@ def run_tool(cmd, ctx: ToolContext, bus, *, cwd=None, env=None, timeout: float |
     try:
         proc = subprocess.Popen(cmd, cwd=cwd, env=env, shell=shell, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                 start_new_session=True)
-    except OSError:
-        # The tool never launched: still close the state path so the board sees the phase end.
+    except Exception:
+        # The tool never launched (OSError, ValueError for a NUL in argv, ...): still close the state path.
         _safe_publish(bus, ToolEnd(t=clock(), session_id=ctx.session_id, call_id=call_id, exit_status=-1, output_chars=0))
         raise
     assert proc.stdout is not None
