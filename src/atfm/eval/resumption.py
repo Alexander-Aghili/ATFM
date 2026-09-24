@@ -11,6 +11,9 @@ import math
 import numpy as np
 import pandas as pd
 
+import re
+
+from atfm.board.predictors import HistoryPredictor, ProgressPredictor, SurvivalPredictor
 from atfm.board.state import SessionState
 from atfm.eval.coverage import signal_class
 from atfm.eval.forecast import crps, pinball
@@ -69,3 +72,34 @@ def summarize_resumption(df: pd.DataFrame) -> pd.DataFrame:
     keys = ["model", "tool_name", "signal"]
     out = df.groupby(keys).agg(crps=("crps", "mean"), pinball90=("pinball90", "mean"), n=("n", "sum")).reset_index()
     return out
+
+
+_SID_SUFFIX = re.compile(r"-\d+-[0-9a-f]{6}$")
+
+
+def job_family(session_id: str) -> str:
+    """Collection driver ids are `<job name>-<repeat>-<hex6>`; the family is the job name."""
+    return _SID_SUFFIX.sub("", session_id)
+
+
+_PREDICTORS = {"B2": HistoryPredictor, "M1": SurvivalPredictor, "M2": ProgressPredictor}
+
+
+def leave_one_family_out(table: TraceTable, models: list[str], offsets_s: list[float], min_duration_s: float,
+                         n: int = 256, rng=None) -> pd.DataFrame:
+    """Score each job family with predictors fit on every other family (same tool at other sizes stays in)."""
+    rng = np.random.default_rng(0) if rng is None else rng
+    df = table.df
+    fam = df["session_id"].map(job_family)
+    out = []
+    for family in sorted(fam.unique()):
+        train = TraceTable(df[fam != family].reset_index(drop=True))
+        test = TraceTable(df[fam == family].reset_index(drop=True))
+        recs = resumption_records(test, offsets_s, min_duration_s)
+        if not recs:
+            continue
+        preds = {m: _PREDICTORS[m]().fit(train) for m in models}
+        scored = score_resumption(preds, recs, n=n, rng=rng)
+        scored["family"] = family
+        out.append(scored)
+    return pd.concat(out, ignore_index=True) if out else pd.DataFrame()
