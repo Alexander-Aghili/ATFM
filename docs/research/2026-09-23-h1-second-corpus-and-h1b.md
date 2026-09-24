@@ -57,7 +57,7 @@ Reading:
 - With a linear signal M2 is near exact: median within 2 to 4 s of the truth at every offset of a 335 s tool while M1 runs 40 to 70 s low, and even four stage markers halve M1's error.
 - The build is a genuine M2 failure mode: cmake's percent markers are not linear in time. M2 now learns a per-tool progress curve from training phases, but with one other build in the training fold there is no curve to learn and linear extrapolation misleads it.
 - B2's zeros come from a degenerate collection: each job repeats with an identical duration, so ignoring elapsed time and predicting the other run's duration is perfect. Nothing here says B2 generalizes; the TraceLab and AgentX fleets show it is the worst predictor by far when durations vary.
-- The numpy test-suite job has not yet produced a valid phase (pytest exited before running); diagnosis in progress.
+- The numpy test-suite job produced no valid phase in this collection (pytest exited before running: an invalid `--deselect` path and `-x` aborted collection); the fixed command is scored below.
 
 ### Collection 2: varied durations (`experiments/l1_jobs_varied.yaml`, `runs/collect/l1_varied_events.jsonl`)
 
@@ -77,7 +77,26 @@ Reading:
 
 CRPS over all phases: B2 67.0, M1 59.7, M2 17.8.
 
-**H1b verdict: gate passed on the long-tool regime.** Live progress cuts the remaining-time error 2.8x over elapsed time alone on q90 pinball (3.4x on CRPS): 10 to 30x on tools whose output is linear in work, 2 to 5x on tools that only report stage boundaries, and 1.2x to 15x on cmake builds once a progress curve can be learned from another build of the same project. The earlier degenerate collection (identical durations per job) is superseded. Remaining limits: eight job families, one machine, no human-in-the-loop tools, and the numpy test suite still to be added as a large real suite.
+### Collection 3: the numpy test suite added (`experiments/l1_jobs_numpy.yaml`, scored by `scripts/h1b_resumption.py`)
+
+Two runs of numpy's full test suite in Docker (`pytest --pyargs numpy -v`, 49,696 tests, 199.6 and 199.7 s, 51,046 per-test progress events each) were added to the varied collection and everything re-scored leave-one-job-family-out (202 observation points per model; `runs/h1b_with_numpy.csv`). Mean q90 pinball on remaining seconds:
+
+| job | B2 | M1 | M2 |
+|---|---|---|---|
+| fmt build -j1 | 52.6 | 47.2 | **7.7** |
+| fmt build -j2 | 8.7 | 10.4 | 15.6 |
+| pipeline, linear, sizes a to d | 26.2 / 14.3 / 21.3 / 8.9 | 26.3 / 16.2 / 21.4 / 11.5 | **0.5 / 1.4 / 0.8 / 1.7** |
+| pipeline, staged, sizes a and b | 25.0 / 69.0 | 24.9 / 39.2 | **4.8 / 19.8** |
+| numpy suite, family held out (suite never seen) | 4.0 | 14.0 | 14.6 |
+| **all phases** | 30.1 | 24.9 | **8.9** |
+| numpy suite, one prior run in training (leave-one-session-out) | 0.1 | 24.6 | **12.7** (CRPS 18.8 vs M1 53.7) |
+
+Reading:
+- numpy is the S-shaped case: 12% of tests done at a quarter of the wall time, 81% at three quarters (slow test modules run early). With the suite never seen, M2 extrapolates linearly and is no better than elapsed time alone (14.6 vs 14.0). With one prior run of the same suite the learned progress curve brings CRPS down 2.9x against M1 and the median tracks the truth from about 100 s in; the first minute is still noisy because a single run gives a coarse curve.
+- B2's small numpy numbers are artifacts, as before: with the family held out its pooled duration draw happens to sit ~55 s above numpy's duration at every offset (q90 pinball rewards that), and with one prior run the two durations are identical to 0.1 s. Neither says B2 generalizes.
+- Adding the two fmt builds from collection 1 to training (same tool, different flags) changed the -j1 row from 28.8 to 7.7 for M2 and the -j2 row from 3.8 to 15.6: a progress curve learned from -j1 builds misleads -j2 prediction and vice versa when the mix shifts. Progress curves must be keyed by more than tool name (command signature, or online-adapted per session) before the H100 study.
+
+**H1b verdict: gate passed on the long-tool regime.** Live progress cuts the remaining-time error 2.8x over elapsed time alone on q90 pinball (3.4x on CRPS): 10 to 30x on tools whose output is linear in work, 2 to 5x on tools that only report stage boundaries, and 1.2x to 15x on cmake builds once a progress curve can be learned from another build of the same project. The earlier degenerate collection (identical durations per job) is superseded. Remaining limits: eight job families, one machine, no human-in-the-loop tools, and progress curves keyed by tool name only (numpy and the fmt -j1/-j2 mix show the cost).
 
 ## Files
 
