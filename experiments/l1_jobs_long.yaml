@@ -13,7 +13,7 @@ jobs:
     setup:
       - "pip install -q numpy pytest hypothesis typing_extensions >/dev/null 2>&1"
     turns:
-      - {cmd: "python -m pytest --pyargs numpy -v -p no:cacheprovider --ignore-glob='*f2py*' --ignore-glob='*distutils*' 2>&1"}
+      - {cmd: "python -m pytest --pyargs numpy -v -p no:cacheprovider --continue-on-collection-errors -k 'not f2py and not distutils and not mem_policy' 2>&1"}
   - name: build-fmt
     class: background
     tenant: t2
