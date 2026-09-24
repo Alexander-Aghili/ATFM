@@ -22,7 +22,10 @@ def test_gdp_lite_holds_when_forecast_exceeds_capacity():
     g = GdpLite(slot_s=30.0, eps=0.1)
     assert g.hold_until(100.0, snap, free_blocks=500, free_slots=10, mean_isl=3000.0) == 130.0
     assert g.hold_until(100.0, snap, free_blocks=2000, free_slots=10, mean_isl=3000.0) is None
-    assert g.hold_until(100.0, snap, free_blocks=2000, free_slots=1, mean_isl=3000.0) == 130.0
+    # 3 expected calls x 30 s service over a 30 s slot = 3 busy slots > 1 free slot -> hold
+    assert g.hold_until(100.0, snap, free_blocks=2000, free_slots=1, mean_isl=3000.0, e_service_s=30.0) == 130.0
+    # the same 3 calls at 1 s service occupy 0.1 slot -> no hold (a raw call count would have held)
+    assert g.hold_until(100.0, snap, free_blocks=2000, free_slots=1, mean_isl=3000.0, e_service_s=1.0) is None
 
 def test_forecast_arm_runs_and_holds_only_background():
     engines = [EngineConfig(kv_blocks=3000, max_batch=4, prefill_tps=20000.0, decode_tps=40.0)]

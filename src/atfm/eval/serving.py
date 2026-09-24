@@ -5,7 +5,11 @@ import numpy as np
 import pandas as pd
 
 
-def serving_metrics(log: pd.DataFrame, sessions: list[dict], slo_ttft_s: float, sim_duration_s: float, gpu_count: int) -> dict:
+def serving_metrics(log: pd.DataFrame, sessions: list[dict], slo_ttft_s: float, sim_duration_s: float, gpu_count: int,
+                    makespan_s: float | None = None) -> dict:
+    """`makespan_s` (realized end of the run) drives throughput and GPU hours; `sim_duration_s` is the arrival window."""
+    span = float(makespan_s) if makespan_s else float(sim_duration_s)
+    hold_col = "hold_s" if "hold_s" in log.columns else "held_s"
     it = log[(log["class"] == "interactive") & (log["turn_index"] > 0)]
     ttft = (it["t_first_token"] - it["t_arrival"]).to_numpy(float) if len(it) else np.array([np.nan])
     sess = pd.DataFrame(sessions)
@@ -18,17 +22,18 @@ def serving_metrics(log: pd.DataFrame, sessions: list[dict], slo_ttft_s: float, 
     return {
         "ttft_after_tool_p50": float(np.nanpercentile(ttft, 50)), "ttft_after_tool_p95": float(np.nanpercentile(ttft, 95)),
         "ttft_after_tool_p99": float(np.nanpercentile(ttft, 99)),
-        "slo_attainment": float(np.mean(ttft <= slo_ttft_s)) if len(it) else float("nan"),
+        "slo_attainment_calls": float(np.mean(ttft <= slo_ttft_s)) if len(it) else float("nan"),
         "bg_jct_mean": float(np.nanmean(bg_jct)), "bg_jct_p95": float(np.nanpercentile(bg_jct, 95)),
         "deadline_hit_rate": float(1.0 - with_dl["missed"].mean()) if len(with_dl) else float("nan"),
-        "tasks_per_hour": float(len(sess) / (sim_duration_s / 3600.0)),
-        "max_imposed_delay_by_tenant": {t: float(v) for t, v in log.groupby("tenant")["held_s"].max().items()},
-        "mean_held_s_background": float(bg_rows["held_s"].mean()) if len(bg_rows) else 0.0,
-        "gpu_hours": float(gpu_count * sim_duration_s / 3600.0),
+        "tasks_per_hour": float(len(sess) / (span / 3600.0)),
+        "max_imposed_delay_by_tenant": {t: float(v) for t, v in log.groupby("tenant")[hold_col].max().items()},
+        "mean_held_s_background": float(bg_rows[hold_col].mean()) if len(bg_rows) else 0.0,
+        "gpu_hours": float(gpu_count * span / 3600.0),
         "recomputed_prefill_tokens": int(log["recomputed_tokens"].sum()),
         "kv_hit_rate": float(log["prefix_hit_tokens"].sum() / max(1, log["isl"].sum())),
         "hold_kv_block_s": float(log.groupby("session_id")["hold_kv_block_s"].max().sum()),
         "evictions_caused_by_holds": int(log.groupby("session_id")["evictions_caused"].max().sum()),
+        "evictions_to_admit": int(log["evictions_to_admit"].sum()) if "evictions_to_admit" in log.columns else 0,
         "queue_proxy_share": float(wait_proxy / tot_wait) if tot_wait > 0 else 0.0,
         "queue_worker_share": float(wait_worker / tot_wait) if tot_wait > 0 else 0.0,
         "sessions_completed": int(len(sess)),

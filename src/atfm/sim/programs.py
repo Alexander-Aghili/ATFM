@@ -19,6 +19,7 @@ class Turn:
     backend_id: str = "local"
     progress: list[tuple[float, float, float | None]] = field(default_factory=list)
     think: bool = False
+    reset: bool = False   # the context was replaced (compaction): full prefill of isl_new tokens
 
 
 @dataclass
@@ -105,18 +106,19 @@ def programs_from_table(table: TraceTable, rate_per_hour: float | None, duration
         turns: list[Turn] = []
         prev_ctx = 0
         for r in rows:
-            isl_new = int(r["isl"]) if not turns else max(0, int(r["isl"]) - prev_ctx)
+            reset = bool(turns) and int(r["isl"]) < prev_ctx
+            isl_new = int(r["isl"]) if (not turns or reset) else int(r["isl"]) - prev_ctx
             prev_ctx = int(r["isl"]) + int(r["osl"])
             tool = r["tool_name"] if not _nan(r["tool_name"]) else None
             if tool is None or _nan(r["t_tool_start"]) or _nan(r["t_tool_end"]):
-                turns.append(Turn(isl_new, int(r["osl"]), None, None))
+                turns.append(Turn(isl_new, int(r["osl"]), None, None, reset=reset))
                 continue
             d = max(0.0, float(r["t_tool_end"]) - float(r["t_tool_start"]))
             think = tool in ("__think__", "__gap__")
             prog = [(float(e["t"]) - float(r["t_tool_start"]), float(e["completed"]),
                      None if e.get("total") is None else float(e["total"])) for e in (r["progress_events"] or [])]
             backend = r["backend_id"] if not _nan(r["backend_id"]) else "local"
-            turns.append(Turn(isl_new, int(r["osl"]), tool, d, backend, prog, think=think))
+            turns.append(Turn(isl_new, int(r["osl"]), tool, d, backend, prog, think=think, reset=reset))
         parent = rows[0]["parent_session_id"] if not _nan(rows[0]["parent_session_id"]) else None
         p = Program(session_id=sid, cls=rows[0]["class"], tenant=rows[0]["tenant"], t_arrival=float(rows[0]["t_request"]),
                     turns=turns, parent=parent)
@@ -136,7 +138,13 @@ def programs_from_table(table: TraceTable, rate_per_hour: float | None, duration
         n = rng.poisson(rate_per_hour * duration_s / 3600.0)
         starts = np.sort(rng.uniform(0.0, duration_s, size=n))
         picks = rng.choice(len(roots), size=n, replace=True)
-        return [Program(session_id=f"{roots[i].session_id}#{k}", cls=roots[i].cls, tenant=roots[i].tenant, t_arrival=float(s),
-                        turns=roots[i].turns, deadline_s=roots[i].deadline_s, spawn_at_turn=roots[i].spawn_at_turn)
-                for k, (s, i) in enumerate(zip(starts, picks))]
+        return [_clone(roots[i], f"#{k}", float(s)) for k, (s, i) in enumerate(zip(starts, picks))]
     return sorted(roots, key=lambda p: p.t_arrival)
+
+
+def _clone(p: Program, suffix: str, t_arrival: float) -> Program:
+    """Copy a program (and its children, recursively) under a new id suffix so overlay copies never collide."""
+    kids = [(idx, _clone(c, suffix, 0.0)) for idx, c in p.spawn_at_turn]
+    parent = None if p.parent is None else f"{p.parent}{suffix}"
+    return Program(session_id=f"{p.session_id}{suffix}", cls=p.cls, tenant=p.tenant, t_arrival=t_arrival, turns=p.turns,
+                   deadline_s=p.deadline_s, parent=parent, spawn_at_turn=kids)

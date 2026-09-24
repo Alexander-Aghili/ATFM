@@ -19,6 +19,7 @@ from atfm.sim.programs import programs_from_spec
 from atfm.traces.synthetic import ClassSpec, ToolSpec, WorkloadSpec
 
 ARMS = ["native", "proxy_rules", "forecast_M1", "forecast_M2", "oracle", "working_set"]
+ABLATIONS = ["forecast_M1_nohold", "forecast_M2_nohold"]
 
 
 class H2SimConfig(BaseModel):
@@ -26,7 +27,7 @@ class H2SimConfig(BaseModel):
     regime: Literal["short_tool", "long_tool"]
     seeds: list[int] = Field(default_factory=lambda: [0, 1, 2])
     arms: list[str] = Field(default_factory=lambda: list(ARMS))
-    engines: list[dict] = Field(default_factory=lambda: [{"kv_blocks": 8000, "max_batch": 8, "prefill_tps": 20000.0, "decode_tps": 40.0}])
+    engines: list[dict] = Field(default_factory=lambda: [{"kv_blocks": 8000, "max_batch": 8, "prefill_tps": 20000.0, "decode_tps": 40.0, "priority": True}])
     window: int = 8
     beta: float = 0.5
     slo_ttft_s: float = 2.0
@@ -53,7 +54,7 @@ def regime_spec(regime: str, duration_s: float = 3600.0, seed: int = 0, it_rate:
 
 
 def _arm(name: str, cfg: H2SimConfig, engines: list[EngineConfig], train_programs, rng):
-    pcfg = ProxyConfig(upstream_url="sim", beta=cfg.beta)
+    pcfg = ProxyConfig(upstream_url="sim", beta=cfg.beta, prefill_tps=engines[0].prefill_tps, decode_tps=engines[0].decode_tps)
     if name == "native":
         return NativePolicy(priority_by_class=True)
     if name == "proxy_rules":
@@ -62,10 +63,13 @@ def _arm(name: str, cfg: H2SimConfig, engines: list[EngineConfig], train_program
         return OraclePolicy(cfg.window, pcfg, hold=True)
     if name == "working_set":
         return WorkingSetPolicy(cfg.working_set_budget)
-    if name in ("forecast_M1", "forecast_M2"):
-        pred, table = fit_predictor_on_programs(name.split("_")[1], train_programs, engines, rng)
-        return ForecastPolicy(cfg.window, pcfg, pred, table, horizons=[30.0, 120.0, 300.0], n=128, hold=True)
-    raise ValueError(f"unknown arm {name}; choose from {ARMS}")
+    if name in ARMS[2:4] or name in ABLATIONS:
+        kind = name.split("_")[1]
+        pred, table = fit_predictor_on_programs(kind, train_programs, engines, rng)
+        pol = ForecastPolicy(cfg.window, pcfg, pred, table, horizons=[30.0, 120.0, 300.0], n=128, hold=not name.endswith("_nohold"))
+        pol.name = name
+        return pol
+    raise ValueError(f"unknown arm {name}; choose from {ARMS + ABLATIONS}")
 
 
 def run_h2sim(cfg: H2SimConfig) -> pd.DataFrame:
@@ -87,21 +91,23 @@ def run_h2sim(cfg: H2SimConfig) -> pd.DataFrame:
             policy = _arm(arm, cfg, engines, train_programs, np.random.default_rng(seed + 7))
             sim = Simulator(programs, engines, policy, slo_ttft_s=cfg.slo_ttft_s, rng=np.random.default_rng(seed + 13))
             log = sim.run()
-            m = serving_metrics(log, sim.session_log, cfg.slo_ttft_s, cfg.duration_s, len(engines))
+            log.to_parquet(out / f"log_{arm}_{seed}.parquet", index=False)
+            m = serving_metrics(log, sim.session_log, cfg.slo_ttft_s, cfg.duration_s, len(engines), makespan_s=sim.now)
+            m["caps"] = sim.caps
             m["max_imposed_delay_by_tenant"] = json.dumps(m["max_imposed_delay_by_tenant"])
             rows.append({"arm": arm, "seed": seed, **m})
             sess = pd.DataFrame(sim.session_log)
             sess["session_id"] = sess["session_id"] + f"@{seed}"
             it = log[(log["class"] == "interactive") & (log["turn_index"] > 0)].copy()
             it["ttft"] = it["t_first_token"] - it["t_arrival"]
-            slo = it.groupby("session_id")["ttft"].apply(lambda s: float((s <= cfg.slo_ttft_s).mean())).rename("slo").reset_index()
+            slo = it.groupby("session_id")["ttft"].apply(lambda s: float((s <= cfg.slo_ttft_s).mean())).rename("slo").reset_index()  # session-weighted
             slo["session_id"] = slo["session_id"] + f"@{seed}"
             per_arm_sessions[arm].append(sess.merge(slo, on="session_id", how="left"))
     df = pd.DataFrame(rows)
     df.to_csv(out / "metrics.csv", index=False)
     per = {a: pd.concat(v, ignore_index=True) for a, v in per_arm_sessions.items()}
     metric_fns = {
-        "slo_attainment": lambda d: float(d["slo"].dropna().mean()) if d["slo"].notna().any() else float("nan"),
+        "slo_attainment_sessions": lambda d: float(d["slo"].dropna().mean()) if d["slo"].notna().any() else float("nan"),
         "bg_jct_mean": lambda d: float((d.loc[d["class"] == "background", "t_end"] - d.loc[d["class"] == "background", "t_start"]).mean()),
         "deadline_hit_rate": lambda d: float(1.0 - d.loc[d["deadline"].notna(), "missed"].mean()),
     }

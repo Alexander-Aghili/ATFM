@@ -1,9 +1,9 @@
 name: h2sim_long_tool
 regime: long_tool
 seeds: [0, 1, 2]
-arms: [native, proxy_rules, forecast_M1, forecast_M2, oracle, working_set]
+arms: [native, proxy_rules, forecast_M1, forecast_M2, forecast_M2_nohold, oracle, working_set]
 engines:
-  - {kv_blocks: 8000, max_batch: 8, prefill_tps: 20000.0, decode_tps: 40.0}
+  - {kv_blocks: 8000, max_batch: 8, prefill_tps: 20000.0, decode_tps: 40.0, priority: true}
 window: 8
 beta: 0.5
 slo_ttft_s: 2.0

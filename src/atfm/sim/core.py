@@ -44,6 +44,9 @@ class PendingCall:
     t_release: float | None = None
     request_id: str = ""
     sched: tuple | None = None
+    blocks_at_hold: int = 0            # the session's resident blocks when the hold began
+    evicted_at: float | None = None    # when those blocks were evicted during the hold, if they were
+    capped: bool = False
 
 
 class Simulator:
@@ -68,6 +71,7 @@ class Simulator:
         self.rows: list[dict] = []
         self.session_log: list[dict] = []
         self._pending: dict[str, PendingCall] = {}
+        self._held: dict[str, PendingCall] = {}   # session id -> its call while held (hold_reason set, not released)
 
     # ---- helpers
     def _push(self, t: float, kind: str, payload=None) -> None:
@@ -87,18 +91,36 @@ class Simulator:
                                 deadline=s.deadline))
         return s
 
+    def evict_session_kv(self, session_id: str) -> None:
+        """Drop a session's resident KV everywhere (a policy offloading a paused program)."""
+        for w in self.workers:
+            w.evict_session(session_id)
+
+    def _apply_hold(self, call: PendingCall, hold: float | None, t: float) -> bool:
+        """Apply a policy hold to `call` at time t, capped at t_arrival + max_hold_s. Returns True if still held."""
+        if hold is None or hold <= t:
+            return False
+        cap = call.t_arrival + self.max_hold_s
+        if hold >= cap and not call.capped:
+            call.capped = True
+            self.caps += 1
+        call.release_not_before = min(hold, cap)
+        if not call.hold_reason:
+            call.hold_reason = getattr(self.policy, "last_hold_reason", "hold") or "hold"
+            s = call.session
+            call.blocks_at_hold = s.worker.resident_blocks(s.program.session_id) if s.worker is not None else 0
+            self._held[s.program.session_id] = call
+        return call.release_not_before > t
+
     def _arrive(self, s: SessionRun, t: float) -> None:
         turn = s.program.turns[s.turn]
+        if turn.reset:
+            self.evict_session_kv(s.program.session_id)
+            s.ctx = 0
         call = PendingCall(session=s, turn_index=s.turn, t_arrival=t, isl_total=s.ctx + turn.isl_new,
                            isl_new=turn.isl_new, osl=turn.osl)
         call.tier, call.index = self.policy.tier_and_index(self, call)
-        hold = self.policy.on_arrival(self, call)
-        if hold is not None and hold > t:
-            cap = t + self.max_hold_s
-            if hold > cap:
-                self.caps += 1
-            call.release_not_before = min(hold, cap)
-            call.hold_reason = getattr(self.policy, "last_hold_reason", "hold")
+        self._apply_hold(call, self.policy.on_arrival(self, call), t)
         if not self._windowed():
             self._release(call, t)
             return
@@ -112,7 +134,17 @@ class Simulator:
         if window is None:
             return
         while self.in_flight < window:
-            eligible = [c for c in self.proxy_queue if c.release_not_before <= t]
+            eligible = []
+            for c in self.proxy_queue:
+                cap = c.t_arrival + self.max_hold_s
+                if c.release_not_before > t and t < cap:
+                    continue
+                if c.hold_reason and t < cap:
+                    # the hold expired: ask the policy again (hold *while* the constraint binds, spec 6.2)
+                    if self._apply_hold(c, self.policy.on_arrival(self, c), t):
+                        self._push(c.release_not_before, "release", None)
+                        continue
+                eligible.append(c)
             if not eligible:
                 break
             best = max(eligible, key=lambda c: (c.tier, c.index, -c.t_arrival))
@@ -120,12 +152,21 @@ class Simulator:
             self.in_flight += 1
             self._release(best, t)
 
+    def _hold_s(self, call: PendingCall) -> float:
+        """Seconds the call spent held by a policy (not ordinary window queueing)."""
+        if not call.hold_reason or call.t_release is None:
+            return 0.0
+        return max(0.0, min(call.t_release, call.release_not_before) - call.t_arrival)
+
     def _release(self, call: PendingCall, t: float) -> None:
         call.t_release = t
         s = call.session
+        self._held.pop(s.program.session_id, None)
+        hold_s = self._hold_s(call)
+        if hold_s > 0 and call.blocks_at_hold > 0:
+            charged_until = min(call.t_arrival + hold_s, call.evicted_at if call.evicted_at is not None else float("inf"))
+            s.held_kv_block_s += call.blocks_at_hold * max(0.0, charged_until - call.t_arrival)
         held = t - call.t_arrival
-        if held > 0 and s.worker is not None:
-            s.held_kv_block_s += s.worker.resident_blocks(s.program.session_id) * held
         rid = f"{s.program.session_id}:{call.turn_index}"
         call.request_id = rid
         self._pending[rid] = call
@@ -139,11 +180,19 @@ class Simulator:
         self._schedule_worker(w, t)
 
     def _schedule_worker(self, w: Worker, t: float) -> None:
-        for req, ts, tf, te, hit, recomputed, ev in w.schedule(t):
+        admitted = w.schedule(t)
+        # displacement: an eviction while some held session keeps blocks on this worker is charged to the
+        # held session with the most retained blocks (its retention is what made the room necessary)
+        for rid, victim in w.last_evictions:
+            if victim in self._held:
+                self._held[victim].evicted_at = t
+            holders = [(c.blocks_at_hold, c) for sid, c in self._held.items()
+                       if sid != victim and c.session.worker is w and w.resident_blocks(sid) > 0]
+            if holders:
+                max(holders, key=lambda x: x[0])[1].session.evictions_caused += 1
+        for req, ts, tf, te, hit, recomputed, ev in admitted:
             call = self._pending[req.request_id]
             call.sched = (ts, tf, te, hit, recomputed, ev, w.worker_id)
-            if ev and call.t_release is not None and call.t_release > call.t_arrival:
-                call.session.evictions_caused += ev
             self._push(tf, "first_token", req.request_id)
             self._push(te, "worker_done", req.request_id)
 
@@ -167,9 +216,10 @@ class Simulator:
             "turn_index": call.turn_index, "t_arrival": call.t_arrival, "t_release": call.t_release,
             "t_queued_worker": call.t_release, "t_start": ts, "t_first_token": tf, "t_end": te, "worker_id": wid,
             "isl": call.isl_total, "osl": call.osl, "prefix_hit_tokens": hit, "recomputed_tokens": recomputed,
-            "held_s": call.t_release - call.t_arrival, "hold_reason": call.hold_reason,
+            "held_s": self._hold_s(call), "hold_s": self._hold_s(call), "hold_reason": call.hold_reason,
             "queue_proxy_s": call.t_release - call.t_arrival, "queue_worker_s": ts - call.t_release,
-            "hold_kv_block_s": s.held_kv_block_s, "evictions_caused": s.evictions_caused, "deadline": s.deadline,
+            "hold_kv_block_s": s.held_kv_block_s, "evictions_caused": s.evictions_caused, "evictions_to_admit": ev,
+            "deadline": s.deadline,
             "deadline_missed": bool(s.deadline is not None and t > s.deadline),
             "tool_name": turn.tool_name, "tool_duration": turn.tool_duration,
         })

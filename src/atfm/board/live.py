@@ -61,6 +61,10 @@ class SessionRegistry:
         elif k == "spawn.request":
             self._get(e.child_session_id, e.t).parent_session_id = e.parent_session_id
 
+    def drop(self, session_id: str) -> None:
+        self._s.pop(session_id, None)
+        self._last.pop(session_id, None)
+
     def states(self, now: float) -> list[SessionState]:
         for sid in [s for s, t in self._last.items() if now - t > self.expire_s]:
             self._s.pop(sid, None)

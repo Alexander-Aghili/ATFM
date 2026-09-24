@@ -26,12 +26,16 @@ class GdpLite:
     def __init__(self, slot_s: float = 30.0, eps: float = 0.1, max_hold_s: float = 600.0):
         self.slot_s, self.eps, self.max_hold_s = slot_s, eps, max_hold_s
 
-    def hold_until(self, now: float, snap: ForecastSnapshot, free_blocks: int, free_slots: int, mean_isl: float) -> float | None:
+    def hold_until(self, now: float, snap: ForecastSnapshot, free_blocks: int, free_slots: int, mean_isl: float,
+                   e_service_s: float = 1.0) -> float | None:
+        """`free_blocks` is capacity not held by running requests; the slot test compares expected busy
+        slots over the slot (calls x E[S] / slot) with the free slots, not a raw call count."""
         h = int(np.argmin(np.abs(np.asarray(snap.horizons) - self.slot_s)))
         q = 1.0 - self.eps
         kv = float(np.quantile(snap.samples["kv_blocks"]["interactive"][h], q))
         calls = float(np.quantile(snap.samples["prefill_tokens"]["interactive"][h], q)) / max(mean_isl, 1.0)
-        if kv > free_blocks or calls > free_slots:
+        occupancy = calls * e_service_s / self.slot_s
+        if kv > free_blocks or occupancy > free_slots:
             return now + self.slot_s
         return None
 
@@ -62,6 +66,10 @@ class ForecastPolicy:
             if e.kind == "llm.request":
                 self._isl_sum += e.isl
                 self._isl_n += 1
+        for sid in list(self.registry._s):   # ended sessions must not be forecast as imminent demand
+            run = sim.sessions.get(sid)
+            if run is not None and run.done:
+                self.registry.drop(sid)
 
     def on_tick(self, sim, now: float) -> None:
         self._ingest(sim)
@@ -72,7 +80,13 @@ class ForecastPolicy:
         self.snapshots += 1
 
     def e_tool_next(self, sim, call) -> float:
-        return float(self.predictor.dm.mean(None))
+        """Expected duration of the tool this session will run next, conditioned on its tool history
+        (current tool if running, else the last one); pooled mean when nothing is known."""
+        st = self.registry._s.get(call.session.program.session_id)
+        tool = None
+        if st is not None:
+            tool = st.tool_name if st.phase == "tool_running" else (st.tool_history[-1][0] if st.tool_history else None)
+        return float(self.predictor.dm.mean(tool))
 
     def tier_and_index(self, sim, call) -> tuple[int, float]:
         m = _meta(call, sim.now)
@@ -82,10 +96,11 @@ class ForecastPolicy:
     def on_arrival(self, sim, call) -> float | None:
         if not self.hold or call.session.program.cls != "background" or self.snapshot is None:
             return None
-        free_blocks = sum(w.free_blocks() for w in sim.workers)
+        free_blocks = sum(w.capacity_free_blocks() for w in sim.workers)
         free_slots = sum(max(0, w.cfg.max_batch - len(w.running)) for w in sim.workers)
         mean_isl = (self._isl_sum / self._isl_n) if self._isl_n else 3000.0
-        t = self.gdp.hold_until(sim.now, self.snapshot, free_blocks, free_slots, mean_isl)
+        e_service = mean_isl / self.cfg.prefill_tps + self.cfg.default_osl / self.cfg.decode_tps
+        t = self.gdp.hold_until(sim.now, self.snapshot, free_blocks, free_slots, mean_isl, e_service_s=e_service)
         if t is not None:
             self.last_hold_reason = "forecast_surge"
         return t

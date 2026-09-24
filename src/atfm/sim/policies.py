@@ -119,7 +119,9 @@ class OraclePolicy(ProxyRulesPolicy):
                      if k in ("arrive", "start", "tool_end") and t <= now + self.slot_s
                      and _event_session_cls(sim, k, payload) == "interactive")
         slots = sum(max(0, w.cfg.max_batch - len(w.running)) for w in sim.workers)
-        if coming >= slots:
+        m = _meta(call, now)
+        occupancy = coming * service_time(m, self.cfg) / self.slot_s   # expected busy slots over the slot
+        if occupancy > slots:
             self.last_hold_reason = "oracle_surge"
             return now + self.slot_s
         return None
@@ -164,6 +166,8 @@ class WorkingSetPolicy:
         self._update_pause(sim)
         if self.paused and not self._fleet_idle(sim):
             self.last_hold_reason = "working_set"
+            # a paused program is offloaded: its KV leaves the working set (recompute is the cost of pausing)
+            sim.evict_session_kv(call.session.program.session_id)
             return sim.now + sim.tick_s
         return None
 

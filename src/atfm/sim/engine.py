@@ -36,12 +36,19 @@ class Worker:
         self.resident: OrderedDict[str, int] = OrderedDict()  # session -> blocks, LRU order (oldest first)
         self.running: dict[str, tuple[Request, float, float]] = {}
         self.queue: list[Request] = []
+        self.last_evictions: list[tuple[str, str]] = []  # (admitted request_id, evicted session) from the last schedule()
 
     def used_blocks(self) -> int:
         return sum(self.resident.values())
 
     def free_blocks(self) -> int:
+        """Blocks not resident at all (cache emptiness; low whenever the cache is warm)."""
         return self.cfg.kv_blocks - self.used_blocks()
+
+    def capacity_free_blocks(self) -> int:
+        """Blocks not held by running requests: idle resident blocks are evictable capacity."""
+        running = self._running_sessions()
+        return self.cfg.kv_blocks - sum(b for sid, b in self.resident.items() if sid in running)
 
     def resident_blocks(self, session_id: str) -> int:
         return self.resident.get(session_id, 0)
@@ -53,26 +60,28 @@ class Worker:
     def _running_sessions(self) -> set[str]:
         return {r.session_id for r, _, _ in self.running.values()}
 
-    def _make_room(self, needed: int, keep: str) -> int:
+    def _make_room(self, needed: int, keep: str) -> list[str] | None:
         """Evict idle LRU sessions (never `keep` or a running session) until `needed` blocks are free.
-        Returns evictions made, or -1 when the room cannot be made."""
-        evictions = 0
+        Returns the evicted session ids, or None when the room cannot be made."""
+        victims: list[str] = []
         running = self._running_sessions()
         while self.free_blocks() < needed:
             victim = next((s for s in self.resident if s not in running and s != keep), None)
             if victim is None:
-                return -1
+                return None
             del self.resident[victim]
-            evictions += 1
-        return evictions
+            victims.append(victim)
+        return victims
 
     def schedule(self, now: float) -> list[tuple]:
         bs = self.cfg.block_size
         if self.cfg.priority:
             self.queue.sort(key=lambda r: (-r.tier, -r.index, r.t_queued))
         admitted, remaining = [], []
+        self.last_evictions = []
+        blocked = False
         for req in self.queue:
-            if len(self.running) >= self.cfg.max_batch:
+            if blocked or len(self.running) >= self.cfg.max_batch:
                 remaining.append(req)
                 continue
             have = self.resident.get(req.session_id, 0)
@@ -80,18 +89,21 @@ class Worker:
             extra = max(0, needed_total - have)
             prefix_hit = min(have * bs, max(0, req.isl_total - req.isl_new)) if have else 0
             snapshot = OrderedDict(self.resident)
-            ev = self._make_room(extra, keep=req.session_id) if extra > 0 else 0
-            if ev < 0:
+            victims = self._make_room(extra, keep=req.session_id) if extra > 0 else []
+            if victims is None:
                 self.resident = snapshot
                 remaining.append(req)
+                if self.cfg.priority:
+                    blocked = True  # no head-of-line skipping under priority: lower-priority calls must not overtake
                 continue
             self.resident[req.session_id] = needed_total
             self.resident.move_to_end(req.session_id)
+            self.last_evictions.extend((req.request_id, v) for v in victims)
             recomputed = req.isl_total - prefix_hit
             t_first = now + recomputed / self.cfg.prefill_tps
             t_end = t_first + req.osl / self.cfg.decode_tps
             self.running[req.request_id] = (req, now, t_end)
-            admitted.append((req, now, t_first, t_end, prefix_hit, recomputed, ev))
+            admitted.append((req, now, t_first, t_end, prefix_hit, recomputed, len(victims)))
         self.queue = remaining
         return admitted
 

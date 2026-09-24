@@ -12,7 +12,7 @@ def test_serving_metrics_values():
     sessions = [{"session_id": "i1", "class": "interactive", "tenant": "a", "t_start": 0.0, "t_end": 24.0, "deadline": 100.0, "missed": False, "turns": 3},
                 {"session_id": "b1", "class": "background", "tenant": "b", "t_start": 0.0, "t_end": 40.0, "deadline": 30.0, "missed": True, "turns": 2}]
     m = serving_metrics(_log(), sessions, slo_ttft_s=2.0, sim_duration_s=3600.0, gpu_count=1)
-    assert m["ttft_after_tool_p50"] == 2.0 and m["slo_attainment"] == 0.5
+    assert m["ttft_after_tool_p50"] == 2.0 and m["slo_attainment_calls"] == 0.5
     assert m["bg_jct_mean"] == 40.0 and m["deadline_hit_rate"] == 0.5 and m["tasks_per_hour"] == 2.0
     assert m["max_imposed_delay_by_tenant"] == {"a": 0.0, "b": 30.0} and m["gpu_hours"] == 1.0
     assert m["recomputed_prefill_tokens"] == 2400 and abs(m["kv_hit_rate"] - 1800 / 4200) < 1e-9

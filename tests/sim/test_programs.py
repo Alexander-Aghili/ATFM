@@ -38,4 +38,6 @@ def test_programs_from_table_isl_growth_and_gaps():
     t0, t1, t2 = progs[0].turns
     assert t0.isl_new == 1000 and t0.tool_duration == 60.0 and t0.progress == [(30.0, 50.0, 100.0)]
     assert t1.isl_new == 400 and t1.think and t1.tool_duration == 34.0
-    assert t2.isl_new == 0 and t2.tool_name is None
+    # context shrank (1450 -> 1400): a reset turn, the whole new context is prefilled fresh
+    assert t2.reset and t2.isl_new == 1400 and t2.tool_name is None
+    assert not t0.reset and not t1.reset
