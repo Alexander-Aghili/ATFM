@@ -113,6 +113,9 @@ def _calibrate(cfg: H1Config, models: dict, train: TraceTable) -> dict:
     if len(fit_part) == 0 or len(cal_part) == 0:
         return {}
     fitting = _build(cfg, fit_part)
+    if cfg.source != "synthetic" and cfg.overlay_rate_per_hour:
+        # The test is a Poisson fleet at this rate; calibrate on the same kind of fleet, not on sparse calendar time.
+        cal_part = overlay_sessions(cal_part, cfg.overlay_rate_per_hour, cfg.overlay_duration_s, cfg.seed + 12)
     rep = FleetReplayer(cal_part)
     t_min, t_max = cal_part.time_range()
     end = t_max - max(cfg.horizons)
