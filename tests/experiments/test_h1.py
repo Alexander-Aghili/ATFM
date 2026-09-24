@@ -45,3 +45,37 @@ def test_exogenous_starts_exclude_children():
                        "parent_session_id": [None, "p", None]})
     st = _session_starts(df)
     assert st["t_request"].tolist() == [1.0]
+
+def test_h1_sidecar_source_runs(tmp_path):
+    from atfm.bus import JsonlBus
+    from atfm.schema.events import parse_event
+    bus = JsonlBus(tmp_path / "ev.jsonl")
+    t = 0.0
+    for k in range(12):
+        sid = f"s{k}"
+        bus.publish(parse_event({"kind": "session.start", "t": t, "session_id": sid, "tenant": "t", "class": "background"}))
+        bus.publish(parse_event({"kind": "tool.start", "t": t + 1, "session_id": sid, "turn_index": 0, "call_id": f"c{k}", "tool_name": "pytest", "backend_id": "ci"}))
+        for j in range(1, 10):
+            bus.publish(parse_event({"kind": "tool.progress", "t": t + 1 + 10 * j, "session_id": sid, "call_id": f"c{k}", "completed": 10 * j, "total": 100, "phase": "run"}))
+        bus.publish(parse_event({"kind": "tool.end", "t": t + 101, "session_id": sid, "call_id": f"c{k}", "exit_status": 0}))
+        t += 150.0
+    cfg = H1Config(name="sc", source="sidecar", sidecar_events=str(tmp_path / "ev.jsonl"), block_seconds=600.0, test_fraction=0.5,
+                   tick_s=30.0, horizons=[30.0, 120.0], n_samples=32, models=["M1", "M2"], out_dir=str(tmp_path))
+    df = run_h1(cfg)
+    assert set(df["model"]) == {"M1_survival", "M2_progress"} and (df["n"] > 3).all()
+
+def test_h1_clear_errors_on_short_span_and_empty_train(tmp_path):
+    import pytest
+    from atfm.bus import JsonlBus
+    from atfm.schema.events import parse_event
+    bus = JsonlBus(tmp_path / "ev.jsonl")
+    for k in range(4):   # four 20 s tools inside one 100 s window
+        sid = f"s{k}"; t = 25.0 * k
+        bus.publish(parse_event({"kind": "session.start", "t": t, "session_id": sid, "tenant": "t", "class": "background"}))
+        bus.publish(parse_event({"kind": "tool.start", "t": t + 1, "session_id": sid, "turn_index": 0, "call_id": f"c{k}", "tool_name": "bash", "backend_id": "local"}))
+        bus.publish(parse_event({"kind": "tool.end", "t": t + 21, "session_id": sid, "call_id": f"c{k}", "exit_status": 0}))
+    base = dict(name="e", source="sidecar", sidecar_events=str(tmp_path / "ev.jsonl"), tick_s=10.0, n_samples=8, models=["M1"], out_dir=str(tmp_path))
+    with pytest.raises(ValueError, match="train split is empty"):
+        run_h1(H1Config(**base, block_seconds=600.0, test_fraction=0.5, horizons=[10.0]))
+    with pytest.raises(ValueError, match="shorter than the longest horizon"):
+        run_h1(H1Config(**base, block_seconds=30.0, test_fraction=0.5, horizons=[900.0]))

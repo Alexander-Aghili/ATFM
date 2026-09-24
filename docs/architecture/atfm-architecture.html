@@ -73,6 +73,7 @@ td.k{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
 <nav aria-label="Sections">
   <div class="eyebrow">ATFM design v1</div>
   <ol>
+    <li><a href="#status">Where this stands</a></li>
     <li><a href="#decisions">Decisions</a></li>
     <li><a href="#context">System context</a></li>
     <li><a href="#lifecycle">Turn lifecycle</a></li>
@@ -91,8 +92,31 @@ td.k{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
 <header>
   <h1>ATFM Architecture</h1>
   <p class="sub">Air-traffic-style flow management for agent fleets on a shared NVIDIA Dynamo GPU pool: forecast demand from in-flight sessions, order calls by class, delay deferrable work on the ground.</p>
-  <div class="meta">Design v1.1 · revised 2026-09-23 after external review · source: docs/superpowers/specs/2026-09-22-atfm-architecture-design.md</div>
+  <div class="meta">Design v1.1 · revised 2026-09-23 after external review · status updated 2026-09-23 · source: docs/superpowers/specs/2026-09-22-atfm-architecture-design.md</div>
 </header>
+
+<h2 id="status">Where this stands (2026-09-23)</h2>
+<p>Two implementation passes exist on top of this design, both test-driven and reviewed. The numbers below are the only results so far and are reported with their metric, horizon and split so they cannot be over-read.</p>
+
+<div class="grid2">
+<div class="card"><div class="id">L0 · done · 45 tests</div><h4>Forecast core</h4><p>Canonical trace schema, TraceLab adapter (357k rounds, 4,265 sessions), Poisson overlay and time-block split, fleet replayer, predictor ladder B0 to M3, Monte Carlo forecaster, CRPS / pinball / coverage / surge metrics, synthetic fleet generator, H1 runner.</p></div>
+<div class="card"><div class="id">L1 · built and reviewed · 91 tests plus 2 gated</div><h4>Plumbing on the laptop</h4><p>Event schema and buses, byte-exact sidecar with pytest / percent / counter / rate parsers and a launch gate, mini-SWE-agent adapters (local and Docker), the proxy with global window and priority tiers, live demand board, Dynamo Mocker launcher, scripted trace collection, coverage report, H1b runner.</p></div>
+<div class="card"><div class="id">Verified on this machine</div><h4>Dynamo v1.5 stack</h4><p>Mocker workers plus the frontend start with file discovery in about four seconds and serve a request carrying <code>nvext.agent_hints</code>. An end-to-end run with three concurrent scripted sessions through the proxy held the window at two and gave the deadline-bound interactive session the top tier.</p></div>
+<div class="card"><div class="id">In progress</div><h4>Long-tool trace collection</h4><p>Real pytest suites, a cmake build and progress-emitting pipelines run in Docker through the sidecar. Its output feeds the signal-coverage report and the first honest M2-versus-M1 comparison (H1b). Not yet available.</p></div>
+</div>
+
+<h3>H1a evidence: in-flight session state versus history baselines</h3>
+<p>Metric: mean pinball loss of the forecast's 90th percentile of KV blocks demanded within the horizon, lower is better, under-forecasts weighted 9x. Truth counts each session once per horizon (KV required on resumption). TraceLab sessions split by calendar week (30% held out), predictors fitted on the real held-in sessions, held-out sessions replayed as a Poisson fleet at 200 sessions per hour for 4 hours, 30 s ticks, 256 samples. History baselines only see fully elapsed windows.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>model</th><th>10 s</th><th>30 s</th><th>2 min</th><th>5 min</th><th>15 min</th></tr></thead>
+<tbody>
+<tr><td>B0 constant</td><td class="num">10409</td><td class="num">10845</td><td class="num">13861</td><td class="num">16485</td><td class="num">43105</td></tr>
+<tr><td>B1 Kalman</td><td class="num"><b>4588</b></td><td class="num">6615</td><td class="num">10597</td><td class="num">14186</td><td class="num">26101</td></tr>
+<tr><td>B2 per-tool history, elapsed ignored</td><td class="num">40651</td><td class="num">38324</td><td class="num">33861</td><td class="num">30628</td><td class="num">26183</td></tr>
+<tr><td>M1 survival on elapsed time</td><td class="num">5567</td><td class="num"><b>5254</b></td><td class="num"><b>5679</b></td><td class="num"><b>6604</b></td><td class="num"><b>7700</b></td></tr>
+</tbody></table></div>
+<p>Elapsed-time conditioning beats the Kalman baseline by 1.9x at 2 min, 2.1x at 5 min and 3.4x at 15 min, and loses by 18% at 10 s. Demand is 81 to 99% endogenous at these horizons. The session models are under-dispersed (40 to 71% coverage of a 90% interval), which is the next calibration task. On a synthetic fleet with progress-emitting tools, live progress (M2) adds 30 to 40% over M1 at 10 s to 5 min on background work; on TraceLab M2 equals M1 because no progress events exist, which is exactly why the L1 collection is needed.</p>
+<div class="callout"><p>Two harness bugs found in review were fixed before these numbers: a shared exogenous-arrival model multiplied the arrival rate by the model count, and the pending state after a tool was treated as due now although the tool-end to next-request gap has a heavy tail in TraceLab (p99 45 s, max 128 h). Full note: <code>docs/research/2026-09-22-h1-first-results.md</code>. C4 context and container diagrams: <code>docs/architecture/01-context.md</code>, <code>02-container.md</code>.</p></div>
 
 <h2 id="decisions">Decisions this design commits to</h2>
 <p>Each row is a choice that the research forced or the founder made. The rejected column is what we are not building in v1.</p>
@@ -554,7 +578,7 @@ hint              strict_priority ∈ {2 slack, 1 interactive, 0 background}; pr
 <text x="20" y="222" font-size="11" fill="var(--muted)">adapters: mini-swe-agent Environment.execute · OpenHands TerminalTool executor · Harbor BaseAgent environment.exec · spawn gate before subagent creation (fail-open)</text>
 </svg>
 </div>
-<figcaption><b>The state path is additive.</b> The Phase 0 checkpoint measures signal coverage: the share of tool time with strong progress signals, weak end-phase signals, or none. Prior work reports roughly 40 to 50% strong and 60 to 70% including weak on coding-agent traces.</figcaption>
+<figcaption><b>The state path is additive.</b> Implemented in L1: the sidecar returns the tool's bytes unchanged (verified with invalid UTF-8 and a killed timeout), the parser chain emits deduplicated progress, and a launch failure still closes the phase with a <code>tool.end</code>. The Phase 0 checkpoint measures signal coverage: the share of tool time with strong progress signals, weak end-phase signals, or none. Prior work reports roughly 40 to 50% strong and 60 to 70% including weak on coding-agent traces.</figcaption>
 </figure>
 
 <h2 id="sim">Simulator and evaluation share the deployment code</h2>
@@ -600,7 +624,7 @@ hint              strict_priority ∈ {2 slack, 1 interactive, 0 background}; pr
   tests/  scripts/  experiments/  docs/</pre>
 <ol>
 <li><b>L0 core (done).</b> Schema, TraceLab adapter, synthetic generator, predictors B0 to M3, forecaster, forecast metrics, H1 runner. H1a evidence: elapsed-time conditioning beats the Kalman baseline on held-out TraceLab weeks by 1.9x at 2 min and 3.4x at 15 min on q90 pinball loss.</li>
-<li><b>L1.</b> Sidecar for mini-SWE-agent with pytest and build parsers, launch gate, bus, proxy with global window and tiered hints against Mocker; real long-tool traces collected on the laptop; progress-signal coverage and an honest M2-versus-M1 result (H1b).</li>
+<li><b>L1 (built, collection running).</b> Sidecar for mini-SWE-agent with pytest and build parsers, launch gate, bus, proxy with global window and tiered hints against Mocker, live board; real long-tool traces being collected on the laptop; progress-signal coverage and an honest M2-versus-M1 result (H1b) follow.</li>
 <li><b>L0 policies.</b> Closed-loop simulator with the five arms and the β ablation.</li>
 <li><b>L2.</b> The factored serving experiment on one H100 (H2), both regimes, hold costs measured.</li>
 <li><b>Later, only if H2 holds.</b> Tier placement with a demonstrated mechanism, replica floor with the virtual connector, two-worker scenarios.</li>

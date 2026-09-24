@@ -1,0 +1,74 @@
+proxy_url: null
+model: Qwen/Qwen3-0.6B
+events_path: runs/collect/l1_events.jsonl
+concurrency: 2
+jobs:
+  - name: pytest-attrs
+    class: background
+    tenant: t1
+    image: python:3.12-slim
+    repeat: 3
+    setup:
+      - "apt-get update -qq >/dev/null && apt-get install -y -qq git >/dev/null"
+      - "git clone -q --depth 1 https://github.com/python-attrs/attrs /w/attrs"
+      - "pip install -q -e '/w/attrs[tests]' >/dev/null 2>&1 || pip install -q -e /w/attrs pytest hypothesis >/dev/null 2>&1"
+    turns:
+      - {cmd: "cd /w/attrs && python -m pytest -q -p no:cacheprovider tests"}
+  - name: pytest-more-itertools
+    class: background
+    tenant: t2
+    image: python:3.12-slim
+    repeat: 3
+    setup:
+      - "apt-get update -qq >/dev/null && apt-get install -y -qq git >/dev/null"
+      - "git clone -q --depth 1 https://github.com/more-itertools/more-itertools /w/more-itertools"
+      - "pip install -q pytest >/dev/null 2>&1"
+    turns:
+      - {cmd: "cd /w/more-itertools && python -m pytest -v -p no:cacheprovider tests"}
+  - name: build-cjson
+    class: background
+    tenant: t1
+    image: gcc:13
+    repeat: 2
+    setup:
+      - "apt-get update -qq >/dev/null && apt-get install -y -qq cmake git >/dev/null"
+      - "git clone -q --depth 1 https://github.com/DaveGamble/cJSON /w/cJSON"
+    turns:
+      - {cmd: "cd /w/cJSON && cmake -S . -B build >/dev/null && cmake --build build -j2"}
+  - name: pipeline-strong
+    class: background
+    tenant: t3
+    image: python:3.12-slim
+    repeat: 3
+    setup:
+      - {file: scripts/tools/pipeline.py, to: /w/pipeline.py}
+    turns:
+      - {cmd: "python /w/pipeline.py --rows 600 --rate 10 --signal strong"}
+  - name: pipeline-weak
+    class: background
+    tenant: t3
+    image: python:3.12-slim
+    repeat: 3
+    setup:
+      - {file: scripts/tools/pipeline.py, to: /w/pipeline.py}
+    turns:
+      - {cmd: "python /w/pipeline.py --rows 400 --rate 10 --signal weak"}
+  - name: pipeline-none
+    class: background
+    tenant: t3
+    image: python:3.12-slim
+    repeat: 3
+    setup:
+      - {file: scripts/tools/pipeline.py, to: /w/pipeline.py}
+    turns:
+      - {cmd: "python /w/pipeline.py --rows 300 --rate 10 --signal none"}
+  - name: interactive-short
+    class: interactive
+    tenant: t4
+    image: python:3.12-slim
+    repeat: 3
+    deadline_s: 30
+    turns:
+      - {cmd: "ls -la /"}
+      - {cmd: "python -c 'print(sum(range(10**6)))'"}
+      - {cmd: "python -c 'import time; time.sleep(3); print(1)'"}
