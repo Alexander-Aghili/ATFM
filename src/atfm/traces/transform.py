@@ -46,7 +46,7 @@ def overlay_sessions(table: TraceTable, rate_per_hour: float, duration_s: float,
         g["progress_events"] = g["progress_events"].apply(lambda ev: _shift_events(ev, delta))
         g["data_events"] = g["data_events"].apply(lambda ev: _shift_events(ev, delta))
         g["session_id"] = f"{sids[idx]}#{k}"
-        g["parent_session_id"] = g["parent_session_id"].apply(lambda p: None if p is None else f"{p}#{k}")
+        g["parent_session_id"] = g["parent_session_id"].apply(lambda p: None if pd.isna(p) else f"{p}#{k}")
         out.append(g)
     if not out:
         return TraceTable(table.df.iloc[0:0].copy())

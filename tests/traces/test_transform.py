@@ -36,3 +36,16 @@ def test_overlay_deterministic():
     a = overlay_sessions(t, 100.0, 3600.0, seed=7).df
     b = overlay_sessions(t, 100.0, 3600.0, seed=7).df
     assert a.equals(b)
+
+def test_overlay_keeps_missing_parent_missing(tmp_path):
+    import pandas as pd
+    child = [r.model_copy(update={"session_id": "a/kid", "parent_session_id": "a"}) for r in _sess("a", 5100.0)]
+    t = TraceTable.from_rows(_sess("a", 5000.0) + child)
+    p = tmp_path / "t.parquet"
+    t.to_parquet(p)                       # parquet + pandas 3 store the missing parents as NaN in a str column
+    back = TraceTable.from_parquet(p)
+    o = overlay_sessions(back, 100.0, 3600.0, seed=1)
+    roots = o.df[~o.df.session_id.str.contains("/kid")]
+    kids = o.df[o.df.session_id.str.contains("/kid")]
+    assert roots["parent_session_id"].isna().all(), roots["parent_session_id"].unique()[:3]
+    assert kids["parent_session_id"].str.endswith(tuple(f"#{k}" for k in range(1000))).all()
