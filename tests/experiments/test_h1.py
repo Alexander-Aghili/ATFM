@@ -100,3 +100,23 @@ def test_h1_calibrate_wraps_session_models(tmp_path):
         a = df[df.model == "M1_survival+cal"].sort_values(["class", "h"])["pinball90"].to_numpy()
         b = plain[plain.model == "M1_survival"].sort_values(["class", "h"])["pinball90"].to_numpy()
         assert np.allclose(a, b)
+
+def test_calibration_is_fitted_out_of_sample(tmp_path, monkeypatch):
+    """The predictor used for calibration must be fitted on a strict subset of train (holdout > 0),
+    and on all of train only in the in-sample diagnostic mode (holdout == 0)."""
+    import atfm.experiments.h1 as h1mod
+    from atfm.traces.synthetic import generate
+    tools = [ToolSpec(name="pytest", weight=1.0, log_mu=np.log(60.0), log_sigma=0.3, signal="none", backend_id="ci")]
+    spec = WorkloadSpec(duration_s=2400.0, seed=3, classes=[
+        ClassSpec(cls="background", rate_per_hour=180.0, turns_mean=5, isl0=2000, isl_growth=200, osl_mean=50, tools=tools)])
+    cfg = H1Config(name="oos", source="synthetic", synthetic=spec, tick_s=30.0, horizons=[30.0, 120.0], n_samples=32,
+                   models=["M1"], calibrate=True, calibration_holdout=0.5, out_dir=str(tmp_path))
+    train = generate(spec)
+    seen = []
+    real_build = h1mod._build
+    monkeypatch.setattr(h1mod, "_build", lambda c, t: (seen.append(len(t)), real_build(c, t))[1])
+    h1mod._calibrate(cfg, real_build(cfg, train), train)
+    assert seen and 0 < seen[-1] < len(train)
+    seen.clear()
+    h1mod._calibrate(cfg.model_copy(update={"calibration_holdout": 0.0}), real_build(cfg, train), train)
+    assert seen[-1] == len(train)

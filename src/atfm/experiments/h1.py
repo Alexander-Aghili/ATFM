@@ -36,8 +36,9 @@ class H1Config(BaseModel):
     test_fraction: float = 0.3
     seed: int = 0
     capacity_quantile: float = 0.95
-    calibrate: bool = False          # fit per-horizon dispersion inflation on train-block ticks (session models only)
+    calibrate: bool = False          # fit per-horizon dispersion inflation out-of-sample within train (session models only)
     calibration_ticks: int = 200
+    calibration_holdout: float = 0.5  # share of train (by time block or family) held out to fit the inflation on
     out_dir: str = "runs"
 
 
@@ -98,16 +99,27 @@ def _ticks(t_min: float, t_max: float, window_s: float, horizons: list[float], t
 def _calibrate(cfg: H1Config, models: dict, train: TraceTable) -> dict:
     """Wrap session forecasters with a dispersion factor fitted on ticks of the train table.
 
-    Fitting runs on fresh model instances so no train-fleet state (exogenous starts, backend factors)
-    leaks into the forecasters that score the test run."""
-    fitting = _build(cfg, train)
-    rep = FleetReplayer(train)
-    t_min, t_max = train.time_range()
+    Fitting is out-of-sample within train: the predictor is fitted on one part of train and the inflation
+    on ticks of the other part, so the factor reflects the generalization gap the test run will meet.
+    Fresh model instances are used so no train-fleet state leaks into the forecasters that score the test."""
+    if cfg.calibration_holdout <= 0.0:  # in-sample (diagnostic only)
+        fit_part, cal_part = train, train
+    elif cfg.source == "synthetic" or cfg.split == "time":
+        fit_part, cal_part = split_by_time_blocks(train, cfg.block_seconds if cfg.source != "synthetic" else
+                                                  max(60.0, (train.time_range()[1] - train.time_range()[0]) / 8),
+                                                  cfg.calibration_holdout, cfg.seed + 11)
+    else:
+        fit_part, cal_part = split_by_session_families(train, cfg.calibration_holdout, cfg.seed + 11)
+    if len(fit_part) == 0 or len(cal_part) == 0:
+        return {}
+    fitting = _build(cfg, fit_part)
+    rep = FleetReplayer(cal_part)
+    t_min, t_max = cal_part.time_range()
     end = t_max - max(cfg.horizons)
     if end <= t_min:
         return {}
     ticks = list(np.linspace(t_min, end, num=min(cfg.calibration_ticks, max(2, int((end - t_min) // cfg.tick_s) + 1))))
-    starts = _session_starts(train.df)
+    starts = _session_starts(cal_part.df)
     factors = {}
     for name, fc in list(models.items()):
         if not isinstance(fc, SessionForecaster):
