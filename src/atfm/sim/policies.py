@@ -123,3 +123,68 @@ class OraclePolicy(ProxyRulesPolicy):
             self.last_hold_reason = "oracle_surge"
             return now + self.slot_s
         return None
+
+
+class WorkingSetPolicy:
+    """Arm 6 (ThunderAgent-style): pause background programs at tool boundaries while the resident working
+    set is over budget; resume smallest-context-first once it falls under the low watermark. Reactive, no forecast."""
+
+    name = "working_set"
+
+    def __init__(self, budget_blocks: int, low_watermark: float = 0.8, window: int | None = None):
+        self.budget, self.low, self._window = budget_blocks, low_watermark, window or 10**6
+        self.paused = False
+        self.last_hold_reason = ""
+
+    def window(self, sim) -> int | None:
+        return self._window
+
+    def _working_set(self, sim) -> int:
+        return sum(w.used_blocks() for w in sim.workers)
+
+    def _update_pause(self, sim) -> None:
+        ws = self._working_set(sim)
+        if self.paused and ws < self.low * self.budget:
+            self.paused = False
+        elif not self.paused and ws >= self.budget:
+            self.paused = True
+
+    def tier_and_index(self, sim, call) -> tuple[int, float]:
+        if call.session.program.cls == "interactive":
+            return 1, 0.0
+        return 0, -float(call.isl_total)
+
+    @staticmethod
+    def _fleet_idle(sim) -> bool:
+        return all(len(w.running) == 0 for w in sim.workers)
+
+    def on_arrival(self, sim, call) -> float | None:
+        if call.session.program.cls == "interactive":
+            return None
+        self._update_pause(sim)
+        if self.paused and not self._fleet_idle(sim):
+            self.last_hold_reason = "working_set"
+            return sim.now + sim.tick_s
+        return None
+
+    def on_tick(self, sim, now: float) -> None:
+        self._update_pause(sim)
+        waiting = [c for c in sim.proxy_queue if c.session.program.cls != "interactive"]
+        if self.paused and not self._fleet_idle(sim):
+            for c in waiting:
+                c.release_not_before = max(c.release_not_before, now + sim.tick_s)
+            return
+        # not paused, or paused with an idle fleet (the paused sessions themselves hold the KV):
+        # let the smallest-context call through so progress is always possible
+        if self.paused and waiting:
+            smallest = min(waiting, key=lambda c: c.isl_total)
+            smallest.release_not_before = min(smallest.release_not_before, now)
+            for c in waiting:
+                if c is not smallest:
+                    c.release_not_before = max(c.release_not_before, now + sim.tick_s)
+        else:
+            for c in waiting:
+                c.release_not_before = min(c.release_not_before, now)
+
+    def on_tool_end(self, sim, session, now: float) -> None:
+        return None

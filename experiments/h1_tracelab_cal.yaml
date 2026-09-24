@@ -1,0 +1,10 @@
+name: h1_tracelab_r200_cal
+source: tracelab
+tracelab_parquet: data/tracelab/tracelab.parquet
+overlay_rate_per_hour: 200
+overlay_duration_s: 14400
+tick_s: 30
+n_samples: 256
+models: [B1, M1]
+calibrate: true
+seed: 0

@@ -209,10 +209,13 @@ class Simulator:
                                  "missed": bool(s.deadline is not None and t > s.deadline), "turns": s.turn + 1})
 
     # ---- main loop
-    def run(self, until: float | None = None) -> pd.DataFrame:
+    def run(self, until: float | None = None, max_idle_ticks: int = 100_000) -> pd.DataFrame:
+        """Run to completion. `max_idle_ticks` consecutive ticks with no other event is treated as a stall
+        (a policy holding every remaining call forever) and raises instead of spinning."""
         for p in self.programs:
             self._push(p.t_arrival, "start", p)
         self._push(0.0, "tick", None)
+        idle_ticks = 0
         while self._heap:
             t, _, kind, payload = heapq.heappop(self._heap)
             if until is not None and t > until:
@@ -237,7 +240,11 @@ class Simulator:
             elif kind == "tick":
                 self.policy.on_tick(self, t)
                 self._drain_proxy(t)
-                pending_work = any(not s.done for s in self.sessions.values()) or any(k == "start" for _, _, k, _ in self._heap)
+                others = [k for _, _, k, _ in self._heap if k != "tick"]
+                pending_work = any(not s.done for s in self.sessions.values()) or "start" in others
+                idle_ticks = idle_ticks + 1 if not others else 0
+                if idle_ticks > max_idle_ticks:
+                    raise RuntimeError(f"simulation stalled: {len(self.proxy_queue)} calls waiting with no other events at t={t:.0f}")
                 if pending_work:
                     self._push(t + self.tick_s, "tick", None)
         return pd.DataFrame(self.rows)
