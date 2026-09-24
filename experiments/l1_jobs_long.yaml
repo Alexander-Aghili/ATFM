@@ -2,7 +2,7 @@
 proxy_url: null
 model: Qwen/Qwen3-0.6B
 events_path: runs/collect/l1_events.jsonl
-concurrency: 2
+concurrency: 1
 jobs:
   - name: pytest-numpy
     class: background
