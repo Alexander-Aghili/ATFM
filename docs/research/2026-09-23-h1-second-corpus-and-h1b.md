@@ -59,7 +59,25 @@ Reading:
 - B2's zeros come from a degenerate collection: each job repeats with an identical duration, so ignoring elapsed time and predicting the other run's duration is perfect. Nothing here says B2 generalizes; the TraceLab and AgentX fleets show it is the worst predictor by far when durations vary.
 - The numpy test-suite job has not yet produced a valid phase (pytest exited before running); diagnosis in progress.
 
-H1b verdict so far: the sidecar's progress signal is worth 2x over elapsed time on tools whose output is linear in work, is not worth anything until a progress curve can be learned on tools whose markers are not, and needs a collection with varied durations per tool before a general number can be claimed. Next collection: randomize pipeline rates and sizes per run, add test suites of varying size, and run at least six phases per tool.
+### Collection 2: varied durations (`experiments/l1_jobs_varied.yaml`, `runs/collect/l1_varied_events.jsonl`)
+
+18 sessions, 16 phases longer than 30 s (cmake builds of fmt at -j1 and -j2: 94 to 184 s; pipelines with linear or staged output at four sizes and rates: 78 to 345 s), 99% of tool time with a strong signal. Scored per session every 15 s inside each long phase, holding out one job family at a time (the same tool at other sizes and rates stays in training, which is the realistic case). Mean q90 pinball on remaining seconds, 176 observation points per model:
+
+| job | B2 (history, no elapsed) | M1 (elapsed) | M2 (progress, learned curve) |
+|---|---|---|---|
+| fmt build -j1 (94 to 184 s, percent markers) | 52.6 | 34.6 | **28.8** |
+| fmt build -j2 | 8.7 | 59.2 | **3.8** |
+| pipeline, linear, size a | 26.3 | 26.2 | **0.5** |
+| pipeline, linear, size b | 14.3 | 16.2 | **1.4** |
+| pipeline, linear, size c | 21.3 | 21.4 | **0.8** |
+| pipeline, linear, size d | 8.9 | 11.4 | **1.7** |
+| pipeline, staged (4 markers), size a | 25.0 | 25.0 | **4.8** |
+| pipeline, staged, size b | 69.0 | 39.0 | **19.8** |
+| **all phases** | 34.0 | 28.1 | **10.0** |
+
+CRPS over all phases: B2 67.0, M1 59.7, M2 17.8.
+
+**H1b verdict: gate passed on the long-tool regime.** Live progress cuts the remaining-time error 2.8x over elapsed time alone on q90 pinball (3.4x on CRPS): 10 to 30x on tools whose output is linear in work, 2 to 5x on tools that only report stage boundaries, and 1.2x to 15x on cmake builds once a progress curve can be learned from another build of the same project. The earlier degenerate collection (identical durations per job) is superseded. Remaining limits: eight job families, one machine, no human-in-the-loop tools, and the numpy test suite still to be added as a large real suite.
 
 ## Files
 
