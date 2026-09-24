@@ -31,6 +31,70 @@ def rate_posterior(progress: list[dict], t_start: float, now: float, prior_shape
     return shape, rate
 
 
+class ProgressCurve:
+    """Per-tool monotone map from reported progress fraction to elapsed-time fraction, learned from
+    training phases. cmake percent markers or test counts are rarely linear in time; the curve turns
+    "50% reported" into "about 20% of the duration has passed" for such tools. Unknown tools are linear."""
+
+    def __init__(self, bins: int = 20, min_phases: int = 2, sigma_floor: float = 0.05):
+        self.bins, self.min_phases, self.sigma_floor = bins, min_phases, sigma_floor
+        self.curves: dict[str, tuple[np.ndarray, np.ndarray]] = {}   # tool -> (progress grid, time fraction)
+        self.sigma: dict[str, float] = {}                             # tool -> sd of log(actual / predicted duration)
+
+    def fit(self, train: TraceTable) -> "ProgressCurve":
+        pairs: dict[str, list[tuple[float, float]]] = defaultdict(list)
+        phases: dict[str, int] = defaultdict(int)
+        for _, g in train.sessions():
+            for r in g.to_dict("records"):
+                ev = r["progress_events"] or []
+                ts, te = r["t_tool_start"], r["t_tool_end"]
+                if r["tool_name"] is None or not ev or ts is None or te is None or (isinstance(te, float) and math.isnan(te)):
+                    continue
+                dur = float(te) - float(ts)
+                if dur <= 0:
+                    continue
+                usable = [(float(e["completed"]) / float(e["total"]), (float(e["t"]) - float(ts)) / dur)
+                          for e in ev if e.get("total") not in (None, 0) and e.get("completed") is not None]
+                if not usable:
+                    continue
+                phases[r["tool_name"]] += 1
+                pairs[r["tool_name"]].extend(usable)
+        edges = np.linspace(0.0, 1.0, self.bins + 1)
+        for tool, pts in pairs.items():
+            if phases[tool] < self.min_phases:
+                continue
+            arr = np.asarray(pts)
+            pf, tf = np.clip(arr[:, 0], 0, 1), np.clip(arr[:, 1], 0, 1)
+            grid, vals = [0.0], [0.0]
+            for i in range(self.bins):
+                m = (pf >= edges[i]) & (pf < edges[i + 1] if i < self.bins - 1 else pf <= edges[i + 1])
+                if m.any():
+                    grid.append(float(np.median(pf[m]))); vals.append(float(np.median(tf[m])))
+            grid.append(1.0); vals.append(1.0)
+            vals = np.maximum.accumulate(np.asarray(vals))                # monotone in progress
+            g = np.asarray(grid)
+            self.curves[tool] = (g, vals)
+            pred_tf = np.interp(pf, g, vals)
+            ok = pred_tf > 0.02
+            if ok.any():
+                # predicted duration = elapsed / tf; actual = dur; ratio spread is the curve's uncertainty
+                ratio = (tf[ok] / pred_tf[ok])   # = actual_dur / predicted_dur
+                self.sigma[tool] = float(max(np.std(np.log(np.clip(ratio, 1e-3, 1e3))), self.sigma_floor))
+            else:
+                self.sigma[tool] = 0.5
+        return self
+
+    def has(self, tool: str | None) -> bool:
+        return tool in self.curves
+
+    def time_fraction(self, tool: str | None, progress_fraction: float) -> float:
+        pf = float(np.clip(progress_fraction, 0.0, 1.0))
+        if tool not in self.curves:
+            return pf
+        g, v = self.curves[tool]
+        return float(np.interp(pf, g, v))
+
+
 class ProgressPredictor(SurvivalPredictor):
     """M2: M1 plus a Bayesian rate filter over live progress events."""
 
@@ -39,9 +103,11 @@ class ProgressPredictor(SurvivalPredictor):
     def __init__(self):
         super().__init__()
         self._residual: dict[str, np.ndarray] = {}
+        self.curve = ProgressCurve()
 
     def fit(self, train: TraceTable) -> "ProgressPredictor":
         super().fit(train)
+        self.curve.fit(train)
         res = defaultdict(list)
         for _, g in train.sessions():
             for r in g.to_dict("records"):
@@ -76,6 +142,13 @@ class ProgressPredictor(SurvivalPredictor):
         latest = max(usable, key=lambda e: e["t"])
         total, done, t_latest = float(latest["total"]), float(latest["completed"]), float(latest["t"])
         t_start = s.t_tool_start if s.t_tool_start is not None else s.t_phase_start
+        tf = self.curve.time_fraction(s.tool_name, done / total) if self.curve.has(s.tool_name) else None
+        if tf is not None and tf > 0.02:
+            # learned non-linear progress: elapsed at the latest report / time fraction = duration estimate
+            d_hat = (t_latest - t_start) / tf
+            d = d_hat * rng.lognormal(0.0, self.curve.sigma.get(s.tool_name, 0.5), size=n)
+            remaining = np.maximum(d - (now - t_start), 0.0) + self._residual_draw(s.tool_name, n, rng)
+            return remaining
         shape, rate = rate_posterior(usable, t_start, now)
         r = rng.gamma(shape, 1.0 / rate, size=n)
         work_left = max(total - done, 0.0)
