@@ -1,7 +1,7 @@
 # Long-tool regime: minutes-long tools with strong progress signals (H1b needs these).
 proxy_url: null
 model: Qwen/Qwen3-0.6B
-events_path: runs/collect/l1_events.jsonl
+events_path: runs/collect/l1_long_events.jsonl
 concurrency: 1
 jobs:
   - name: pytest-numpy
