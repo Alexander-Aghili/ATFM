@@ -1,0 +1,16 @@
+proxy_url: null
+model: Qwen/Qwen3-0.6B
+events_path: runs/collect/l1_long_events.jsonl
+concurrency: 1
+jobs:
+- name: pytest-numpy
+  class: background
+  tenant: t1
+  image: python:3.12-slim
+  repeat: 2
+  timeout_s: 3600
+  setup:
+  - pip install -q numpy pytest hypothesis typing_extensions >/dev/null 2>&1
+  turns:
+  - cmd: python -m pytest --pyargs numpy -v -p no:cacheprovider --ignore-glob='*f2py*'
+      --ignore-glob='*distutils*' 2>&1
