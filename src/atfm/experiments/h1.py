@@ -16,7 +16,7 @@ from atfm.board.replay import FleetReplayer
 from atfm.eval.forecast import aggregate_scores, score_tick, surge_events
 from atfm.schema.trace import TraceTable
 from atfm.traces.synthetic import WorkloadSpec, generate
-from atfm.traces.transform import overlay_sessions, split_by_time_blocks
+from atfm.traces.transform import overlay_sessions, split_by_session_families, split_by_time_blocks
 
 
 class H1Config(BaseModel):
@@ -32,6 +32,7 @@ class H1Config(BaseModel):
     n_samples: int = 512
     models: list[str] = Field(default_factory=lambda: ["B0", "B1", "B2", "M1", "M2", "M3"])
     block_seconds: float = 7 * 86400.0
+    split: Literal["time", "session"] = "time"   # "session" holds out whole families (for per-trace-relative timestamps)
     test_fraction: float = 0.3
     seed: int = 0
     capacity_quantile: float = 0.95
@@ -54,7 +55,10 @@ def _tables(cfg: H1Config) -> tuple[TraceTable, TraceTable]:
         return split_by_time_blocks(table, cfg.block_seconds, cfg.test_fraction, cfg.seed)
     assert cfg.tracelab_parquet is not None
     table = TraceTable.from_parquet(cfg.tracelab_parquet)
-    train, test = split_by_time_blocks(table, cfg.block_seconds, cfg.test_fraction, cfg.seed)
+    if cfg.split == "session":
+        train, test = split_by_session_families(table, cfg.test_fraction, cfg.seed)
+    else:
+        train, test = split_by_time_blocks(table, cfg.block_seconds, cfg.test_fraction, cfg.seed)
     if cfg.overlay_rate_per_hour:
         # Predictors fit on the real train sessions; only the test fleet is replayed as a Poisson overlay.
         test = overlay_sessions(test, cfg.overlay_rate_per_hour, cfg.overlay_duration_s, cfg.seed + 2)

@@ -49,3 +49,32 @@ def test_overlay_keeps_missing_parent_missing(tmp_path):
     kids = o.df[o.df.session_id.str.contains("/kid")]
     assert roots["parent_session_id"].isna().all(), roots["parent_session_id"].unique()[:3]
     assert kids["parent_session_id"].str.endswith(tuple(f"#{k}" for k in range(1000))).all()
+
+def _family(root, t0):
+    kid = [r.model_copy(update={"session_id": f"{root}/kid", "parent_session_id": root, "t_request": r.t_request + 50.0,
+                                "t_first_token": r.t_first_token + 50.0, "t_last_token": r.t_last_token + 50.0,
+                                "t_tool_start": None if r.t_tool_start is None else r.t_tool_start + 50.0,
+                                "t_tool_end": None if r.t_tool_end is None else r.t_tool_end + 50.0})
+           for r in _sess(root, t0)]
+    return _sess(root, t0) + kid
+
+def test_split_by_family_keeps_children_with_roots():
+    from atfm.traces.transform import split_by_session_families
+    rows = []
+    for k in range(20):
+        rows += _family(f"s{k}", 0.0)          # all roots start at t=0, like AgentX
+    t = TraceTable.from_rows(rows)
+    tr, te = split_by_session_families(t, test_fraction=0.3, seed=1)
+    fam = lambda df: set(df.session_id.str.split("/").str[0])
+    assert fam(tr.df) & fam(te.df) == set() and 4 <= len(fam(te.df)) <= 8
+    assert te.df.session_id.str.contains("/kid").any() and not te.df.session_id.str.contains("/kid").all()
+
+def test_overlay_shifts_family_together():
+    t = TraceTable.from_rows(_family("a", 1000.0))
+    o = overlay_sessions(t, rate_per_hour=30.0, duration_s=3600.0, seed=5)
+    fams = o.df.assign(fam=o.df.session_id.str.split("#").str[0].str.split("/").str[0], k=o.df.session_id.str.split("#").str[1])
+    for (f, k), g in fams.groupby(["fam", "k"]):
+        root = g[~g.session_id.str.contains("/")]; kid = g[g.session_id.str.contains("/")]
+        assert len(root) and len(kid)
+        assert abs((kid.t_request.min() - root.t_request.min()) - 50.0) < 1e-6      # child offset preserved
+        assert (kid.parent_session_id == root.session_id.iloc[0]).all()
