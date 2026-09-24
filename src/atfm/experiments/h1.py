@@ -118,6 +118,10 @@ def _calibrate(cfg: H1Config, models: dict, train: TraceTable) -> dict:
         cal_part = overlay_sessions(cal_part, cfg.overlay_rate_per_hour, cfg.overlay_duration_s, cfg.seed + 12)
     rep = FleetReplayer(cal_part)
     t_min, t_max = cal_part.time_range()
+    if cfg.source == "synthetic" and cfg.synthetic:
+        t_max = min(t_max, t_min + cfg.synthetic.duration_s)
+    elif cfg.overlay_rate_per_hour:
+        t_max = min(t_max, t_min + cfg.overlay_duration_s)   # score the fleet window, not the longest session's tail
     end = t_max - max(cfg.horizons)
     if end <= t_min:
         return {}

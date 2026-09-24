@@ -140,3 +140,24 @@ def test_calibration_overlays_the_holdout_like_the_test(tmp_path, monkeypatch):
     monkeypatch.setattr(h1mod, "overlay_sessions", lambda t, r, d, s, **kw: (calls.append((len(t), r, d)), real(t, r, d, s, **kw))[1])
     h1mod._calibrate(cfg, h1mod._build(cfg, train), train)
     assert len(calls) == 1 and 0 < calls[0][0] < len(train) and calls[0][1] == 120.0 and calls[0][2] == 1800.0
+
+def test_calibration_ticks_stay_inside_the_overlay_window(tmp_path, monkeypatch):
+    import atfm.experiments.h1 as h1mod
+    from atfm.schema.trace import TraceRow, TraceTable
+    rows = []
+    for k in range(16):                                      # sessions that run 10 hours after they start
+        t0 = k * 3 * 86400.0
+        rows.append(TraceRow(session_id=f"s{k}", cls="interactive", tenant="t", turn_index=0, t_request=t0, t_first_token=t0 + 1,
+                             t_last_token=t0 + 2, isl=100, osl=10, tool_name="Bash", t_tool_start=t0 + 2, t_tool_end=t0 + 36000, source="tracelab"))
+        rows.append(TraceRow(session_id=f"s{k}", cls="interactive", tenant="t", turn_index=1, t_request=t0 + 36000, t_first_token=t0 + 36001,
+                             t_last_token=t0 + 36002, isl=120, osl=10, tool_name=None, source="tracelab"))
+    train = TraceTable.from_rows(rows)
+    cfg = H1Config(name="tk", source="tracelab", tracelab_parquet="unused", overlay_rate_per_hour=120.0, overlay_duration_s=1800.0,
+                   tick_s=30.0, horizons=[30.0], n_samples=16, models=["M1"], calibrate=True, block_seconds=7 * 86400.0, out_dir=str(tmp_path))
+    seen = {}
+    real = h1mod.fit_inflation
+    def spy(fc, ticks, **kw):
+        seen["ticks"] = list(ticks); return real(fc, ticks, **kw)
+    monkeypatch.setattr(h1mod, "fit_inflation", spy)
+    h1mod._calibrate(cfg, h1mod._build(cfg, train), train)
+    assert seen["ticks"] and max(seen["ticks"]) - min(seen["ticks"]) <= 1800.0
