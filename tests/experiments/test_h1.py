@@ -96,7 +96,7 @@ def test_h1_calibrate_wraps_session_models(tmp_path):
     plain = run_h1(cfg.model_copy(update={"name": "plain", "calibrate": False}))
     import json
     k = json.load(open(tmp_path / "cal" / "calibration.json"))["inflation"]["M1"]
-    if all(abs(x - 1.0) < 1e-9 for x in k):
+    if all(abs(x - 1.0) < 1e-9 for cls_k in k.values() for x in cls_k):
         a = df[df.model == "M1_survival+cal"].sort_values(["class", "h"])["pinball90"].to_numpy()
         b = plain[plain.model == "M1_survival"].sort_values(["class", "h"])["pinball90"].to_numpy()
         assert np.allclose(a, b)
@@ -161,3 +161,28 @@ def test_calibration_ticks_stay_inside_the_overlay_window(tmp_path, monkeypatch)
     monkeypatch.setattr(h1mod, "fit_inflation", spy)
     h1mod._calibrate(cfg, h1mod._build(cfg, train), train)
     assert seen["ticks"] and max(seen["ticks"]) - min(seen["ticks"]) <= 1800.0
+
+
+def test_calibration_updates_exogenous_rate_incrementally(tmp_path, monkeypatch):
+    """During calibration the exogenous arrival rate must track the fleet (about the configured rate),
+    not a burst of every early start reported at the first tick."""
+    import atfm.experiments.h1 as h1mod
+    from atfm.schema.trace import TraceRow, TraceTable
+    rows = []
+    for k in range(16):
+        t0 = k * 3 * 86400.0
+        rows.append(TraceRow(session_id=f"s{k}", cls="interactive", tenant="t", turn_index=0, t_request=t0, t_first_token=t0 + 1,
+                             t_last_token=t0 + 2, isl=100, osl=10, tool_name="Bash", t_tool_start=t0 + 2, t_tool_end=t0 + 40, source="tracelab"))
+        rows.append(TraceRow(session_id=f"s{k}", cls="interactive", tenant="t", turn_index=1, t_request=t0 + 40, t_first_token=t0 + 41,
+                             t_last_token=t0 + 42, isl=120, osl=10, tool_name=None, source="tracelab"))
+    train = TraceTable.from_rows(rows)
+    cfg = H1Config(name="rate", source="tracelab", tracelab_parquet="unused", overlay_rate_per_hour=360.0, overlay_duration_s=3600.0,
+                   tick_s=30.0, horizons=[30.0], n_samples=16, models=["M1"], calibrate=True, block_seconds=7 * 86400.0, out_dir=str(tmp_path))
+    captured = {}
+    real = h1mod.fit_inflation
+    def spy(fc, ticks, **kw):
+        out = real(fc, ticks, **kw); captured["fc"] = fc; return out
+    monkeypatch.setattr(h1mod, "fit_inflation", spy)
+    h1mod._calibrate(cfg, h1mod._build(cfg, train), train)
+    rate = captured["fc"].exo.rate("interactive")
+    assert 0.3 * 360 / 3600 <= rate <= 2.0 * 360 / 3600, rate

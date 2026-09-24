@@ -33,37 +33,51 @@ def _coverage_at(sample_sets: list[np.ndarray], truths: list[np.ndarray], k: np.
 
 
 def fit_inflation(forecaster, ticks: list[float], truth_fn, target: float = 0.9, rng=None,
-                  target_name: str = "kv_blocks", cls: str = "background",
-                  grid: np.ndarray | None = None, states_fn=None) -> np.ndarray:
-    """Per-horizon factor k (H,) = smallest grid value whose central `target` interval covers the
-    truth at least `target` of the time over `ticks` (k = 1 if already calibrated)."""
+                  target_name: str = "kv_blocks", grid: np.ndarray | None = None, states_fn=None,
+                  on_tick=None) -> dict[str, np.ndarray]:
+    """Per-class, per-horizon factor k (H,) = smallest grid value whose central `target` interval covers
+    the truth at least `target` of the time over `ticks`. A class with no demand anywhere keeps k = 1.
+    `on_tick(t)` runs before each forecast (e.g. to feed arrivals to the exogenous model)."""
     rng = np.random.default_rng(0) if rng is None else rng
     grid = np.concatenate([[1.0], np.geomspace(1.05, 20.0, 60)]) if grid is None else grid
-    sample_sets, truths = [], []
+    sample_sets = {c: [] for c in CLASSES}
+    truths = {c: [] for c in CLASSES}
     for t in ticks:
+        if on_tick is not None:
+            on_tick(t)
         states = states_fn(t) if states_fn is not None else []
         snap = forecaster.forecast(t, states, rng)
-        sample_sets.append(snap.samples[target_name][cls])
-        truths.append(np.asarray(truth_fn(t)[target_name][cls], float))
-    H = sample_sets[0].shape[0]
-    k = np.ones(H)
-    for h in range(H):
-        for g in grid:
-            kk = np.ones(H)
-            kk[h] = g
-            if _coverage_at(sample_sets, truths, kk, target)[h] >= target:
-                k[h] = g
-                break
-        else:
-            k[h] = grid[-1]
-    return k
+        tr = truth_fn(t)[target_name]
+        for c in CLASSES:
+            sample_sets[c].append(snap.samples[target_name][c])
+            truths[c].append(np.asarray(tr[c], float))
+    H = sample_sets[CLASSES[0]][0].shape[0]
+    out = {}
+    for c in CLASSES:
+        k = np.ones(H)
+        if not any(np.any(y > 0) for y in truths[c]):
+            out[c] = k
+            continue
+        for h in range(H):
+            for g in grid:
+                kk = np.ones(H)
+                kk[h] = g
+                if _coverage_at(sample_sets[c], truths[c], kk, target)[h] >= target:
+                    k[h] = g
+                    break
+            else:
+                k[h] = grid[-1]
+        out[c] = k
+    return out
 
 
 class CalibratedForecaster:
-    """Wraps any forecaster; inflates every target and class by the fitted per-horizon factor."""
+    """Wraps any forecaster; inflates every target by the fitted per-class, per-horizon factor
+    (a single array applies to every class)."""
 
-    def __init__(self, inner, k: np.ndarray):
-        self.inner, self.k = inner, np.asarray(k, float)
+    def __init__(self, inner, k):
+        self.inner = inner
+        self.k = {c: np.asarray(k[c], float) for c in k} if isinstance(k, dict) else {c: np.asarray(k, float) for c in CLASSES}
         base = (getattr(inner, "model_id", None) or getattr(getattr(inner, "predictor", None), "name", None)
                 or getattr(getattr(inner, "series", None), "name", None) or "forecaster")
         self.model_id = f"{base}+cal"
@@ -73,6 +87,7 @@ class CalibratedForecaster:
 
     def forecast(self, t: float, states, rng) -> ForecastSnapshot:
         snap = self.inner.forecast(t, states, rng)
-        samples = {tgt: {c: inflate(snap.samples[tgt][c], self.k) for c in snap.samples[tgt]} for tgt in snap.samples}
+        samples = {tgt: {c: inflate(snap.samples[tgt][c], self.k.get(c, np.ones(len(snap.horizons))))
+                         for c in snap.samples[tgt]} for tgt in snap.samples}
         return ForecastSnapshot(t=snap.t, horizons=snap.horizons, model_id=self.model_id, samples=samples,
                                 endogenous_fraction=snap.endogenous_fraction)

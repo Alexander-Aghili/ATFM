@@ -29,7 +29,9 @@ def test_fit_inflation_reaches_target_coverage():
     fc = _Narrow(lambda t: np.array([100.0, 200.0]))
     k = fit_inflation(fc, ticks=list(range(200)), truth_fn=lambda t: {"kv_blocks": {"background": truth[t], "interactive": np.zeros(2)}},
                       target=0.9, rng=np.random.default_rng(1))
-    assert k.shape == (2,) and (k > 2.5).all() and (k < 6.0).all()
+    assert set(k) == {"background", "interactive"}
+    assert k["background"].shape == (2,) and (k["background"] > 2.5).all() and (k["background"] < 6.0).all()
+    assert (k["interactive"] == 1.0).all()                       # an empty class is left alone
     cal = CalibratedForecaster(fc, k)
     hits = []
     for t in range(200):
@@ -37,3 +39,19 @@ def test_fit_inflation_reaches_target_coverage():
         hits.append(coverage(snap.samples["kv_blocks"]["background"], truth[t], 0.9))
     cov = np.mean(hits, axis=0)
     assert (cov > 0.8).all() and cal.model_id == "narrow+cal"
+
+
+def test_fit_inflation_calibrates_the_populated_class_not_a_default():
+    """Truth lives in the interactive class here; the factor must be fitted there, not on background."""
+    rng = np.random.default_rng(0)
+    truth = {t: np.array([100.0, 200.0]) + rng.normal(0, 4.0, size=2) for t in range(100)}
+    class _NarrowInteractive(_Narrow):
+        def forecast(self, t, states, rng):
+            snap = super().forecast(t, states, rng)
+            s = snap.samples["kv_blocks"]
+            s["interactive"], s["background"] = s["background"], np.zeros_like(s["background"])
+            return snap
+    fc = _NarrowInteractive(lambda t: np.array([100.0, 200.0]))
+    k = fit_inflation(fc, ticks=list(range(100)), truth_fn=lambda t: {"kv_blocks": {"interactive": truth[t], "background": np.zeros(2)}},
+                      target=0.9, rng=np.random.default_rng(1))
+    assert (k["interactive"] > 2.0).all() and (k["background"] == 1.0).all()

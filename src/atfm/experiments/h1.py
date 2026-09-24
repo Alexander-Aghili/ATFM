@@ -127,17 +127,24 @@ def _calibrate(cfg: H1Config, models: dict, train: TraceTable) -> dict:
         return {}
     ticks = list(np.linspace(t_min, end, num=min(cfg.calibration_ticks, max(2, int((end - t_min) // cfg.tick_s) + 1))))
     starts = _session_starts(cal_part.df)
+    starts_t = starts["t_request"].to_numpy(float)
+    starts_c = starts["class"].tolist()
     factors = {}
     for name, fc in list(models.items()):
         if not isinstance(fc, SessionForecaster):
             continue
         fit_fc = fitting[name]
-        early = [(float(tr), c) for tr, c in zip(starts["t_request"], starts["class"]) if tr < t_min + fit_fc.exo.window_s]
-        fit_fc.exo.update(t_min, early)
+        ptr = [0]
+
+        def feed(t, fit_fc=fit_fc, ptr=ptr):  # same incremental arrival feed as the scored run
+            new_ptr = int(np.searchsorted(starts_t, t, side="right"))
+            fit_fc.exo.update(t, [(float(starts_t[i]), starts_c[i]) for i in range(ptr[0], new_ptr)])
+            ptr[0] = new_ptr
+
         k = fit_inflation(fit_fc, ticks, truth_fn=lambda t: rep.demand_truth(t, cfg.horizons), target=0.9,
-                          rng=np.random.default_rng(cfg.seed + 7), states_fn=rep.states_at)
+                          rng=np.random.default_rng(cfg.seed + 7), states_fn=rep.states_at, on_tick=feed)
         models[name] = CalibratedForecaster(fc, k)
-        factors[name] = k.tolist()
+        factors[name] = {c: v.tolist() for c, v in k.items()}
     return factors
 
 
