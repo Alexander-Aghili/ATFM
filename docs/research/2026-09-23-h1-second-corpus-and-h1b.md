@@ -25,7 +25,17 @@ M1 is never worse than B1 at any cell, and the advantage grows with fleet densit
 | B2 history, elapsed ignored | 247688 | 236921 | 202717 | 174850 | 139947 |
 | M1 survival | **13552** | **16146** | **15035** | **15209** | **14915** |
 
-M1 beats B1 by 1.1x at 10 s, 1.8x at 30 s, 3.3x at 2 min, 4.1x at 5 min and 6.6x at 15 min. Interval coverage for M1 is 70 to 88% before calibration; 90 to 99% of demand is endogenous. Seed-and-rate sweep: pending (`runs/sweep_agentx.csv`).
+M1 beats B1 by 1.1x at 10 s, 1.8x at 30 s, 3.3x at 2 min, 4.1x at 5 min and 6.6x at 15 min. Interval coverage for M1 is 70 to 88% before calibration; 90 to 99% of demand is endogenous.
+
+Seed-and-rate sweep (3 seeds x 100, 200, 400 sessions per hour; `runs/sweep_agentx.csv`), ratio of B1 loss to M1 loss:
+
+| sessions/hour | 10 s | 30 s | 2 min | 5 min | 15 min |
+|---|---|---|---|---|---|
+| 100 | 1.10 | 1.39 | 2.20 | 2.97 | 2.73 |
+| 200 | 1.21 | 1.64 | 3.11 | 4.27 | 3.34 |
+| 400 | 1.49 | 1.97 | 3.69 | 5.43 | 3.58 |
+
+M1 wins every cell on this corpus too, and here it wins at 10 s as well. Caveat: the 15-minute cells have 95% CI half-widths of 50 to 60% of the mean across seeds (10% or less at the other horizons), because 393 families give only a few hundred held-out sessions and the 15-minute demand is dominated by a handful of very long sub-agent sessions; the 15-minute ratio should be read as "about 3x" rather than a precise number.
 
 Two adapter facts matter for anyone reusing this corpus: the inter-request gap (`think_time`) is unlabeled tool-or-human time, so tool phases are `__gap__`; and sub-agent groups become child sessions with a spawn recorded on the parent's phase, which is the first real fan-out data in the project.
 
