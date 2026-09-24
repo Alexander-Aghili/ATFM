@@ -1,0 +1,11 @@
+name: h1_agentx_r200
+source: tracelab
+tracelab_parquet: data/agentx/agentx.parquet
+overlay_rate_per_hour: 200
+overlay_duration_s: 14400
+tick_s: 30
+n_samples: 256
+models: [B0, B1, B2, M1]
+block_seconds: 86400
+test_fraction: 0.3
+seed: 0

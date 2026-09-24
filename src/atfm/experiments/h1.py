@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel, Field
 
+from atfm.board.calibrate import CalibratedForecaster, fit_inflation
 from atfm.board.forecaster import CLASSES, TARGETS, ExogenousModel, SeriesForecaster, SessionForecaster
 from atfm.board.predictors import (BackendPredictor, ConstantSeries, HistoryPredictor, KalmanSeries,
                                    ProgressPredictor, SurvivalPredictor)
@@ -34,6 +35,8 @@ class H1Config(BaseModel):
     test_fraction: float = 0.3
     seed: int = 0
     capacity_quantile: float = 0.95
+    calibrate: bool = False          # fit per-horizon dispersion inflation on train-block ticks (session models only)
+    calibration_ticks: int = 200
     out_dir: str = "runs"
 
 
@@ -88,6 +91,28 @@ def _ticks(t_min: float, t_max: float, window_s: float, horizons: list[float], t
     return np.arange(t_min, end + 1e-9, tick_s)
 
 
+def _calibrate(cfg: H1Config, models: dict, train: TraceTable) -> dict:
+    """Wrap session forecasters with a dispersion factor fitted on ticks of the train table."""
+    rep = FleetReplayer(train)
+    t_min, t_max = train.time_range()
+    end = t_max - max(cfg.horizons)
+    if end <= t_min:
+        return {}
+    ticks = list(np.linspace(t_min, end, num=min(cfg.calibration_ticks, max(2, int((end - t_min) // cfg.tick_s) + 1))))
+    starts = _session_starts(train.df)
+    factors = {}
+    for name, fc in list(models.items()):
+        if not isinstance(fc, SessionForecaster):
+            continue
+        early = [(float(tr), c) for tr, c in zip(starts["t_request"], starts["class"]) if tr < t_min + fc.exo.window_s]
+        fc.exo.update(t_min, early)
+        k = fit_inflation(fc, ticks, truth_fn=lambda t: rep.demand_truth(t, cfg.horizons), target=0.9,
+                          rng=np.random.default_rng(cfg.seed + 7), states_fn=rep.states_at)
+        models[name] = CalibratedForecaster(fc, k)
+        factors[name] = k.tolist()
+    return factors
+
+
 def _perturbed_at(cfg: H1Config, t: float) -> bool:
     if cfg.source != "synthetic" or cfg.synthetic is None:
         return False
@@ -102,6 +127,7 @@ def run_h1(cfg: H1Config) -> pd.DataFrame:
     if len(test) == 0:
         raise ValueError("test split is empty: use a higher test_fraction or more data")
     models = _build(cfg, train)
+    factors = _calibrate(cfg, models, train) if cfg.calibrate else {}
     rep = FleetReplayer(test)
     t_min, t_max = test.time_range()
     if cfg.source == "synthetic" and cfg.synthetic:
@@ -135,11 +161,12 @@ def run_h1(cfg: H1Config) -> pd.DataFrame:
         end_ptr = e_ptr
         pert = _perturbed_at(cfg, t)
         for name, fc in models.items():
-            if isinstance(fc, SessionForecaster):
-                fc.exo.update(t, new_starts)
-                if isinstance(fc.predictor, BackendPredictor):
+            inner = getattr(fc, "inner", fc)  # a CalibratedForecaster wraps the real one
+            if isinstance(inner, SessionForecaster):
+                inner.exo.update(t, new_starts)
+                if isinstance(inner.predictor, BackendPredictor):
                     for r in completions.itertuples():
-                        fc.predictor.observe_completion(r.backend_id, r.tool_name, float(r.t_tool_end - r.t_tool_start))
+                        inner.predictor.observe_completion(r.backend_id, r.tool_name, float(r.t_tool_end - r.t_tool_start))
             snap = fc.forecast(t, states, rng)
             for tgt in TARGETS:
                 for c in CLASSES:
@@ -147,8 +174,8 @@ def run_h1(cfg: H1Config) -> pd.DataFrame:
                                               truth[tgt][c], pert, snap.endogenous_fraction[c]))
             series[name]["truth"].append(float(sum(truth["kv_blocks"][c][k300] for c in CLASSES)))
             series[name]["q90"].append(float(np.quantile(snap.total("kv_blocks")[k300], 0.9)))
-            if isinstance(fc, SeriesForecaster):
-                fc.observe(t, truth)
+            if isinstance(inner, SeriesForecaster):
+                inner.observe(t, truth)
     metrics = aggregate_scores(records)
     out = Path(cfg.out_dir) / cfg.name
     out.mkdir(parents=True, exist_ok=True)
@@ -162,4 +189,6 @@ def run_h1(cfg: H1Config) -> pd.DataFrame:
         surge[name] = {"capacity": cap, **ev}
     (out / "surge.json").write_text(json.dumps(surge, indent=2))
     (out / "config.json").write_text(cfg.model_dump_json(indent=2))
+    if cfg.calibrate:
+        (out / "calibration.json").write_text(json.dumps({"horizons": cfg.horizons, "inflation": factors}, indent=2))
     return metrics

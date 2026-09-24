@@ -79,3 +79,15 @@ def test_h1_clear_errors_on_short_span_and_empty_train(tmp_path):
         run_h1(H1Config(**base, block_seconds=600.0, test_fraction=0.5, horizons=[10.0]))
     with pytest.raises(ValueError, match="shorter than the longest horizon"):
         run_h1(H1Config(**base, block_seconds=30.0, test_fraction=0.5, horizons=[900.0]))
+
+
+def test_h1_calibrate_wraps_session_models(tmp_path):
+    tools = [ToolSpec(name="bash", weight=0.8, log_mu=np.log(3.0), log_sigma=0.5, signal="none"),
+             ToolSpec(name="pytest", weight=0.2, log_mu=np.log(120.0), log_sigma=0.5, signal="strong", backend_id="ci")]
+    spec = WorkloadSpec(duration_s=1200.0, seed=1, classes=[
+        ClassSpec(cls="background", rate_per_hour=120.0, turns_mean=6, isl0=2000, isl_growth=400, osl_mean=100, tools=tools)])
+    cfg = H1Config(name="cal", source="synthetic", synthetic=spec, tick_s=60.0, horizons=[30.0, 120.0], n_samples=32,
+                   models=["B0", "M1"], calibrate=True, out_dir=str(tmp_path))
+    df = run_h1(cfg)
+    assert set(df["model"]) == {"B0_constant", "M1_survival+cal"}
+    assert (tmp_path / "cal" / "calibration.json").exists()
