@@ -91,3 +91,12 @@ def test_h1_calibrate_wraps_session_models(tmp_path):
     df = run_h1(cfg)
     assert set(df["model"]) == {"B0_constant", "M1_survival+cal"}
     assert (tmp_path / "cal" / "calibration.json").exists()
+    # calibration must not leak train-fleet state into the scored run: with k == 1 the calibrated model
+    # scores exactly like the uncalibrated one on the same seed
+    plain = run_h1(cfg.model_copy(update={"name": "plain", "calibrate": False}))
+    import json
+    k = json.load(open(tmp_path / "cal" / "calibration.json"))["inflation"]["M1"]
+    if all(abs(x - 1.0) < 1e-9 for x in k):
+        a = df[df.model == "M1_survival+cal"].sort_values(["class", "h"])["pinball90"].to_numpy()
+        b = plain[plain.model == "M1_survival"].sort_values(["class", "h"])["pinball90"].to_numpy()
+        assert np.allclose(a, b)

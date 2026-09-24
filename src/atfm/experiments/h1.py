@@ -96,7 +96,11 @@ def _ticks(t_min: float, t_max: float, window_s: float, horizons: list[float], t
 
 
 def _calibrate(cfg: H1Config, models: dict, train: TraceTable) -> dict:
-    """Wrap session forecasters with a dispersion factor fitted on ticks of the train table."""
+    """Wrap session forecasters with a dispersion factor fitted on ticks of the train table.
+
+    Fitting runs on fresh model instances so no train-fleet state (exogenous starts, backend factors)
+    leaks into the forecasters that score the test run."""
+    fitting = _build(cfg, train)
     rep = FleetReplayer(train)
     t_min, t_max = train.time_range()
     end = t_max - max(cfg.horizons)
@@ -108,9 +112,10 @@ def _calibrate(cfg: H1Config, models: dict, train: TraceTable) -> dict:
     for name, fc in list(models.items()):
         if not isinstance(fc, SessionForecaster):
             continue
-        early = [(float(tr), c) for tr, c in zip(starts["t_request"], starts["class"]) if tr < t_min + fc.exo.window_s]
-        fc.exo.update(t_min, early)
-        k = fit_inflation(fc, ticks, truth_fn=lambda t: rep.demand_truth(t, cfg.horizons), target=0.9,
+        fit_fc = fitting[name]
+        early = [(float(tr), c) for tr, c in zip(starts["t_request"], starts["class"]) if tr < t_min + fit_fc.exo.window_s]
+        fit_fc.exo.update(t_min, early)
+        k = fit_inflation(fit_fc, ticks, truth_fn=lambda t: rep.demand_truth(t, cfg.horizons), target=0.9,
                           rng=np.random.default_rng(cfg.seed + 7), states_fn=rep.states_at)
         models[name] = CalibratedForecaster(fc, k)
         factors[name] = k.tolist()

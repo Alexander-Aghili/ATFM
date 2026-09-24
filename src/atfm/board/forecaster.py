@@ -17,8 +17,8 @@ TARGETS = ("kv_blocks", "prefill_tokens")
 class ExogenousModel:
     """Demand from sessions that do not exist yet: nonhomogeneous Poisson arrivals with empirical first-call size."""
 
-    def __init__(self, window_s: float = 1800.0, block_size: int = 16):
-        self.window_s, self.block_size = window_s, block_size
+    def __init__(self, window_s: float = 1800.0, block_size: int = 16, min_span_s: float = 60.0):
+        self.window_s, self.block_size, self.min_span_s = window_s, block_size, min_span_s
         self.first_isl: dict[str, np.ndarray] = {c: np.array([256]) for c in CLASSES}
         self._starts: dict[str, deque] = {c: deque() for c in CLASSES}
         self._t_first: float | None = None  # first update time: the rate divides by the observed span
@@ -46,7 +46,7 @@ class ExogenousModel:
         if self._t_first is None:
             return 0.0
         now = self._now if now is None else now
-        span = min(self.window_s, max(now - self._t_first, 1.0))
+        span = min(self.window_s, max(now - self._t_first, self.min_span_s))
         return len(self._starts[cls]) / span
 
     def draw(self, cls: str, horizon: float, n: int, rng: np.random.Generator) -> tuple[np.ndarray, np.ndarray]:

@@ -66,6 +66,9 @@ def test_exogenous_rate_independent_of_model_count_and_warmup():
     b.exo.update(60.0, starts)
     # two models, two starts each: neither sees the other's update, and the rate uses the observed span
     assert a.exo.rate("background", 60.0) == b.exo.rate("background", 60.0)
-    assert abs(a.exo.rate("background", 60.0) - 2 / 55.0) < 1e-12  # span from earliest known start (5 s)
+    assert abs(a.exo.rate("background", 60.0) - 2 / 60.0) < 1e-12  # span floored at 60 s (2 starts / 60 s)
+    burst = ExogenousModel().fit(tr)
+    burst.update(0.5, [(0.0, "background")] * 100)                        # 100 starts reported at t=0.5
+    assert burst.rate("background") <= 100 / 60.0 + 1e-9                  # never a per-second explosion
     a.exo.update(3000.0, [])
     assert abs(a.exo.rate("background", 3000.0) - 0.0) < 1e-12  # both starts fell out of the 1800 s window
