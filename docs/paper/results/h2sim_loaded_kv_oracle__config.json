@@ -1,0 +1,33 @@
+{
+  "name": "h2sim_loaded_kv_oracle",
+  "regime": "long_tool",
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "arms": [
+    "native",
+    "proxy_rules",
+    "oracle_kv"
+  ],
+  "engines": [
+    {
+      "kv_blocks": 6000,
+      "max_batch": 6,
+      "prefill_tps": 20000.0,
+      "decode_tps": 40.0,
+      "priority": true
+    }
+  ],
+  "window": 6,
+  "beta": 0.5,
+  "slo_ttft_s": 2.0,
+  "working_set_budget": 4500,
+  "duration_s": 3600.0,
+  "interactive_rate_per_hour": 360.0,
+  "background_rate_per_hour": 600.0,
+  "train_seed_offset": 1000,
+  "max_hold_s": 60.0,
+  "out_dir": "runs"
+}

@@ -164,4 +164,48 @@ Rules-only admission (`proxy_rules` index) plus eviction of the idle session pre
 
 This is the first arm in which the forecast buys something without paying for it: +3.0 and +2.5 SLO points over native with intervals clear of zero, more than rules alone (+1.4) and more than the working-set baseline (+1.7), at no background cost (JCT -25 to -29 s, deadlines +5.9 points). The interactive tail moves because the sessions that return soon keep their KV and prefill less on resumption. Recomputed prefill is 13 to 14% below native but 7 to 9% above rules-only LRU, so the gain is not "less recompute overall" but "less recompute on the calls that matter". M1 and M2 remain within noise of each other.
 
-`oracle_kv` in this run is not a valid upper bound: sessions whose call is waiting in the proxy queue have no heap event, so the arm treated them as never returning and evicted their KV first, which is why its recompute (4.75e7) is close to native's. Fixed to treat proxy-queued sessions as imminent; rerun queued together with the interactive-long placement run and the index diagnostic.
+`oracle_kv` in this run is not a valid upper bound: sessions whose call is waiting in the proxy queue have no heap event, so the arm treated them as never returning and evicted their KV first, which is why its recompute (4.75e7) is close to native's. Three defects were found and fixed with pinned tests before the rerun (`tests/sim/test_kv_placement.py`): sessions waiting in the proxy queue, sessions waiting in a worker queue, and, the large one, sessions *running* at tick time all had no start/arrive/tool_end event in the heap and so no return time; after their call they were "unknown" and evicted first (1,521 of 2,029 evictions in a 900 s diagnostic had an unknown victim). With the fix the oracle's victims return within 60 s in 304 of 2,029 evictions instead of 881, and its recomputed prefill in the diagnostic falls from 8.9e6 to 6.5e6, below the forecast arm's 6.9e6 and rules' 7.8e6. Oracle-only reruns paired with native and rules are queued for both regimes (`h2sim_loaded_kv_oracle`, `h2sim_interactive_long_kv_oracle`).
+
+### KV placement, interactive long tools (`h2sim_interactive_long_kv`, 3 seeds; oracle row from the pre-fix arm, superseded)
+
+| arm | SLO diff vs native [95% CI] | bg JCT diff (s) | deadline diff | recomputed prefill (tokens) |
+|---|---|---|---|---|
+| proxy_rules | +0.020 [+0.006, +0.038] | +48 [-5, +100] | +0.080 | 3.24e7 |
+| forecast_M1_kv | +0.025 [+0.009, +0.040] | +59 [8, 107] | +0.074 | 3.36e7 |
+| forecast_M2_kv | **+0.035 [+0.022, +0.050]** | +63 [12, 114] | +0.075 | 3.34e7 |
+| working_set | +0.026 [+0.010, +0.039] | +611 [557, 676] | -0.060 | 4.12e7 |
+| native | 0 | 0 | 0 | 3.93e7 |
+
+Same shape as the loaded regime and stronger: forecast placement has the best SLO of any arm (+3.5 points for M2, +2.5 for M1), above rules (+2.0) and the working-set baseline (+2.6), at rules' background cost (+59 to +63 s against +48 s for rules; deadlines +7.4 points) and with a tenth of the working set's cost. This is also the first closed-loop run in which M2 comes out ahead of M1: the placement decision is a per-session return-time ranking, which is exactly what progress signals improve, and here the interactive sessions run tools that emit them. The native-referenced intervals overlap, so the M2-over-M1 reading is a point-estimate ordering, not a tested difference; a direct paired M1-versus-M2 bootstrap is the next addition to the runner.
+
+### Index diagnostic (`h2sim_interactive_long_idx`, 3 seeds)
+
+| arm | SLO diff vs native [95% CI] | bg JCT diff (s) | deadline diff | caps |
+|---|---|---|---|---|
+| proxy_rules | +0.020 [+0.006, +0.038] | +48 [-5, +100] | +0.080 | 0 |
+| oracle_rule (true-demand v2 holds, true-duration index) | -0.004 [-0.020, +0.015] | +878 [822, 948] | -0.191 | 95 |
+| oracle_rule_noidx (same holds, index term = 0) | +0.023 [+0.009, +0.037] | +56 [4, 108] | +0.075 | 65 |
+
+Confirmed: with the next-tool term removed the same-rule lookahead is indistinguishable from rules-only admission (+2.3 points, +56 s, deadlines +7.5), so the whole +878 s and 19-deadline-point cost of the lookahead arms was the index's next-tool term with exact durations. The term, as weighted (`beta`), serves sessions about to vanish into long tools first and starves the rest; it should be dropped or re-weighted before the H100 study.
+
+### KV placement, corrected true-return-time arm (`h2sim_loaded_kv_oracle`, loaded long_tool, 3 seeds, paired with native and rules)
+
+| arm | SLO diff vs native [95% CI] | bg JCT diff (s) | deadline diff | recomputed prefill (tokens) |
+|---|---|---|---|---|
+| proxy_rules | +0.014 [-0.002, +0.028] | -35 [-90, +17] | +0.057 | 3.82e7 |
+| oracle_kv (fixed) | +0.008 [-0.006, +0.022] | +3 [-53, +56] | +0.055 | 4.36e7 |
+| forecast_M1_kv / M2_kv (from `h2sim_loaded_kv`) | +0.030 / +0.025 | -25 / -29 | +0.059 | 4.16e7 / 4.10e7 |
+
+With all three defects fixed the true-return-time arm is no longer worse than LRU, but it is still behind the forecast arms on both the interactive SLO (+0.8 against +3.0 and +2.5 points) and recomputed prefill (4.36e7 against 4.16e7 and 4.10e7). Evicting the session with the latest known return is Belady's rule for equal-sized items; contexts here are not equal-sized, and a rule that ignores block counts can evict several small soon-to-return contexts' worth of a large late one. The forecast arms' rankings are noisier and, by that noise, less extreme. Two follow-ups before this is called a result: a size-aware ordering (return time per resident block) for both arms, and a direct paired M1-versus-M2 bootstrap in the runner.
+
+### KV placement, corrected true-return-time arm, interactive long tools (`h2sim_interactive_long_kv_oracle`, 3 seeds)
+
+| arm | SLO diff vs native [95% CI] | bg JCT diff (s) | deadline diff | recomputed prefill (tokens) |
+|---|---|---|---|---|
+| proxy_rules | +0.020 [+0.006, +0.038] | +48 [-5, +100] | +0.080 | 3.24e7 |
+| oracle_kv (fixed) | +0.014 [0.000, +0.028] | +66 [15, 115] | +0.075 | 3.34e7 |
+| forecast_M1_kv / M2_kv (from `h2sim_interactive_long_kv`) | +0.025 / +0.035 | +59 / +63 | +0.074 / +0.075 | 3.36e7 / 3.34e7 |
+
+Same ordering as the loaded regime: the corrected true-return-time arm (+1.4 points) sits below both forecast arms (+2.5, +3.5) at equal recompute. The size-blind ordering is the leading explanation; a size-aware variant is the next change.
+
+**State of H2 at the end of 2026-09-27.** Admission holds: negative (five runs, two rules, cap ablation, true demand). Index next-tool term: harmful when accurate (diagnostic). KV placement by predicted return time: positive in sign in both loaded regimes and for both predictors (+2.5 to +3.5 SLO points over native, above rules and the working-set baseline, at rules' background cost), with M2 ahead of M1 where interactive tools emit progress; magnitude and the ordering against exact return times not yet explained.

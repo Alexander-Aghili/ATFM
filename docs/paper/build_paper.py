@@ -200,6 +200,31 @@ def v2_table():
     return ''.join(out)
 
 
+def kv_table():
+    """Placement arms in both regimes; oracle_kv rows come from the oracle-only reruns when present."""
+    runs = [('h2sim_loaded_kv', 'h2sim_loaded_kv_oracle'), ('h2sim_interactive_long_kv', 'h2sim_interactive_long_kv_oracle')]
+    data = []
+    for base, orc in runs:
+        d = paired(base)
+        try:
+            d = {**{k: v for k, v in d.items() if k[0] != 'oracle_kv'}, **{k: v for k, v in paired(orc).items() if k[0] == 'oracle_kv'}}
+        except FileNotFoundError:
+            d = {k: v for k, v in d.items() if k[0] != 'oracle_kv'}
+        data.append(d)
+    labels = {'proxy_rules': 'Rules', 'forecast_M1_kv': 'Forecast M1 placement', 'forecast_M2_kv': 'Forecast M2 placement',
+              'oracle_kv': 'True-return-time placement', 'working_set': 'Working set'}
+    out = []
+    for arm, label in labels.items():
+        vals = []
+        for d in data:
+            for metric, scale, precision in (('slo_attainment_sessions', 100, 1), ('bg_jct_mean', 1, 0)):
+                r = d.get((arm, metric))
+                vals.append('pending' if r is None else (f"{float(r['diff_mean'])*scale:+.{precision}f} "
+                            f"[{float(r['diff_ci_lo'])*scale:+.{precision}f}, {float(r['diff_ci_hi'])*scale:+.{precision}f}]"))
+        out.append('<tr>' + cell(label) + ''.join(cell(v, True) for v in vals) + '</tr>')
+    return ''.join(out)
+
+
 def cost_table():
     rows = read_csv('h2sim_long_tool_loaded__metrics.csv')
     out = []
@@ -225,7 +250,7 @@ def build():
                     'H1B_CHART': chart_h1b(), 'H2_CHART': chart_h2(),
                     'LOADED_TABLE': policy_table('h2sim_long_tool_loaded'),
                     'LONG_TABLE': policy_table('h2sim_interactive_long'),
-                    'CAP60_TABLE': policy_table('h2sim_long_tool_loaded_cap60'), 'V2_TABLE': v2_table(),
+                    'CAP60_TABLE': policy_table('h2sim_long_tool_loaded_cap60'), 'V2_TABLE': v2_table(), 'KV_TABLE': kv_table(),
                     'COST_TABLE': cost_table()}
     for key, value in replacements.items():
         template = template.replace('{{' + key + '}}', value)

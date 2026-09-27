@@ -1,6 +1,6 @@
 {
   "description": "Frozen inputs for the revised paper; metrics copied from completed local runs. Original data/ and runs/ are gitignored. 2026-09-27 addendum: the 60-second-cap loaded run (same regime and rates as h2sim_long_tool_loaded) completed and is frozen here.",
-  "repository_commit": "2faed32e8079e27a41f212a4c7bcf3040f0291f8",
+  "repository_commit": "972a4c78cbf2f10c802368879c4be3ca792869b9",
   "sources": [
     {
       "source": "runs/sweep_tracelab.csv",
@@ -158,8 +158,98 @@
       "snapshot": "h2sim_long_tool_loaded_cap60_v2__config.json",
       "sha256": "53f67e8a2f67da77d892b6e9428bbb001de8c8bb781a0d00258847be8b8a740d",
       "snapshot_sha256": "53f67e8a2f67da77d892b6e9428bbb001de8c8bb781a0d00258847be8b8a740d"
+    },
+    {
+      "source": "runs/h2sim_loaded_kv/metrics.csv",
+      "snapshot": "h2sim_loaded_kv__metrics.csv",
+      "sha256": "c42fd502060a7270ee2230a55d8179ee08bb83763351deaf2ef40fd4fcc7b86a",
+      "snapshot_sha256": "c42fd502060a7270ee2230a55d8179ee08bb83763351deaf2ef40fd4fcc7b86a"
+    },
+    {
+      "source": "runs/h2sim_loaded_kv/paired.csv",
+      "snapshot": "h2sim_loaded_kv__paired.csv",
+      "sha256": "522b16072386bd4b9296cac4f90822566df57c084cf29923108abe1f2651894b",
+      "snapshot_sha256": "522b16072386bd4b9296cac4f90822566df57c084cf29923108abe1f2651894b"
+    },
+    {
+      "source": "runs/h2sim_loaded_kv/config.json",
+      "snapshot": "h2sim_loaded_kv__config.json",
+      "sha256": "bab4f579c2a96dfd74aff8ee90d76ae46364772dc746572ed1d4856cd842759d",
+      "snapshot_sha256": "bab4f579c2a96dfd74aff8ee90d76ae46364772dc746572ed1d4856cd842759d"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_kv/metrics.csv",
+      "snapshot": "h2sim_interactive_long_kv__metrics.csv",
+      "sha256": "08d124a17b04b414bac728fc645f9a13a7f5ffbc788c874e65a9265765be9931",
+      "snapshot_sha256": "08d124a17b04b414bac728fc645f9a13a7f5ffbc788c874e65a9265765be9931"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_kv/paired.csv",
+      "snapshot": "h2sim_interactive_long_kv__paired.csv",
+      "sha256": "3678ed1a112b53ce447b7be072f5b083d0a6f230e8c23a010ac82317388f1d13",
+      "snapshot_sha256": "3678ed1a112b53ce447b7be072f5b083d0a6f230e8c23a010ac82317388f1d13"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_kv/config.json",
+      "snapshot": "h2sim_interactive_long_kv__config.json",
+      "sha256": "98fec4b5b62472da8195162012cbdc12520af47ff6e827c8f573dbc4c8bfd30f",
+      "snapshot_sha256": "98fec4b5b62472da8195162012cbdc12520af47ff6e827c8f573dbc4c8bfd30f"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_idx/metrics.csv",
+      "snapshot": "h2sim_interactive_long_idx__metrics.csv",
+      "sha256": "9adafa9af1b569a5a546a89c5dfb0509922653f0f7a5eab77d2c58fd423bec33",
+      "snapshot_sha256": "9adafa9af1b569a5a546a89c5dfb0509922653f0f7a5eab77d2c58fd423bec33"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_idx/paired.csv",
+      "snapshot": "h2sim_interactive_long_idx__paired.csv",
+      "sha256": "be2bc205d3cc90fd3797929f9772270c33aa1e11a3c2b857ae2afaf24a552c58",
+      "snapshot_sha256": "be2bc205d3cc90fd3797929f9772270c33aa1e11a3c2b857ae2afaf24a552c58"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_idx/config.json",
+      "snapshot": "h2sim_interactive_long_idx__config.json",
+      "sha256": "214f5402dbe6539b6edd99e9cb6dbce7942d131453e1426ecbbf22c5ac83831a",
+      "snapshot_sha256": "214f5402dbe6539b6edd99e9cb6dbce7942d131453e1426ecbbf22c5ac83831a"
+    },
+    {
+      "source": "runs/h2sim_loaded_kv_oracle/metrics.csv",
+      "snapshot": "h2sim_loaded_kv_oracle__metrics.csv",
+      "sha256": "b1f1d92a920f6c83d39d97d3cdf81d1dc966e5bd834476e8178056933bffbc9a",
+      "snapshot_sha256": "b1f1d92a920f6c83d39d97d3cdf81d1dc966e5bd834476e8178056933bffbc9a"
+    },
+    {
+      "source": "runs/h2sim_loaded_kv_oracle/paired.csv",
+      "snapshot": "h2sim_loaded_kv_oracle__paired.csv",
+      "sha256": "1a8c809ebf4afc5a8ed5a7e197b5deebeb4535c5e9231a4faddf08a080e7e76d",
+      "snapshot_sha256": "1a8c809ebf4afc5a8ed5a7e197b5deebeb4535c5e9231a4faddf08a080e7e76d"
+    },
+    {
+      "source": "runs/h2sim_loaded_kv_oracle/config.json",
+      "snapshot": "h2sim_loaded_kv_oracle__config.json",
+      "sha256": "d2f102545241608c7a7e1ef829b42605dccf79651bb29ec4afaeb3c8c0286072",
+      "snapshot_sha256": "d2f102545241608c7a7e1ef829b42605dccf79651bb29ec4afaeb3c8c0286072"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_kv_oracle/metrics.csv",
+      "snapshot": "h2sim_interactive_long_kv_oracle__metrics.csv",
+      "sha256": "5bc88b26e0dfd4abca9d4d735508966a030275dee837412bb9d96e23baaf8689",
+      "snapshot_sha256": "5bc88b26e0dfd4abca9d4d735508966a030275dee837412bb9d96e23baaf8689"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_kv_oracle/paired.csv",
+      "snapshot": "h2sim_interactive_long_kv_oracle__paired.csv",
+      "sha256": "f5592471258181096758de514a389b5e72bfa9125bd4d4a64d3685109240f840",
+      "snapshot_sha256": "f5592471258181096758de514a389b5e72bfa9125bd4d4a64d3685109240f840"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_kv_oracle/config.json",
+      "snapshot": "h2sim_interactive_long_kv_oracle__config.json",
+      "sha256": "a328fa2af4c9fbc3576949e6c7fbf8fb8ae8a13c93a00ddda4beaefb12247555",
+      "snapshot_sha256": "a328fa2af4c9fbc3576949e6c7fbf8fb8ae8a13c93a00ddda4beaefb12247555"
     }
   ],
   "paper_revision_date": "2026-09-27",
-  "evidence_cutoff": "Includes completed summaries for h2sim_interactive_long, h2sim_long_tool_loaded_cap60 and the GDP-lite v2 reruns of both (2026-09-27); excludes the KV placement and index-diagnostic runs still in progress."
+  "evidence_cutoff": "Includes the interactive-long, 60-second-cap, GDP-lite v2, KV placement (with corrected true-return-time reruns) and index-diagnostic runs, all completed 2026-09-27."
 }
