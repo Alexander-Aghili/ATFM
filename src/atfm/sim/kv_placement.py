@@ -51,6 +51,14 @@ class OracleKvPolicy(_KvOrdering, OraclePolicy):
         for w in sim.workers:                     # released but not yet scheduled (batch full or no KV room): imminent
             for req in w.queue:
                 eta[req.session_id] = now
+            for req, _, t_end in w.running.values():   # running now: the next call comes after this one and its tool
+                s = sim.sessions.get(req.session_id)
+                if s is None:
+                    continue
+                turn = s.program.turns[min(s.turn, len(s.program.turns) - 1)]
+                if s.turn + 1 >= len(s.program.turns) or turn.tool_name is None:
+                    continue                                    # last call: the session ends, unknown is right
+                eta[req.session_id] = float(t_end + (turn.tool_duration or 0.0) + sim.harness_overhead_s)
         self._eta = eta
 
 

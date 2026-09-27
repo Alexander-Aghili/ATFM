@@ -134,3 +134,24 @@ def test_oracle_kv_treats_sessions_waiting_in_a_worker_queue_as_imminent():
     w.submit(Request(request_id="wq:1", session_id="wq", cls="background", isl_total=900, isl_new=100, osl=10, tier=0, index=0.0, t_queued=10.0), 10.0)
     pol.on_tick(sim, 10.0)
     assert pol.kv_victims(sim, w, ["wq", "late"]) == ["late", "wq"]
+
+
+def test_oracle_kv_gives_running_sessions_a_return_time():
+    """A session that is running at tick time has no start/arrive/tool_end event in the heap; its next
+    call is at the end of this one plus its tool. Without that, it becomes 'unknown' after the call and
+    is evicted first (the defect that made oracle_kv worse than LRU)."""
+    from atfm.sim.core import Simulator
+    from atfm.sim.kv_placement import OracleKvPolicy
+    engines = [EngineConfig(kv_blocks=3000, max_batch=4, prefill_tps=20000.0, decode_tps=40.0)]
+    progs = [_prog("late", "background", 0.0, 800, "build", 400.0), _prog("run", "background", 0.0, 800, "bash", 5.0)]
+    pol = OracleKvPolicy(window=4, cfg=ProxyConfig(upstream_url="x", beta=0.5))
+    sim = Simulator(progs, engines, pol, rng=np.random.default_rng(0))
+    sim.prime()
+    sim.run(until=0.5)                       # both first calls admitted and running (prefill 0.04 s, decode 0.25 s)
+    w = sim.workers[0]
+    w.submit(Request(request_id="run:9", session_id="run", cls="background", isl_total=900, isl_new=100, osl=400, tier=0, index=0.0, t_queued=0.5), 0.5)
+    w.schedule(0.5)                          # 'run' is now running with t_end = 0.5 + 0.045 + 10 s
+    assert any(r.session_id == "run" for r, _, _ in w.running.values())
+    pol.on_tick(sim, 0.6)
+    assert np.isfinite(pol._eta["run"]) and pol._eta["run"] < pol._eta["late"]
+    assert pol.kv_victims(sim, w, ["run", "late"]) == ["late", "run"]
