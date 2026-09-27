@@ -344,3 +344,27 @@ equals it (the oracle gap seen with dropped touches was an artefact of which tou
 slot). The ablation is the important row: random touches at the same rate give +1.1 points, within noise of
 rules alone (+1.4), so the mechanism carries nothing by itself; the gain comes from touching the sessions
 the forecast says return soon.
+
+### Touch ablation, interactive long tools (`h2sim_interactive_long_touch2`, 3 seeds; touches wait for a slot)
+
+| arm | SLO diff vs native [95% CI] | bg JCT diff (s) | touches (hit / miss / retried) per seed | recomputed prefill |
+|---|---|---|---|---|
+| proxy_rules | +0.020 [+0.006, +0.038] | +48 | 0 | 3.24e7 |
+| forecast_M2_kv (eviction order) | **+0.035 [+0.022, +0.050]** | +63 | 0 | 3.34e7 |
+| forecast_M2_touch | +0.013 [-0.003, +0.029] | +62 | 2495 (1414 / 1080 / 1768) | 2.95e7 |
+| oracle_touch | +0.017 [+0.004, +0.031] | +50 | 2900 (2296 / 605 / 2176) | 2.93e7 |
+| touch_random | +0.020 [+0.006, +0.036] | +55 | 4244 (3503 / 741 / 1787) | 3.26e7 |
+
+The opposite of the loaded regime: once touches wait for a slot rather than being dropped, the forecast
+touch arm loses its gain here (+1.3 points, within noise of rules and of random touches) while the
+eviction-order arm keeps +3.5. The retried touches fire exactly when a slot frees, which in this regime is
+when an interactive call is waiting for it; 2,500 touches at 0.05 s each are 125 slot-seconds taken from a
+window that interactive load already saturates. Recompute is still lowest for the touch arms, so the KV
+effect is there; the slot cost eats it.
+
+**Where the touch mechanism stands.** With dropped touches it matched placement in both regimes; with queued
+touches it matches placement in the loaded regime and not in the interactive-long one. The random-touch
+ablation equals rules in both, so whatever the mechanism achieves comes from the forecast. The deployable
+form therefore needs either an engine-side placement hook (no slot cost) or a touch that yields to real
+requests (issue only when the batch has a free slot at that instant, never queue), which is a one-line policy
+change to test next. The H100 study must measure the slot cost of a real touch rather than assume 0.05 s.
