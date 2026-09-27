@@ -288,3 +288,21 @@ about half of its gap to the forecast arms (the remaining +0.9 is no longer a te
 regime where interactive sessions run long tools, part of the oracle gap is the class effect; in the loaded
 regime it is not. The forecast arms themselves gain nothing from the weight. Net: forecast-ranked eviction
 remains the best placement rule in both regimes, and the reason it beats the truth is only partly understood.
+
+### Keep-alive touch arms, loaded long_tool (`h2sim_loaded_touch`, 3 seeds; touches occupy a 0.05 s batch slot, prefetch on)
+
+| arm | SLO diff vs native [95% CI] | bg JCT diff (s) | recomputed prefill | touches (hit / miss / fail) per seed | touch slot-s |
+|---|---|---|---|---|---|
+| proxy_rules | +0.014 [-0.002, +0.028] | -35 [-90, +17] | 3.82e7 | 0 | 0 |
+| forecast_M2_kv (eviction order) | +0.025 [+0.011, +0.037] | -29 [-85, +23] | 4.10e7 | 0 | 0 |
+| forecast_M1_touch | **+0.024 [+0.010, +0.038]** | -40 [-95, +12] | 3.80e7 | 6027 (58 / 26 / 5943) | 4 |
+| forecast_M2_touch | **+0.022 [+0.005, +0.036]** | -41 [-97, +11] | **3.58e7** | 7101 (297 / 306 / 6498) | 30 |
+| oracle_touch | +0.014 [0.000, +0.030] | -42 [-95, +10] | 3.56e7 | 7099 (303 / 303 / 6493) | 30 |
+| working_set | +0.017 [+0.002, +0.032] | +505 [445, 566] | 4.85e7 | 0 | 0 |
+
+The deployable mechanism keeps the placement gain: touching the sessions the forecast says return soon gives
++2.2 to +2.4 SLO points over native, the same as rewriting the eviction order, with the lowest recomputed
+prefill of any arm and no background cost, for 30 slot-seconds of touches per hour. Two caveats. First, 90%
+of attempted touches failed because the batch was full at the tick (a touch is dropped rather than queued
+here; a real proxy would queue it, so the deployable version likely does better, not worse). Second, the
+oracle touch arm is again behind the forecast arms, consistent with the placement runs.
