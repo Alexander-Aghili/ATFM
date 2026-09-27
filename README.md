@@ -9,11 +9,15 @@ Forecast LLM demand from in-flight agent sessions on a shared NVIDIA Dynamo pool
 ## Install
 
 ```bash
-uv sync                                  # Python 3.12; adds the atfm package in editable mode
-uv sync --extra dynamo                   # ai-dynamo v1.5 (Mocker workers, frontend) for the L1 path
-uv sync --extra minisweagent             # mini-SWE-agent harness adapter
-uv run pytest -q                         # ~200 tests, about 35 s; 2 tests gated on ATFM_DYNAMO=1
+uv sync --extra dev                      # Python 3.12; editable package and test dependencies
+uv sync --extra dev --extra dynamo       # ai-dynamo v1.5 (Mocker workers, frontend) for the L1 path
+uv sync --extra dev --extra harness      # mini-SWE-agent harness adapter
+uv run pytest -q                         # full suite; 2 integration tests gated on ATFM_DYNAMO=1
 ```
+
+For core development, read [Working on the ATFM core](docs/development/core.md):
+module boundaries, time and sampling contracts, extension points, testing, and
+comment conventions.
 
 ## Components (`src/atfm/`)
 
