@@ -368,3 +368,38 @@ ablation equals rules in both, so whatever the mechanism achieves comes from the
 form therefore needs either an engine-side placement hook (no slot cost) or a touch that yields to real
 requests (issue only when the batch has a free slot at that instant, never queue), which is a one-line policy
 change to test next. The H100 study must measure the slot cost of a real touch rather than assume 0.05 s.
+
+## Fourth batch (2026-09-27, night): why forecast-ranked eviction beats exact return times
+
+`scripts/eviction_diagnostic.py` (`atfm.sim.diagnostics`) records every eviction under an arm and scores it
+against the truth after the run. 1,800 s of each loaded regime, seed 0, 4,237 and 3,482 evictions per arm
+(the programs and arrival of evictions are identical across arms; only the victims differ).
+
+| regime | arm | interactive victims | of which back within 60 s | queue s paid by their next calls | background victims | never-returning victims |
+|---|---|---|---|---|---|---|
+| loaded | proxy_rules (LRU) | 624 | 91% | 599 | 3613 | 2% |
+| loaded | oracle_kv (exact) | **781** | 75% | 587 | 3456 | 7% |
+| loaded | forecast_M1_kv | **318** | 85% | 299 | 3919 | 2% |
+| loaded | forecast_M2_kv | **321** | 86% | 337 | 3916 | 3% |
+| interactive-long | proxy_rules (LRU) | 848 | 53% | 588 | 2634 | 1% |
+| interactive-long | oracle_kv (exact) | **861** | 43% | 554 | 2621 | 7% |
+| interactive-long | forecast_M1_kv | **600** | 34% | 415 | 2882 | 2% |
+| interactive-long | forecast_M2_kv | **617** | 32% | 486 | 2865 | 1% |
+
+The mechanism is in the first column. Every arm has to evict the same number of contexts; the forecast arms
+evict half as many *interactive* contexts as exact-return-time eviction (318 against 781; 600 against 861),
+and the interactive calls that follow their evictions pay roughly half the queue time. The objective is the
+interactive SLO, so that is the whole effect. The exact arm evicts the session that returns last regardless
+of class, and under load the last returner among the idle candidates is often an interactive session in a
+long think (three quarters of the oracle's interactive victims are back within 60 s in the loaded regime).
+The forecast arms are systematically biased in a way that happens to serve the objective: they
+under-estimate background absence (median estimate 155 s against a true 205 to 240 s) but still rank
+background well behind interactive, because a conditional tool-duration model always places a session
+inside a long tool far away, so background is what they evict. They also keep the KV of sessions that
+never return (2% of victims against the oracle's 7%), which is waste the oracle correctly avoids and which
+does not matter to the SLO.
+
+So the forecast is not a better estimator of return time than the truth; it is a better *policy* for this
+objective because its errors are class-correlated. The right rule is therefore explicit: rank by
+predicted absence within class and evict background first, which is what the class-weighted arms
+approximate. The class-weighted diagnostic follows.
