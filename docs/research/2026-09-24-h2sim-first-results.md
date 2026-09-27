@@ -256,3 +256,20 @@ includes zero (the direct test the earlier point-estimate ordering lacked). Plac
 time is therefore robust in sign across two regimes, two predictors and two orderings; the paradox that the
 truth does worse than the forecast is confirmed and still unexplained by size. Class weighting is the next
 test in the chain.
+
+### Class-weighted placement, loaded long_tool (`h2sim_loaded_cw`, 3 seeds)
+
+| contrast | SLO diff [95% CI] | bg JCT diff (s) |
+|---|---|---|
+| forecast_M2_kv_cw vs forecast_M2_kv | -0.003 [-0.014, +0.008] | +5 [0, +9] |
+| forecast_M1_kv_cw vs forecast_M1_kv | -0.007 [-0.018, +0.004] | -2 [-8, +3] |
+| oracle_kv_cw vs oracle_kv | -0.002 [-0.014, +0.011] | -3 [-10, +5] |
+| forecast_M2_kv_cw vs oracle_kv_cw | +0.008 [-0.005, +0.019] | **-14 [-20, -8]** |
+
+Weighting background absence x3 (evict background first at equal predicted absence) changes nothing for
+any arm. The class hypothesis for the oracle gap is ruled out along with the size hypothesis. What remains:
+the forecast's ranking is *wrong* in a way that happens to help the interactive SLO, most plausibly by
+keeping sessions that the truth says return late but that, when kept, avoid a recompute at a moment the
+window is contended. A per-eviction diagnostic (victim's class, true remaining time, whether the recompute it
+caused landed inside a contended window) is the next step; until it runs, the placement result stands as
+"forecast-ranked eviction beats LRU and beats exact-return-time eviction, for reasons not yet understood".
