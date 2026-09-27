@@ -41,6 +41,13 @@ class ProgressCurve:
         self.curves: dict[str, tuple[np.ndarray, np.ndarray]] = {}   # tool -> (progress grid, time fraction)
         self.sigma: dict[str, float] = {}                             # tool -> sd of log(actual / predicted duration)
 
+    @staticmethod
+    def composite(tool: str | None, key: str | None) -> str | None:
+        """Curve id for a (tool, command signature) pair; None when there is no signature."""
+        if tool is None or key is None or (isinstance(key, float) and math.isnan(key)):
+            return None
+        return f"{tool}|{key}"
+
     def fit(self, train: TraceTable) -> "ProgressCurve":
         pairs: dict[str, list[tuple[float, float]]] = defaultdict(list)
         phases: dict[str, int] = defaultdict(int)
@@ -57,8 +64,10 @@ class ProgressCurve:
                           for e in ev if e.get("total") not in (None, 0) and e.get("completed") is not None]
                 if not usable:
                     continue
-                phases[r["tool_name"]] += 1
-                pairs[r["tool_name"]].extend(usable)
+                for k in (r["tool_name"], self.composite(r["tool_name"], r.get("tool_args_hash"))):
+                    if k is not None:               # one curve per tool name, one per (tool, signature)
+                        phases[k] += 1
+                        pairs[k].extend(usable)
         edges = np.linspace(0.0, 1.0, self.bins + 1)
         for tool, pts in pairs.items():
             if phases[tool] < self.min_phases:
@@ -84,14 +93,26 @@ class ProgressCurve:
                 self.sigma[tool] = 0.5
         return self
 
-    def has(self, tool: str | None) -> bool:
-        return tool in self.curves
+    def _which(self, tool: str | None, key: str | None) -> str | None:
+        c = self.composite(tool, key)
+        if c in self.curves:
+            return c
+        return tool if tool in self.curves else None
 
-    def time_fraction(self, tool: str | None, progress_fraction: float) -> float:
+    def has(self, tool: str | None, key: str | None = None) -> bool:
+        return self._which(tool, key) is not None
+
+    def sigma_for(self, tool: str | None, key: str | None = None, default: float = 0.5) -> float:
+        w = self._which(tool, key)
+        return self.sigma.get(w, default) if w is not None else default
+
+    def time_fraction(self, tool: str | None, progress_fraction: float, key: str | None = None) -> float:
+        """Signature-specific curve when one was learned, else the tool-name curve, else linear."""
         pf = float(np.clip(progress_fraction, 0.0, 1.0))
-        if tool not in self.curves:
+        w = self._which(tool, key)
+        if w is None:
             return pf
-        g, v = self.curves[tool]
+        g, v = self.curves[w]
         return float(np.interp(pf, g, v))
 
 
@@ -142,11 +163,12 @@ class ProgressPredictor(SurvivalPredictor):
         latest = max(usable, key=lambda e: e["t"])
         total, done, t_latest = float(latest["total"]), float(latest["completed"]), float(latest["t"])
         t_start = s.t_tool_start if s.t_tool_start is not None else s.t_phase_start
-        tf = self.curve.time_fraction(s.tool_name, done / total) if self.curve.has(s.tool_name) else None
+        key = getattr(s, "tool_args_hash", None)
+        tf = self.curve.time_fraction(s.tool_name, done / total, key) if self.curve.has(s.tool_name, key) else None
         if tf is not None and tf > 0.02:
             # learned non-linear progress: elapsed at the latest report / time fraction = duration estimate
             d_hat = (t_latest - t_start) / tf
-            d = d_hat * rng.lognormal(0.0, self.curve.sigma.get(s.tool_name, 0.5), size=n)
+            d = d_hat * rng.lognormal(0.0, self.curve.sigma_for(s.tool_name, key), size=n)
             remaining = np.maximum(d - (now - t_start), 0.0) + self._residual_draw(s.tool_name, n, rng)
             return remaining
         shape, rate = rate_posterior(usable, t_start, now)

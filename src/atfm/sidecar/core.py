@@ -40,6 +40,21 @@ _INSTALL = ("pip install", "npm install", "apt-get", "uv sync", "uv pip")
 _PYTEST_CMD = re.compile(r"(^|&&|;|\|)\s*(python(3)?( -m)?\s+)?pytest\b")
 
 
+_NUM = re.compile(r"^[0-9]+([.][0-9]+)?$")
+
+
+def command_signature(command: str) -> str:
+    """Normalized command text for keying progress curves: standalone numbers (sizes, counts, rates)
+    become `N`, while digits attached to a flag (`-j2`) or a redirection (`2>&1`) stay, because those
+    are modes that change the shape of progress rather than its length. At most 64 characters."""
+    toks = ["N" if _NUM.match(t) else t for t in command.split()]
+    sig = " ".join(toks)
+    if len(sig) > 64:
+        import hashlib
+        sig = sig[:52] + "~" + hashlib.sha1(sig.encode()).hexdigest()[:8]
+    return sig
+
+
 def classify_tool(command: str) -> str:
     """Coarse tool class from the command text. Installs and clones are checked first so that
     `pip install pytest` or `apt-get install cmake` are not mistaken for test or build runs."""

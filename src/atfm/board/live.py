@@ -41,6 +41,7 @@ class SessionRegistry:
         elif k == "tool.start":
             s = self._get(e.session_id, e.t)
             s.phase, s.tool_name, s.backend_id = "tool_running", e.tool_name, e.backend_id
+            s.tool_args_hash = getattr(e, "args_hash", None)
             s.t_tool_start, s.t_phase_start = e.t, e.t
             s.progress, s.data = [], []
         elif k in ("tool.progress", "tool.data"):

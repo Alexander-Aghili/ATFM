@@ -45,7 +45,8 @@ def resumption_records(table: TraceTable, offsets_s: list[float], min_duration_s
                 state = SessionState(session_id=sid, cls=r["class"], tenant=r["tenant"], parent_session_id=None,
                                      phase="tool_running", turn_index=int(r["turn_index"]), tool_name=r["tool_name"],
                                      backend_id=r["backend_id"], t_tool_start=float(ts), progress=prog, data=data,
-                                     ctx_tokens=int(r["isl"]) + int(r["osl"]), tool_history=list(history), t_phase_start=float(ts))
+                                     ctx_tokens=int(r["isl"]) + int(r["osl"]), tool_history=list(history), t_phase_start=float(ts),
+                                     tool_args_hash=None if pd.isna(r.get("tool_args_hash")) else r.get("tool_args_hash"))
                 recs.append({"session_id": sid, "tool_name": r["tool_name"], "signal": sig, "elapsed": off,
                              "duration": dur, "true_remaining": dur - off, "now": now, "state": state})
             history.append((r["tool_name"], dur))

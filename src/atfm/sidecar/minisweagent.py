@@ -10,7 +10,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Callable
 
-from .core import ToolContext, classify_tool, run_tool
+from .core import ToolContext, classify_tool, command_signature, run_tool
 from .gate import gate_allowed_at
 
 DEFAULT_BACKENDS = {"pytest": "ci", "build": "ci", "install": "pkg", "clone": "git"}
@@ -62,7 +62,7 @@ class SidecarMixin:
                 if wait > 0:
                     time.sleep(wait)
         ctx = ToolContext(session_id=cfg.session_id, turn_index=cfg.turn_index, tool_name=tool,
-                          backend_id=cfg.backend_for(tool))
+                          backend_id=cfg.backend_for(tool), args_hash=command_signature(command))
         cfg.turn_index += 1
         try:
             res = run_tool(argv_builder(command), ctx, cfg.bus, cwd=host_cwd or None, env=env, timeout=timeout,

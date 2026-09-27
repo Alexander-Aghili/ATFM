@@ -5,7 +5,7 @@ from typing import Literal
 
 import numpy as np
 
-from atfm.board.forecaster import ExogenousModel, SessionForecaster
+from atfm.board.forecaster import CLASSES, TARGETS, ExogenousModel, SessionForecaster
 from atfm.board.live import SessionRegistry
 from atfm.board.predictors import ProgressPredictor, SurvivalPredictor
 from atfm.proxy.config import ProxyConfig
@@ -16,7 +16,7 @@ from atfm.traces.sidecar import events_to_trace_table
 
 from .core import Simulator
 from .engine import EngineConfig
-from .policies import NativePolicy, _meta
+from .policies import NativePolicy, OraclePolicy, _meta
 
 
 class GdpLite:
@@ -107,6 +107,78 @@ class ForecastPolicy:
 
     def on_tool_end(self, sim, session, now: float) -> None:
         return None
+
+
+class OracleRulePolicy(OraclePolicy):
+    """Like-for-like upper bound for the forecast arms: the same GdpLite hold rule and the same index,
+    fed the *true* first-call demand per horizon (read from the event heap) instead of forecast samples,
+    and the true duration of the next tool. Whatever the forecast arms lose against this arm is forecast
+    error; whatever this arm loses against `native` on background cost is the rule itself."""
+
+    name = "oracle_rule"
+
+    def __init__(self, window: int, cfg: ProxyConfig, horizons: list[float] | None = None, n: int = 8,
+                 gdp: GdpLite | None = None, block_size: int = 16):
+        super().__init__(window, cfg, hold=True)
+        self.horizons, self.n, self.gdp, self.block_size = list(horizons or [30.0, 120.0, 300.0]), n, gdp or GdpLite(), block_size
+        self.snapshot: ForecastSnapshot | None = None
+        self.snapshots = 0
+        self._isl_sum, self._isl_n = 0.0, 0
+
+    def _next_call(self, sim, kind: str, payload) -> tuple[str, str, int] | None:
+        """(session id, class, prompt tokens) of the LLM call this heap event leads to."""
+        if kind == "start":
+            p = payload
+            return p.session_id, p.cls, int(p.turns[0].isl_new)
+        if kind == "arrive":
+            s = sim.sessions.get(payload)
+            if s is None or s.turn >= len(s.program.turns):
+                return None
+            turn = s.program.turns[s.turn]
+            return s.program.session_id, s.program.cls, int(turn.isl_new if turn.reset else s.ctx + turn.isl_new)
+        if kind == "tool_end":
+            s = sim.sessions.get(payload[0])
+            ti = payload[2] + 1
+            if s is None or ti >= len(s.program.turns):
+                return None
+            turn = s.program.turns[ti]
+            return s.program.session_id, s.program.cls, int(turn.isl_new if turn.reset else s.ctx + turn.isl_new)
+        return None
+
+    def on_tick(self, sim, now: float) -> None:
+        for e in sim.events.drain():
+            if e.kind == "llm.request":
+                self._isl_sum += e.isl
+                self._isl_n += 1
+        H = len(self.horizons)
+        samples = {tgt: {c: np.zeros((H, self.n)) for c in CLASSES} for tgt in TARGETS}
+        seen: set[str] = set()
+        for t, _, kind, payload in sorted(sim._heap, key=lambda x: (x[0], x[1])):
+            if kind not in ("start", "arrive", "tool_end"):
+                continue
+            nc = self._next_call(sim, kind, payload)
+            if nc is None or nc[0] in seen:
+                continue
+            seen.add(nc[0])                       # demand truth: first call per session per horizon
+            sid, cls, isl = nc
+            for i, h in enumerate(self.horizons):
+                if t <= now + h:
+                    samples["kv_blocks"][cls][i, :] += float(np.ceil(isl / self.block_size))
+                    samples["prefill_tokens"][cls][i, :] += float(isl)
+        self.snapshot = ForecastSnapshot(t=now, horizons=self.horizons, model_id=self.name, samples=samples)
+        self.snapshots += 1
+
+    def on_arrival(self, sim, call) -> float | None:
+        if call.session.program.cls != "background" or self.snapshot is None:
+            return None
+        free_blocks = sum(w.capacity_free_blocks() for w in sim.workers)
+        free_slots = sum(max(0, w.cfg.max_batch - len(w.running)) for w in sim.workers)
+        mean_isl = (self._isl_sum / self._isl_n) if self._isl_n else 3000.0
+        e_service = mean_isl / self.cfg.prefill_tps + self.cfg.default_osl / self.cfg.decode_tps
+        t = self.gdp.hold_until(sim.now, self.snapshot, free_blocks, free_slots, mean_isl, e_service_s=e_service)
+        if t is not None:
+            self.last_hold_reason = "oracle_rule_surge"
+        return t
 
 
 def fit_predictor_on_programs(kind: Literal["M1", "M2"], programs, engines: list[EngineConfig], rng):

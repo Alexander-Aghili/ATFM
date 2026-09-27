@@ -47,7 +47,7 @@ def _tools(evs: list) -> list[dict]:
     for e in evs:
         if e.kind == "tool.start":
             out[e.call_id] = {"t_start": e.t, "t_end": None, "name": e.tool_name, "backend": e.backend_id,
-                              "progress": [], "data": [], "exit": None}
+                              "hash": getattr(e, "args_hash", None), "progress": [], "data": [], "exit": None}
         elif getattr(e, "call_id", None) in out:
             tl = out[e.call_id]
             if e.kind == "tool.progress":
@@ -63,7 +63,7 @@ def _row(sid, m, turn, t_req, t_first, t_last, isl, osl, tl) -> TraceRow:
     kw = dict(session_id=sid, parent_session_id=m["parent"], cls=m["class"], tenant=m["tenant"], turn_index=turn,
               t_request=t_req, t_first_token=t_first, t_last_token=t_last, isl=int(isl), osl=int(osl), source="sidecar")
     if tl is not None:
-        kw.update(tool_name=tl["name"], backend_id=tl["backend"], t_tool_start=tl["t_start"],
+        kw.update(tool_name=tl["name"], tool_args_hash=tl.get("hash"), backend_id=tl["backend"], t_tool_start=tl["t_start"],
                   t_tool_end=tl["t_end"],  # None when the tool never finished
                   tool_exit_status=tl["exit"], progress_events=tl["progress"], data_events=tl["data"])
     return TraceRow(**kw)

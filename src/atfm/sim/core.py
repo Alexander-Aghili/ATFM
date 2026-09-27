@@ -259,12 +259,20 @@ class Simulator:
                                  "missed": bool(s.deadline is not None and t > s.deadline), "turns": s.turn + 1})
 
     # ---- main loop
-    def run(self, until: float | None = None, max_idle_ticks: int = 100_000) -> pd.DataFrame:
-        """Run to completion. `max_idle_ticks` consecutive ticks with no other event is treated as a stall
-        (a policy holding every remaining call forever) and raises instead of spinning."""
+    def prime(self) -> None:
+        """Queue every program's start and the first tick (run() does this; policies inspecting the heap
+        before a run, such as the oracle in tests, call it explicitly). Idempotent."""
+        if getattr(self, "_primed", False):
+            return
+        self._primed = True
         for p in self.programs:
             self._push(p.t_arrival, "start", p)
         self._push(0.0, "tick", None)
+
+    def run(self, until: float | None = None, max_idle_ticks: int = 100_000) -> pd.DataFrame:
+        """Run to completion. `max_idle_ticks` consecutive ticks with no other event is treated as a stall
+        (a policy holding every remaining call forever) and raises instead of spinning."""
+        self.prime()
         idle_ticks = 0
         while self._heap:
             t, _, kind, payload = heapq.heappop(self._heap)
