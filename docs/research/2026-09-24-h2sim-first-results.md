@@ -423,3 +423,24 @@ suspect is staleness. The exact arm's return times are computed at the 5 s tick;
 session that just returned and left for a 400 s tool still carries "returns in 2 s" and is kept, forcing an
 interactive eviction, while the forecast's registry sees the new tool.start at the same tick and its
 estimate moves the right way. `oracle_kv_fresh` (exact times recomputed at each eviction) tests this next.
+
+### Hard-pin arms (the LMCache form), loaded long_tool (`h2sim_loaded_pin`, 3 seeds; pin horizon 30 s, budget 3000 blocks per worker)
+
+| arm | SLO diff vs native [95% CI] | bg JCT diff (s) | pins per seed | recomputed prefill |
+|---|---|---|---|---|
+| proxy_rules | +0.014 [-0.002, +0.028] | -35 | 0 | 3.82e7 |
+| forecast_M2_kv (eviction order) | +0.025 [+0.011, +0.037] | -29 | 0 | 4.10e7 |
+| forecast_M1_pin | +0.015 [0.000, +0.030] | -21 | 1536 | 3.99e7 |
+| forecast_M2_pin | +0.013 [-0.002, +0.027] | -22 | 1564 | 4.00e7 |
+| oracle_pin | +0.012 [-0.003, +0.027] | +24 | 1634 | 4.59e7 |
+| pin_random | 0.000 [-0.016, +0.015] | +50 | 2104 | 4.79e7 |
+| forecast_M2_touch (yielding, prefetch) | +0.022 [+0.005, +0.036] | -41 | 603 touches | 3.58e7 |
+
+Hard pins with a 30 s horizon deliver about half of the eviction-order gain in this regime (+1.3 to +1.5
+points against +2.5), no better than rules alone within noise, while the random-pin ablation is exactly
+zero (the mechanism carries nothing by itself) and the yielding touch keeps +2.2. A pin protects a
+session's blocks outright for 30 s whether or not the cache is under pressure, so it also blocks
+admissions; eviction ordering and touches only act when room is needed. The LMCache form of placement
+therefore needs a shorter pin horizon or a pin tied to the eviction frontier (pin only what is about to
+go), which is a knob to sweep before the hardware study. The exact-time pin arm is again no better than the
+forecast pins.
