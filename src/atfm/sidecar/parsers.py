@@ -60,6 +60,56 @@ class CounterParser:
         return {"completed": k, "total": n, "phase": "run"}
 
 
+_ROWS_A = re.compile(r"\b(\d+)\s*/\s*(\d+)\s+rows?\b|\brows?\s+processed\s+(\d+)\s*/\s*(\d+)", re.I)
+_ROWS_B = re.compile(r"\bprocessed\s+(\d+)\s+of\s+(\d+)\s+rows?\b", re.I)
+_STAGE = re.compile(r"\bstage\s+(\d+)\s*(?:/|of)\s*(\d+)\b", re.I)
+_STEP = re.compile(r"\b(step|epoch|iter(?:ation)?)\s+(\d+)\s*(?:/|of)\s*(\d+)\b", re.I)
+_LOSS = re.compile(r"\bloss\s*[=:]\s*([-+0-9.eE]+)", re.I)
+
+
+def _kn(k: float, n: float, phase: str) -> dict | None:
+    if n <= 0 or k > n:
+        return None
+    return {"completed": float(k), "total": float(n), "phase": phase}
+
+
+class RowsParser:
+    """dbt / Spark / ETL style row counters: `rows processed k/N`, `processed k of N rows`, `k/N rows`."""
+
+    def feed(self, line: str, t: float) -> dict | None:
+        m = _ROWS_A.search(line)
+        if m:
+            k, n = (m.group(1), m.group(2)) if m.group(1) else (m.group(3), m.group(4))
+            return _kn(float(k), float(n), "rows")
+        m = _ROWS_B.search(line)
+        return _kn(float(m.group(1)), float(m.group(2)), "rows") if m else None
+
+
+class StageParser:
+    """Pipeline stage markers: `stage k/N`, `Stage k of N`."""
+
+    def feed(self, line: str, t: float) -> dict | None:
+        m = _STAGE.search(line)
+        return _kn(float(m.group(1)), float(m.group(2)), "stage") if m else None
+
+
+class TrainingParser:
+    """Training monitors: `step k/N` or `epoch k/N` as progress, `loss=x` or `loss: x` as a data event."""
+
+    def feed(self, line: str, t: float) -> dict | None:
+        m = _STEP.search(line)
+        return _kn(float(m.group(2)), float(m.group(3)), m.group(1).lower()[:5]) if m else None
+
+    def feed_data(self, line: str, t: float) -> dict | None:
+        m = _LOSS.search(line)
+        if not m:
+            return None
+        try:
+            return {"metric": "loss", "value": float(m.group(1))}
+        except ValueError:
+            return None
+
+
 class RateParser:
     """Weak signal: output line rate over a window, emitted as a data event."""
 
@@ -83,4 +133,4 @@ class RateParser:
 
 
 def default_parsers() -> list:
-    return [PytestParser(), PercentParser(), CounterParser(), RateParser()]
+    return [PytestParser(), PercentParser(), RowsParser(), StageParser(), TrainingParser(), CounterParser(), RateParser()]
