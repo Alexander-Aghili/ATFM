@@ -40,6 +40,7 @@ uv run python scripts/h1b_resumption.py runs/collect/l1_varied_events.jsonl --mi
 
 # closed-loop simulator (writes runs/<name>/{metrics,paired,contrasts}.csv, manifest.json, per-arm logs)
 uv run python scripts/run_h2sim.py experiments/h2sim_loaded_kv.yaml
+uv run python scripts/eviction_diagnostic.py experiments/h2sim_loaded_kv.yaml --arms oracle_kv forecast_M2_kv --duration 900   # per-eviction truth vs estimate
 
 # proxy in front of a Dynamo frontend, and the board service
 uv run python scripts/run_proxy.py --upstream http://127.0.0.1:8000 --window 8 --events runs/events.jsonl
@@ -50,7 +51,7 @@ uv run python scripts/dynamo_local.py            # Mocker workers + frontend on 
 bash scripts/l1_e2e.sh                           # proxy + Mocker + scripted sessions end to end
 ```
 
-Simulator arms: `native`, `proxy_rules`, `forecast_M1`, `forecast_M2` (+`_nohold`), `oracle`, `oracle_rule` (+`_noidx`), `working_set`, placement `forecast_M{1,2}_kv` (+`_size`, `_cw`), `oracle_kv` (+`_size`, `_cw`), keep-alive `forecast_M{1,2}_touch`, `oracle_touch`. Regimes: `short_tool`, `long_tool`, `interactive_long_tool`, `trace` (replay a parquet table).
+Simulator arms: `native`, `proxy_rules`, `forecast_M1`, `forecast_M2` (+`_nohold`), `oracle`, `oracle_rule` (+`_noidx`), `working_set`, placement `forecast_M{1,2}_kv` (+`_size`, `_cw`), `oracle_kv` (+`_size`, `_cw`), keep-alive `forecast_M{1,2}_touch`, `oracle_touch`, `touch_random` (options `touch_prefetch`, `touch_retry`, `touch_yield`), hard pins `forecast_M{1,2}_pin`, `oracle_pin`, `pin_random` (the LMCache form; `pin_horizon_s`, `pin_budget_blocks`). Regimes: `short_tool`, `long_tool`, `interactive_long_tool`, `trace` (replay a parquet table).
 
 ## Conventions
 
