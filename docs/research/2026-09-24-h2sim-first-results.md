@@ -306,3 +306,24 @@ prefill of any arm and no background cost, for 30 slot-seconds of touches per ho
 of attempted touches failed because the batch was full at the tick (a touch is dropped rather than queued
 here; a real proxy would queue it, so the deployable version likely does better, not worse). Second, the
 oracle touch arm is again behind the forecast arms, consistent with the placement runs.
+
+### Keep-alive touch arms, interactive long tools (`h2sim_interactive_long_touch`, 3 seeds)
+
+| arm | SLO diff vs native [95% CI] | bg JCT diff (s) | recomputed prefill | touches (hit / miss / fail) per seed |
+|---|---|---|---|---|
+| proxy_rules | +0.020 [+0.006, +0.038] | +48 [-5, +100] | 3.24e7 | 0 |
+| forecast_M2_kv (eviction order) | +0.035 [+0.022, +0.050] | +63 [12, 114] | 3.34e7 | 0 |
+| forecast_M1_touch | +0.023 [+0.008, +0.039] | +57 [7, 107] | 3.22e7 | 4713 (95 / 37 / 4581) |
+| forecast_M2_touch | **+0.029 [+0.014, +0.043]** | +59 [9, 108] | **2.96e7** | 5849 (353 / 387 / 5109) |
+| oracle_touch | +0.020 [+0.007, +0.034] | +53 [1, 105] | 2.95e7 | 5818 (335 / 392 / 5091) |
+| working_set | +0.026 [+0.010, +0.039] | +611 [557, 676] | 4.12e7 | 0 |
+
+Same as the loaded regime: the touch mechanism keeps most of the placement gain (+2.9 of +3.5 points for
+M2) with the lowest recomputed prefill of any arm, at the rules arm's background cost, and here the
+progress-aware predictor is ahead of the elapsed-time one for touches as well (+2.9 against +2.3, not a tested
+contrast). Nine in ten touch attempts still fail on a full batch.
+
+**State of H2 at the end of the third batch.** Admission holds: negative. Placement by predicted return time:
+positive in both regimes, robust to size and class weighting, ahead of exact return times for reasons only partly
+understood, and deliverable through keep-alive touches at negligible slot cost. This is what the H100 study
+tests; its ablation (`touch_random`) and a queued rather than dropped touch are the two remaining simulator changes.
