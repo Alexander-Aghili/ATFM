@@ -403,3 +403,20 @@ So the forecast is not a better estimator of return time than the truth; it is a
 objective because its errors are class-correlated. The right rule is therefore explicit: rank by
 predicted absence within class and evict background first, which is what the class-weighted arms
 approximate. The class-weighted diagnostic follows.
+
+### Class-weighted arms under the diagnostic
+
+| regime | arm | interactive victims | back within 60 s | queue s paid by their next calls |
+|---|---|---|---|---|
+| loaded | oracle_kv_cw (x3) | 729 | 75% | 505 |
+| loaded | forecast_M2_kv_cw | 314 | 87% | 321 |
+| interactive-long | oracle_kv_cw | 793 | 38% | 571 |
+| interactive-long | forecast_M2_kv_cw | 543 | 28% | 408 |
+
+Tripling background absence barely moves the exact arm's interactive victim count (781 to 729; 861 to
+793), so the class mix is not something the weight can fix: when the exact arm evicts an interactive
+context it is usually because no idle background candidate is left at that instant. The remaining
+suspect is staleness. The exact arm's return times are computed at the 5 s tick; between ticks a background
+session that just returned and left for a 400 s tool still carries "returns in 2 s" and is kept, forcing an
+interactive eviction, while the forecast's registry sees the new tool.start at the same tick and its
+estimate moves the right way. `oracle_kv_fresh` (exact times recomputed at each eviction) tests this next.
