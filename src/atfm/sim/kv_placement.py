@@ -48,6 +48,9 @@ class OracleKvPolicy(_KvOrdering, OraclePolicy):
                 eta[nc[0]] = float(t)
         for c in sim.proxy_queue:                 # waiting for the window: no heap event, but the call is imminent
             eta[c.session.program.session_id] = max(now, float(c.release_not_before))
+        for w in sim.workers:                     # released but not yet scheduled (batch full or no KV room): imminent
+            for req in w.queue:
+                eta[req.session_id] = now
         self._eta = eta
 
 

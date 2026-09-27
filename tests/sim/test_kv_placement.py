@@ -117,3 +117,20 @@ def test_oracle_kv_treats_sessions_waiting_at_the_proxy_as_imminent():
     sim.proxy_queue.append(call)                     # waiting for the window, no heap event of its own
     pol.on_tick(sim, 10.0)
     assert pol.kv_victims(sim, sim.workers[0], ["queued", "late"]) == ["late", "queued"]
+
+
+def test_oracle_kv_treats_sessions_waiting_in_a_worker_queue_as_imminent():
+    """A released request that could not be scheduled yet (batch full or no KV room) sits in the worker
+    queue with no heap event; its session is about to run and must be the last evicted."""
+    from atfm.sim.core import Simulator
+    from atfm.sim.kv_placement import OracleKvPolicy
+    engines = [EngineConfig(kv_blocks=3000, max_batch=4, prefill_tps=20000.0, decode_tps=40.0)]
+    progs = [_prog("late", "background", 0.0, 800, "build", 400.0), _prog("wq", "background", 0.0, 800, "bash", 1.0)]
+    pol = OracleKvPolicy(window=4, cfg=ProxyConfig(upstream_url="x", beta=0.5))
+    sim = Simulator(progs, engines, pol, rng=np.random.default_rng(0))
+    sim.prime()
+    sim.run(until=10.0)
+    w = sim.workers[0]
+    w.submit(Request(request_id="wq:1", session_id="wq", cls="background", isl_total=900, isl_new=100, osl=10, tier=0, index=0.0, t_queued=10.0), 10.0)
+    pol.on_tick(sim, 10.0)
+    assert pol.kv_victims(sim, w, ["wq", "late"]) == ["late", "wq"]
