@@ -239,3 +239,20 @@ by return time regardless of class. Interactive think times are lognormal with a
 session with a long think is correctly judged "late" and evicted, then recomputes its whole context on return
 under load, while the forecast (whose conditional think-time estimate is shorter than the truth for that tail)
 keeps it. The class-weighted arms (`*_kv_cw`, background absence x3) test exactly this and are next in the chain.
+
+### Placement comparison, interactive long tools (`h2sim_interactive_long_place`, 3 seeds, 8 arms)
+
+| contrast | SLO diff [95% CI] | bg JCT diff (s) |
+|---|---|---|
+| forecast_M2_kv vs forecast_M1_kv | +0.010 [-0.002, +0.025] | +4 [-6, +13] |
+| forecast_M2_kv vs oracle_kv | **+0.026 [+0.014, +0.039]** | -2 [-14, +10] |
+| forecast_M1_kv vs oracle_kv | **+0.016 [+0.004, +0.028]** | -6 [-14, +3] |
+| forecast_M2_kv_size vs forecast_M2_kv | -0.006 [-0.020, +0.007] | -2 [-13, +9] |
+| oracle_kv_size vs oracle_kv | +0.008 [-0.003, +0.020] | -1 [-16, +11] |
+
+Same as the loaded regime, stronger: both forecast arms beat exact return times with intervals clear of zero
+(M2 by 2.6 points), size awareness does nothing, and M2 over M1 is +1.0 point with an interval that just
+includes zero (the direct test the earlier point-estimate ordering lacked). Placement by predicted return
+time is therefore robust in sign across two regimes, two predictors and two orderings; the paradox that the
+truth does worse than the forecast is confirmed and still unexplained by size. Class weighting is the next
+test in the chain.
