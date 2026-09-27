@@ -122,6 +122,7 @@ class _TouchMixin:
     """Keep-alive touches from per-session resumption quantiles (the deployable placement mechanism)."""
     touch: TouchController
     touched: list[str]
+    prefetch: bool = False          # also touch imminent sessions whose KV is already gone (speculative prefill)
 
     def e_tool_next(self, sim, call) -> float:
         return 0.0
@@ -132,14 +133,22 @@ class _TouchMixin:
     def _touch_tick(self, sim, now: float) -> None:
         resumptions = self._resumptions(sim, now)
         residency, frontier = {}, {}
+        running_all = set()
         for w in sim.workers:
             running = w._running_sessions()
+            running_all |= running
             fa = w.frontier_age(now)
-            if fa is not None:
-                frontier[w.worker_id] = fa
+            frontier[w.worker_id] = fa if fa is not None else 0.0
             for sid, blocks in w.resident.items():
                 if sid not in running:
                     residency[sid] = Residency(worker_id=w.worker_id, blocks=blocks, last_used=w.last_used.get(sid, 0.0))
+        if self.prefetch:
+            for sid in resumptions:
+                s = sim.sessions.get(sid)
+                if sid in residency or sid in running_all or s is None or s.done:
+                    continue
+                w = s.worker if s.worker is not None else sim.workers[0]
+                residency[sid] = Residency(worker_id=w.worker_id, blocks=s.ctx // w.cfg.block_size + 1, last_used=float("-inf"))
         for d in self.touch.plan(now, resumptions, residency, frontier):
             blocks = residency[d.session_id].blocks
             sim.touch(d.session_id, blocks)
@@ -152,10 +161,11 @@ class OracleTouchPolicy(_TouchMixin, OraclePolicy):
     name = "oracle_touch"
 
     def __init__(self, window: int, cfg: ProxyConfig, horizon_s: float = 30.0, age_s: float = 10.0,
-                 budget_per_s: float = 1.0, tick_s: float = 5.0):
+                 budget_per_s: float = 1.0, tick_s: float = 5.0, prefetch: bool = False):
         super().__init__(window, cfg, hold=False)
         self.touch = TouchController(horizon_s=horizon_s, age_s=age_s, budget_per_s=budget_per_s, tick_s=tick_s)
         self.touched = []
+        self.prefetch = prefetch
 
     def _resumptions(self, sim, now):
         return {sid: (t - now, t - now, t - now) for sid, t in oracle_etas(sim, now).items() if np.isfinite(t)}
@@ -168,11 +178,13 @@ class ForecastTouchPolicy(_TouchMixin, ForecastPolicy):
     """Rules-only admission plus touches driven by the predictor's resumption quantiles per session."""
 
     def __init__(self, window: int, cfg: ProxyConfig, predictor, train_table: TraceTable | None, horizons: list[float],
-                 n: int = 64, horizon_s: float = 30.0, age_s: float = 10.0, budget_per_s: float = 1.0, tick_s: float = 5.0):
+                 n: int = 64, horizon_s: float = 30.0, age_s: float = 10.0, budget_per_s: float = 1.0, tick_s: float = 5.0,
+                 prefetch: bool = False):
         super().__init__(window, cfg, predictor, train_table, horizons, n=n, hold=False)
         self.name = f"forecast_{predictor.name.split('_')[0]}_touch"
         self.touch = TouchController(horizon_s=horizon_s, age_s=age_s, budget_per_s=budget_per_s, tick_s=tick_s)
         self.touched = []
+        self.prefetch = prefetch
         self._n = n
 
     def _resumptions(self, sim, now):

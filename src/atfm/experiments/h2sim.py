@@ -67,6 +67,7 @@ class H2SimConfig(BaseModel):
     touch_budget_per_s: float = 1.0  # keep-alive touches per second for the *_touch arms
     touch_horizon_s: float = 30.0
     touch_age_s: float = 10.0
+    touch_prefetch: bool = False     # touch arms also prefetch evicted imminent sessions (speculative prefill)
     out_dir: str = "runs"
 
 
@@ -101,11 +102,13 @@ def _arm(name: str, cfg: H2SimConfig, engines: list[EngineConfig], train_program
     if name == "oracle":
         return OraclePolicy(cfg.window, pcfg, hold=True)
     if name == "oracle_touch":
-        return OracleTouchPolicy(cfg.window, pcfg, horizon_s=cfg.touch_horizon_s, age_s=cfg.touch_age_s, budget_per_s=cfg.touch_budget_per_s)
+        return OracleTouchPolicy(cfg.window, pcfg, horizon_s=cfg.touch_horizon_s, age_s=cfg.touch_age_s, budget_per_s=cfg.touch_budget_per_s,
+                                 prefetch=cfg.touch_prefetch)
     if name in ("forecast_M1_touch", "forecast_M2_touch"):
         pred, table = fit_predictor_on_programs(name.split("_")[1], train_programs, engines, rng)
         return ForecastTouchPolicy(cfg.window, pcfg, pred, table, horizons=[30.0, 120.0, 300.0], n=64,
-                                   horizon_s=cfg.touch_horizon_s, age_s=cfg.touch_age_s, budget_per_s=cfg.touch_budget_per_s)
+                                   horizon_s=cfg.touch_horizon_s, age_s=cfg.touch_age_s, budget_per_s=cfg.touch_budget_per_s,
+                                   prefetch=cfg.touch_prefetch)
     if name in ("oracle_kv", "oracle_kv_size", "oracle_kv_cw"):
         return OracleKvPolicy(cfg.window, pcfg, size_aware=name.endswith("_size"),
                               bg_weight=cfg.kv_bg_weight if name.endswith("_cw") else 1.0)
@@ -199,7 +202,7 @@ def run_h2sim(cfg: H2SimConfig) -> pd.DataFrame:
             m = serving_metrics(log, sim.session_log, cfg.slo_ttft_s, cfg.duration_s, len(engines), makespan_s=sim.now)
             m["caps"] = sim.caps
             m["touches"], m["touch_hits"], m["touch_misses"], m["touch_fails"] = sim.touches, sim.touch_hits, sim.touch_misses, sim.touch_fails
-            m["touch_prefill_tokens"] = sim.touch_prefill_tokens
+            m["touch_prefill_tokens"], m["touch_slot_s"] = sim.touch_prefill_tokens, sim.touch_slot_s
             m["max_imposed_delay_by_tenant"] = json.dumps(m["max_imposed_delay_by_tenant"])
             rows.append({"arm": arm, "seed": seed, **m})
             sess = pd.DataFrame(sim.session_log)

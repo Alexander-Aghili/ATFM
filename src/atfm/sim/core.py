@@ -77,6 +77,7 @@ class Simulator:
         self._held: dict[str, PendingCall] = {}   # session id -> its call while held (hold_reason set, not released)
         self.touches = self.touch_hits = self.touch_misses = self.touch_fails = 0
         self.touch_prefill_tokens = 0                 # speculative prefill charged by touch misses
+        self.touch_slot_s = 0.0                       # batch-slot seconds occupied by touches
 
     # ---- helpers
     def _push(self, t: float, kind: str, payload=None) -> None:
@@ -102,6 +103,9 @@ class Simulator:
         w = s.worker if s is not None and s.worker is not None else self.workers[0]
         kind, victims = w.touch(session_id, blocks, self.now)
         self.touches += 1
+        if kind != "fail" and w.cfg.touch_step_s > 0:
+            self.touch_slot_s += w.cfg.touch_step_s
+            self._push(self.now + w.cfg.touch_step_s, "touch_end", w.worker_id)
         if kind == "hit":
             self.touch_hits += 1
         elif kind == "miss":
@@ -239,7 +243,7 @@ class Simulator:
             "held_s": self._hold_s(call), "hold_s": self._hold_s(call), "hold_reason": call.hold_reason,
             "queue_proxy_s": call.t_release - call.t_arrival, "queue_worker_s": ts - call.t_release,
             "hold_kv_block_s": s.held_kv_block_s, "evictions_caused": s.evictions_caused, "evictions_to_admit": ev,
-            "touches": self.touches,
+            "touches": self.touches, "touch_slot_s": self.touch_slot_s,
             "deadline": s.deadline,
             "deadline_missed": bool(s.deadline is not None and t > s.deadline),
             "tool_name": turn.tool_name, "tool_duration": turn.tool_duration,
@@ -316,6 +320,10 @@ class Simulator:
             elif kind == "tool_end":
                 sid, call_id, turn_index = payload
                 self._tool_end(sid, call_id, turn_index, t)
+            elif kind == "touch_end":
+                w = next(x for x in self.workers if x.worker_id == payload)
+                if w.expire_touches(t):
+                    self._schedule_worker(w, t)
             elif kind == "tick":
                 self.policy.on_tick(self, t)
                 self._drain_proxy(t)

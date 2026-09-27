@@ -15,6 +15,7 @@ class EngineConfig:
     decode_tps: float
     block_size: int = 16
     priority: bool = False
+    touch_step_s: float = 0.0      # batch-slot time a keep-alive touch occupies (one decode step); 0 = free (old behaviour)
 
 
 @dataclass
@@ -41,6 +42,7 @@ class Worker:
         # None keeps LRU. This is where a forecast can act on KV residency instead of admission.
         self.victim_policy = None
         self.last_used: dict[str, float] = {}       # session -> last admission, completion or touch time
+        self.touch_slot_s = 0.0                     # slot-seconds spent on touches
 
     def used_blocks(self) -> int:
         return sum(self.resident.values())
@@ -133,12 +135,34 @@ class Worker:
                 return now - self.last_used.get(sid, 0.0)
         return None
 
+    def _occupy_touch_slot(self, session_id: str, now: float) -> None:
+        """A touch is a real request for one step: it holds a batch slot until `expire_touches` frees it."""
+        if self.cfg.touch_step_s <= 0:
+            return
+        rid = f"touch:{session_id}:{now:.3f}"
+        req = Request(request_id=rid, session_id=session_id, cls="touch", isl_total=0, isl_new=0, osl=0, tier=0, index=0.0, t_queued=now)
+        self.running[rid] = (req, now, now + self.cfg.touch_step_s)
+        self.touch_slot_s += self.cfg.touch_step_s
+
+    def busy_until(self, prefix: str) -> float | None:
+        ends = [t_end for rid, (_, _, t_end) in self.running.items() if rid.startswith(prefix)]
+        return max(ends) if ends else None
+
+    def expire_touches(self, now: float) -> int:
+        done = [rid for rid, (_, _, t_end) in self.running.items() if rid.startswith("touch:") and t_end <= now]
+        for rid in done:
+            del self.running[rid]
+        return len(done)
+
     def touch(self, session_id: str, blocks: int, now: float) -> tuple[str, list[str]]:
         """Keep-alive touch. Resident: refresh recency ("hit"). Not resident: speculative prefill, which makes
-        room like an admission ("miss", victims). No room: ("fail", [])."""
+        room like an admission ("miss", victims). No room or no free slot: ("fail", [])."""
+        if self.cfg.touch_step_s > 0 and len(self.running) >= self.cfg.max_batch:
+            return "fail", []
         if session_id in self.resident:
             self.resident.move_to_end(session_id)
             self.last_used[session_id] = now
+            self._occupy_touch_slot(session_id, now)
             return "hit", []
         snapshot = OrderedDict(self.resident)
         victims = self._make_room(blocks, keep=session_id)
@@ -148,6 +172,7 @@ class Worker:
         self.resident[session_id] = blocks
         self.resident.move_to_end(session_id)
         self.last_used[session_id] = now
+        self._occupy_touch_slot(session_id, now)
         return "miss", victims
 
     def evict_session(self, session_id: str) -> int:
