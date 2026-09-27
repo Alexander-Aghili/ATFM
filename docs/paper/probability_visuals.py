@@ -1,5 +1,5 @@
 """Deterministic illustrative probability figures and one frozen-data diagnostic."""
-from math import gamma,log
+from math import lgamma,log
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -21,7 +21,7 @@ def main():
     fig,axs=plt.subplots(1,2,figsize=(7,2.9),layout='constrained')
     v=np.linspace(.001,2,500); r=np.linspace(1,220,500);wleft=20
     for shape,rate,label,color,style in [(2,4,'Prior',COL['B2'],':'),(12,24,'10 units / 20 s',COL['M1'],'--'),(42,84,'40 units / 80 s',COL['M2'],'-')]:
-        def pdf(x):return np.exp(shape*np.log(rate)-__import__('math').lgamma(shape)+(shape-1)*np.log(x)-rate*x)
+        def pdf(x):return np.exp(shape*np.log(rate)-lgamma(shape)+(shape-1)*np.log(x)-rate*x)
         axs[0].plot(v,pdf(v),color=color,ls=style,label=label)
         axs[1].plot(r,pdf(wleft/r)*wleft/r**2,color=color,ls=style)
     axs[0].set(xlabel='Work rate v (units/s)',ylabel='Probability density (s/unit)')
@@ -70,7 +70,7 @@ def main():
     axs[0].annotate('128', (128,100*np.sqrt(.09/128)),xytext=(210,3));axs[0].annotate('256',(256,100*np.sqrt(.09/256)),xytext=(410,2.25))
     err=np.linspace(-100,100,401)
     axs[1].plot(err,np.where(err>=0,.9*err,-.1*err),color=COL['M2'])
-    axs[1].set(xlabel='Observation minus forecast quantile (blocks)',ylabel='q90 pinball loss (blocks)');axs[1].text(-95,60,'Overprediction\npenalty slope 0.1',fontsize=8);axs[1].text(12,12,'Underprediction\npenalty slope 0.9',fontsize=8)
+    axs[1].set(xlabel='Observation minus forecast quantile (blocks)',ylabel='q90 pinball loss (blocks)');axs[1].text(-95,60,'Overprediction\npenalty slope 0.1',fontsize=8);axs[1].text(35,6,'Underprediction\npenalty slope 0.9',fontsize=8)
     for a in axs:a.grid(alpha=.2)
     save(fig,'sampling-loss')
 
@@ -80,9 +80,10 @@ def main():
     matrix=d.pivot(index='model',columns='h',values='pinball90').loc[names,hs].to_numpy()
     ratio=matrix/matrix[1]
     fig,ax=plt.subplots(figsize=(7,2.8),layout='constrained')
-    im=ax.imshow(np.log2(ratio),aspect='auto',cmap='RdBu_r',vmin=-3.2,vmax=3.2)
+    im=ax.pcolormesh(np.arange(6)-.5,np.arange(6)-.5,np.log2(ratio),shading='flat',cmap='RdBu_r',vmin=-3.2,vmax=3.2)
+    ax.invert_yaxis()
     for i in range(5):
-        for j in range(5):ax.text(j,i,f'{ratio[i,j]:.2f}×',ha='center',va='center',color='white' if abs(np.log2(ratio[i,j]))>1.6 else 'black',fontsize=9)
+        for j in range(5):ax.text(j,i,f'{ratio[i,j]:.2f}×',ha='center',va='center',color='white' if abs(np.log2(ratio[i,j]))>2.2 else 'black',fontsize=9)
     ax.set(xticks=range(5),xticklabels=['10 s','30 s','2 min','5 min','15 min'],yticks=range(5),yticklabels=['B0 persistence','B1 Kalman','B2 history','M1 survival','M2 progress'],xlabel='Forecast horizon')
     cb=fig.colorbar(im,ax=ax,ticks=[-3,-2,-1,0,1,2,3]);cb.ax.set_yticklabels(['⅛','¼','½','1','2','4','8']);cb.set_label('Loss / B1 loss (log₂ color scale)')
     save(fig,'loss-matrix')

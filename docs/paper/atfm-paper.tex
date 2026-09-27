@@ -108,7 +108,7 @@ These systems establish the relevance of state outside the serving queue. The ne
 \section{Demand Model and Forecasting Method}
 \label{sec:3}
 
-The construction proceeds in three steps: define the demand target, estimate each session's next return, and aggregate those estimates into a fleet distribution. Figure~\ref{fig:forecast-flow} summarizes the information flow. Throughout, a forecast describes uncertainty about the next request; it is not a reservation of serving capacity.
+The construction proceeds in three steps: define the demand target, estimate each session's next return, and aggregate those estimates into a fleet distribution. Figure~\ref{fig:forecast-flow} summarizes the information flow. Throughout, a forecast describes uncertainty about the next request; it is not a reservation of serving capacity. Appendix~\ref{app:math-code} maps the mathematical statements to code and to the technical plan, distinguishing implemented rules from explanatory identities and proposed extensions.
 
 \begin{figure}[!htbp]
 \centering
@@ -205,7 +205,9 @@ where \(T_j\) is a historical duration and \(n_T\) is the number of available du
 \includegraphics[width=1\linewidth]{survival-example.pdf}
 \caption{Illustrative remaining-time distributions for the same four historical durations at elapsed time 30 s. Vertical stems are probability masses, not densities. Conditioning excludes completed historical cases instead of interpreting them as evidence of immediate completion.}
 \label{fig:survival}
-\end{figure} The implementation uses empirical duration distributions with finite-sample fallbacks, adds a tool-to-request gap, and assigns probability mass to sessions that do not return. M2 combines a rate filter with empirical progress curves because a tool's reported fraction complete need not be linear in wall-clock time. When progress is absent, M2 falls back to the elapsed-time model.
+\end{figure}
+
+The implementation uses empirical duration distributions with finite-sample fallbacks, adds a tool-to-request gap, and assigns probability mass to sessions that do not return. M2 combines a rate filter with empirical progress curves because a tool's reported fraction complete need not be linear in wall-clock time. When progress is absent, M2 falls back to the elapsed-time model.
 
 To see why a progress curve is needed, let \(p\in(0,1]\) be the reported fraction of work completed and \(g(p)\) the learned fraction of wall-clock duration elapsed at that report. If the report arrives at elapsed time \(e_\ell\), the curve-based central estimate at current elapsed time \(e\) is
 \begin{equation}
@@ -220,6 +222,68 @@ Here \(\widehat T\) estimates total tool duration, and \(\widehat R_{\mathrm{too
 \includegraphics[width=1\linewidth]{progress-concept.pdf}
 \caption{Illustrative progress mappings, not fitted experimental curves. Left: reported work fraction can differ from elapsed-time fraction. Right: with a fresh report at elapsed time 30 s and reported progress 0.25, the linear assumption predicts 90 s remaining; the illustrative square-root curve predicts 30 s. The discrepancy motivates learning tool-specific mappings.}
 \label{fig:progress-concept}
+\end{figure}
+
+
+\subsection{A probability model for the next request}
+\label{sec:return-probability}
+The preceding examples concern tool completion, whereas the forecast target is the next model request. These events differ when a completed tool is followed by a harness delay or the session never resumes. For a session currently executing a tool, let \(Z_i\in\{0,1\}\) indicate whether it will return, \(\zeta_i=\Pr(Z_i=1\mid\mathcal I_t)\), \(Q_i\ge0\) the remaining tool duration, and \(G_i\ge0\) the subsequent pending gap. A useful representation is
+\begin{equation}
+R_i(t)=\begin{cases}Q_i+G_i,&Z_i=1,\\ \infty,&Z_i=0.\end{cases}
+\label{eq:return-mixture}
+\end{equation}
+Thus a missing return is probability mass at infinity, not an arbitrarily long finite tool time. Under conditional independence of \(Q_i\) and \(G_i\) among returning sessions,
+\begin{equation}
+p_i(h)=\Pr(R_i(t)\le h\mid\mathcal I_t)
+=\zeta_i\int_{[0,h]}F_{Q_i}(h-g)\,\mathrm dF_{G_i}(g).
+\label{eq:return-convolution}
+\end{equation}
+The CDFs \(F_{Q_i}\) and \(F_{G_i}\) are conditioned on the observed state and on return; this conditioning is suppressed to keep the expression readable. The integral includes a possible atom at zero gap. As \(h\to\infty\), the finite-time CDF approaches \(\zeta_i\), provided both component durations are finite. The implementation samples tool remainder and gap separately and then applies a learned per-tool no-return probability in its tool-running branch. This is a modeling factorization, not evidence that the real components are independent. Pending and model-running states use their own phase-specific rules; Equation~\eqref{eq:return-mixture} is not a claim that every branch currently estimates a separate termination probability.
+
+\paragraph{Elapsed time can either shorten or lengthen the remaining wait.}
+For a continuous duration distribution with density \(f_T\), define the completion hazard \(a(u)=f_T(u)/S(u)\), wherever \(S(u)>0\). It measures instantaneous completion probability per unit time conditional on still running. Equation~\eqref{eq:2} can then be written
+\begin{equation}
+\Pr(Q>r\mid T>e)=\exp\!\left[-\int_e^{e+r}a(u)\,\mathrm du\right].
+\label{eq:hazard}
+\end{equation}
+A constant hazard gives a memoryless remaining duration; increasing and decreasing hazards produce different responses to elapsed time. For the illustrative Weibull survival function \(S(u)=\exp[-(u/\theta)^k]\), the conditional median is
+\begin{equation}
+q_{0.5}(Q\mid T>e)=\theta\left[(e/\theta)^k+\log2\right]^{1/k}-e,
+\label{eq:weibull-median}
+\end{equation}
+where \(\theta>0\) is a time scale and \(k>0\) a shape parameter. Figure~\ref{fig:hazard} shows why subtracting elapsed time from an unconditional duration is inadequate: surviving a long time can itself be evidence of a long remaining wait. The Weibull examples explain conditioning; M1 uses empirical durations with fallbacks, not these fitted parametric curves.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\linewidth]{hazard-residual.pdf}
+\caption{Illustrative duration models with common scale \(\theta=60\) s and shapes \(k\in\{0.6,1,2\}\). Left: conditional completion hazard. Right: median remaining duration after survival to the elapsed time. Equal scale parameters do not imply equal means. These analytic examples are not fits to the tool corpus.}
+\label{fig:hazard}
+\end{figure}
+
+\paragraph{Progress updates uncertainty about execution rate.}
+The rate-based branch of M2 has a Gamma-update interpretation. With a fixed shape--rate prior \(V\sim\operatorname{Gamma}(a_0,b_0)\), a constant-rate Poisson working model for completed units over positive intervals is \(\Delta W_j\mid V\sim\operatorname{Poisson}(V\Delta t_j)\). Multiplying likelihood by prior gives
+\begin{align}
+p(v\mid\mathcal P)&\propto v^{a_0-1+\sum_j\Delta W_j}
+ \exp[-v(b_0+\sum_j\Delta t_j)],\\
+V\mid\mathcal P&\sim\operatorname{Gamma}(a,b),\qquad
+ a=a_0+\sum_j\Delta W_j,\quad b=b_0+\sum_j\Delta t_j.
+\label{eq:gamma-update}
+\end{align}
+Here \(\mathcal P\) denotes the observed progress increments, \(v\) is work units per second, \(a\) is dimensionless, and \(b\) has units of seconds when work is counted in units. The posterior mean is \(a/b\), and its coefficient of variation is \(1/\sqrt a\). This conjugate calculation motivates the implemented shape/rate update; the actual default prior rate is estimated from the same progress stream, so the implementation is an empirical-Bayes approximation rather than the fixed-prior experiment in Figure~\ref{fig:rate-posterior}. Fractional counters likewise need not obey a literal Poisson count model.
+
+For remaining work \(w_*>0\) at a fresh report, the idealized completion time is \(Q=w_*/V\). A change of variables yields
+\begin{equation}
+f_Q(r)=f_V(w_*/r)\frac{w_*}{r^2},\quad r>0,
+\qquad \mathbb E[Q]=\frac{w_*b}{a-1}\quad(a>1).
+\label{eq:inverse-rate}
+\end{equation}
+Consequently, using \(w_*/\mathbb E[V]=w_*b/a\) is not the same as the mean remaining time: uncertainty in a reciprocal increases the latter. The implementation samples the rate, then applies report-age and residual adjustments. Its learned progress-curve branch remains preferred when an appropriate curve is available.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\linewidth]{rate-posterior.pdf}
+\caption{Illustrative fixed-prior rate update, with Gamma shape 2 and rate 4 s. Ten completed units in 20 s and forty in 80 s imply the same empirical rate but different uncertainty. Left: prior and posterior rate densities. Right: the induced remaining-time densities for a common 20 units of work still to do. These are comparative scenarios with the same remaining work, not successive states of one fixed-size job.}
+\label{fig:rate-posterior}
 \end{figure}
 
 
@@ -238,6 +302,61 @@ The superscript \((m)\) identifies a sampled scenario, \(d\) is a candidate bloc
 
 
 Forecast dispersion can be calibrated by fitting a variance-inflation factor separately for each class and horizon on a held-out portion of the training data. Calibration uses an overlaid fleet at the evaluation arrival rate. This adjustment changes interval width, but it does not guarantee calibration under model bias, dependence between sessions, or workload shift. M3 is implemented but is not a basis for the main claims: an earlier synthetic slowdown experiment showed inconsistent gains across horizons.
+
+
+\subsection{Fleet uncertainty, dependence, and overload probability}
+\label{sec:fleet-probability}
+Aggregation adds a second kind of uncertainty: knowing each session's marginal return probability does not specify whether sessions return together. For fixed known block sizes, define \(I_i(h)=\mathbf 1[R_i(t)\le h]\), \(X(h)=\sum_i B_iI_i(h)\), and \(p_{ij}(h)=\Pr(I_i(h)=1,I_j(h)=1\mid\mathcal I_t)\). With conditioning on \(\mathcal I_t\) understood,
+\begin{equation}
+\operatorname{Var}(X)=\sum_i B_i^2p_i(1-p_i)
+ +2\sum_{i<j}B_iB_j\{p_{ij}-p_ip_j\}.
+\label{eq:fleet-variance}
+\end{equation}
+The first term is the sum of individual uncertainties. The second measures synchronization: shared stalls or release waves can increase fleet variance without changing any individual marginal probability. For random prompt sizes, the general expression is \(\sum_i\operatorname{Var}(B_iI_i)+2\sum_{i<j}\operatorname{Cov}(B_iI_i,B_jI_j)\); size--return dependence must also be specified. The main M1/M2 sampling path draws different sessions separately. M3 introduces a shared backend factor, but the main experiments do not validate its joint distribution.
+
+For example, let two sessions each require 100 blocks and each return within the horizon with probability one half. Independent returns give total-demand probabilities \((0.25,0.50,0.25)\) at \((0,100,200)\) blocks. Perfectly synchronized returns instead give \((0.50,0,0.50)\). Both distributions have expected demand 100 blocks; their variances are 5,000 and 10,000 blocks squared. At capacity 150 blocks, overload probabilities are 0.25 and 0.50 (Figure~\ref{fig:dependence}). Larger variance does not increase exceedance at every threshold: below 100 blocks the ordering reverses.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\linewidth]{dependence-risk.pdf}
+\caption{Exact two-session example with identical marginal return probabilities and different dependence. Left: fleet-demand probability mass. Right: exceedance probability as a function of a block threshold. Equal mean demand is insufficient for a capacity decision; the joint distribution matters. This is an analytical illustration, not an empirical estimate of session correlation.}
+\label{fig:dependence}
+\end{figure}
+
+\paragraph{Future sessions add a compound arrival process.}
+For the exogenous component \(U_{\mathrm{exo}}=\sum_{j=1}^{N_h}V_j\), let \(N_h\sim\operatorname{Poisson}(\lambda h)\) and let \(V_j\) be independent, identically distributed first-call block sizes, independent of \(N_h\), with mean \(\mu_V\) and finite second moment. Then
+\begin{equation}
+\mathbb E[U_{\mathrm{exo}}]=\lambda h\mu_V,\qquad
+\operatorname{Var}(U_{\mathrm{exo}})=\lambda h\mathbb E[V_j^2].
+\label{eq:compound-poisson}
+\end{equation}
+The variance uses the second moment, not merely \(\operatorname{Var}(V_j)\), because the number of sessions is random. These identities describe the exogenous sampler at a fixed estimated rate; child-session fan-out is an additional component. If the rate itself were uncertain, \(\Lambda\), total variance would become
+\begin{equation}
+\operatorname{Var}(U_{\mathrm{exo}})=h\mathbb E[\Lambda]\mathbb E[V_j^2]
++h^2\operatorname{Var}(\Lambda)\mu_V^2,
+\label{eq:rate-uncertainty}
+\end{equation}
+assuming size marks are independent of the rate. The current sampler plugs in a rate estimate rather than sampling \(\Lambda\); the second term identifies an omitted uncertainty source, not an implemented feature.
+
+Figure~\ref{fig:demand-fan} combines known-session returns and future arrivals in a small worked fleet. Known sessions can each contribute only once, while the expected exogenous contribution continues to grow with horizon. This helps explain why a useful short-horizon session signal need not determine long-horizon demand.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\linewidth]{demand-fan.pdf}
+\caption{Illustrative fleet with three known sessions of 100, 150, and 200 blocks and independent exponential return times of mean 20, 40, and 80 s. Future sessions arrive at 0.015/s, each contributing 100 blocks; child fan-out is omitted. Left: median and pointwise central 90\% band from 20,000 seeded draws. Right: analytic expectation decomposed into known and future sessions. The band is not a simultaneous guarantee over horizons, and these are not experiment traces.}
+\label{fig:demand-fan}
+\end{figure}
+
+\paragraph{Demand risk is distinct from resource risk.}
+For a block-demand threshold \(K\), two summaries of the forecast are
+\begin{equation}
+\widehat p_K=\frac1M\sum_{m=1}^M\mathbf1[D^{(m)}>K],\qquad
+\widehat e_K=\frac1M\sum_{m=1}^M(D^{(m)}-K)_+,
+\label{eq:tail-risk}
+\end{equation}
+where \((x)_+=\max(x,0)\). The first is estimated exceedance probability; the second is expected excess in blocks. An unlikely but large exceedance can have small \(\widehat p_K\) and substantial \(\widehat e_K\). For the synchronized example at \(K=150\), these values are 0.50 and 25 blocks, compared with 0.25 and 12.5 blocks for independent returns. Neither quantity is the probability of physical cache overflow unless the predicted demand target and threshold faithfully represent occupancy. This is precisely the approximation made by the hold rule in Section~\ref{sec:4.3}.
+
+A further distinction is between marginal horizons and joint paths. The current exogenous sampler draws new totals separately for each horizon. Its individual horizon distributions can therefore be used for pointwise scoring, but matching draw indices across horizons need not produce a monotone cumulative-arrival path. The illustrative paths in Figure~\ref{fig:demand-fan} use shared Poisson increments and are coherent by construction. A controller evaluating horizon-wide overload must similarly couple draws across time; pointwise quantiles alone do not supply that joint forecast.
 
 
 \section{System and Admission Policy}
@@ -351,6 +470,45 @@ Here \(z\) ranges over possible target values, and \(F(z)\) is their predicted c
 where \(k\) indexes forecast--observation pairs. Coverage measures interval reliability; wide intervals can cover well while remaining uninformative, so it is read alongside loss.
 
 
+\subsection{Monte Carlo error and the meaning of a quantile decision}
+\label{sec:mc-error}
+A finite sample introduces numerical uncertainty even if the predictive model were correct. Conditional on that model and independently sampled scenarios, Equation~\eqref{eq:tail-risk} has
+\begin{equation}
+M\widehat p_K\sim\operatorname{Binomial}(M,p_K),\qquad
+\operatorname{SE}(\widehat p_K)=\sqrt{\frac{p_K(1-p_K)}{M}},
+\label{eq:mc-error}
+\end{equation}
+where \(p_K\) is the model's exact exceedance probability. At \(p_K=0.1\), this standard error is approximately 2.65 percentage points for 128 draws and 1.88 for 256 draws. These are sampling errors around the model's probability, not uncertainty about whether the model describes reality. The required sample count for a chosen standard-error target \(\delta\) is at least \(p_K(1-p_K)/\delta^2\); the worst-case bound uses \(p_K(1-p_K)\le1/4\). Increasing sample count cannot correct biased or miscalibrated predictions.
+
+Quantile decisions also encode asymmetric penalties. For a continuous predictive CDF \(F\), differentiating expected pinball loss with respect to the forecast \(q\) gives
+\begin{equation}
+\frac{\mathrm d}{\mathrm dq}\mathbb E[\ell_\tau(Y,q)]=F(q)-\tau.
+\label{eq:pinball-optimum}
+\end{equation}
+Thus a \(\tau\)-quantile minimizes that expected loss; for discrete distributions the corresponding statement uses subgradients. More generally, minimizing expected underage/overage cost
+\begin{equation}
+\mathbb E[c_u(Y-q)_++c_o(q-Y)_+]
+\quad\text{selects}\quad\tau=\frac{c_u}{c_u+c_o},
+\label{eq:cost-quantile}
+\end{equation}
+where \(c_u,c_o>0\) are costs per unit of underestimated and overestimated demand. Selecting q90 corresponds to a 9:1 ratio in this one-dimensional loss. It does not demonstrate that the serving system's true costs have this ratio, or that a 90th-percentile demand threshold achieves 90\% session SLO attainment. The two metrics concern different random variables and different decisions.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\linewidth]{sampling-loss.pdf}
+\caption{Two distinct consequences of using a probabilistic forecast. Left: analytic Monte Carlo standard error for a model tail probability of 0.1, with the study's 128- and 256-draw settings marked. Right: q90 pinball loss versus signed prediction error, showing its asymmetric slopes. Neither panel reports empirical accuracy or a serving guarantee.}
+\label{fig:sampling-loss}
+\end{figure}
+
+Dispersion calibration is another operation on the distribution, separate from Monte Carlo precision. In the implementation, samples at a fixed class and horizon are transformed as
+\begin{equation}
+\widetilde D^{(m)}=\max\{0,\bar D+\kappa(D^{(m)}-\bar D)\},\qquad
+\bar D=\frac1M\sum_mD^{(m)},
+\label{eq:dispersion-map}
+\end{equation}
+where \(\kappa\ge1\) is selected on held-out training observations to increase central-interval coverage. Without clipping, the sample mean is preserved and variance is multiplied by \(\kappa^2\). Clipping negative transformed draws at zero can increase the mean, so the implemented transformation is not strictly mean-preserving. Coverage, bias, and upper-quantile loss must therefore all be checked after calibration; there is no distribution-free coverage guarantee under the present fitting procedure.
+
+
 \subsection{Closed-loop workloads and baselines}
 \label{sec:5.3}
 The simulator advances each program's next turn after completion of its previous inference and tool execution. It models a block-based least-recently-used cache, prefix reuse, a batch limit, priority order, and fixed prefill/decode rates of 20,000 and 40 tokens per second, respectively. Training programs use an independent seed offset of 1,000 and are run under the native policy. Forecast policies use 128 samples and horizons of 30, 120, and 300 seconds.
@@ -451,6 +609,15 @@ The recorded TraceLab analysis attributes 81-99\% of demand to sessions already 
 \end{figure}
 
 Figure~\ref{fig:calibration} shows why the loss gains do not establish a calibrated probability model. Increasing dispersion moves coverage toward its nominal level, but can worsen the decision-relevant upper-quantile score. The next experiment isolates a different information source: observations of the work a tool has actually completed.
+
+The model hierarchy is also visible in Figure~\ref{fig:loss-matrix}, which normalizes the original run by its Kalman loss separately at each horizon. This view separates a short-horizon failure from the medium-horizon gains: a model can be useful over part of the horizon range without dominating everywhere. It also shows why conditioning on survival and adding progress are distinct comparisons; the corpus has elapsed-time state but no live progress feed.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\linewidth]{loss-matrix.pdf}
+\caption{Empirical q90-loss ratios in the original TraceLab seed-0 run at 200 sessions/hour. Every cell divides the model loss by B1 loss at the same horizon; values below one favor the row model. Color uses a base-2 logarithmic scale centered at one, while labels show the untransformed ratios. This is a descriptive single-seed comparison, not the three-seed sweep or a significance test.}
+\label{fig:loss-matrix}
+\end{figure}
 
 \subsection{H1b: progress helps, but depends on the tool's progress curve}
 \label{sec:6.2}
@@ -730,6 +897,7 @@ The rate forecast in this equation is an extension of the present first-return t
 Evaluate reactive scaling against the predictive floor at matched SLO or GPU-hour budgets, including cold starts and idle reservations in cost. A hybrid setup with two real workers and additional Mocker workers can test integration and sensitivity at larger logical scale, but cannot establish real multi-node transfer cost or real provisioning lead times. Those claims require physical multi-node experiments. Success at each stage should be a reproducible improvement in the latency--cost trade-off under held-out workloads, not merely a lower forecast loss or a functioning control API.
 
 
+\Needspace{15\baselineskip}
 \section{Conclusion}
 \label{sec:8}
 ATFM treats external agent execution as observable state for inference-demand forecasting. Across two coding-agent corpora, elapsed-time conditioning improves medium-horizon first-resumption forecasts over an aggregate-history baseline. Live progress further improves remaining-time scores on selected long-running tools, with identifiable failures when progress curves differ between training and evaluation. Closed-loop results are negative for the admission lever as implemented: forecast-based holds improve interactive SLO attainment only when the cap permits ten-minute deferrals, a controlled cap ablation removes the gain, and true future demand does not restore it, while rules-only admission gives a small consistent gain at little cost. Revised capacity accounting reduces the cost of holds but still does not establish an SLO gain. The principal finding is that session state is useful for forecasting, while converting that information into a favorable serving policy remains workload- and controller-dependent.
@@ -840,5 +1008,59 @@ C_{\mathrm{hold}}=\int_0^{T_{\mathrm{run}}}\sum_i B_i^{\mathrm{resident}}(u)\,\m
 \end{equation}
 where \(T_{\mathrm{run}}\) is the simulation end time and \(B_i^{\mathrm{resident}}(u)\) is session \(i\)'s retained block count at time \(u\). Its units are block-seconds: retaining 100 blocks for 20 seconds contributes 2,000 block-seconds. This quantity is neither peak memory nor total waiting time.
 
+
+\clearpage
+\section{Mathematical Correspondence to Code and Plan}
+\label{app:math-code}
+\setcounter{table}{0}
+\renewcommand{\thetable}{C\arabic{table}}
+The mathematical additions serve three purposes: specify implemented transformations, derive consequences of their assumptions, and formalize outstanding work in the research plan. They do not introduce additional measured algorithms. Tables~\ref{tab:math-code} and~\ref{tab:math-plan} make these roles explicit. Code paths below are relative to \path{src/atfm/}; plan references are to \path{docs/superpowers/specs/2026-09-22-atfm-architecture-design.md}, unless another document is named.
+
+\begin{table}[!htbp]
+\centering\small
+\caption{Correspondence between the mathematical model and the implemented forecast/evaluation path. A derived explanation is not an additional model used in the experiments.}
+\label{tab:math-code}
+\begin{tabularx}{\linewidth}{@{}p{.24\linewidth}X@{}}
+\toprule
+Mathematical element & Implementation and scope \\\midrule
+First-return sum and Monte Carlo CDF (Equations~\eqref{eq:1}, \eqref{eq:mc}) & \path{board/forecaster.py}: \texttt{SessionForecaster.forecast}; independently sampled next-call size and return time per session, with optional shared backend factors. Implemented aggregation; analytic moments explain its assumptions. \\
+Survival conditioning (Equations~\eqref{eq:2}, \eqref{eq:empirical-survival}) & \path{board/predictors/duration.py}: \texttt{DurationModel.sample\_conditional} and \texttt{SurvivalPredictor}. Sparse surviving histories invoke a tail fallback, so the empirical CDF is not the entire algorithm. Weibull/hazard figures are explanatory examples of the same conditioning operation. \\
+Return mixture and pending gap (Equations~\eqref{eq:return-mixture}, \eqref{eq:return-convolution}) & \path{board/predictors/duration.py}: \texttt{HistoryPredictor.\_finish} adds a sampled gap and no-return mass for tool-running states. \texttt{\_off\_tool} uses separate model-running and pending-phase rules. No-return frequency is estimated from observed last turns; trace truncation can confound termination. \\
+Progress curve and Gamma rate update (Equations~\eqref{eq:progress}, \eqref{eq:gamma-update}) & \path{board/predictors/progress.py}: \texttt{ProgressCurve}, \texttt{rate\_posterior}, and \texttt{ProgressPredictor.\_remaining\_from\_progress}. Curve availability determines the branch. Default prior-rate estimation, sampled curve noise, residuals, and report age distinguish the implementation from the idealized derivation. \\
+Exogenous compound demand (Equation~\eqref{eq:compound-poisson}) & \path{board/forecaster.py}: \texttt{ExogenousModel.draw}; plug-in Poisson rate and empirical first-call sizes. Rate uncertainty in Equation~\eqref{eq:rate-uncertainty} and cross-horizon coupling are extensions, not implemented sampling features. \\
+Dependence (Equation~\eqref{eq:fleet-variance}) & General variance identity; \path{board/predictors/backend.py} and the forecaster's shared factor supply the exploratory M3 mechanism. The two-session example diagnoses dependence sensitivity; it is not a fitted correlation estimate. \\
+Calibration (Equation~\eqref{eq:dispersion-map}) & \path{board/calibrate.py}: \texttt{inflate} applies centering, widening and zero-clipping; \texttt{fit\_inflation} selects from a grid using training-held-out coverage. No distribution-free guarantee is implemented. \\
+Scores and sample precision & \path{eval/forecast.py}: sample CRPS, interpolated NumPy quantiles, pinball loss and coverage. Equation~\eqref{eq:mc-error} is an idealized independent-draw error calculation, not the experiment's confidence-interval estimator. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The CDF inverse in Equation~\eqref{eq:mc} defines the conceptual quantile; executable scoring and hold decisions use NumPy's interpolated sample quantile, so finite-sample values need not equal an observed draw. For finite forecast samples \(x_1,\ldots,x_M\), the implemented empirical-distribution CRPS is
+\begin{equation}
+\widehat{\operatorname{CRPS}}(y)=\frac1M\sum_m|x_m-y|
+-\frac{1}{2M^2}\sum_{m=1}^{M}\sum_{n=1}^{M}|x_m-x_n|.
+\label{eq:sample-crps}
+\end{equation}
+The evaluator computes the pairwise term efficiently by sorting. It replaces nonfinite samples by a \(10^{12}\) sentinel when scoring. Consequently, scores for distributions with no-return mass depend on this finite convention; the continuous finite-moment CRPS formula must not be read as a justification for an infinite-duration score. In H1a, a non-returning session contributes zero to finite-horizon demand, so this does not make fleet-demand samples infinite.
+
+\clearpage
+The controller extensions below follow the existing delivery plan. Their mathematical form makes the required resource model and validation boundary explicit.
+
+\begin{table}[!htbp]
+\centering\small
+\caption{Connection of the controller mathematics and outstanding work to the repository's technical plan. The equations specify candidate models or diagnostics where implementation is incomplete.}
+\label{tab:math-plan}
+\begin{tabularx}{\linewidth}{@{}p{.24\linewidth}X@{}}
+\toprule
+Element & Code, plan, and validation boundary \\\midrule
+Ordering and original/v2 holds & \path{proxy/index.py} and \path{sim/forecast_arm.py}: index, \texttt{GdpLite}, and \texttt{freeing\_capacity}. Architecture Sections 6.1--6.2 motivate tactical ordering and demand-based delay; the implemented single-slot heuristic is simpler than the proposed multi-slot controller. \\
+Occupancy and overload (Equations~\eqref{eq:future-occupancy}, \eqref{eq:future-risk}) & Proposed refinement of the architecture's Section 6.2 resource constraints, prompted by the completed cap and v2 diagnostics. Requires coherent future paths, cache-residency dynamics, and out-of-sample overflow validation; these equations are not evaluated policy code. \\
+Index attribution & \path{experiments/h2sim.py}: \texttt{oracle\_rule\_noidx} arm construction; \path{experiments/h2sim_interactive_long_idx.yaml} relative to the repository root. Motivated by the v2 research note's residual lookahead cost. No result is claimed from the diagnostic's existence. \\
+KV eviction and tier placement & \path{sim/kv_placement.py} implements eviction ordering. Architecture Section 6.3 and decision D3 defer explicit tier actions until a backend mechanism is demonstrated. Equation~\eqref{eq:prestaging} formalizes that proposed lead-time calculation, not an existing transfer service. \\
+Calibration and generalization & Architecture Sections 5 and 9, and \path{docs/research/2026-09-23-h1-second-corpus-and-h1b.md}, motivate held-out progress signatures, correlated slowdowns, and calibration. Fixed-prior plots, uncertain-rate moments, and coherent arrival paths identify assumptions to test; they add no new benchmark outcomes. \\
+Hardware and replica floor & Architecture decision D8, Section 6.4, and \path{docs/research/2026-09-22-demonstration-ladder.md} define the hardware sequence and virtual-worker stage. Equation~\eqref{eq:replica-floor} is a proposed workload-rate approximation requiring measured per-replica capacity and startup time. \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 \end{document}

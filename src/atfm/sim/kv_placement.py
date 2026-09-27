@@ -46,6 +46,8 @@ class OracleKvPolicy(_KvOrdering, OraclePolicy):
             nc = next_call_of(sim, kind, payload)
             if nc is not None and nc[0] not in eta:
                 eta[nc[0]] = float(t)
+        for c in sim.proxy_queue:                 # waiting for the window: no heap event, but the call is imminent
+            eta[c.session.program.session_id] = max(now, float(c.release_not_before))
         self._eta = eta
 
 

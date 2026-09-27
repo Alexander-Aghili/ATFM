@@ -29,3 +29,7 @@ Full image URLs, paper versions, authors, figure numbers, hashes and CC BY 4.0 l
 ## Quality checks
 
 Compile with no missing citations, unresolved references, missing glyphs or overfull boxes. Render every page with Poppler and visually inspect plot labels, captions, mathematical definitions and float placement. Scientific chart axes carry units, uncertainty meaning is in captions, and all hypothetical values are explicitly identified.
+
+## Probability expansion
+
+`probability_visuals.py` adds six figures: hazard-residual (analytic survival conditioning), rate-posterior (fixed-prior Gamma update and inverse-rate distribution), dependence-risk (exact two-session joint-distribution comparison), demand-fan (20,000 deterministic seeded hypothetical fleet paths), sampling-loss (analytic Monte Carlo error and pinball loss), and loss-matrix (frozen original TraceLab empirical loss ratios). All except loss-matrix are explicitly illustrative. They explain implemented operations or identified assumptions, not newly measured models. Appendix C maps each addition to implementation and plan.

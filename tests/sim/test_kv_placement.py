@@ -99,3 +99,21 @@ def test_oracle_rule_noidx_arm_drops_the_next_tool_index_term():
     pol = _arm("oracle_rule_noidx", cfg, engines, None, np.random.default_rng(0))
     assert isinstance(pol, OracleRuleNoIdxPolicy) and pol.name == "oracle_rule_noidx"
     assert pol.e_tool_next(None, None) == 0.0
+
+
+def test_oracle_kv_treats_sessions_waiting_at_the_proxy_as_imminent():
+    """A session whose call is in the proxy queue has no heap event; it must be the last candidate evicted,
+    not the first."""
+    from atfm.sim.core import PendingCall, SessionRun, Simulator
+    from atfm.sim.kv_placement import OracleKvPolicy
+    engines = [EngineConfig(kv_blocks=3000, max_batch=4, prefill_tps=20000.0, decode_tps=40.0)]
+    progs = [_prog("late", "background", 0.0, 800, "build", 400.0), _prog("queued", "background", 0.0, 800, "bash", 1.0)]
+    pol = OracleKvPolicy(window=1, cfg=ProxyConfig(upstream_url="x", beta=0.5))
+    sim = Simulator(progs, engines, pol, rng=np.random.default_rng(0))
+    sim.prime()
+    sim.run(until=10.0)
+    run = sim.sessions["queued"]
+    call = PendingCall(session=run, turn_index=1, t_arrival=10.0, isl_total=900, isl_new=100, osl=10)
+    sim.proxy_queue.append(call)                     # waiting for the window, no heap event of its own
+    pol.on_tick(sim, 10.0)
+    assert pol.kv_victims(sim, sim.workers[0], ["queued", "late"]) == ["late", "queued"]

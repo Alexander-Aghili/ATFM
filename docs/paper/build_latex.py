@@ -18,6 +18,8 @@ def figures():
     import build_paper as paper
     import build_visuals
     build_visuals.main()
+    import probability_visuals
+    probability_visuals.main()
     dest = HERE / 'latex-fig'
     dest.mkdir(exist_ok=True)
     # Standalone SVG styling; the HTML charts normally inherit these rules from paper.css.
@@ -81,7 +83,7 @@ def main():
     print(HERE/'atfm-paper.pdf')
     if args.bundle:
         paths = [HERE/name for name in ['atfm-paper.tex','references.bib','README.md',
-                 'build_latex.py','build_visuals.py','VISUALS.md','build_paper.py','paper.css','manuscript.html',
+                 'build_latex.py','build_visuals.py','probability_visuals.py','VISUALS.md','build_paper.py','paper.css','manuscript.html',
                  'fig/forecast-flow.reladraw','fig/research-roadmap.reladraw',
                  'fig/fig-system.svg','fig/fig-system.reladraw']]
         paths += sorted((HERE/'latex-fig').glob('*'))

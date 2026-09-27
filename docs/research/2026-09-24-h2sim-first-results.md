@@ -144,3 +144,24 @@ Same regime and rates as the first-batch loaded run, hold cap 60 s instead of 60
 **The first-batch gain was the long cap.** With holds limited to 60 s the forecast arms' +9 SLO points vanish (-0.001 and -0.010, intervals spanning zero) while they still pay +124 to +136 s of background time and 3.7 million held KV block-seconds; the same-rule oracle with true demand does no better (-0.011 at +1162 s). At a 600 s cap the "hold" was in effect a ten-minute deferral of most background work, which is what moved the tail. Read together with the interactive-long regime: in this simulator, short forecast-driven holds do not improve the interactive SLO under either load pattern; long deferrals do, at a cost comparable to pausing; rules alone give a small consistent gain; the working-set baseline has the best SLO at moderate cost in both.
 
 **What this changes.** H2 as stated ("a proxy that admits, orders and holds calls against the forecast improves the interactive tail at a stated cost") is not supported by the simulator for short holds. Two candidate reasons remain open and the v2 reruns test the first: (a) the v1 rule collapses to "always hold" under load, so the forecast never enters the decision; (b) the interactive tail in these regimes is set by service-time variance and interactive-on-interactive queueing, which no admission policy on background can fix. If v2 holds selectively and the tail still does not move, (b) stands and the lever the forecast should drive is not admission but KV placement (keep the returning sessions' KV resident, evict the held ones), which is what the H100 study can measure and the simulator's engine cannot yet.
+
+### KV placement arms, first run (`h2sim_loaded_kv`, confounded; superseded)
+
+The first run of `forecast_M1_kv`, `forecast_M2_kv` and `oracle_kv` (eviction by predicted or true return time, rules-only admission) inherited the next-tool index term of their parent policies: the oracle arm used true tool durations in the index and the forecast arms the tool-conditioned mean, while `proxy_rules` uses none. `oracle_kv` then showed the index starvation signature (+1176 s background JCT, 13.6 deadline points) rather than a placement effect, and the forecast arms sat on top of `proxy_rules` (SLO -0.4 and -0.8 points, JCT -30 s, deadlines +5.5) with 12% *more* recomputed prefill (4.3e7 against 3.8e7). Fixed: all placement arms now use the `proxy_rules` index, so they differ from rules by eviction order alone. Reruns: `h2sim_loaded_kv`, `h2sim_interactive_long_kv`.
+
+### KV placement arms, corrected run (`h2sim_loaded_kv`, loaded long_tool, cap n/a, 3 seeds)
+
+Rules-only admission (`proxy_rules` index) plus eviction of the idle session predicted to return last.
+
+| arm | SLO diff vs native [95% CI] | bg JCT diff (s) | deadline diff | recomputed prefill (tokens) |
+|---|---|---|---|---|
+| proxy_rules | +0.014 [-0.002, +0.028] | -35 [-90, +17] | +0.057 | 3.82e7 |
+| forecast_M1_kv | **+0.030 [+0.016, +0.043]** | -25 [-80, +27] | +0.059 | 4.16e7 |
+| forecast_M2_kv | **+0.025 [+0.011, +0.037]** | -29 [-85, +23] | +0.059 | 4.10e7 |
+| oracle_kv (true return times; see below) | +0.004 [-0.010, +0.018] | +16 [-38, +68] | +0.054 | 4.75e7 |
+| working_set | +0.017 [+0.002, +0.032] | +505 [445, 566] | -0.021 | 4.85e7 |
+| native | 0 | 0 | 0 | 4.79e7 |
+
+This is the first arm in which the forecast buys something without paying for it: +3.0 and +2.5 SLO points over native with intervals clear of zero, more than rules alone (+1.4) and more than the working-set baseline (+1.7), at no background cost (JCT -25 to -29 s, deadlines +5.9 points). The interactive tail moves because the sessions that return soon keep their KV and prefill less on resumption. Recomputed prefill is 13 to 14% below native but 7 to 9% above rules-only LRU, so the gain is not "less recompute overall" but "less recompute on the calls that matter". M1 and M2 remain within noise of each other.
+
+`oracle_kv` in this run is not a valid upper bound: sessions whose call is waiting in the proxy queue have no heap event, so the arm treated them as never returning and evicted their KV first, which is why its recompute (4.75e7) is close to native's. Fixed to treat proxy-queued sessions as imminent; rerun queued together with the interactive-long placement run and the index diagnostic.
