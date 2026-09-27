@@ -21,7 +21,8 @@ from atfm.traces.synthetic import ClassSpec, ToolSpec, WorkloadSpec
 
 ARMS = ["native", "proxy_rules", "forecast_M1", "forecast_M2", "oracle", "oracle_rule", "working_set",
         "forecast_M1_kv", "forecast_M2_kv", "oracle_kv", "oracle_rule_noidx",
-        "forecast_M1_kv_size", "forecast_M2_kv_size", "oracle_kv_size"]
+        "forecast_M1_kv_size", "forecast_M2_kv_size", "oracle_kv_size",
+        "forecast_M1_kv_cw", "forecast_M2_kv_cw", "oracle_kv_cw"]
 
 
 def default_contrasts(arms: list[str]) -> list[tuple[str, str]]:
@@ -30,7 +31,9 @@ def default_contrasts(arms: list[str]) -> list[tuple[str, str]]:
     cands = [("forecast_M2", "forecast_M1"), ("forecast_M2_kv", "forecast_M1_kv"),
              ("forecast_M2_kv", "oracle_kv"), ("forecast_M1_kv", "oracle_kv"),
              ("forecast_M2_kv_size", "forecast_M2_kv"), ("forecast_M1_kv_size", "forecast_M1_kv"),
-             ("oracle_kv_size", "oracle_kv"), ("forecast_M2_kv_size", "oracle_kv_size")]
+             ("oracle_kv_size", "oracle_kv"), ("forecast_M2_kv_size", "oracle_kv_size"),
+             ("forecast_M2_kv_cw", "forecast_M2_kv"), ("forecast_M1_kv_cw", "forecast_M1_kv"),
+             ("oracle_kv_cw", "oracle_kv"), ("forecast_M2_kv_cw", "oracle_kv_cw"), ("forecast_M2_kv_cw", "forecast_M1_kv_cw")]
     return [(a, b) for a, b in cands if a in arms and b in arms]
 ABLATIONS = ["forecast_M1_nohold", "forecast_M2_nohold"]
 
@@ -51,6 +54,7 @@ class H2SimConfig(BaseModel):
     train_seed_offset: int = 1000
     max_hold_s: float = 600.0        # cap on any policy hold, enforced in the simulator core
     contrasts: list[list[str]] = Field(default_factory=list)   # explicit [a, b] pairs; empty = default_contrasts(arms)
+    kv_bg_weight: float = 3.0        # class weight on background absence for the *_cw placement arms
     out_dir: str = "runs"
 
 
@@ -84,12 +88,14 @@ def _arm(name: str, cfg: H2SimConfig, engines: list[EngineConfig], train_program
         return ProxyRulesPolicy(cfg.window, pcfg)
     if name == "oracle":
         return OraclePolicy(cfg.window, pcfg, hold=True)
-    if name in ("oracle_kv", "oracle_kv_size"):
-        return OracleKvPolicy(cfg.window, pcfg, size_aware=name.endswith("_size"))
-    if name in ("forecast_M1_kv", "forecast_M2_kv", "forecast_M1_kv_size", "forecast_M2_kv_size"):
+    if name in ("oracle_kv", "oracle_kv_size", "oracle_kv_cw"):
+        return OracleKvPolicy(cfg.window, pcfg, size_aware=name.endswith("_size"),
+                              bg_weight=cfg.kv_bg_weight if name.endswith("_cw") else 1.0)
+    if name in ("forecast_M1_kv", "forecast_M2_kv", "forecast_M1_kv_size", "forecast_M2_kv_size",
+                "forecast_M1_kv_cw", "forecast_M2_kv_cw"):
         pred, table = fit_predictor_on_programs(name.split("_")[1], train_programs, engines, rng)
         return ForecastKvPolicy(cfg.window, pcfg, pred, table, horizons=[30.0, 120.0, 300.0], n=64,
-                                size_aware=name.endswith("_size"))
+                                size_aware=name.endswith("_size"), bg_weight=cfg.kv_bg_weight if name.endswith("_cw") else 1.0)
     if name == "oracle_rule_noidx":
         return OracleRuleNoIdxPolicy(cfg.window, pcfg, horizons=[30.0, 120.0, 300.0], gdp=GdpLite(max_hold_s=cfg.max_hold_s))
     if name == "oracle_rule":

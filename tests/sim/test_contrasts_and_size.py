@@ -55,3 +55,25 @@ def test_size_aware_arms_registered():
     assert isinstance(pol, OracleKvPolicy) and pol.size_aware and pol.name == "oracle_kv_size"
     pol2 = _arm("oracle_kv", cfg, engines, None, np.random.default_rng(0))
     assert not pol2.size_aware
+
+
+def test_class_weighted_ordering_evicts_background_before_interactive_at_equal_absence():
+    """The interactive SLO pays for interactive misses; Belady minimises all misses equally. A class weight
+    multiplies background absence so background contexts go first at equal predicted absence."""
+    from atfm.sim.kv_placement import order_victims
+    eta = {"it": 100.0, "bg": 100.0, "bg_soon": 40.0}
+    cls = {"it": "interactive", "bg": "background", "bg_soon": "background"}
+    assert order_victims(["it", "bg", "bg_soon"], eta, {}, now=0.0, size_aware=False, cls=cls, bg_weight=1.0)[0] in ("it", "bg")
+    assert order_victims(["it", "bg", "bg_soon"], eta, {}, now=0.0, size_aware=False, cls=cls, bg_weight=3.0) == ["bg", "bg_soon", "it"]
+    # weight 3: bg_soon scores 120 > it 100, so even a sooner background context goes before the interactive one
+
+
+def test_class_weighted_arms_registered():
+    from atfm.experiments.h2sim import ARMS, H2SimConfig, _arm
+    from atfm.sim.kv_placement import OracleKvPolicy
+    assert {"forecast_M1_kv_cw", "forecast_M2_kv_cw", "oracle_kv_cw"} <= set(ARMS)
+    cfg = H2SimConfig(name="t", regime="short_tool", kv_bg_weight=3.0)
+    engines = [EngineConfig(**e) for e in cfg.engines]
+    pol = _arm("oracle_kv_cw", cfg, engines, None, np.random.default_rng(0))
+    assert isinstance(pol, OracleKvPolicy) and pol.bg_weight == 3.0 and pol.name == "oracle_kv_cw"
+    assert _arm("oracle_kv", cfg, engines, None, np.random.default_rng(0)).bg_weight == 1.0

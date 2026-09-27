@@ -17,15 +17,20 @@ from .policies import OraclePolicy
 
 
 def order_victims(candidates: list[str], eta: dict[str, float], blocks: dict[str, int], now: float,
-                  size_aware: bool) -> list[str]:
+                  size_aware: bool, cls: dict[str, str] | None = None, bg_weight: float = 1.0) -> list[str]:
     """Eviction order, first to go first. Absence = max(0, eta - now); unknown sessions (no eta) go first.
-    size_aware scores idle block-seconds (absence x resident blocks) instead of absence alone."""
+    size_aware scores idle block-seconds (absence x resident blocks) instead of absence alone. bg_weight > 1
+    multiplies background absence: the interactive SLO pays for interactive misses, so background contexts
+    go first at equal predicted absence (Belady weights every miss equally; the objective does not)."""
     def score(sid: str) -> float:
         e = eta.get(sid, float("inf"))
         if not np.isfinite(e):
             return float("inf")
         absence = max(0.0, e - now)
-        return absence * blocks.get(sid, 1) if size_aware else absence
+        s = absence * blocks.get(sid, 1) if size_aware else absence
+        if cls is not None and cls.get(sid) == "background":
+            s *= bg_weight
+        return s
     return sorted(candidates, key=lambda sid: -score(sid))
 
 
@@ -34,6 +39,7 @@ class _KvOrdering:
     exactly `proxy_rules` (no next-tool index term), so the arms differ from rules by placement alone."""
     _eta: dict[str, float]
     size_aware: bool = False
+    bg_weight: float = 1.0
     _now: float = 0.0
 
     def e_tool_next(self, sim, call) -> float:
@@ -41,7 +47,8 @@ class _KvOrdering:
 
     def kv_victims(self, sim, worker, candidates: list[str]) -> list[str]:
         blocks = {sid: worker.resident_blocks(sid) for sid in candidates}
-        return order_victims(candidates, self._eta, blocks, sim.now, self.size_aware)
+        cls = {sid: sim.sessions[sid].program.cls for sid in candidates if sid in sim.sessions}
+        return order_victims(candidates, self._eta, blocks, sim.now, self.size_aware, cls, self.bg_weight)
 
 
 class OracleKvPolicy(_KvOrdering, OraclePolicy):
@@ -49,12 +56,14 @@ class OracleKvPolicy(_KvOrdering, OraclePolicy):
 
     name = "oracle_kv"
 
-    def __init__(self, window: int, cfg: ProxyConfig, size_aware: bool = False):
+    def __init__(self, window: int, cfg: ProxyConfig, size_aware: bool = False, bg_weight: float = 1.0):
         super().__init__(window, cfg, hold=False)
         self._eta = {}
-        self.size_aware = size_aware
+        self.size_aware, self.bg_weight = size_aware, bg_weight
         if size_aware:
             self.name = "oracle_kv_size"
+        elif bg_weight != 1.0:
+            self.name = "oracle_kv_cw"
 
     def on_tick(self, sim, now: float) -> None:
         eta: dict[str, float] = {}
@@ -84,10 +93,10 @@ class ForecastKvPolicy(_KvOrdering, ForecastPolicy):
     """Rules-only admission plus eviction by the predictor's median time-to-next-call per session."""
 
     def __init__(self, window: int, cfg: ProxyConfig, predictor, train_table: TraceTable | None, horizons: list[float],
-                 n: int = 64, size_aware: bool = False):
+                 n: int = 64, size_aware: bool = False, bg_weight: float = 1.0):
         super().__init__(window, cfg, predictor, train_table, horizons, n=n, hold=False)
-        self.size_aware = size_aware
-        self.name = f"forecast_{predictor.name.split('_')[0]}_kv" + ("_size" if size_aware else "")
+        self.size_aware, self.bg_weight = size_aware, bg_weight
+        self.name = f"forecast_{predictor.name.split('_')[0]}_kv" + ("_size" if size_aware else "_cw" if bg_weight != 1.0 else "")
         self._eta = {}
         self._n = n
 
