@@ -1,5 +1,9 @@
 # Level 1 — System Context — ATFM
 
+> **Reading this view:** diagrams describe architectural intent. The text below identifies
+> current integration boundaries; [implementation status](../status.md) separates shipped
+> paths from hardware evidence, and [operations](../operations.md) gives runnable commands.
+
 > **Diagram type**: System Context
 > **Scope**: ATFM (Agent Traffic Flow Management) as one system, the people who depend on it, and the external systems it touches.
 > **Audience**: everyone: founders, reviewers, platform operators, agent developers.
@@ -80,7 +84,7 @@ Source: `01-context.reladraw` (rendered with `npx reladraw 01-context.reladraw -
 
 - ATFM is additive: the request path gains exactly one hop (the proxy) and the result path of every tool is byte-for-byte unchanged (spec D9). Everything else runs beside the blocking path and fails open (D10).
 - The central claim is split in three (D11): in-flight session state forecasts demand (H1a, evidence exists); live tool progress improves on elapsed time (H1b, only on long-tool workloads); a controller converts the forecast into lower latency or cost at a stated delay budget (H2, closed-loop runs only, D12).
-- Dynamo is treated as an external system whose documented hints (`priority`, `strict_priority`, `osl`, `speculative_prefill`) are the only integration surface in v1; router plugins, worker selection and KV placement APIs are out of scope (D1, D3).
+- Dynamo remains external: the proxy uses serving hints rather than a custom router plugin or proxy-side worker selection (D1). The D3 amendment adds an optional LMCache placement actuator; its real-worker compatibility and effects require separate validation. See [operations](../operations.md#optional-lmcache-actuation).
 
 ## Assumptions
 

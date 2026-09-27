@@ -1,5 +1,9 @@
 # L0 Policies: Closed-Loop Fleet Simulator with Six Serving Arms. Implementation Plan
 
+> **Historical implementation plan.** Embedded code and task checklists are a design record,
+> not the current source of setup instructions. See [implementation status](../../status.md),
+> [operations](../../operations.md), and [core development](../../development/core.md).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** A discrete-event, closed-loop simulator of agent sessions on a Dynamo-like worker pool that runs the same six admission arms the H2 hardware study will run, logs where each arm queues work, accounts the KV cost of holds, and produces the serving metrics of spec section 12 with paired bootstrap confidence intervals.

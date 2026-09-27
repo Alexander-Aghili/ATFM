@@ -1,5 +1,8 @@
 # How the agent-serving literature evaluates (2026-09-22)
 
+> **Dated research record.** Findings and plans below retain their original scope.
+> See [current implementation status](../status.md) and [current run instructions](../operations.md).
+
 Purpose: calibrate our hardware and workload plan against what published systems papers actually used. Conclusion up front: **2xH100 is inside the norm.** Most of the field demonstrates on 1-4 GPUs with an 8B-32B model, plus one 70B/TP4 config; only SAGA (64xA100) and SMetric (32xH20) are multi-node.
 
 ## 1. Paper-by-paper setup

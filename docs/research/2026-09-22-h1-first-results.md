@@ -1,5 +1,8 @@
 # H1 first results: forecast skill of the predictor ladder (2026-09-22, revised 2026-09-23)
 
+> **Dated research record.** Findings and plans below retain their original scope.
+> See [current implementation status](../status.md) and [current run instructions](../operations.md).
+
 Runs: `uv run python scripts/run_h1.py experiments/<config>.yaml`, outputs under `runs/<name>/`.
 
 **How to read every number below.** Hypothesis H1a (demand board: in-flight session state versus history) is what these runs test. H1b (sidecar progress beyond elapsed time) is only testable on long-tool workloads with progress events; TraceLab has none, so M2 equals M1 there by construction and the synthetic fleet is the only H1b evidence so far. Nothing here is a controller result (H2).

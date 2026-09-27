@@ -1,5 +1,8 @@
 # Platform acquisition research (2026-09-22)
 
+> **Dated research record.** Findings and plans below retain their original scope.
+> See [current implementation status](../status.md) and [current run instructions](../operations.md).
+
 Consolidated from four web-research passes on 2026-09-22. All prices/versions are as of that date; re-check before booking.
 
 ## 1. What runs where

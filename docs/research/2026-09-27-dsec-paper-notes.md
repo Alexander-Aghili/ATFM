@@ -1,5 +1,8 @@
 # Notes: DeepSeek Elastic Compute (DSec), arXiv 2609.22978 (2026-09-27)
 
+> **Dated research record.** Findings and plans below retain their original scope.
+> See [current implementation status](../status.md) and [current run instructions](../operations.md).
+
 **What it is.** A systems report from DeepSeek (131 authors, submitted 19 Sept 2026) on the sandbox platform behind their agentic RL training. Four backends (function call, container, microVM, full VM) behind one SDK; composable environment layers (base image, workspace, toolkit) over overlayfs and EROFS; on-demand image loading from 3FS because sandboxes touch 4 to 13% of image bytes; virtio-pmem and DAMON-based memory reclamation for microVMs (40% lower peak, 21% lower time-integrated memory); QoS-aware CPU scheduling (latency-sensitive vs best-effort; SCHED_IDLE plus core scheduling cuts latency inflation from 45% to 17% at 50% co-located load); power-of-k placement; agent loop moved off preemptible GPU pods with pause/resume.
 
 **Scale numbers.** One unit of ~160 CPU nodes (30k cores, ~250 TB DRAM): ~3 M sandboxes a day, ~380k concurrent, >5,000 creations a second, jobs up to 32k sandboxes, 11,266 base images and 102k workspaces in one week, 130+ TB of image artifacts.

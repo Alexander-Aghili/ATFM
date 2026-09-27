@@ -1,5 +1,8 @@
 # Demonstration ladder: what to test, at what level of evidence and cost (2026-09-22)
 
+> **Dated research record.** Findings and plans below retain their original scope.
+> See [current implementation status](../status.md) and [current run instructions](../operations.md).
+
 Each level is cumulative. "Claims" are what results at that level can support; "cannot" is what they cannot.
 
 | Level | Platform | Cost | What we test | Claims it supports | Cannot show |

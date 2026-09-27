@@ -1,5 +1,9 @@
 # L1: Sidecar, Bus, Proxy, Live Board, Long-Tool Trace Collection and H1b. Implementation Plan
 
+> **Historical implementation plan.** Embedded code and task checklists are a design record,
+> not the current source of setup instructions. See [implementation status](../../status.md),
+> [operations](../../operations.md), and [core development](../../development/core.md).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build the laptop-runnable plumbing of ATFM (event schema and bus, tool-runtime sidecar with progress parsers and launch gate, mini-SWE-agent adapters, harness proxy with a global window and priority tiers in front of Dynamo Mocker, live demand board), use it to collect real long-tool traces with progress events, and report signal coverage and an honest M2-versus-M1 forecast result (hypothesis H1b).

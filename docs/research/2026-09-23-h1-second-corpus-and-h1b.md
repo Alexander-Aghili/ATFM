@@ -1,5 +1,8 @@
 # H1a on two corpora with seed and rate sweeps, dispersion calibration, and the first per-session H1b result (2026-09-23)
 
+> **Dated research record.** Findings and plans below retain their original scope.
+> See [current implementation status](../status.md) and [current run instructions](../operations.md).
+
 Reads with the same conventions as `2026-09-22-h1-first-results.md`: pinball loss at q90 of KV blocks demanded within the horizon, truth counts each session once per horizon, held-out splits, history baselines only see elapsed windows.
 
 ## H1a: TraceLab, 3 seeds x 3 overlay rates

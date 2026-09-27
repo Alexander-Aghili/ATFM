@@ -1,0 +1,15 @@
+name: quickstart
+regime: long_tool
+seeds: [0, 1, 2]
+arms: [native, proxy_rules, forecast_M2_kv]
+duration_s: 300
+interactive_rate_per_hour: 240
+background_rate_per_hour: 240
+engines:
+  - kv_blocks: 2000
+    max_batch: 4
+    prefill_tps: 20000
+    decode_tps: 40
+    priority: true
+window: 4
+max_hold_s: 60

@@ -1,6 +1,10 @@
 # ATFM research paper
 
-Open `atfm-paper.pdf` for the paginated paper The HTML files preserve an earlier revision and do not include all LaTeX additions.
+For code setup and current feature status, see the [project README](../../README.md)
+and [implementation status](../status.md). This guide covers publication sources
+and frozen evidence; rebuilding the paper does not validate the serving system.
+
+Open [atfm-paper.pdf](atfm-paper.pdf) for the paginated paper. The HTML files preserve an earlier revision and do not include all LaTeX additions.
 
 ## Edit and rebuild (LaTeX)
 
@@ -20,7 +24,7 @@ Or compile directly from this directory:
 latexmk -pdf atfm-paper.tex
 ```
 
-A standard TeX Live installation with `latexmk`, pdfLaTeX, BibTeX, `newtx`, `microtype`, `tabularx`, `booktabs`, `makecell`, `caption`, `fvextra`, `placeins`, `needspace`, `natbib`, `xurl`, and `hyperref` is sufficient. No Python, raw traces, browser, or Inkscape is needed for the direct LaTeX build. The Python wrapper places auxiliary files in `tmp/latex/`, checks for unresolved references and overflowing boxes, then publishes the PDF.
+A standard TeX Live installation with `latexmk`, pdfLaTeX, BibTeX, `newtx`, `microtype`, `tabularx`, `booktabs`, `makecell`, `caption`, `fvextra`, `placeins`, `needspace`, `natbib`, `xurl`, and `hyperref` is sufficient. No Python, raw traces, browser, or Inkscape is needed for the direct LaTeX build. The Python wrapper places auxiliary files in `docs/paper/tmp/latex/`, checks for unresolved references and overflowing boxes, then publishes the PDF.
 
 `atfm-latex.zip` is a portable source bundle suitable for Overleaf: select `atfm-paper.tex` as the main document and pdfLaTeX as the compiler. It includes the bibliography, vector figures, and frozen result summaries.
 
@@ -57,7 +61,7 @@ The revision draws on the architecture specification, master plan, research note
 - The completed long-interactive experiment is included, including its lack of an M2 policy advantage. The 60-second-cap loaded run completed after the first cutoff and is included as Section 6.5 (a controlled cap ablation); the GDP-lite v2 reruns of both regimes are included as Section 6.6; the KV placement runs, including the corrected true-return-time reruns, are Section 6.7; the third batch (direct contrasts, size and class variants, keep-alive touch arms) is Section 6.8; the index diagnostic is reported in Section 6.6.
 - Working-set and lookahead policies are local diagnostic baselines, not full published systems or optimal upper bounds.
 - First-resumption KV demand is not instantaneous resident occupancy, and prompt demand is not cache-miss-adjusted prefill work.
-- Current signature-aware progress support is separated from historical collection scores. Hardware validation, Redis deployment, KV placement, and replica control are not presented as completed results.
+- Current signature-aware progress support is separated from historical collection scores. Hardware validation, a deployed Redis topology, real-worker KV placement, and external replica scaling are not presented as completed results; simulated placement experiments are reported separately.
 
 External references were checked against primary paper, dataset, and vendor pages. The paper supplies numbered linked references and an appendix identifying local evidence.
 
@@ -67,16 +71,16 @@ Rebuilding does not rerun experiments. Inspect every exported PDF page after lay
 
 ## LaTeX conversion checks
 
-The conversion preserves the latest five-regime manuscript, including the controlled 60-second cap ablation. Two consistency corrections were made: the appendix now identifies that completed run, and Section 6.5 no longer describes the working-set row as unchanged when its table values change. The source compiles without missing citations, unresolved references, missing glyphs, or overfull boxes. All rendered pages were inspected.
+The original conversion preserved the five-regime manuscript, including the controlled 60-second cap ablation. Subsequent results and figures are recorded in the current LaTeX source and visual inventory. Two consistency corrections were made: the appendix now identifies that completed run, and Section 6.5 no longer describes the working-set row as unchanged when its table values change. The source compiles without missing citations, unresolved references, missing glyphs, or overfull boxes. All rendered pages were inspected.
 
 ## Expanded visual and mathematical edition
 
 The LaTeX edition adds a lifecycle timeline, two attributed original prior-paper diagrams, a forecast-flow diagram, worked survival/progress illustrations, calibration plots, cross-regime policy effects, a controlled-cap comparison, seed-level resource costs, and a technical research roadmap. `VISUALS.md` records their sources and interpretation. `build_visuals.py` regenerates scientific charts; toy examples are explicitly labeled illustrative. Prior-work originals and reuse provenance are retained under `sources/prior-work/`.
 
-Section 8 is a dedicated technical future-work plan, separating implemented but unevaluated diagnostics and KV eviction from proposed occupancy control, tier placement, hardware validation, and replica floors. Equations define their components locally and distinguish implemented rules from proposed extensions.
+Section 8 is a technical future-work plan. Read its scope alongside the results sections: simulated KV placement and implemented diagnostics are distinct from proposed occupancy control, real-worker tier placement, hardware validation, and external replica scaling. Equations define their components locally and distinguish implemented rules from proposed extensions.
 
-The probability expansion adds return/no-return mixtures, pending-gap convolution, hazard conditioning, Gamma rate updates, dependence-aware fleet variance, compound-Poisson moments, tail-risk measures, Monte Carlo error, quantile-cost interpretation, and the exact clipped calibration map. Six additional figures bring the total to 21. Appendix C maps the mathematics to code and the research plan; illustrative derivations are explicitly separated from implemented algorithms and benchmark evidence. `probability_visuals.py` is included in the source bundle and invoked by `--figures`.
+The probability expansion adds return/no-return mixtures, pending-gap convolution, hazard conditioning, Gamma rate updates, dependence-aware fleet variance, compound-Poisson moments, tail-risk measures, Monte Carlo error, quantile-cost interpretation, and the exact clipped calibration map. The probability expansion adds six figures; consult `VISUALS.md` and the manuscript for the current figure inventory. Appendix C maps the mathematics to code and the research plan; illustrative derivations are explicitly separated from implemented algorithms and benchmark evidence. `probability_visuals.py` is included in the source bundle and invoked by `--figures`.
 
 ## HTML evidence synchronization
 
-The LaTeX abstract now introduces the problem, approach, and qualitative findings without detailed experimental numbers. The results include the completed no-index diagnostic, both KV-eviction workloads, and corrected lookahead reruns from the updated HTML and frozen CSVs. Future work and the correspondence appendix distinguish those completed experiments from pending size/class-weighted evaluations, direct policy contrasts, and hardware validation. Native-referenced intervals are not described as equivalence tests or direct M1/M2 comparisons.
+The LaTeX abstract now introduces the problem, approach, and qualitative findings without detailed experimental numbers. The results include the completed no-index diagnostic, both KV-eviction workloads, and corrected lookahead reruns from the updated HTML and frozen CSVs. The dated revision notes describe successive manuscript states. For the current set of included placement variants and direct contrasts, consult the LaTeX results sections and frozen CSV manifest; hardware validation remains separate. Native-referenced intervals are not described as equivalence tests or direct M1/M2 comparisons.

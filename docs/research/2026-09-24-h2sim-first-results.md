@@ -1,5 +1,8 @@
 # H2 in the closed-loop simulator: first six-arm results (2026-09-24)
 
+> **Dated research record.** Findings and plans below retain their original scope.
+> See [current implementation status](../status.md) and [current run instructions](../operations.md).
+
 **Status: synthetic workload, unvalidated engine model. Only the relative ordering of arms is meaningful; no absolute number here transfers to an H100.** The simulator (`src/atfm/sim`, branch `l0-sim`, reviewed and fixed on 2026-09-24) exists to answer *where each arm queues work and what a hold costs*, so that the H100 study (step 4 of the agreed sequence) measures the right things. Runner: `scripts/run_h2sim.py`, configs `experiments/h2sim_regimes.yaml`, `h2sim_short_tool.yaml`, `h2sim_loaded.yaml`; per-arm logs under `runs/h2sim/<name>/log_<arm>_<seed>.parquet`.
 
 ## Setup

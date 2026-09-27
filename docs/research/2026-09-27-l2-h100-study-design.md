@@ -1,5 +1,8 @@
 # L2 study design: two H100s, placement first (2026-09-27)
 
+> **Dated research record.** Findings and plans below retain their original scope.
+> See [current implementation status](../status.md) and [current run instructions](../operations.md).
+
 Written after the simulator's second and third batches (`2026-09-24-h2sim-first-results.md`). The primary question has changed: not whether forecast-driven admission holds help (they do not, at the proxy's cap, in any loaded regime, with or without true demand), but whether forecast-driven KV placement does on a real engine.
 
 ## Question

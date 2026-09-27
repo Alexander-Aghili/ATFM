@@ -1,5 +1,9 @@
 # L0 Core: Trace Schema, Predictor Ladder, Forecaster and H1 Harness. Implementation Plan
 
+> **Historical implementation plan.** Embedded code and task checklists are a design record,
+> not the current source of setup instructions. See [implementation status](../../status.md),
+> [operations](../../operations.md), and [core development](../../development/core.md).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build the CPU-only core that turns agent traces (TraceLab or synthetic) into fleet demand forecasts from in-flight session state, scores the predictor ladder B0 to M3 against ground truth, and produces the H1 result.

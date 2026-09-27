@@ -1,5 +1,9 @@
 # ATFM: Agent Traffic Flow Management. Architecture and process design
 
+> **Design specification with dated amendments.** Current launcher behavior and validation
+> boundaries are summarized in [implementation status](../../status.md).
+> Use [operations](../../operations.md) for executable setup instructions.
+
 Date: 2026-09-22, revised 2026-09-23 (v1.1). Status: approved for implementation by the founder's instruction to proceed.
 Companion documents: `detail.md` (research plan), `docs/research/*.md` (platform, benchmarks, demonstration ladder, first H1 results).
 

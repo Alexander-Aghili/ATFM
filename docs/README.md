@@ -1,0 +1,41 @@
+# Documentation
+
+## Start here
+
+| Goal | Read |
+| --- | --- |
+| Understand ATFM and run a CPU example | [Project README](../README.md) |
+| Distinguish implemented features from validated outcomes | [Implementation status](status.md) |
+| Start the proxy, board, and controller | [Local operations](operations.md) |
+| Change core code safely | [Core developer guide](development/core.md) |
+| Prepare tests and a contribution | [Contributing](../CONTRIBUTING.md) |
+
+## Architecture and design
+
+- [System context](architecture/01-context.md) and [container view](architecture/02-container.md).
+- [Architecture design specification](superpowers/specs/2026-09-22-atfm-architecture-design.md).
+- [Master research plan](../detail.md).
+
+The [design-record index](superpowers/README.md) distinguishes historical task plans from current instructions.
+
+Design documents describe intent. For implemented behavior and extension
+contracts, use the developer guide and the source code together.
+
+## Evaluation and evidence
+
+- [Demonstration ladder](research/2026-09-22-demonstration-ladder.md): the roles of offline, simulated, and serving evaluations.
+- [Evaluation benchmarks](research/2026-09-22-evaluation-benchmarks.md): datasets, splits, and metrics.
+- [H1 first results](research/2026-09-22-h1-first-results.md): initial forecast evaluation.
+- [H2 simulation first results](research/2026-09-24-h2sim-first-results.md): initial closed-loop evaluation.
+- [Local deployment check](research/2026-09-27-deploy-e2e.md): integration results and missing capacity telemetry.
+- [H100 study design](research/2026-09-27-l2-h100-study-design.md): planned real-worker evaluation.
+- [Research index](research/README.md): additional dated study notes and diagnostics.
+
+Treat dated notes as records of particular experiments, not blanket claims
+about all workloads or the current working tree.
+
+## Paper
+
+The [paper guide](paper/README.md) covers the manuscript and build artifacts.
+The [visuals guide](paper/VISUALS.md) describes the paper's figures. Paper rendering
+has its own tooling and is separate from running the Python test suite.

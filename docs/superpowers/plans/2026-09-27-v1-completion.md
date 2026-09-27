@@ -1,5 +1,9 @@
 # ATFM v1 completion Implementation Plan
 
+> **Historical implementation plan.** Embedded code and task checklists are a design record,
+> not the current source of setup instructions. See [implementation status](../../status.md),
+> [operations](../../operations.md), and [core development](../../development/core.md).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build every component the v1.1 spec names that does not yet exist, test-first, without running experiments: the control package (GDP planner, placement touch controller, replica floor), simulator additions (touch arm, trace replay, golden test, run provenance), a Redis Streams bus, board metrics scraping and an HTTP service, proxy hardening and touch issuing, and the remaining sidecar parsers and harness adapters.

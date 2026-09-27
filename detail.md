@@ -1,5 +1,9 @@
 # Agent Traffic Flow Management: Core Idea and Experiment Plan
 
+> **Research and product plan.** This document includes proposed capabilities.
+> For the implemented system, start with the [README](README.md),
+> [implementation status](docs/status.md), and [core developer guide](docs/development/core.md).
+
 *Draft v1, September 2026*
 
 ---

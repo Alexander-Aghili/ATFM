@@ -158,3 +158,11 @@ preserving sample correlation. Remove comments that restate the next statement.
 Keep experiment history and design discussions in linked documentation rather
 than embedding them in implementation comments. Do not remove a useful warning
 about a scientific assumption just to reduce the comment count.
+
+## Related references
+
+- [Implementation status](../status.md) separates code paths from hardware evidence.
+- [Operations](../operations.md) documents the HTTP and CLI boundaries.
+- [Contributing](../../CONTRIBUTING.md) covers test and review expectations.
+- [Research index](../research/README.md) links dated findings without treating
+  historical run instructions as the current API.
