@@ -37,6 +37,9 @@ class Worker:
         self.running: dict[str, tuple[Request, float, float]] = {}
         self.queue: list[Request] = []
         self.last_evictions: list[tuple[str, str]] = []  # (admitted request_id, evicted session) from the last schedule()
+        # optional placement policy: given the evictable idle sessions, return them in eviction order (first first);
+        # None keeps LRU. This is where a forecast can act on KV residency instead of admission.
+        self.victim_policy = None
 
     def used_blocks(self) -> int:
         return sum(self.resident.values())
@@ -65,8 +68,15 @@ class Worker:
         Returns the evicted session ids, or None when the room cannot be made."""
         victims: list[str] = []
         running = self._running_sessions()
+        order = None
+        if self.victim_policy is not None:
+            candidates = [s for s in self.resident if s not in running and s != keep]
+            order = iter(list(self.victim_policy(candidates)))
         while self.free_blocks() < needed:
-            victim = next((s for s in self.resident if s not in running and s != keep), None)
+            if order is not None:
+                victim = next((s for s in order if s in self.resident), None)
+            else:
+                victim = next((s for s in self.resident if s not in running and s != keep), None)
             if victim is None:
                 return None
             del self.resident[victim]

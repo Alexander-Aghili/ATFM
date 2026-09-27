@@ -127,6 +127,27 @@ class ForecastPolicy:
         return None
 
 
+def next_call_of(sim, kind: str, payload) -> tuple[str, str, int] | None:
+    """(session id, class, prompt tokens) of the LLM call a heap event (start / arrive / tool_end) leads to."""
+    if kind == "start":
+        p = payload
+        return p.session_id, p.cls, int(p.turns[0].isl_new)
+    if kind == "arrive":
+        s = sim.sessions.get(payload)
+        if s is None or s.turn >= len(s.program.turns):
+            return None
+        turn = s.program.turns[s.turn]
+        return s.program.session_id, s.program.cls, int(turn.isl_new if turn.reset else s.ctx + turn.isl_new)
+    if kind == "tool_end":
+        s = sim.sessions.get(payload[0])
+        ti = payload[2] + 1
+        if s is None or ti >= len(s.program.turns):
+            return None
+        turn = s.program.turns[ti]
+        return s.program.session_id, s.program.cls, int(turn.isl_new if turn.reset else s.ctx + turn.isl_new)
+    return None
+
+
 class OracleRulePolicy(OraclePolicy):
     """Like-for-like upper bound for the forecast arms: the same GdpLite hold rule and the same index,
     fed the *true* first-call demand per horizon (read from the event heap) instead of forecast samples,
@@ -144,24 +165,7 @@ class OracleRulePolicy(OraclePolicy):
         self._isl_sum, self._isl_n = 0.0, 0
 
     def _next_call(self, sim, kind: str, payload) -> tuple[str, str, int] | None:
-        """(session id, class, prompt tokens) of the LLM call this heap event leads to."""
-        if kind == "start":
-            p = payload
-            return p.session_id, p.cls, int(p.turns[0].isl_new)
-        if kind == "arrive":
-            s = sim.sessions.get(payload)
-            if s is None or s.turn >= len(s.program.turns):
-                return None
-            turn = s.program.turns[s.turn]
-            return s.program.session_id, s.program.cls, int(turn.isl_new if turn.reset else s.ctx + turn.isl_new)
-        if kind == "tool_end":
-            s = sim.sessions.get(payload[0])
-            ti = payload[2] + 1
-            if s is None or ti >= len(s.program.turns):
-                return None
-            turn = s.program.turns[ti]
-            return s.program.session_id, s.program.cls, int(turn.isl_new if turn.reset else s.ctx + turn.isl_new)
-        return None
+        return next_call_of(sim, kind, payload)
 
     def on_tick(self, sim, now: float) -> None:
         for e in sim.events.drain():

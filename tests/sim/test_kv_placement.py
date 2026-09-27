@@ -1,0 +1,87 @@
+"""Forecast-driven KV placement: the engine evicts the idle session forecast to return *last*, instead of
+the least recently used one. This is the lever the second batch of H2 points at; each test names the
+production change that makes it pass."""
+import numpy as np
+
+from atfm.proxy.config import ProxyConfig
+from atfm.sim.engine import EngineConfig, Request, Worker
+from atfm.sim.programs import Program, Turn
+
+
+def _req(sid, isl, rid=None):
+    return Request(request_id=rid or f"{sid}:0", session_id=sid, cls="background", isl_total=isl, isl_new=isl, osl=16,
+                   tier=0, index=0.0, t_queued=0.0)
+
+
+def _fill(w, sids, isl=800):
+    for s in sids:
+        w.submit(_req(s, isl), 0.0)
+    w.schedule(0.0)
+    for s in sids:
+        w.complete(f"{s}:0", 1.0)
+
+
+def test_worker_victim_policy_overrides_lru_order():
+    # 3 idle sessions of 51 blocks each fill a 160-block cache; admitting a 4th needs one victim
+    w = Worker("w0", EngineConfig(kv_blocks=160, max_batch=4, prefill_tps=1e4, decode_tps=100.0))
+    _fill(w, ["a", "b", "c"])
+    w.victim_policy = lambda candidates: sorted(candidates, reverse=True)        # evict "c" first, not LRU "a"
+    w.submit(_req("d", 800), 2.0)
+    w.schedule(2.0)
+    assert "c" not in w.resident and "a" in w.resident and "d" in w.resident
+    assert w.last_evictions == [("d:0", "c")]
+    w2 = Worker("w1", EngineConfig(kv_blocks=160, max_batch=4, prefill_tps=1e4, decode_tps=100.0))
+    _fill(w2, ["a", "b", "c"])
+    w2.submit(_req("d", 800), 2.0)
+    w2.schedule(2.0)
+    assert "a" not in w2.resident                                               # default stays LRU
+
+
+def _prog(sid, cls, t_arrival, isl, tool, dur):
+    turns = [Turn(isl_new=isl, osl=10, tool_name=tool, tool_duration=dur, backend_id="ci", progress=[], think=False),
+             Turn(isl_new=100, osl=10, tool_name=None, tool_duration=None, backend_id="ci", progress=[], think=False)]
+    return Program(session_id=sid, cls=cls, tenant="t", t_arrival=t_arrival, turns=turns, deadline_s=None, parent=None, spawn_at_turn={})
+
+
+def test_oracle_kv_policy_evicts_the_session_that_returns_last():
+    from atfm.sim.core import Simulator
+    from atfm.sim.kv_placement import OracleKvPolicy
+    engines = [EngineConfig(kv_blocks=3000, max_batch=4, prefill_tps=20000.0, decode_tps=40.0)]
+    progs = [_prog("soon", "background", 0.0, 800, "pytest", 20.0), _prog("late", "background", 0.0, 800, "build", 400.0)]
+    pol = OracleKvPolicy(window=4, cfg=ProxyConfig(upstream_url="x", beta=0.5))
+    sim = Simulator(progs, engines, pol, rng=np.random.default_rng(0))
+    sim.prime()
+    sim.run(until=10.0)                         # both sessions have made their first call and are in their tools
+    pol.on_tick(sim, 10.0)
+    assert pol.kv_victims(sim, sim.workers[0], ["soon", "late"]) == ["late", "soon"]
+    assert pol.name == "oracle_kv"
+
+
+def test_forecast_kv_policy_orders_by_predicted_return_and_prefers_unknown_first():
+    from atfm.sim.core import Simulator
+    from atfm.sim.forecast_arm import fit_predictor_on_programs
+    from atfm.sim.kv_placement import ForecastKvPolicy
+    engines = [EngineConfig(kv_blocks=3000, max_batch=4, prefill_tps=20000.0, decode_tps=40.0)]
+    train = [_prog(f"t{k}", "background", 100.0 * k, 800, "pytest" if k % 2 else "build", 20.0 if k % 2 else 400.0) for k in range(20)]
+    pred, table = fit_predictor_on_programs("M1", train, engines, np.random.default_rng(1))
+    progs = [_prog("soon", "background", 0.0, 800, "pytest", 20.0), _prog("late", "background", 0.0, 800, "build", 400.0)]
+    pol = ForecastKvPolicy(window=4, cfg=ProxyConfig(upstream_url="x", beta=0.5), predictor=pred, train_table=table, horizons=[30.0, 120.0], n=64)
+    sim = Simulator(progs, engines, pol, rng=np.random.default_rng(0))
+    sim.prime()
+    sim.run(until=10.0)
+    pol.on_tick(sim, 10.0)
+    order = pol.kv_victims(sim, sim.workers[0], ["soon", "late", "never-seen"])
+    assert order[0] == "never-seen" and order[1] == "late" and order[2] == "soon"
+    assert pol.name == "forecast_M1_kv"
+
+
+def test_kv_arms_registered_and_wired_into_workers():
+    from atfm.experiments.h2sim import ARMS, H2SimConfig, _arm, build_simulator
+    from atfm.sim.kv_placement import OracleKvPolicy
+    assert {"forecast_M1_kv", "forecast_M2_kv", "oracle_kv"} <= set(ARMS)
+    cfg = H2SimConfig(name="t", regime="short_tool")
+    engines = [EngineConfig(**e) for e in cfg.engines]
+    pol = _arm("oracle_kv", cfg, engines, None, np.random.default_rng(0))
+    assert isinstance(pol, OracleKvPolicy)
+    sim = build_simulator(cfg, [_prog("a", "background", 1.0, 100, "bash", 1.0)], engines, pol, seed=0)
+    assert all(w.victim_policy is not None for w in sim.workers)

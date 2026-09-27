@@ -55,6 +55,9 @@ class Simulator:
                  router_mode: str = "affinity", bus=None, block_size: int = 16):
         self.programs = programs
         self.workers = [Worker(f"w{i}", e) for i, e in enumerate(engines)]
+        if hasattr(policy, "kv_victims"):
+            for _w in self.workers:
+                _w.victim_policy = (lambda cands, w=_w: policy.kv_victims(self, w, cands))
         self.router = Router(self.workers, router_mode)
         self.policy = policy
         self.harness_overhead_s, self.tick_s, self.max_hold_s, self.slo_ttft_s = harness_overhead_s, tick_s, max_hold_s, slo_ttft_s

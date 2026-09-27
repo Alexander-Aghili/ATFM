@@ -14,11 +14,13 @@ from atfm.proxy.config import ProxyConfig
 from atfm.sim.core import Simulator
 from atfm.sim.engine import EngineConfig
 from atfm.sim.forecast_arm import ForecastPolicy, GdpLite, OracleRulePolicy, fit_predictor_on_programs
+from atfm.sim.kv_placement import ForecastKvPolicy, OracleKvPolicy
 from atfm.sim.policies import NativePolicy, OraclePolicy, ProxyRulesPolicy, WorkingSetPolicy
 from atfm.sim.programs import programs_from_spec
 from atfm.traces.synthetic import ClassSpec, ToolSpec, WorkloadSpec
 
-ARMS = ["native", "proxy_rules", "forecast_M1", "forecast_M2", "oracle", "oracle_rule", "working_set"]
+ARMS = ["native", "proxy_rules", "forecast_M1", "forecast_M2", "oracle", "oracle_rule", "working_set",
+        "forecast_M1_kv", "forecast_M2_kv", "oracle_kv"]
 ABLATIONS = ["forecast_M1_nohold", "forecast_M2_nohold"]
 
 
@@ -70,6 +72,11 @@ def _arm(name: str, cfg: H2SimConfig, engines: list[EngineConfig], train_program
         return ProxyRulesPolicy(cfg.window, pcfg)
     if name == "oracle":
         return OraclePolicy(cfg.window, pcfg, hold=True)
+    if name == "oracle_kv":
+        return OracleKvPolicy(cfg.window, pcfg)
+    if name in ("forecast_M1_kv", "forecast_M2_kv"):
+        pred, table = fit_predictor_on_programs(name.split("_")[1], train_programs, engines, rng)
+        return ForecastKvPolicy(cfg.window, pcfg, pred, table, horizons=[30.0, 120.0, 300.0], n=64)
     if name == "oracle_rule":
         return OracleRulePolicy(cfg.window, pcfg, horizons=[30.0, 120.0, 300.0], gdp=GdpLite(max_hold_s=cfg.max_hold_s))
     if name == "working_set":
