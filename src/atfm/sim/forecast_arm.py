@@ -27,17 +27,33 @@ class GdpLite:
         self.slot_s, self.eps, self.max_hold_s = slot_s, eps, max_hold_s
 
     def hold_until(self, now: float, snap: ForecastSnapshot, free_blocks: int, free_slots: int, mean_isl: float,
-                   e_service_s: float = 1.0) -> float | None:
+                   e_service_s: float = 1.0, freeing_slots: int = 0, freeing_blocks: int = 0) -> float | None:
         """`free_blocks` is capacity not held by running requests; the slot test compares expected busy
-        slots over the slot (calls x E[S] / slot) with the free slots, not a raw call count."""
+        slots over the slot (calls x E[S] / slot) with the slots free now plus those that free up inside
+        the slot (`freeing_*`, v2). Without the freeing terms an instantaneous test under load sees no free
+        capacity at any moment and holds every deferrable call regardless of the forecast."""
         h = int(np.argmin(np.abs(np.asarray(snap.horizons) - self.slot_s)))
         q = 1.0 - self.eps
         kv = float(np.quantile(snap.samples["kv_blocks"]["interactive"][h], q))
         calls = float(np.quantile(snap.samples["prefill_tokens"]["interactive"][h], q)) / max(mean_isl, 1.0)
         occupancy = calls * e_service_s / self.slot_s
-        if kv > free_blocks or occupancy > free_slots:
+        if kv > free_blocks + freeing_blocks or occupancy > free_slots + freeing_slots:
             return now + self.slot_s
         return None
+
+
+def freeing_capacity(sim, now: float, slot_s: float, e_service_s: float | None) -> tuple[int, int]:
+    """(slots, KV blocks) held by running requests expected to finish within the slot. With `e_service_s`
+    the end is estimated as start + E[S] (what a proxy can know); with None the engine's true end is used
+    (oracle)."""
+    slots, blocks = 0, 0
+    for w in sim.workers:
+        for req, t_start, t_end in w.running.values():
+            end = t_end if e_service_s is None else t_start + e_service_s
+            if end <= now + slot_s:
+                slots += 1
+                blocks += w.resident_blocks(req.session_id)
+    return slots, blocks
 
 
 class ForecastPolicy:
@@ -100,7 +116,9 @@ class ForecastPolicy:
         free_slots = sum(max(0, w.cfg.max_batch - len(w.running)) for w in sim.workers)
         mean_isl = (self._isl_sum / self._isl_n) if self._isl_n else 3000.0
         e_service = mean_isl / self.cfg.prefill_tps + self.cfg.default_osl / self.cfg.decode_tps
-        t = self.gdp.hold_until(sim.now, self.snapshot, free_blocks, free_slots, mean_isl, e_service_s=e_service)
+        fs, fb = freeing_capacity(sim, sim.now, self.gdp.slot_s, e_service)
+        t = self.gdp.hold_until(sim.now, self.snapshot, free_blocks, free_slots, mean_isl, e_service_s=e_service,
+                                freeing_slots=fs, freeing_blocks=fb)
         if t is not None:
             self.last_hold_reason = "forecast_surge"
         return t
@@ -175,7 +193,9 @@ class OracleRulePolicy(OraclePolicy):
         free_slots = sum(max(0, w.cfg.max_batch - len(w.running)) for w in sim.workers)
         mean_isl = (self._isl_sum / self._isl_n) if self._isl_n else 3000.0
         e_service = mean_isl / self.cfg.prefill_tps + self.cfg.default_osl / self.cfg.decode_tps
-        t = self.gdp.hold_until(sim.now, self.snapshot, free_blocks, free_slots, mean_isl, e_service_s=e_service)
+        fs, fb = freeing_capacity(sim, sim.now, self.gdp.slot_s, None)     # true completion times
+        t = self.gdp.hold_until(sim.now, self.snapshot, free_blocks, free_slots, mean_isl, e_service_s=e_service,
+                                freeing_slots=fs, freeing_blocks=fb)
         if t is not None:
             self.last_hold_reason = "oracle_rule_surge"
         return t

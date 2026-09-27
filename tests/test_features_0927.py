@@ -129,3 +129,40 @@ def test_h2sim_config_hold_cap_reaches_the_simulator():
 def _arm_stub():
     from atfm.sim.policies import NativePolicy
     return NativePolicy()
+
+
+# ---------------------------------------------------------------- GDP-lite v2: capacity integrated over the slot
+def test_gdp_lite_counts_capacity_that_frees_within_the_slot():
+    """Under load free slots are ~0 at every instant, so an instantaneous test holds everything. The slot test
+    must count requests that will finish inside the slot as capacity for the calls forecast to arrive in it."""
+    from atfm.schema.forecast import ForecastSnapshot
+    from atfm.sim.forecast_arm import GdpLite
+    snap = ForecastSnapshot(t=0.0, horizons=[30.0], model_id="m",
+                            samples={"kv_blocks": {"interactive": np.full((1, 8), 100.0), "background": np.zeros((1, 8))},
+                                     "prefill_tokens": {"interactive": np.full((1, 8), 9000.0), "background": np.zeros((1, 8))}})
+    g = GdpLite(slot_s=30.0, eps=0.1)
+    # 3 calls x 10 s service = 1 busy slot over 30 s; nothing free now, but 2 requests finish inside the slot
+    assert g.hold_until(100.0, snap, free_blocks=0, free_slots=0, mean_isl=3000.0, e_service_s=10.0) == 130.0
+    assert g.hold_until(100.0, snap, free_blocks=0, free_slots=0, mean_isl=3000.0, e_service_s=10.0,
+                        freeing_slots=2, freeing_blocks=200) is None
+    # the freeing capacity is not enough for 3 busy slots worth of demand -> still hold
+    assert g.hold_until(100.0, snap, free_blocks=0, free_slots=0, mean_isl=3000.0, e_service_s=30.0,
+                        freeing_slots=2, freeing_blocks=200) == 130.0
+
+
+def test_forecast_and_oracle_rule_pass_freeing_capacity():
+    from atfm.sim.forecast_arm import ForecastPolicy, OracleRulePolicy, freeing_capacity
+    engines = [EngineConfig(kv_blocks=3000, max_batch=4, prefill_tps=20000.0, decode_tps=40.0)]
+    progs = [_prog("a", "interactive", 1.0, 1600, tool="bash", dur=5.0)]
+    sim = Simulator(progs, engines, _arm_stub(), rng=np.random.default_rng(0))
+    sim.prime()
+    w = sim.workers[0]
+    from atfm.sim.engine import Request
+    w.submit(Request(request_id="r", session_id="a", cls="interactive", isl_total=1600, isl_new=1600, osl=10, tier=1, index=0.0, t_queued=0.0), 0.0)
+    w.schedule(0.0)
+    slots, blocks = freeing_capacity(sim, now=0.0, slot_s=30.0, e_service_s=None)     # true t_end from the engine
+    assert slots == 1 and blocks == w.resident_blocks("a") >= math.ceil(1600 / 16)
+    slots2, _ = freeing_capacity(sim, now=0.0, slot_s=0.01, e_service_s=None)          # nothing frees in 10 ms
+    assert slots2 == 0
+    slots3, _ = freeing_capacity(sim, now=0.0, slot_s=30.0, e_service_s=5.0)           # estimated: t_queued + E[S]
+    assert slots3 == 1

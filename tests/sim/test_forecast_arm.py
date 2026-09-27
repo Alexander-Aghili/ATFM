@@ -32,7 +32,9 @@ def test_forecast_arm_runs_and_holds_only_background():
     train = programs_from_spec(_spec(1), np.random.default_rng(1))
     pred, table = fit_predictor_on_programs("M2", train, engines, np.random.default_rng(1))
     assert len(table) > 50 and pred.name == "M2_progress"
-    progs = programs_from_spec(_spec(0), np.random.default_rng(0))
+    spec = _spec(0)                       # heavy enough that capacity does not free within the slot (v2 rule)
+    spec.classes[0].rate_per_hour, spec.classes[1].rate_per_hour = 1200.0, 800.0
+    progs = programs_from_spec(spec, np.random.default_rng(0))
     pol = ForecastPolicy(window=4, cfg=ProxyConfig(upstream_url="x", beta=0.5), predictor=pred, train_table=table,
                          horizons=[30.0, 120.0], n=64, hold=True)
     log = Simulator(progs, engines, pol, max_hold_s=60.0, rng=np.random.default_rng(0)).run()

@@ -1,0 +1,17 @@
+diagram theme: print
+default edge line: (path: square, corners: rounded)
+style component fill: #ffffff border: #334155 text: (color: #172033)
+style control fill: #eef2f6 border: #334155 text: (color: #172033)
+node harness "Agent harness / Tools and LLM calls" style: component
+node proxy "Admission proxy / Window, priorities, holds" right of harness style: component
+node engine "Serving engine / Batch scheduler and KV cache" right of proxy style: component
+node signals "Tool sidecar / Progress and lifecycle events" below harness style: control
+node board "Demand board / Session state and forecasts" below proxy style: control
+node policy "Hold policy / Capacity and delay budget" below engine style: control
+edge harness -> proxy "requests" from: right to: left
+edge proxy -> engine "admitted calls" from: right to: left
+edge harness -> signals "tool output" from: bottom to: top
+edge signals -> board "events" from: right to: left
+edge board -> policy "demand samples" from: right to: left
+edge engine -> policy "capacity" from: bottom to: top
+edge policy -> proxy "hold / release" from: top to: bottom line: (pattern: dashed)

@@ -1,0 +1,111 @@
+{
+  "description": "Frozen inputs for the revised paper; metrics copied from completed local runs. Original data/ and runs/ are gitignored.",
+  "repository_commit": "c157ad9ed5d088f9d228b80d4c3fad2cc4d3fffc",
+  "sources": [
+    {
+      "source": "runs/sweep_tracelab.csv",
+      "snapshot": "sweep_tracelab.csv",
+      "sha256": "f1b7af5e31bc13c1c3f620e0331c5b8a3cecb370ebc898420c00873644f476f5",
+      "snapshot_sha256": "f1b7af5e31bc13c1c3f620e0331c5b8a3cecb370ebc898420c00873644f476f5"
+    },
+    {
+      "source": "runs/sweep_agentx.csv",
+      "snapshot": "sweep_agentx.csv",
+      "sha256": "afee01ff278209a13d5f3fd5f5567d853a8c3c3ed4e7365881bc1ef179718675",
+      "snapshot_sha256": "afee01ff278209a13d5f3fd5f5567d853a8c3c3ed4e7365881bc1ef179718675"
+    },
+    {
+      "source": "runs/h1_tracelab_r200/metrics.csv",
+      "snapshot": "h1_tracelab_r200__metrics.csv",
+      "sha256": "1f73620baed582b32e8cdc63fb1a0ecbb8e7b128732a9cbecad485a4be6eba00",
+      "snapshot_sha256": "1f73620baed582b32e8cdc63fb1a0ecbb8e7b128732a9cbecad485a4be6eba00"
+    },
+    {
+      "source": "runs/h1_tracelab_r200_cal/metrics.csv",
+      "snapshot": "h1_tracelab_r200_cal__metrics.csv",
+      "sha256": "3593c0b09dd4f5bcce5eb650438ff9afd663c1e383f6aa59b406c626254db40f",
+      "snapshot_sha256": "3593c0b09dd4f5bcce5eb650438ff9afd663c1e383f6aa59b406c626254db40f"
+    },
+    {
+      "source": "runs/h2sim_long_tool/metrics.csv",
+      "snapshot": "h2sim_long_tool__metrics.csv",
+      "sha256": "1b3f8a6357a294036317f3399139cb8d4a72f485d472aab1a769ef5ac3cc6487",
+      "snapshot_sha256": "1b3f8a6357a294036317f3399139cb8d4a72f485d472aab1a769ef5ac3cc6487"
+    },
+    {
+      "source": "runs/h2sim_long_tool/paired.csv",
+      "snapshot": "h2sim_long_tool__paired.csv",
+      "sha256": "cbcd929acc7d9385feb8c7ab426657c9a1f73975794b3e89401f14e75484e8c4",
+      "snapshot_sha256": "cbcd929acc7d9385feb8c7ab426657c9a1f73975794b3e89401f14e75484e8c4"
+    },
+    {
+      "source": "runs/h2sim_long_tool/config.json",
+      "snapshot": "h2sim_long_tool__config.json",
+      "sha256": "c4562941bdace587236eb9c70c6d69416ad1409e7c6f0baee3de81cecc027464",
+      "snapshot_sha256": "c4562941bdace587236eb9c70c6d69416ad1409e7c6f0baee3de81cecc027464"
+    },
+    {
+      "source": "runs/h2sim_short_tool/metrics.csv",
+      "snapshot": "h2sim_short_tool__metrics.csv",
+      "sha256": "61af9e29bcc00b20b3515593faa45f36fa3dda2e7b7280a5bc8a639a1fe36f5b",
+      "snapshot_sha256": "61af9e29bcc00b20b3515593faa45f36fa3dda2e7b7280a5bc8a639a1fe36f5b"
+    },
+    {
+      "source": "runs/h2sim_short_tool/paired.csv",
+      "snapshot": "h2sim_short_tool__paired.csv",
+      "sha256": "b547aa8a73a89461717fef11bcc00ecf6eea91befc4258f1b01e29cb7663e288",
+      "snapshot_sha256": "b547aa8a73a89461717fef11bcc00ecf6eea91befc4258f1b01e29cb7663e288"
+    },
+    {
+      "source": "runs/h2sim_short_tool/config.json",
+      "snapshot": "h2sim_short_tool__config.json",
+      "sha256": "eb93f440eef6b0ab754864aa24790648b3a137835a6d444fddb6d37c79179861",
+      "snapshot_sha256": "eb93f440eef6b0ab754864aa24790648b3a137835a6d444fddb6d37c79179861"
+    },
+    {
+      "source": "runs/h2sim_long_tool_loaded/metrics.csv",
+      "snapshot": "h2sim_long_tool_loaded__metrics.csv",
+      "sha256": "e91bb4dc4e8c941c56fb15f822a68ed21c803208f0ff8c32695a41305e4dfc50",
+      "snapshot_sha256": "e91bb4dc4e8c941c56fb15f822a68ed21c803208f0ff8c32695a41305e4dfc50"
+    },
+    {
+      "source": "runs/h2sim_long_tool_loaded/paired.csv",
+      "snapshot": "h2sim_long_tool_loaded__paired.csv",
+      "sha256": "596f0c8fce9fc4d09fef3ad6ff1c8ef039e20508f90abd0763e6a2367ee2b4c7",
+      "snapshot_sha256": "596f0c8fce9fc4d09fef3ad6ff1c8ef039e20508f90abd0763e6a2367ee2b4c7"
+    },
+    {
+      "source": "runs/h2sim_long_tool_loaded/config.json",
+      "snapshot": "h2sim_long_tool_loaded__config.json",
+      "sha256": "665b8fdecba95aec1512470cc1ae3b501f2cf488ddc9579970a368d88d102564",
+      "snapshot_sha256": "665b8fdecba95aec1512470cc1ae3b501f2cf488ddc9579970a368d88d102564"
+    },
+    {
+      "source": "runs/h2sim_interactive_long/metrics.csv",
+      "snapshot": "h2sim_interactive_long__metrics.csv",
+      "sha256": "6c62dea421fa0be3a7e4cf10842a2312f762b5fd00973f802179e97412570653",
+      "snapshot_sha256": "6c62dea421fa0be3a7e4cf10842a2312f762b5fd00973f802179e97412570653"
+    },
+    {
+      "source": "runs/h2sim_interactive_long/paired.csv",
+      "snapshot": "h2sim_interactive_long__paired.csv",
+      "sha256": "68b1a731e288740dd6b0c8120696921a2fb52311a4e896b6f37df1ec50c39c42",
+      "snapshot_sha256": "68b1a731e288740dd6b0c8120696921a2fb52311a4e896b6f37df1ec50c39c42"
+    },
+    {
+      "source": "runs/h2sim_interactive_long/config.json",
+      "snapshot": "h2sim_interactive_long__config.json",
+      "sha256": "819ad8227b47fe1bd1e0acea0b02387394054191f6e51a5ac523a96784f4bbee",
+      "snapshot_sha256": "819ad8227b47fe1bd1e0acea0b02387394054191f6e51a5ac523a96784f4bbee"
+    },
+    {
+      "source": "runs/h1b_with_numpy.csv",
+      "snapshot": "h1b_summary.csv",
+      "transformation": "Arithmetic mean by family/model and by model over all observation points; n summed. Session identifiers omitted.",
+      "source_sha256": "a7b8de0486e44c2f6ec0a708975922ae19d6d88b977e5a489d9cb35b7d51b76d",
+      "snapshot_sha256": "918900d7059b7846f7f7d38e0f842e7de8b5307f282e00d981004fa43a24ead5"
+    }
+  ],
+  "paper_revision_date": "2026-09-27",
+  "evidence_cutoff": "Includes completed summaries for h2sim_interactive_long; excludes the incomplete h2sim_long_tool_loaded_cap60 run."
+}
