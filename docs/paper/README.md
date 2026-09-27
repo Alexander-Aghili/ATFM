@@ -1,6 +1,6 @@
 # ATFM research paper
 
-Open `atfm-paper.pdf` for the paginated paper or `atfm-paper.html` for the self-contained web version.
+Open `atfm-paper.pdf` for the paginated paper The HTML files preserve an earlier revision and do not include all LaTeX additions.
 
 ## Edit and rebuild (LaTeX)
 
@@ -24,7 +24,7 @@ A standard TeX Live installation with `latexmk`, pdfLaTeX, BibTeX, `newtx`, `mic
 
 `atfm-latex.zip` is a portable source bundle suitable for Overleaf: select `atfm-paper.tex` as the main document and pdfLaTeX as the compiler. It includes the bibliography, vector figures, and frozen result summaries.
 
-To refresh the figures from the existing result snapshots (requires Python and Inkscape):
+To refresh the figures from the existing result snapshots (requires Python with NumPy, pandas and Matplotlib, Inkscape, and Node/npx with reladraw):
 
 ```bash
 python3 docs/paper/build_latex.py --figures
@@ -68,3 +68,9 @@ Rebuilding does not rerun experiments. Inspect every exported PDF page after lay
 ## LaTeX conversion checks
 
 The conversion preserves the latest five-regime manuscript, including the controlled 60-second cap ablation. Two consistency corrections were made: the appendix now identifies that completed run, and Section 6.5 no longer describes the working-set row as unchanged when its table values change. The source compiles without missing citations, unresolved references, missing glyphs, or overfull boxes. All rendered pages were inspected.
+
+## Expanded visual and mathematical edition
+
+The LaTeX edition adds a lifecycle timeline, two attributed original prior-paper diagrams, a forecast-flow diagram, worked survival/progress illustrations, calibration plots, cross-regime policy effects, a controlled-cap comparison, seed-level resource costs, and a technical research roadmap. `VISUALS.md` records their sources and interpretation. `build_visuals.py` regenerates scientific charts; toy examples are explicitly labeled illustrative. Prior-work originals and reuse provenance are retained under `sources/prior-work/`.
+
+Section 8 is a dedicated technical future-work plan, separating implemented but unevaluated diagnostics and KV eviction from proposed occupancy control, tier placement, hardware validation, and replica floors. Equations define their components locally and distinguish implemented rules from proposed extensions.

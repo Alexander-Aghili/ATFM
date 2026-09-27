@@ -1,0 +1,16 @@
+diagram theme: print
+default edge line: (path: square, corners: rounded)
+style now fill: #eef2f6 border: #245b85
+style next fill: #f4efe9 border: #b14b20
+style later fill: #edf4ee border: #35734d
+node evidence "Retained evidence / Forecast gain; conditional policy gain" style: now
+node isolate "Isolate the decision / Index ablation; matched holds" right of evidence style: next
+node cache "Evaluate cache placement / Fixed admission; return-time eviction" below isolate style: next
+node calibrated "Calibrate on hardware / Service, cache, transfer, queues" left of cache style: next
+node transfer "Demonstrate backend control / Observe; act; verify residency" below calibrated style: later
+node fleet "Evaluate fleet control / Routing and replica lead times" right of transfer style: later
+edge evidence -> isolate from: right to: left
+edge isolate -> cache from: bottom to: top
+edge cache -> calibrated from: left to: right
+edge calibrated -> transfer from: bottom to: top
+edge transfer -> fleet from: right to: left

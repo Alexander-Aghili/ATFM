@@ -17,8 +17,12 @@ from .policies import OraclePolicy
 
 
 class _KvOrdering:
-    """Shared eviction ordering over a per-session expected return time (absolute seconds)."""
+    """Shared eviction ordering over a per-session expected return time (absolute seconds). Admission is
+    exactly `proxy_rules` (no next-tool index term), so the arms differ from rules by placement alone."""
     _eta: dict[str, float]
+
+    def e_tool_next(self, sim, call) -> float:
+        return 0.0
 
     def kv_victims(self, sim, worker, candidates: list[str]) -> list[str]:
         eta = self._eta

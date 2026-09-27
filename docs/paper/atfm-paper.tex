@@ -37,7 +37,7 @@
 \maketitle
 
 \begin{abstract}
-Large language model (LLM) agents alternate between inference and external tool execution. A serving system can therefore observe sessions that are likely to generate future requests before those requests arrive. We investigate whether this information improves aggregate demand forecasts and whether acting on the forecasts benefits latency-sensitive sessions. Agent Traffic Flow Management (ATFM) combines a session-state demand model, a tool-progress sidecar, and an admission proxy that can defer background requests. Across two public coding-agent corpora, the ratio of Kalman-baseline loss to elapsed-time-model loss ranges from 1.96 to 5.43 at five-minute horizons and from 2.73 to 5.09 at fifteen-minute horizons, using the 0.9-quantile pinball loss averaged over three seeds. In a separate collection of long-running tools, progress information reduces mean pinball loss from 24.9 to 8.9 seconds. Closed-loop simulation exposes a conditional benefit: in a loaded regime with short interactive tools, forecast-based holds improve session-weighted service-level-objective attainment by 9.3 percentage points while increasing mean background completion time by approximately 24\%. A regime with long interactive tools and a shorter hold cap does not establish an advantage over rules-based admission, and a controlled cap ablation in the loaded regime removes the gain entirely: at a 60-second cap the forecast arms' SLO differences from native span zero while their background costs remain, and a same-rule lookahead fed true demand does no better. These findings support session-aware forecasting but show that the measured policy gain came from long deferral of background work rather than from forecast accuracy, and that this hold heuristic collapses to holding everything under load. Serving results remain conditional on an unvalidated simulator and require hardware evaluation.
+Large language model (LLM) agents alternate between inference and external tool execution. A serving system can therefore observe sessions that are likely to generate future requests before those requests arrive. We investigate whether this information improves aggregate demand forecasts and whether acting on the forecasts benefits latency-sensitive sessions. Agent Traffic Flow Management (ATFM) combines a session-state demand model, a tool-progress sidecar, and an admission proxy that can defer background requests. Across two public coding-agent corpora, the ratio of Kalman-baseline loss to elapsed-time-model loss ranges from 1.96 to 5.43 at five-minute horizons and from 2.73 to 5.09 at fifteen-minute horizons, using the 0.9-quantile pinball loss averaged over three seeds. In a separate collection of long-running tools, progress information reduces mean pinball loss from 24.9 to 8.9 seconds. Closed-loop simulation exposes a conditional benefit: in a loaded regime with short interactive tools, forecast-based holds improve session-weighted service-level-objective attainment by 9.3 percentage points while increasing mean background completion time by approximately 24\%. A regime with long interactive tools and a shorter hold cap does not establish an advantage over rules-based admission, and a controlled cap ablation in the loaded regime removes the gain entirely: at a 60-second cap the forecast arms' SLO differences from native span zero while their background costs remain, and a same-rule lookahead fed true demand does no better. These findings support session-aware forecasting but show that the measured policy gain depends on long deferral of background work; they do not isolate a benefit attributable to forecast accuracy. A revised capacity rule reduces unnecessary deferral but still does not establish an SLO gain. Serving results remain conditional on an unvalidated simulator and require hardware evaluation.
 
 
 \end{abstract}
@@ -51,6 +51,15 @@ An LLM agent typically executes a sequence of model calls and external actions: 
 
 Our premise is that the latter group provides useful information about future demand. A session's current phase, elapsed tool time, context length, and available progress reports constrain when it may next request inference. This information is particularly relevant when many active sessions share a serving pool. It is less useful when new sessions dominate arrivals, external actions are unobservable, or uncertainty in return times overwhelms the controller's decision horizon.
 
+Figure~\ref{fig:timeline} provides a running example. At the forecast time, three sessions are outside the model server. Two return during the next 30 seconds, while the third remains in its tool phase. The server has not received those two requests yet, but their elapsed execution and context sizes already provide evidence about future load. Our method formalizes this observation, first at the session level and then across the fleet.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=1\linewidth]{agent-timeline.pdf}
+\caption{Illustrative agent timelines, not measured traces. Blue denotes model execution, orange tool execution, and gray a pending gap. The dashed line is the observation time; the shaded interval is the forecast horizon. Sessions B and C next request inference inside this horizon; A returns later.}
+\label{fig:timeline}
+\end{figure}
+
 
 ATFM maintains a \emph{demand board} that aggregates per-session return-time distributions into forecasts of prompt-token and KV-block demand. An admission proxy uses these forecasts to delay deferrable work when interactive demand is expected to exceed available capacity. The name refers to the separation between demand prediction and ground-delay decisions in air-traffic flow management; the implemented controller is a heuristic, without an optimality or service-level guarantee.
 
@@ -63,17 +72,50 @@ The evidence addresses three research questions: \textbf{H1a}, whether in-flight
 
 \section{Background and Related Work}
 \label{sec:2}
-\textbf{Program-aware serving.} ThunderAgent represents multi-turn workflows as programs and coordinates inference and tool resources \citep{r1}. Continuum retains selected KV caches under a time-to-live policy that accounts for reload cost and queueing delay \citep{r2}. These systems establish that an agent's state beyond its current request can inform serving decisions. ATFM instead evaluates aggregate demand over explicit horizons and uses that forecast to control admission. Its per-tool history predictor and working-set policy are local baselines, not reproductions of Continuum or ThunderAgent; their results cannot be read as comparisons against the full published systems.
+The running example raises two related questions: what state should remain available while an agent is away, and how should its eventual return affect scheduling? Prior systems address different parts of this problem. We first review the cache and program abstractions, then explain where ATFM's forecast interface fits.
 
+\subsection{Why tool execution matters to the cache}
+A completed model turn does not necessarily end an agent session. Continuum studies the cost of discarding or offloading KV state between turns and retains selected caches with a time-to-live policy informed by reload cost and queueing delay \citep{r2}. Its motivating diagram (Figure~\ref{fig:continuum}) makes the return path explicit: the tool interval separates two inference intervals, and cache handling can add work or delay before the second begins. This motivates observing a session throughout its external execution.
 
-\textbf{Tool signals and reactive scheduling.} Liu et al. recover live tool progress for cache-management decisions \citep{r3}, directly motivating the information source studied in H1b. ATFM does not claim novelty for extracting progress. Its focus is the aggregation of session-level predictions and the conditions under which those predictions help a fleet controller. Conversely, ConServe emphasizes conversation-level observation and disaggregated scheduling rather than duration prediction \citep{r4}. This alternative motivates the rules-only baseline and the explicit separation of prediction quality from policy effectiveness.
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=.85\linewidth]{prior-continuum.pdf}
+\caption{Cache handling across agent turns, reproduced from Li et al., \emph{Continuum}, Figure 1, arXiv:2511.02230v7 \citep{r2}. The diagram contrasts end-of-turn eviction with CPU offloading and illustrates the resulting resumption overhead. Original diagram, unchanged except for scaling and SVG-to-PDF conversion; reproduced under the arXiv distribution's \href{https://creativecommons.org/licenses/by/4.0/}{CC BY 4.0} license.}
+\label{fig:continuum}
+\end{figure}
 
+\subsection{From requests to programs}
+ThunderAgent represents multi-turn workflows as programs and coordinates inference and tool resources \citep{r1}. Figure~\ref{fig:thunderagent} shows its program queue and backend resource metadata. The distinction between reasoning and acting matters because a program can remain active even when it has no request executing at the model server. This wider scheduling boundary motivates ATFM's registry of in-flight sessions.
 
-\textbf{Infrastructure and workload evidence.} NVIDIA Dynamo provides agent-oriented serving mechanisms, including request hints, scheduling, and KV-aware infrastructure \citep{r5}. ATFM's prototype integrates a proxy with Dynamo's Mocker path; the simulation experiments use a separate local engine model. DSec demonstrates large-scale, stateful sandbox execution decoupled from GPU training \citep{r6}. Its reported scale, approximately three million sandboxes per day and more than 380,000 concurrent sandboxes, motivates studying external execution state, but does not establish that inference demand is forecastable. TraceLab \citep{r7} and the SemiAnalysis AgentX corpus \citep{r8} supply the real session traces used here.
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=1\linewidth]{prior-thunderagent.png}
+\caption{Program-aware resource management, reproduced from Kang et al., \emph{ThunderAgent}, Figure 3, arXiv:2602.13692v3 \citep{r1}. Programs can be paused or restored according to backend state. Original diagram, unchanged except for scaling; reproduced under \href{https://creativecommons.org/licenses/by/4.0/}{CC BY 4.0}. Terminology and architecture in this diagram belong to ThunderAgent.}
+\label{fig:thunderagent}
+\end{figure}
+
+ATFM takes a complementary measurement perspective: it estimates aggregate first-resumption demand over explicit horizons and tests admission decisions driven by that estimate. Its history predictor and working-set policy are local baselines, not reproductions of Continuum or ThunderAgent. Their results cannot be interpreted as comparisons against either complete published system.
+
+\subsection{Progress signals and reactive alternatives}
+Liu et al. recover live tool progress for cache-management decisions \citep{r3}, motivating the information source studied in H1b. ATFM does not claim novelty for extracting progress; it studies how session predictions aggregate and when a fleet controller benefits from them. ConServe instead emphasizes conversation-level observation and disaggregated scheduling \citep{r4}. This alternative motivates a rules-only baseline: a controller may benefit from session context without needing accurate duration predictions.
+
+\subsection{Infrastructure and workload evidence}
+NVIDIA Dynamo provides request hints, scheduling, and KV-aware serving infrastructure \citep{r5}. ATFM integrates a proxy with Dynamo's Mocker path, while the policy experiments use a separate local engine model. DSec demonstrates stateful sandbox execution decoupled from GPU training \citep{r6}. Its reported scale---approximately three million sandboxes per day and more than 380,000 concurrent sandboxes---motivates tracking external execution, but does not establish demand predictability. TraceLab \citep{r7} and the SemiAnalysis AgentX corpus \citep{r8} provide the real session traces used here.
+
+These systems establish the relevance of state outside the serving queue. The next section defines precisely what ATFM predicts from that state; Section~\ref{sec:4} then describes how the proxy consumes the prediction.
 
 
 \section{Demand Model and Forecasting Method}
 \label{sec:3}
+
+The construction proceeds in three steps: define the demand target, estimate each session's next return, and aggregate those estimates into a fleet distribution. Figure~\ref{fig:forecast-flow} summarizes the information flow. Throughout, a forecast describes uncertainty about the next request; it is not a reservation of serving capacity.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=1\linewidth]{forecast-flow.pdf}
+\caption{From observed session state to a distribution of fleet demand. Each Monte Carlo draw combines predicted first returns with modeled future-session demand. Quantiles are computed after aggregation, preserving the distinction between individual return uncertainty and aggregate load.}
+\label{fig:forecast-flow}
+\end{figure}
 \subsection{Forecast target}
 \label{sec:3.1}
 At time \(t\), let \(A_{c}(t)\) denote known sessions in class \(c\), where the classes are interactive and background. For session \(i\), let \(R_{i}(t)\) be the time until its next model request and \(L_{i}\) the input-token count of that request. With block size \(b\) = 16 tokens, the KV-demand forecast is
@@ -87,6 +129,31 @@ The term \(U\) represents demand from future sessions, including modeled child s
 
 
 Known context length informs the next prompt size, but the size increment from tool output must be predicted. The live proxy also uses a character-count approximation when token counts are unavailable. Context size is therefore not assumed to be known exactly in deployment.
+
+For clarity, the main quantities are collected in Table~\ref{tab:notation}. Let \(\mathcal{I}_t\) denote all information available by time \(t\), and write \(B_i=\lceil L_i/b\rceil\). Linearity of expectation gives
+\begin{equation}
+\mathbb{E}[D^{\mathrm{KV}}_c(t,h)\mid\mathcal{I}_t]
+=\sum_{i\in A_c(t)}\mathbb{E}[B_i\mathbf{1}[R_i(t)\le h]\mid\mathcal{I}_t]
++\mathbb{E}[U^{\mathrm{KV}}_c(t,h)\mid\mathcal{I}_t].
+\label{eq:expected-demand}
+\end{equation}
+If each \(B_i\) is fixed, its term simplifies to \(B_i p_i(h)\), where \(p_i(h)=\Pr(R_i(t)\le h\mid\mathcal{I}_t)\). This identity does not require independent return times. For example, two known sessions of 100 and 200 blocks with return probabilities 0.8 and 0.3 contribute an expected \(100(0.8)+200(0.3)=140\) blocks, before future-session demand. The expectation alone does not determine an upper quantile: dependence and dispersion also matter.
+
+\begin{table}[!htbp]
+\centering\small
+\caption{Core notation. Times are measured in seconds and token counts in tokens unless stated otherwise.}
+\label{tab:notation}
+\begin{tabularx}{\linewidth}{@{}p{.25\linewidth}X@{}}
+\toprule
+Symbol & Meaning \\\midrule
+\(t,h,c,A_c(t)\) & Observation time, forecast horizon, workload class, and known sessions of that class. \\
+\(R_i(t),L_i,B_i\) & Time to the next model request, its prompt length, and its demand in KV blocks. \\
+\(b,D_c^{\mathrm{KV}},U_c^{\mathrm{KV}}\) & Tokens per block (16), total first-resumption demand, and the future-session contribution, both in blocks. \\
+\(T,e,r,S(u)\) & Total tool duration, elapsed duration, candidate remaining duration, and survival probability \(S(u)=\Pr(T>u)\). \\
+\(\mathcal I_t,M,\tau\) & Information observed by time \(t\), number of Monte Carlo draws, and quantile level. \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 
 \subsection{State and predictor hierarchy}
@@ -122,12 +189,52 @@ B2 uses elapsed time in the final subtraction but does not condition its duratio
 \Pr(T-e>r\mid T>e)=\frac{S(e+r)}{S(e)},\qquad r\geq0,
 \label{eq:2}
 \end{equation}
-where \(S\) is the survival function. The implementation uses empirical duration distributions with finite-sample fallbacks, adds a tool-to-request gap, and assigns probability mass to sessions that do not return. M2 combines a rate filter with empirical progress curves because a tool's reported fraction complete need not be linear in wall-clock time. When progress is absent, M2 falls back to the elapsed-time model.
+where \(S\) is the survival function.
+
+Conditioning removes durations incompatible with a tool that is still running. In the illustrative history \(T\in\{10,20,40,80\}\) seconds with equal weights, a tool observed at \(e=30\) seconds can have remaining time 10 or 50 seconds under M1, each with probability one half. B2 instead maps the two already-finished historical durations to zero, placing half its mass on immediate completion (Figure~\ref{fig:survival}). The empirical M1 conditional CDF, before fallback and gap handling, is
+\begin{equation}
+\widehat F_{R\mid e}(r)=
+\frac{\sum_{j=1}^{n_T}\mathbf{1}[e<T_j\le e+r]}
+{\sum_{j=1}^{n_T}\mathbf{1}[T_j>e]},\qquad r\ge0,
+\label{eq:empirical-survival}
+\end{equation}
+where \(T_j\) is a historical duration and \(n_T\) is the number of available durations. A zero denominator requires the implementation's finite-sample fallback; Equation~\eqref{eq:empirical-survival} alone is undefined in that case.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=1\linewidth]{survival-example.pdf}
+\caption{Illustrative remaining-time distributions for the same four historical durations at elapsed time 30 s. Vertical stems are probability masses, not densities. Conditioning excludes completed historical cases instead of interpreting them as evidence of immediate completion.}
+\label{fig:survival}
+\end{figure} The implementation uses empirical duration distributions with finite-sample fallbacks, adds a tool-to-request gap, and assigns probability mass to sessions that do not return. M2 combines a rate filter with empirical progress curves because a tool's reported fraction complete need not be linear in wall-clock time. When progress is absent, M2 falls back to the elapsed-time model.
+
+To see why a progress curve is needed, let \(p\in(0,1]\) be the reported fraction of work completed and \(g(p)\) the learned fraction of wall-clock duration elapsed at that report. If the report arrives at elapsed time \(e_\ell\), the curve-based central estimate at current elapsed time \(e\) is
+\begin{equation}
+\widehat T=\frac{e_\ell}{g(p)},\qquad
+\widehat R_{\mathrm{tool}}=\max\!\left(\frac{e_\ell}{g(p)}-e,0\right).
+\label{eq:progress}
+\end{equation}
+Here \(\widehat T\) estimates total tool duration, and \(\widehat R_{\mathrm{tool}}\) excludes the subsequent pending gap. The implementation adds sampled multiplicative dispersion and residual variation, so this central estimate is not the full predictive distribution. When no learned curve is available, the rate-based branch samples a work rate \(v\) and estimates remaining time from \((W-w)/v\), where \(W\) and \(w\) are total and completed work units, with adjustment for report age. Figure~\ref{fig:progress-concept} shows how two different mappings of reported progress change the estimate even with identical observed elapsed time.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=1\linewidth]{progress-concept.pdf}
+\caption{Illustrative progress mappings, not fitted experimental curves. Left: reported work fraction can differ from elapsed-time fraction. Right: with a fresh report at elapsed time 30 s and reported progress 0.25, the linear assumption predicts 90 s remaining; the illustrative square-root curve predicts 30 s. The discrepancy motivates learning tool-specific mappings.}
+\label{fig:progress-concept}
+\end{figure}
 
 
 \subsection{Aggregation and calibration}
 \label{sec:3.3}
 The demand board draws Monte Carlo return times and next-call sizes, then sums their contributions using Equation~\eqref{eq:1}. It models one level of child-session fan-out and a Poisson process for exogenous arrivals. The arrival rate is estimated from recent session starts; first-call sizes are sampled from training data. History-only predictors receive a realized demand window only after its full horizon has elapsed, preventing future-window leakage.
+
+Formally, for draw \(m=1,\ldots,M\), the board computes
+\begin{align}
+D_c^{(m)}(t,h)&=\sum_{i\in A_c(t)}\mathbf{1}[R_i^{(m)}(t)\le h]B_i^{(m)}+U_c^{(m)}(t,h),\\
+\widehat F_{c,t,h}(d)&=\frac{1}{M}\sum_{m=1}^{M}\mathbf{1}[D_c^{(m)}(t,h)\le d],\qquad
+\widehat q_\tau=\inf\{d:\widehat F_{c,t,h}(d)\ge\tau\}.
+\label{eq:mc}
+\end{align}
+The superscript \((m)\) identifies a sampled scenario, \(d\) is a candidate block demand, and \(\widehat q_\tau\) is the empirical demand quantile. Quantiles are taken over fleet sums, rather than summing per-session quantiles. For the exogenous part alone, the model draws \(N_h\sim\operatorname{Poisson}(\widehat\lambda h)\) new sessions and sums \(N_h\) sampled first-call sizes; \(\widehat\lambda\) is the estimated start rate in sessions per second. Child-session demand is modeled separately within \(U_c^{(m)}\).
 
 
 Forecast dispersion can be calibrated by fitting a variance-inflation factor separately for each class and horizon on a held-out portion of the training data. Calibration uses an overlaid fleet at the evaluation arrival rate. This adjustment changes interval width, but it does not guarantee calibration under model bias, dependence between sessions, or workload shift. M3 is implemented but is not a basis for the main claims: an earlier synthetic slowdown experiment showed inconsistent gains across horizons.
@@ -135,9 +242,11 @@ Forecast dispersion can be calibrated by fitting a variance-inflation factor sep
 
 \section{System and Admission Policy}
 \label{sec:4}
+
+A demand distribution becomes operational only when it changes a decision. This section follows that path from sidecar observation to proxy admission, then makes explicit the capacity approximation used by the evaluated hold rule. The distinction between prediction and control will be important when interpreting the cap ablation.
 \subsection{Architecture and prototype}
 \label{sec:4.1}
-Figure~\ref{fig:1} separates the request path from the measurement and control path. The sidecar observes tool output and emits structured events while preserving the subprocess result. The demand board consumes events and publishes forecast samples. The proxy maintains an admission window and applies ordering and hold decisions before forwarding requests to the serving engine. The Python prototype includes in-memory and JSONL event buses, a FastAPI proxy, a live board, corpus adapters, and a discrete-event simulator. Redis-based deployment, explicit KV placement, and replica-floor control remain architectural extensions.
+Figure~\ref{fig:1} separates the request path from the measurement and control path. The sidecar observes tool output and emits structured events while preserving the subprocess result. The demand board consumes events and publishes forecast samples. The proxy maintains an admission window and applies ordering and hold decisions before forwarding requests to the serving engine. The Python prototype includes in-memory and JSONL event buses, a FastAPI proxy, a live board, corpus adapters, and a discrete-event simulator. Durable event transport, explicit hardware KV tier placement, and replica-floor control remain architectural extensions; simulator-only eviction ordering is implemented but not evaluated in this report.
 
 
 \begin{figure}[!htbp]
@@ -167,6 +276,15 @@ where \(w_{c(i)}\) is the class weight, \(S_{i}\) is model service time, and \(T
 \label{sec:4.3}
 The GDP-lite policy consults a 30-second forecast slot when a background call becomes eligible for admission. It holds the call if either the 0.9 quantile of interactive KV demand exceeds capacity not occupied by running requests, or an approximation to average interactive batch occupancy exceeds free batch slots. The occupancy approximation divides forecast prompt tokens by mean prompt size to estimate call count, then multiplies by expected service time and divides by slot duration. These tests approximate resource pressure; neither directly enforces a probabilistic bound on actual simultaneous occupancy.
 
+Let \(K_f(t)\) and \(C_f(t)\) be currently free KV blocks and batch slots, \(\bar L\) the estimated mean interactive prompt size, and \(\bar S\) the estimated mean interactive model-service time. For slot length \(h_s=30\) seconds, the evaluated rule can be written as
+\begin{align}
+\widehat O(t)&=\frac{q_{0.9}(D^{\mathrm{tok}}_{\mathrm{int}}(t,h_s))}{\max(\bar L,1)}\frac{\bar S}{h_s},\\
+H(t)&=\mathbf{1}\!\left[q_{0.9}(D^{\mathrm{KV}}_{\mathrm{int}}(t,h_s))>K_f(t)
+\;\lor\;\widehat O(t)>C_f(t)\right].
+\label{eq:hold}
+\end{align}
+The subscript \(\mathrm{int}\) denotes interactive sessions, \(D^{\mathrm{tok}}\) is the prompt-token target, \(q_{0.9}\) is its forecast 90th percentile, and \(H(t)=1\) requests a background hold subject to its cap. \(\widehat O\) has units of average occupied batch slots. The numerator estimates call volume over the entire slot, whereas the free-capacity terms are instantaneous. This temporal mismatch explains why a persistently busy engine can trigger holds even when forecast refinements would not change the decision. Equation~\eqref{eq:hold} describes the original rule; Section~\ref{sec:v2} evaluates a capacity-release revision.
+
 
 Holds are reconsidered at expiry and capped relative to request arrival. Expiration of the policy hold does not bypass the admission window, so ordinary queueing can continue after the cap. The simulator separately records policy-hold duration, ordinary queueing, held-cache occupancy integrated over time, displacement evictions, and prefix recomputation. A delay limit consequently bounds imposed hold time, not total request latency or session completion time.
 
@@ -176,6 +294,8 @@ The completed loaded experiment uses a 600-second hold cap. The long-interactive
 
 \section{Experimental Methodology}
 \label{sec:5}
+
+The evaluation separates three links in the argument. H1a tests fleet forecasts using held-out session traces; H1b tests remaining-time predictions using instrumented tools; H2 tests the consequences of changing admission in a closed loop. These experiments answer different questions: a low forecasting loss does not by itself establish a beneficial serving policy.
 \subsection{Data and splits}
 \label{sec:5.1}
 \begin{table}[!htbp]
@@ -191,7 +311,7 @@ The completed loaded experiment uses a 600-second hold cap. The long-interactive
 TraceLab \citep{r7} & 4,265 sessions; approximately 357,000 model steps & H1a: 30\% of calendar-week blocks held out; test sessions overlaid as a Poisson fleet. \\
 AgentX \citep{r8} & 393 root sessions; 1,697 sub-agent groups & H1a: 30\% of session families held out; roots and children split and shifted together. \\
 Instrumented tools & 202 observation points per model across nine scored job families & H1b: one job family held out at a time; real builds, pipelines, and NumPy tests. \\
-Synthetic programs & Four completed regimes; three seeds per regime & H2: one hour of new-session arrivals, followed by completion; matched programs across policy arms. \\
+Synthetic programs & Five base configurations plus two rule revisions; three seeds each & H2: one hour of new-session arrivals, followed by completion; matched programs across policy arms. \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -218,6 +338,18 @@ The primary forecast metric is pinball loss at quantile \emph{\(\tau\)} = 0.9, w
 \end{equation}
 An equal-magnitude underprediction receives nine times the penalty of an overprediction at this quantile. Scores retain the target's units: KV blocks for H1a and seconds for H1b. A loss ratio describes improvement in this score, not a speedup or a corresponding reduction in mean absolute error. H1a sweep ratios divide the mean B1 loss by the mean M1 loss across seeds, rather than averaging per-seed ratios.
 
+CRPS evaluates the full predictive distribution \(F\), rather than one quantile:
+\begin{equation}
+\operatorname{CRPS}(F,y)=\int_{-\infty}^{\infty}\bigl(F(z)-\mathbf{1}[y\le z]\bigr)^2\,\mathrm{d}z.
+\label{eq:crps}
+\end{equation}
+Here \(z\) ranges over possible target values, and \(F(z)\) is their predicted cumulative probability. Lower CRPS is better. For \(N\) evaluated forecasts, empirical central 90\% coverage is
+\begin{equation}
+\widehat C_{90}=\frac{1}{N}\sum_{k=1}^{N}\mathbf{1}[q_{0.05,k}\le y_k\le q_{0.95,k}],
+\label{eq:coverage}
+\end{equation}
+where \(k\) indexes forecast--observation pairs. Coverage measures interval reliability; wide intervals can cover well while remaining uninformative, so it is read alongside loss.
+
 
 \subsection{Closed-loop workloads and baselines}
 \label{sec:5.3}
@@ -238,6 +370,7 @@ Long tools & 120 / 240 & 8,000 / 8 / 8 & 600 \\
 Short tools & 120 / 240 & 8,000 / 8 / 8 & 600 \\
 Loaded long tools & 360 / 600 & 6,000 / 6 / 6 & 600 \\
 Long interactive tools & 300 / 480 & 6,000 / 6 / 6 & 60 \\
+Loaded long tools, cap ablation & 360 / 600 & 6,000 / 6 / 6 & 60 \\
 \bottomrule
 \end{tabular*}
 \end{table}
@@ -253,12 +386,23 @@ Seven arms are evaluated in the first three regimes: \emph{native} engine priori
 \label{sec:5.4}
 Time to first token (TTFT) is measured from request arrival for interactive calls after the initial turn. For each interactive session, the evaluator computes the fraction of these calls with TTFT at most two seconds; \emph{session-weighted SLO attainment} is the mean of these fractions. It is not the fraction of sessions for which every call meets the target. Background job completion time (JCT) is measured from session start to end. Deadline attainment and recomputed prompt tokens quantify additional costs.
 
+In notation, let \(\mathcal J\) be the evaluated interactive sessions, \(n_j\) the number of eligible post-initial calls in session \(j\), and \(\ell_{jk}\) their TTFT values. Then
+\begin{equation}
+\operatorname{SLO}=\frac{1}{|\mathcal J|}\sum_{j\in\mathcal J}\frac{1}{n_j}
+\sum_{k=1}^{n_j}\mathbf{1}[\ell_{jk}\le2\,\mathrm{s}],\qquad
+\overline{\operatorname{JCT}}=\frac{1}{|\mathcal B|}\sum_{j\in\mathcal B}(f_j-a_j),
+\label{eq:serving-metrics}
+\end{equation}
+where \(\mathcal B\) is the evaluated background-session set and \(a_j,f_j\) are session start and finish times. Sessions with no eligible post-initial call are excluded from \(\mathcal J\). This weighting gives each included interactive session equal influence, even when sessions have different numbers of calls. An SLO difference of 0.01 corresponds to one percentage point.
+
 
 Arms share generated programs and seeds. The reported 95\% intervals use 300 paired bootstrap draws over common session identifiers pooled across three seeds. Difference estimates are means of the bootstrap differences; they may differ slightly from subtraction of the displayed point estimates. These intervals reflect variability among sampled sessions under the selected workloads. They do not account fully for dependence between sessions sharing a queue, uncertainty across workload families, or simulator error. No claim of statistical equivalence follows from an interval containing zero.
 
 
 \section{Results}
 \label{sec:6}
+
+We first ask whether the observable state improves the forecast, then whether progress adds information, and finally whether a policy can use that information profitably. The subsequent comparisons stress the policy by changing the workload, changing only the hold cap, and revising the capacity estimate.
 \subsection{H1a: in-flight state improves medium-horizon forecasts}
 \label{sec:6.1}
 Table~\ref{tab:4} presents the original TraceLab run at 200 sessions per hour. M1's q90 pinball loss is lower than B1's at horizons from 30 seconds through 15 minutes, while B1 performs better at 10 seconds. At five minutes, the B1/M1 ratio is 2.15; at fifteen minutes it is 3.39. M2's small numerical differences from M1 are attributable to sampling because the corpus supplies no live progress observations.
@@ -299,6 +443,15 @@ Across the sweep, ratios at five minutes range from 1.96 to 3.31 on TraceLab and
 The recorded TraceLab analysis attributes 81-99\% of demand to sessions already in flight over the tested horizons, consistent with the opportunity for session-aware forecasting. However, nominal 90\% intervals from the session model cover only approximately 40-73\% of observations. Training-only dispersion calibration increases coverage to approximately 65-86\% and worsens short-horizon pinball loss in the recorded calibration run. Residual bias, dependence, and distribution shift are plausible explanations; these results do not identify which mechanism dominates. B2 performs poorly in the heterogeneous fleet experiments, supporting survival conditioning for this predictor rather than establishing the inferiority of every TTL-based cache policy.
 
 
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=1\linewidth]{calibration.pdf}
+\caption{Accuracy and calibration must be checked separately. TraceLab at 200 sessions/hour: M1 before and after training-only dispersion calibration, using the retained original and calibrated runs. Left: central 90\% interval coverage versus its nominal target. Right: q90 pinball loss. These are descriptive run-level summaries, without cross-seed uncertainty estimates.}
+\label{fig:calibration}
+\end{figure}
+
+Figure~\ref{fig:calibration} shows why the loss gains do not establish a calibrated probability model. Increasing dispersion moves coverage toward its nominal level, but can worsen the decision-relevant upper-quantile score. The next experiment isolates a different information source: observations of the work a tool has actually completed.
+
 \subsection{H1b: progress helps, but depends on the tool's progress curve}
 \label{sec:6.2}
 \begin{figure}[!htbp]
@@ -320,6 +473,15 @@ The results support the value of progress on the measured jobs, not on arbitrary
 
 \subsection{H2: loaded short-interactive workloads show a latency-cost trade-off}
 \label{sec:6.3}
+
+We now turn from prediction to action. Figure~\ref{fig:regimes} places the five base configurations on common outcome axes. Large gains occur in the loaded 600-second-cap configuration; the remaining configurations expose either little headroom for improvement or an unfavorable background cost. The following subsections examine these cases rather than averaging unlike workloads together.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=1\linewidth]{regime-effects.pdf}
+\caption{Policy effects across the five base configurations. Points show paired differences from native; lines are 95\% session-bootstrap intervals. Positive SLO differences are benefits; positive background JCT differences are costs. Rows denote separate workloads except the two loaded-long-tool rows, which share the workload and vary the cap. Intervals pool sessions across three seeds and do not measure uncertainty across workload families.}
+\label{fig:regimes}
+\end{figure}
 In the loaded long-tool regime, interactive sessions still execute short shell tools. Forecast M2 raises session-weighted SLO attainment from 85.3\% to 94.6\% (Table~\ref{tab:5}). Its paired improvement is 9.3 percentage points, with a 95\% session-bootstrap interval of 8.0-10.5 points. Mean background JCT rises from 3,310 to 4,100 seconds, approximately 24\%. The corresponding bootstrap estimate of the difference is 789 seconds [739, 837].
 
 
@@ -400,6 +562,15 @@ The same-rule lookahead arm reaches 87.7\% SLO attainment with approximately 1,0
 \label{sec:6.5}
 The 60-second-cap run repeats the loaded long-tool regime of Table~\ref{tab:5} with the same programs, seeds, engine and rates, changing only the hold cap from 600 to 60 seconds and adding the same-rule lookahead arm. It is the fixed-workload hold-cap ablation that Section~\ref{sec:6.4} could not provide.
 
+Figure~\ref{fig:cap} connects the two cap settings for each policy. The horizontal segments show the joint pattern: reducing deferral lowers background completion time while removing much of the interactive benefit. The plotted points are absolute outcomes; the paired intervals for differences from native remain in Tables~\ref{tab:5} and~\ref{tab:7}.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=1\linewidth]{cap-ablation.pdf}
+\caption{Controlled cap ablation on the loaded long-tool workload. Squares denote a 60 s cap and circles a 600 s cap; connecting segments identify the same policy. The dotted line is native performance, which is unaffected by the cap. Points are retained pooled-session means; no uncertainty for the direct between-cap difference is inferred from this plot.}
+\label{fig:cap}
+\end{figure}
+
 
 \begin{table}[!htbp]
 \centering
@@ -424,14 +595,45 @@ Working set & 87.0 & +1.7 [+0.2, +3.2] & 3,815 & +505 [+445, +566] \\
 \end{table}
 
 
-With the cap at 60 seconds the forecast arms' SLO differences from native are -0.1 and -1.0 percentage points with intervals spanning zero, while their background JCT still rises by 124 seconds [68, 180] and 136 seconds [81, 187], and they accumulate approximately 3.7 million held KV block-seconds per seed with about 2,770 holds reaching the cap. The same-rule lookahead, holding with the true first-resumption demand in hand, changes SLO by -1.1 points [-2.4, +0.4] at a cost of 1,162 seconds [1,099, 1,226]. Rules-only admission is unchanged from Table~\ref{tab:5}. The working-set arm also responds to the shorter cap: its SLO attainment falls from 92.9\% to 87.0\%, while mean background JCT falls from 5,392 to 3,815 seconds. The 9.3-point gain of Table~\ref{tab:5} therefore depended on holds of up to ten minutes: what moved the interactive tail was sustained deferral of most background work, an effect available to any policy that defers that much, rather than the forecast's content.
+With the cap at 60 seconds the forecast arms' SLO differences from native are -0.1 and -1.0 percentage points with intervals spanning zero, while their background JCT still rises by 124 seconds [68, 180] and 136 seconds [81, 187], and they accumulate approximately 3.7 million held KV block-seconds per seed with about 2,770 holds reaching the cap. The same-rule lookahead, holding with the true first-resumption demand in hand, changes SLO by -1.1 points [-2.4, +0.4] at a cost of 1,162 seconds [1,099, 1,226]. Rules-only admission is unchanged from Table~\ref{tab:5}. The working-set arm also responds to the shorter cap: its SLO attainment falls from 92.9\% to 87.0\%, while mean background JCT falls from 5,392 to 3,815 seconds. The 9.3-point gain of Table~\ref{tab:5} therefore depends on allowing much longer deferrals in this experiment. The ablation establishes sensitivity to the cap; without a matched reactive-hold baseline, it does not isolate how much of that gain requires the forecast's content.
 
 
-A second reading follows from the hold counts. Under load the rule compares forecast demand with capacity that is free at the instant of decision, which is near zero at every instant, so its decision is almost always to hold regardless of the forecast; M1 and M2 cannot separate through a decision that does not depend on them. A revised rule that counts capacity expected to free within the slot has been implemented and is being rerun on both loaded regimes; those results are not part of this revision. Together, the three loaded runs support a conditional answer to H2: forecast-based holds as implemented do not improve serving under either load pattern at the proxy's intended 60-second cap, and the case for acting on the forecast, if there is one, lies in KV placement rather than admission.
+The hold counts also suggest a mechanism consistent with Equation~\eqref{eq:hold}: under sustained load, little capacity is free at the instant of a decision, so many positive-demand forecasts can trigger the same hold. Similar M1 and M2 outcomes are consistent with this saturation of the decision rule; the aggregate counts alone do not prove that every decision was forecast-insensitive. A revised rule that counts capacity expected to free within the slot has also been evaluated; Section~\ref{sec:v2} reports the completed reruns. At the intended 60-second cap, neither loaded workload establishes a benefit for M2 over native. These findings motivate revising the capacity comparison and testing other uses of the forecast, including KV placement, rather than concluding that predictive admission cannot work.
 
+
+\subsection{Revised capacity accounting reduces cost without establishing an SLO gain}
+\label{sec:v2}
+GDP-lite v2 augments the instantaneous free-capacity terms in Equation~\eqref{eq:hold} with the blocks and slots held by running requests estimated to finish within the forecast slot. Forecast arms estimate completion from start time plus expected service time; the same-rule lookahead uses actual scheduled completion. The same loaded and long-interactive programs were rerun at a 60-second cap. This change improves the alignment of the capacity horizon, although it still does not represent a full occupancy trajectory.
+
+\begin{table}[!htbp]
+\centering\small
+\caption{GDP-lite v2 at a 60-second hold cap, three seeds per workload. Paired differences from native and 95\% session-bootstrap intervals. SLO differences are percentage points; JCT differences are seconds.}
+\label{tab:v2}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lrr@{}}
+\toprule
+Arm & $\Delta$SLO [95\% interval] & $\Delta$background JCT [95\% interval] \\
+\midrule
+\multicolumn{3}{@{}l}{\textit{Loaded long tools}} \\
+Forecast M1 & -1.3 [-2.9, +0.2] & +3 [-52, +49] \\
+Forecast M2 & -0.2 [-1.7, +1.1] & +7 [-52, +62] \\
+Same-rule lookahead & -1.8 [-3.5, -0.3] & +1111 [+1042, +1178] \\
+\multicolumn{3}{@{}l}{\textit{Long interactive tools}} \\
+Forecast M1 & +0.1 [-1.5, +1.5] & +73 [+28, +119] \\
+Forecast M2 & +0.8 [-0.8, +2.3] & +83 [+41, +133] \\
+Same-rule lookahead & -0.4 [-2.0, +1.5] & +878 [+822, +948] \\
+\bottomrule
+\end{tabular*}
+\end{table}
+
+In the loaded workload, M1 and M2 now add only about 3 and 7 seconds of background JCT, with intervals spanning zero. In the long-interactive workload, their costs fall to 73 and 83 seconds, respectively. SLO intervals still span zero in both workloads (Table~\ref{tab:v2}). The revision therefore reduces the cost of the original rule without establishing a forecast-policy benefit over native; these intervals do not establish equivalence.
+
+The lookahead result points to a separate attribution problem. It reaches the cap only about 10 times per seed in the loaded workload and 95 times in the long-interactive workload, yet adds 1,111 and 878 seconds of background JCT. Its use of actual next-tool duration in the ordering index is a candidate explanation. The aggregate results motivate the no-index diagnostic in Section~\ref{sec:future}; they do not by themselves quantify the causal contribution of that index. This finding reinforces the need to vary forecast information, hold logic, and priority ordering independently.
 
 \section{Discussion and Limitations}
 \label{sec:7}
+
+Taken together, the figures identify two different boundaries. Session state and progress can reduce predictive loss, but imperfect calibration limits probabilistic interpretation. Admission then adds a second boundary: a forecast must be compared with a capacity model that matches its target and horizon. The limitations below follow these two boundaries from measurement through deployment.
+
 \textbf{Simulation validity.} No reported policy experiment runs on a real GPU. The engine model omits important effects of actual kernels, batching, memory movement, and interconnects. Fixed service rates and simplified cache eviction can affect even the relative ordering of policies. The simulator's metadata exposes the programmed output length to service-time estimation, which further simplifies deployment uncertainty. Mocker integration establishes request-path compatibility only.
 
 
@@ -444,12 +646,93 @@ A second reading follows from the hold counts. Under load the rule compares fore
 \textbf{Baseline scope and attribution.} The study compares selected local baselines with particular parameter settings, without broad controller tuning or a matched reactive-hold baseline. B2 is an information ablation, not Continuum. The working-set arm is inspired by program pausing, not a faithful ThunderAgent implementation. The no-hold ablation measures the effect of holds within M2; it cannot isolate the value of the forecast from all alternative hold strategies. The event-heap lookahead arms neither optimize a common objective nor reveal all counterfactual future arrivals.
 
 
-\textbf{Required validation.} A hardware study should compare native priority, rules, forecast policies, matched reactive holds, and published implementations on a common workload, reporting latency, completion time, task quality, and cache costs. The repository proposes a two-H100 Dynamo setup with instrumented background tools and interactive agents. Before such a study, paired simulation/hardware calibration, more seeds, signature-aware progress evaluation, and a hold rule whose decision depends on the forecast under load (Section~\ref{sec:6.5}) would clarify which findings transfer; the fixed-workload cap ablation has been run and is reported in Section~\ref{sec:6.5}. Explicit KV placement and predictive replica control remain future work.
+\textbf{Required validation.} A hardware study should compare native priority, rules, forecast policies, matched reactive holds, and published implementations on a common workload, reporting latency, completion time, task quality, and cache costs. The repository proposes a two-H100 Dynamo setup with instrumented background tools and interactive agents. Before such a study, paired simulation/hardware calibration, more seeds, signature-aware progress evaluation, and direct attribution of forecast and index effects would clarify which findings transfer. Both the fixed-workload cap ablation and revised-rule reruns have been completed (Sections~\ref{sec:6.5}--\ref{sec:v2}). Section~\ref{sec:future} specifies the remaining validation and deployment work.
+
+
+\section{Future Work and Technical Validation Plan}
+\label{sec:future}
+The experiments establish an information advantage more clearly than a control advantage. The next phase must therefore identify which decisions are sensitive to that information before extending deployment scale. Figure~\ref{fig:roadmap} orders the main dependencies. This section distinguishes implemented mechanisms awaiting evaluation from proposed extensions; the latter equations specify candidate designs, not algorithms validated by the reported results.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\linewidth]{research-roadmap.pdf}
+\caption{Technical dependencies for the remaining study. Controller attribution and cache-policy evaluation precede claims about hardware benefit. Explicit tier placement requires verified backend control; fleet-level replica experiments additionally require measured capacity and provisioning lead times. Forecast calibration and workload expansion apply throughout.}
+\label{fig:roadmap}
+\end{figure}
+
+\subsection{Isolate forecast value from admission and ordering}
+GDP-lite v2 and its two completed reruns are reported in Section~\ref{sec:v2}; repeating the original cap ablation is no longer the next step. The outstanding attribution experiment is the implemented \texttt{oracle\_rule\_noidx} arm, configured in \path{experiments/h2sim_interactive_long_idx.yaml}. It retains the same-rule lookahead hold decision while setting the next-tool contribution in Equation~\eqref{eq:3} to zero. Pairing it with \texttt{oracle\_rule} on identical programs isolates the ordering change more closely than comparing either with native. Completion time, deadline attainment, per-session wait, and the distribution of consecutive bypasses should be recorded to test whether the exact-duration index disadvantages particular background programs. No completed score for this diagnostic is included in the present artifact.
+
+A second required control is a reactive policy matched to the forecast policy's imposed-delay budget. Candidate policies should share class tiers, admission window, cap, and engine placement, while varying only the signal used to trigger holds. Matching mean hold time alone is insufficient: report its distribution, the number of distinct sessions delayed, held KV, and queueing after cap expiry. Sweep the cap and index coefficient \(\beta\) on training workloads, then lock them for evaluation. Compare policies at common background-cost budgets rather than selecting a favorable latency point after observing the test results.
+
+For two policies \(a,b\), a direct paired effect for per-session outcome \(Y_j\) is
+\begin{equation}
+\widehat\Delta_{a,b}=\frac{1}{|\mathcal J_{ab}|}\sum_{j\in\mathcal J_{ab}}(Y_j^a-Y_j^b),
+\end{equation}
+where \(\mathcal J_{ab}\) contains session identifiers present in both arms. Outcomes should be chosen separately for interactive attainment and background JCT. More independent workload seeds are needed; a hierarchical analysis can resample seeds first and whole session families within seeds. This would address more sources of variation than the current pooled-session bootstrap, although shared-queue dependence still requires care.
+
+\subsection{Align predicted demand with time-varying capacity}
+The v2 capacity-release estimate reduces unnecessary holds, but adding capacity freed during a slot still does not model the timing of arrivals and departures within it. A stronger controller needs occupancy trajectories rather than only cumulative first-return demand. One proposed representation is
+\begin{equation}
+O_r^{(m)}(u)=O_{r,0}^{(m)}(u)+\sum_k a_{kr}^{(m)}
+\mathbf{1}[A_k^{(m)}\le u<F_k^{(m)}],\qquad u\in[t,t+h],
+\label{eq:future-occupancy}
+\end{equation}
+where \(r\) identifies a resource, \(m\) a sampled future, \(O_{r,0}\) the remaining occupancy of work already running, and \(A_k,F_k,a_{kr}\) the admission time, release time, and resource use of future request \(k\). For batch slots, \(a_{kr}=1\); for KV, residency must instead follow allocation, growth, sharing, eviction, and offload events, which can extend beyond request completion. A separate cache-state process is consequently required for memory.
+
+This model must include repeated agent turns, service-time uncertainty, and feedback from the proposed admission schedule. A candidate overload constraint on decision-grid times \(\mathcal G\) is
+\begin{equation}
+\frac{1}{M}\sum_{m=1}^{M}\mathbf{1}\!\left[
+\max_{u\in\mathcal G}\{O_r^{(m)}(u)-C_r(u)\}>0\right]\le\epsilon_r,
+\label{eq:future-risk}
+\end{equation}
+where \(C_r(u)\) is available resource capacity and \(\epsilon_r\) an allowed empirical violation fraction. It is a sample-based design constraint, not a guaranteed real-world probability bound. A finite grid can miss between-grid peaks, and miscalibrated samples can understate risk. Validate realized overflow and intervention rates on held-out surges. If constraints are imposed separately on \(K\) slots, a per-slot error allowance \(\epsilon\) provides only the union-bound allowance \(K\epsilon\) for any-slot failure; horizon-wide risk must be budgeted explicitly.
+
+\subsection{Evaluate return-aware KV eviction and demonstrate tier placement}
+The repository implements \texttt{forecast\_M1\_kv}, \texttt{forecast\_M2\_kv}, and \texttt{oracle\_kv} in \path{src/atfm/sim/kv_placement.py}, with loaded and long-interactive configurations. These arms use rules-only admission and change the eviction order among eligible idle sessions. The forecast versions estimate an absolute return time from the median of finite sampled return times; an unavailable estimate is treated as infinity. The policy evicts the latest predicted return first. This is implemented simulator functionality, but completed results are not included here.
+
+A minimal comparison must hold the request order fixed while comparing LRU, M1, M2, and lookahead eviction. Record prefix tokens recomputed, TTFT after tool return, cache hits, background JCT, and victims per eviction. Vary context size, KV capacity, tool-duration heterogeneity, progress availability, and return-time correlation. The current median-of-finite-samples rule also discards the probability of never returning when at least one finite sample exists; test whether retaining that probability improves decisions. Lookahead provides an information diagnostic, not an optimal cache policy under variable sizes and repeated requests.
+
+Explicit HBM/DRAM/SSD placement is a separate step. First demonstrate that a backend can identify a session's resident prefix, demote or promote it, and verify the resulting residency and resumption cost. Unsupported operations should remain logged advisory directives. Measure transfer latency as a function of prefix size and concurrent transfers; do not assume that bandwidth alone determines completion. For a prefix of size \(V_i\) bytes, an initial approximation is
+\begin{equation}
+\ell_i^{\mathrm{move}}=\ell_0+\frac{V_i}{\widehat B},\qquad
+ t_i^{\mathrm{start}}=t+q_\alpha(R_i(t))-\ell_i^{\mathrm{move}}-\delta,
+\label{eq:prestaging}
+\end{equation}
+where \(\ell_0\) is setup latency, \(\widehat B\) effective transfer bandwidth in bytes/s, \(\delta\) a safety margin, and \(q_\alpha(R_i(t))\) an early return quantile. A start time already in the past requests immediate action, subject to capacity. Under an accurate continuous return distribution, an early quantile targets roughly an \(\alpha\) probability of return before the planned ready time; actual success also depends on transfer uncertainty. Evaluate missed pre-staging deadlines, unused transfers, memory pressure, and interference with model execution before claiming benefit.
+
+\subsection{Improve calibration, progress generalization, and event integrity}
+The signature-aware progress implementation must be evaluated with new held-out collections rather than credited with historical H1b scores. Split by command signature and environment, including build parallelism, input size, cache warmth, and machine load. Retain all observations from a tool execution in one split. Compare M1, pooled M2, signature-aware M2, and online adaptation; report per-family errors and pooled errors so that long jobs do not conceal short-job failures. Silent tools and sparse, stale, reset, or out-of-order counters require explicit fallback tests.
+
+Fleet evaluation should add correlated arrivals, shared-backend slowdowns, multi-level fan-out, and changing fractions of exogenous demand. M3's shared slowdown factor needs a controlled comparison with the same marginal duration distributions but different cross-session dependence. Calibration should be fitted on disjoint time blocks and assessed by class, horizon, workload, and load regime. Report coverage, interval width, pinball loss, and CRPS together. Track \(\Pr(R_i=\infty)\), uncertain tool-output size, and pending gaps separately; widening intervals alone does not correct biased return probabilities.
+
+Deployment also requires validating the event path. The implemented in-memory and JSONL buses should be complemented by a durable deployment transport, with event identifiers, per-session sequence numbers, replay checkpoints, and bounded staleness. Duplicate delivery must not double-count a child or a request; late completion must reconcile stale running state. Measure event-to-forecast lag, missed-event rate, board CPU cost, and memory per active session. Board loss should cause bounded fallback and hold expiry, with no dependence on a fresh forecast to release an expired hold. These checks establish operational behavior; they do not substitute for predictive validation.
+
+\subsection{Validate the simulator and controller on GPUs}
+The repository's proposed hardware sequence starts with a single GPU to characterize service and cache behavior, then two H100 GPUs for the main study. Two independent replicas permit routing experiments; a model requiring two-way tensor parallelism instead tests a single distributed replica. The deployment choice must therefore follow the question being tested. Freeze model weights, tokenizer, quantization, serving-engine revision, scheduling settings, and trace inputs for every paired comparison.
+
+Replace fixed prefill/decode rates with measured profiles conditioned on prompt length, output length, batch size, and cache-hit fraction. Measure transfer and recomputation separately, and verify whether proxy priority reaches the engine queue. Run paired simulator/hardware cells spanning underload, sustained contention, interactive surges, synchronized tool completions, and worker loss. For metric \(z\), report relative discrepancy
+\begin{equation}
+E_z=\frac{|z_{\mathrm{sim}}-z_{\mathrm{hardware}}|}{\max(|z_{\mathrm{hardware}}|,\eta_z)},
+\end{equation}
+where \(\eta_z>0\) is a declared, metric-specific small denominator floor. Include mean and tail JCT, post-tool TTFT, cache-miss volume, and the ordering of policy effects; accurate averages alone are inadequate. The project plan proposes a 6\% JCT-error target, which is a prospective validation target rather than an achieved result or a universal threshold.
+
+The policy study should include native engine priority, rules-only admission, matched reactive holds, forecast policies, and compatible published implementations under common resource and tuning budgets. Report task success or quality, interactive attainment, background completion and deadlines, GPU-hours, queue location, and cache costs. Preserve paired programs where possible, but also run live agents: admission delays may change external tool outcomes or agent trajectories in ways fixed trace replay cannot capture.
+
+\subsection{Extend to routing and replica control only after calibration}
+The architecture proposes a planner integration returning a minimum replica floor. This remains future work and should first be exercised with virtual workers. Let \(\ell\) be the measured scale-out lead time, \(\widehat\lambda_{\mathrm{req}}(t+\ell)\) a forecast request rate at readiness, \(\mu\) a sustainable per-replica rate for the relevant workload, and \(\rho_*<1\) a target utilization. A first approximation is
+\begin{equation}
+n_{\min}(t)=\left\lceil\frac{q_{0.9}(\widehat\lambda_{\mathrm{req}}(t+\ell))}{\rho_*\mu}\right\rceil.
+\label{eq:replica-floor}
+\end{equation}
+The rate forecast in this equation is an extension of the present first-return target: it must include repeated requests and map their sizes to service demand. Heterogeneous replicas, routing affinity, KV capacity, prefill/decode bottlenecks, and uncertain startup times require a richer feasibility model. Apply warm-up accounting, scale-down hysteresis, and minimum dwell times; otherwise forecast noise can produce oscillation.
+
+Evaluate reactive scaling against the predictive floor at matched SLO or GPU-hour budgets, including cold starts and idle reservations in cost. A hybrid setup with two real workers and additional Mocker workers can test integration and sensitivity at larger logical scale, but cannot establish real multi-node transfer cost or real provisioning lead times. Those claims require physical multi-node experiments. Success at each stage should be a reproducible improvement in the latency--cost trade-off under held-out workloads, not merely a lower forecast loss or a functioning control API.
 
 
 \section{Conclusion}
 \label{sec:8}
-ATFM treats external agent execution as observable state for inference-demand forecasting. Across two coding-agent corpora, elapsed-time conditioning improves medium-horizon first-resumption forecasts over an aggregate-history baseline. Live progress further improves remaining-time scores on selected long-running tools, with identifiable failures when progress curves differ between training and evaluation. Closed-loop results are negative for the admission lever as implemented: forecast-based holds improve interactive SLO attainment only when the cap permits ten-minute deferrals, a controlled cap ablation removes the gain, and true future demand does not restore it, while rules-only admission gives a small consistent gain at little cost. The principal finding is that session state is useful for forecasting, while converting that information into a favorable serving policy remains workload- and controller-dependent.
+ATFM treats external agent execution as observable state for inference-demand forecasting. Across two coding-agent corpora, elapsed-time conditioning improves medium-horizon first-resumption forecasts over an aggregate-history baseline. Live progress further improves remaining-time scores on selected long-running tools, with identifiable failures when progress curves differ between training and evaluation. Closed-loop results are negative for the admission lever as implemented: forecast-based holds improve interactive SLO attainment only when the cap permits ten-minute deferrals, a controlled cap ablation removes the gain, and true future demand does not restore it, while rules-only admission gives a small consistent gain at little cost. Revised capacity accounting reduces the cost of holds but still does not establish an SLO gain. The principal finding is that session state is useful for forecasting, while converting that information into a favorable serving policy remains workload- and controller-dependent.
 
 
 \FloatBarrier
@@ -484,6 +767,7 @@ H1b retained collection & \path{runs/h1b_with_numpy.csv}, aggregated by family/m
 Loaded H2 & \path{runs/h2sim_long_tool_loaded/{metrics,paired}.csv} \\
 Long-interactive H2 & \path{runs/h2sim_interactive_long/{metrics,paired}.csv} \\
 Loaded H2, 60-second cap & \path{runs/h2sim_long_tool_loaded_cap60/{metrics,paired}.csv} \\
+GDP-lite v2 reruns & \path{runs/h2sim_interactive_long_v2/{metrics,paired}.csv}; \path{runs/h2sim_long_tool_loaded_cap60_v2/{metrics,paired}.csv} \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -502,10 +786,12 @@ uv run python scripts/h1b_resumption.py <collection-events.jsonl> \
 uv run python scripts/run_h2sim.py experiments/h2sim_loaded.yaml
 uv run python scripts/run_h2sim.py experiments/h2sim_interactive_long.yaml
 uv run python scripts/run_h2sim.py experiments/h2sim_loaded_cap60.yaml
+uv run python scripts/run_h2sim.py experiments/h2sim_loaded_cap60_v2.yaml
+uv run python scripts/run_h2sim.py experiments/h2sim_interactive_long_v2.yaml
 \end{Verbatim}
 
 
-The reported H1b aggregate combines the earlier build/pipeline collections with NumPy runs; recreating it requires the same collection composition and historical predictor implementation. The current command-signature feature can change rescored values. Earlier exploratory results and integration checks are documented in \path{docs/research/2026-09-22-h1-first-results.md}, \path{2026-09-23-h1-second-corpus-and-h1b.md}, \path{2026-09-23-l1-results.md}, and \path{2026-09-24-h2sim-first-results.md}. The completed loaded 60-second-cap experiment is reported in Section~\ref{sec:6.5}; subsequent revised-controller experiments are outside this evidence snapshot.
+The reported H1b aggregate combines the earlier build/pipeline collections with NumPy runs; recreating it requires the same collection composition and historical predictor implementation. The current command-signature feature can change rescored values. Earlier exploratory results and integration checks are documented in \path{docs/research/2026-09-22-h1-first-results.md}, \path{2026-09-23-h1-second-corpus-and-h1b.md}, \path{2026-09-23-l1-results.md}, and \path{2026-09-24-h2sim-first-results.md}. The completed loaded 60-second-cap experiment is reported in Section~\ref{sec:6.5}; the two completed GDP-lite v2 reruns are reported in Section~\ref{sec:v2}. KV-placement and index-diagnostic outcomes remain outside this evidence snapshot.
 
 
 \textbf{Writing assistance.} Earlier project materials disclosed assistance from Claude Code. This revision used Codex for editorial revision, consistency checks, and document generation; retained experiment summaries are identified above.
@@ -513,6 +799,15 @@ The reported H1b aggregate combines the earlier build/pipeline collections with 
 
 \section{Additional Loaded-Regime Costs}
 \label{app:B}
+
+Figure~\ref{fig:costs} shows the resource costs and their spread across the three seeds.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=1\linewidth]{resource-costs.pdf}
+\caption{Additional costs in the loaded 600-second-cap regime. Open circles are the three seed values; dark vertical marks are their arithmetic means. Lower values indicate less recomputation, fewer retained block-seconds during holds, or fewer cap hits, respectively. These metrics measure distinct costs and are not combined into a single score. Zero held-KV accounting for the working-set arm does not imply zero delay, since paused state can be evicted.}
+\label{fig:costs}
+\end{figure}
 \setcounter{table}{0}
 \renewcommand{\thetable}{B\arabic{table}}
 \begin{table}[!htbp]
@@ -537,7 +832,13 @@ Working set & 2.29 & 11.4 & 46.58 & 0.00 & 1,096 \\
 \end{table}
 
 
-These metrics measure different aspects of the policy cost. Recomputed prefill counts work after eviction; held KV block-seconds integrate resident memory during a policy hold. A zero value in the working-set arm's held-KV column does not imply zero delay or zero cache cost: that policy can evict paused state. Cap counts denote imposed holds reaching the configured limit and do not bound subsequent window queueing.
+Recomputed prefill counts work after eviction. Held KV integrates resident memory during a policy hold; zero held-KV accounting for the working-set arm does not imply zero delay, since paused state can be evicted. Cap counts do not bound subsequent window queueing.
+
+In particular, held-cache accounting is an integral,
+\begin{equation}
+C_{\mathrm{hold}}=\int_0^{T_{\mathrm{run}}}\sum_i B_i^{\mathrm{resident}}(u)\,\mathbf{1}[i\text{ is policy-held at }u]\,\mathrm{d}u,
+\end{equation}
+where \(T_{\mathrm{run}}\) is the simulation end time and \(B_i^{\mathrm{resident}}(u)\) is session \(i\)'s retained block count at time \(u\). Its units are block-seconds: retaining 100 blocks for 20 seconds contributes 2,000 block-seconds. This quantity is neither peak memory nor total waiting time.
 
 
 \end{document}

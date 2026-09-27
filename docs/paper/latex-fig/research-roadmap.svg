@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="790" height="390" viewBox="0 0 790 390" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
+  <defs>
+    <marker id="arrow-333333" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/>
+    </marker>
+    <marker id="arrow-333333-back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="790" height="390" fill="#ffffff"/>
+  <path d="M48 40 H380 a8 8 0 0 1 8 8 V98 a8 8 0 0 1 -8 8 H48 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#eef2f6" stroke="#245b85"/>
+  <text x="214" y="68.4" fill="#000000" text-anchor="middle">Retained evidence</text>
+  <text x="214" y="87.4" fill="#000000" text-anchor="middle">Forecast gain; conditional policy gain</text>
+  <path d="M452 40 H708 a8 8 0 0 1 8 8 V98 a8 8 0 0 1 -8 8 H452 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#f4efe9" stroke="#b14b20"/>
+  <text x="580" y="68.4" fill="#000000" text-anchor="middle">Isolate the decision</text>
+  <text x="580" y="87.4" fill="#000000" text-anchor="middle">Index ablation; matched holds</text>
+  <path d="M418.5 162 H741.5 a8 8 0 0 1 8 8 V220 a8 8 0 0 1 -8 8 H418.5 a8 8 0 0 1 -8 -8 V170 a8 8 0 0 1 8 -8 Z" fill="#f4efe9" stroke="#b14b20"/>
+  <text x="580" y="190.4" fill="#000000" text-anchor="middle">Evaluate cache placement</text>
+  <text x="580" y="209.4" fill="#000000" text-anchor="middle">Fixed admission; return-time eviction</text>
+  <path d="M48 162 H329 a8 8 0 0 1 8 8 V220 a8 8 0 0 1 -8 8 H48 a8 8 0 0 1 -8 -8 V170 a8 8 0 0 1 8 -8 Z" fill="#f4efe9" stroke="#b14b20"/>
+  <text x="188.5" y="190.4" fill="#000000" text-anchor="middle">Calibrate on hardware</text>
+  <text x="188.5" y="209.4" fill="#000000" text-anchor="middle">Service, cache, transfer, queues</text>
+  <path d="M56.5 284 H320.5 a8 8 0 0 1 8 8 V342 a8 8 0 0 1 -8 8 H56.5 a8 8 0 0 1 -8 -8 V292 a8 8 0 0 1 8 -8 Z" fill="#edf4ee" stroke="#35734d"/>
+  <text x="188.5" y="312.4" fill="#000000" text-anchor="middle">Demonstrate backend control</text>
+  <text x="188.5" y="331.4" fill="#000000" text-anchor="middle">Observe; act; verify residency</text>
+  <path d="M392.5 284 H656.5 a8 8 0 0 1 8 8 V342 a8 8 0 0 1 -8 8 H392.5 a8 8 0 0 1 -8 -8 V292 a8 8 0 0 1 8 -8 Z" fill="#edf4ee" stroke="#35734d"/>
+  <text x="524.5" y="312.4" fill="#000000" text-anchor="middle">Evaluate fleet control</text>
+  <text x="524.5" y="331.4" fill="#000000" text-anchor="middle">Routing and replica lead times</text>
+  <path d="M 388 73 L 444 73" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <path d="M 580 106 L 580 162" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <path d="M 410.5 195 L 337 195" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <path d="M 188.5 228 L 188.5 284" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <path d="M 328.5 317 L 384.5 317" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+</svg>

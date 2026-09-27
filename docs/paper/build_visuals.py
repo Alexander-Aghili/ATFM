@@ -95,7 +95,7 @@ def main():
     axs[0].set_xlabel('Session-weighted SLO (%)'); axs[1].set_xlabel('Mean background JCT (s)'); axs[1].legend(loc='lower right',fontsize=7,frameon=False)
     save(fig,'cap-ablation')
 
-    fig,axs=plt.subplots(1,3,figsize=(7,3.5),layout='constrained')
+    fig,axs=plt.subplots(1,3,figsize=(7,2.8),layout='constrained')
     d=pd.read_csv(ROOT/'results/h2sim_long_tool_loaded__metrics.csv')
     arms=['native','proxy_rules','forecast_M1','forecast_M2','forecast_M2_nohold','oracle','working_set']
     labels=['Native','Rules','M1','M2','M2, no holds','Heap lookahead','Working set']

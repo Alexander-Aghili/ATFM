@@ -55,6 +55,7 @@ def test_oracle_kv_policy_evicts_the_session_that_returns_last():
     pol.on_tick(sim, 10.0)
     assert pol.kv_victims(sim, sim.workers[0], ["soon", "late"]) == ["late", "soon"]
     assert pol.name == "oracle_kv"
+    assert pol.e_tool_next(sim, None) == 0.0          # placement only: the index is proxy_rules' index
 
 
 def test_forecast_kv_policy_orders_by_predicted_return_and_prefers_unknown_first():
@@ -73,6 +74,7 @@ def test_forecast_kv_policy_orders_by_predicted_return_and_prefers_unknown_first
     order = pol.kv_victims(sim, sim.workers[0], ["soon", "late", "never-seen"])
     assert order[0] == "never-seen" and order[1] == "late" and order[2] == "soon"
     assert pol.name == "forecast_M1_kv"
+    assert pol.e_tool_next(sim, None) == 0.0
 
 
 def test_kv_arms_registered_and_wired_into_workers():
