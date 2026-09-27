@@ -117,6 +117,14 @@ def create_app(cfg: ProxyConfig, *, upstream_client: httpx.AsyncClient | None = 
         st.queue.tick()
         return {"ok": True}
 
+    @app.get("/session/{session_id}/prompt")
+    async def session_prompt(session_id: str):
+        """The session's last prompt (model and messages), for a controller that needs its token ids."""
+        last = st.last_body.get(session_id)
+        if last is None:
+            return JSONResponse({"error": "unknown session"}, status_code=404)
+        return {"session_id": session_id, "model": last.get("model"), "messages": last.get("messages", [])}
+
     @app.post("/touch")
     async def touch(req: Request):
         """Keep-alive touch: re-send the session's last prompt with max_tokens 1 at the lowest priority so

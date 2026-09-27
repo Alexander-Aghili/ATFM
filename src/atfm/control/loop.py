@@ -10,11 +10,14 @@ from pathlib import Path
 
 class ControlLoop:
     def __init__(self, board_url: str, proxy_url: str, client=None, interval_s: float = 5.0, log_path: str | Path | None = None,
-                 timeout_s: float = 2.0):
+                 timeout_s: float = 2.0, lmcache=None):
+        """With an `LMCacheActuator`, touches become pins and tier directives are executed (pin / move);
+        without one, touches go to the proxy's /touch and tier directives are only logged."""
         if client is None:
             import httpx
             client = httpx.Client(timeout=timeout_s)
         self.board_url, self.proxy_url, self.client, self.interval_s = board_url.rstrip("/"), proxy_url.rstrip("/"), client, interval_s
+        self.lmcache = lmcache
         self.log_path = Path(log_path) if log_path else None
         self.totals = {"holds": 0, "touches": 0, "touch_tokens": 0, "errors": 0}
 
@@ -27,7 +30,7 @@ class ControlLoop:
 
     def step(self, now: float | None = None) -> dict:
         now = time.time() if now is None else now
-        s = {"sessions": 0, "holds": 0, "touches": 0, "touch_tokens": 0, "tier": 0, "replica": None, "errors": 0}
+        s = {"sessions": 0, "holds": 0, "touches": 0, "touch_tokens": 0, "tier": 0, "replica": None, "errors": 0, "pins": 0, "tier_applied": 0}
         try:
             r = self.client.post(f"{self.board_url}/tick")
             s["sessions"] = int(r.json().get("sessions", 0)) if r.status_code == 200 else 0
@@ -46,8 +49,13 @@ class ControlLoop:
                 s["holds"] += 1
             except Exception:
                 s["errors"] += 1
+        from atfm.control.directives import TierDirective, TouchDirective
         for t in d.get("touches", []):
             if t.get("expires_at") is not None and now >= float(t["expires_at"]):
+                continue
+            if self.lmcache is not None:
+                if self.lmcache.apply_touch(TouchDirective(**{k: v for k, v in t.items() if k != "kind"}), now).get("ok"):
+                    s["pins"] += 1
                 continue
             try:
                 r = self.client.post(f"{self.proxy_url}/touch", json={"session_id": t["session_id"]})
@@ -57,6 +65,13 @@ class ControlLoop:
             except Exception:
                 s["errors"] += 1
         s["tier"] = len(d.get("tier", []))
+        if self.lmcache is not None:
+            for t in d.get("tier", []):
+                if self.lmcache.apply_tier(TierDirective(**{k: v for k, v in t.items() if k != "kind"}), now).get("ok"):
+                    s["tier_applied"] += 1
+            self.lmcache.release_expired(now)
+            s["errors"] += self.lmcache.errors - getattr(self, "_lm_err", 0)
+            self._lm_err = self.lmcache.errors
         rep = d.get("replica")
         s["replica"] = int(rep["replicas_at_least"]) if rep else None
         for k in ("holds", "touches", "touch_tokens", "errors"):

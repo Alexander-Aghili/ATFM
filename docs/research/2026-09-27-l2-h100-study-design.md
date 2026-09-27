@@ -14,6 +14,12 @@ Costs of a touch, all measured: one batch slot for one step, the prefix hit's at
 
 The simulator gets the same arm before the hardware study (`forecast_touch`: every tick, move-to-end the KV of sessions with predicted return under T, charged one prefix-hit request each), so that the simulator's placement result and the deployable mechanism's result can be compared on the same programs.
 
+## Amendment (2026-09-27, evening): LMCache as the placement actuator
+
+The mechanism problem above is solved by a layer that already exists. LMCache's controller exposes `pin(instance, location, tokens)`, `move(src, dst, tokens)`, `lookup(tokens)` and `clear`, and Dynamo ships an LMCache integration. Placement is therefore executed by pinning the prefix of sessions forecast to return soon in the GPU-side location and moving the others to CPU or disk, with no batch-slot cost; the keep-alive touch stays as the fallback and as a second arm. `atfm.control.lmcache.LMCacheActuator` does this from the same directives; the control loop switches to it with `--lmcache`. Token ids come from the proxy's stored prompt (`GET /session/{id}/prompt`) through the model's tokenizer. Two things to verify on a live instance before the study: the endpoint shapes on LMCache's multi-process controller (the documented API is for the deprecated in-process mode), and whether a pinned prefix on the GPU location is honoured by vLLM's own block allocator or only by LMCache's tiers. The simulator's touch results (Section 6.8 of the paper) are the reason for this change: queued touches lose the placement gain to their slot cost in the interactive-long regime, and pins have no such cost.
+
+Arms gain `pin_M1` / `pin_M2` (forecast-driven pin/move through LMCache), `pin_oracle`, and `pin_random` (same pin rate, random sessions) alongside the touch arms; the stack is vLLM plus LMCache under Dynamo.
+
 ## Arms
 
 | arm | admission | placement | what it isolates |

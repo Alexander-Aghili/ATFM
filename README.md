@@ -22,7 +22,7 @@ uv run pytest -q                         # ~200 tests, about 35 s; 2 tests gated
 | `schema` | canonical trace row/table, forecast snapshot, event models | `TraceTable.from_parquet`, `parse_event` |
 | `traces` | TraceLab and AgentX adapters, Poisson overlay and family-aware splits, sidecar events to trace table, synthetic workload generator | `overlay_sessions`, `events_to_trace_table` |
 | `board` | session registry, predictor ladder B0..M3, Monte Carlo fleet forecaster, dispersion calibration, Prometheus worker-metrics scraper, HTTP service | `LiveBoard`, `board.service.create_board_app` |
-| `control` | GDP planner (ration-by-schedule on samples), placement touch controller, tier logger, replica floor with a virtual Planner connector; every directive expires | `GdpPlanner.plan`, `TouchController.plan`, `ReplicaFloor.propose` |
+| `control` | GDP planner (ration-by-schedule on samples), placement touch controller, tier logger, replica floor with a virtual Planner connector, LMCache actuator (pin / move / lookup executing placement), control loop runtime; every directive expires | `GdpPlanner.plan`, `TouchController.plan`, `ReplicaFloor.propose`, `LMCacheActuator`, `ControlLoop` |
 | `proxy` | OpenAI-compatible admission proxy: global window, priority tiers and index, hold directives with cap and expiry, overflow to FCFS with alarms, keep-alive `/touch`, launch gate `/gate` | `proxy.app.create_app` |
 | `sidecar` | byte-exact tool wrapper with a parser chain (pytest, percent, rows, stage, training, counter, line rate), launch gate client, adapters for mini-SWE-agent, OpenHands and Harbor | `run_tool`, `SidecarExecutor`, `wrap_executor` |
 | `bus` | event buses: in-memory, JSONL (dev and replay), Redis Streams with a resumable cursor (deploy) | `InMemoryBus`, `JsonlBus`, `RedisStreamsBus` |
@@ -44,6 +44,8 @@ uv run python scripts/run_h2sim.py experiments/h2sim_loaded_kv.yaml
 # proxy in front of a Dynamo frontend, and the board service
 uv run python scripts/run_proxy.py --upstream http://127.0.0.1:8000 --window 8 --events runs/events.jsonl
 uv run python scripts/run_board.py --events runs/events.jsonl --train data/tracelab/tracelab.parquet --serve 8081
+uv run python scripts/run_control.py --board http://127.0.0.1:8081 --proxy http://127.0.0.1:8799 \
+    --lmcache http://127.0.0.1:9000 --tokenizer Qwen/Qwen3-0.6B   # placement through LMCache pin/move
 uv run python scripts/dynamo_local.py            # Mocker workers + frontend on this machine (~4 s)
 bash scripts/l1_e2e.sh                           # proxy + Mocker + scripted sessions end to end
 ```

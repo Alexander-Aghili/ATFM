@@ -44,7 +44,7 @@ def test_step_pushes_holds_and_touches_and_logs_tier_and_replica(tmp_path):
                          ("POST", "http://proxy/touch"): FakeResponse(200, {"ok": True, "prompt_tokens": 400})})
     loop = ControlLoop(board_url="http://board", proxy_url="http://proxy", client=client, log_path=tmp_path / "control.jsonl")
     s = loop.step(now=100.0)
-    assert s == {"sessions": 3, "holds": 1, "touches": 1, "touch_tokens": 400, "tier": 1, "replica": 2, "errors": 0}
+    assert s == {"sessions": 3, "holds": 1, "touches": 1, "touch_tokens": 400, "tier": 1, "replica": 2, "errors": 0, "pins": 0, "tier_applied": 0}
     posted = [(u, j) for m, u, j in client.calls if m == "POST" and u.startswith("http://proxy")]
     assert posted[0] == ("http://proxy/directives", {"session_id": "bg1", "release_not_before": 130.0, "reason": "gdp", "expires_at": 130.0})
     assert posted[1] == ("http://proxy/touch", {"session_id": "it1"})
