@@ -123,6 +123,7 @@ class _TouchMixin:
     touch: TouchController
     touched: list[str]
     prefetch: bool = False          # also touch imminent sessions whose KV is already gone (speculative prefill)
+    retry: bool = False             # a touch that finds the batch full waits for a slot instead of being dropped
 
     def e_tool_next(self, sim, call) -> float:
         return 0.0
@@ -161,11 +162,11 @@ class OracleTouchPolicy(_TouchMixin, OraclePolicy):
     name = "oracle_touch"
 
     def __init__(self, window: int, cfg: ProxyConfig, horizon_s: float = 30.0, age_s: float = 10.0,
-                 budget_per_s: float = 1.0, tick_s: float = 5.0, prefetch: bool = False):
+                 budget_per_s: float = 1.0, tick_s: float = 5.0, prefetch: bool = False, retry: bool = False):
         super().__init__(window, cfg, hold=False)
         self.touch = TouchController(horizon_s=horizon_s, age_s=age_s, budget_per_s=budget_per_s, tick_s=tick_s)
         self.touched = []
-        self.prefetch = prefetch
+        self.prefetch, self.retry = prefetch, retry
 
     def _resumptions(self, sim, now):
         return {sid: (t - now, t - now, t - now) for sid, t in oracle_etas(sim, now).items() if np.isfinite(t)}
@@ -179,12 +180,12 @@ class ForecastTouchPolicy(_TouchMixin, ForecastPolicy):
 
     def __init__(self, window: int, cfg: ProxyConfig, predictor, train_table: TraceTable | None, horizons: list[float],
                  n: int = 64, horizon_s: float = 30.0, age_s: float = 10.0, budget_per_s: float = 1.0, tick_s: float = 5.0,
-                 prefetch: bool = False):
+                 prefetch: bool = False, retry: bool = False):
         super().__init__(window, cfg, predictor, train_table, horizons, n=n, hold=False)
         self.name = f"forecast_{predictor.name.split('_')[0]}_touch"
         self.touch = TouchController(horizon_s=horizon_s, age_s=age_s, budget_per_s=budget_per_s, tick_s=tick_s)
         self.touched = []
-        self.prefetch = prefetch
+        self.prefetch, self.retry = prefetch, retry
         self._n = n
 
     def _resumptions(self, sim, now):
@@ -199,4 +200,26 @@ class ForecastTouchPolicy(_TouchMixin, ForecastPolicy):
 
     def on_tick(self, sim, now: float) -> None:
         ForecastPolicy.on_tick(self, sim, now)
+        self._touch_tick(sim, now)
+
+
+class RandomTouchPolicy(_TouchMixin, OraclePolicy):
+    """Ablation for the touch mechanism: the same touch budget spent on uniformly random idle sessions.
+    Separates "touching helps" from "touching the right sessions helps"."""
+
+    name = "touch_random"
+
+    def __init__(self, window: int, cfg: ProxyConfig, budget_per_s: float = 1.0, tick_s: float = 5.0, retry: bool = False):
+        super().__init__(window, cfg, hold=False)
+        self.touch = TouchController(horizon_s=float("inf"), age_s=float("inf"), budget_per_s=budget_per_s, tick_s=tick_s)
+        self.touched = []
+        self.retry = retry
+
+    def _resumptions(self, sim, now):
+        # every idle resident session is "imminent" with a random rank: the controller's sort is then a shuffle
+        sids = [sid for w in sim.workers for sid in w.resident if sid not in w._running_sessions()]
+        r = sim.rng.random(len(sids))
+        return {sid: (float(x), float(x), float(x)) for sid, x in zip(sids, r)}
+
+    def on_tick(self, sim, now: float) -> None:
         self._touch_tick(sim, now)

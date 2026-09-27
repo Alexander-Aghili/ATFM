@@ -17,7 +17,7 @@ from atfm.proxy.config import ProxyConfig
 from atfm.sim.core import Simulator
 from atfm.sim.engine import EngineConfig
 from atfm.sim.forecast_arm import ForecastPolicy, GdpLite, OracleRuleNoIdxPolicy, OracleRulePolicy, fit_predictor_on_programs
-from atfm.sim.kv_placement import ForecastKvPolicy, ForecastTouchPolicy, OracleKvPolicy, OracleTouchPolicy
+from atfm.sim.kv_placement import ForecastKvPolicy, ForecastTouchPolicy, OracleKvPolicy, OracleTouchPolicy, RandomTouchPolicy
 from atfm.sim.programs import programs_from_table
 from atfm.schema.trace import TraceTable
 import atfm
@@ -29,7 +29,7 @@ ARMS = ["native", "proxy_rules", "forecast_M1", "forecast_M2", "oracle", "oracle
         "forecast_M1_kv", "forecast_M2_kv", "oracle_kv", "oracle_rule_noidx",
         "forecast_M1_kv_size", "forecast_M2_kv_size", "oracle_kv_size",
         "forecast_M1_kv_cw", "forecast_M2_kv_cw", "oracle_kv_cw",
-        "forecast_M1_touch", "forecast_M2_touch", "oracle_touch"]
+        "forecast_M1_touch", "forecast_M2_touch", "oracle_touch", "touch_random"]
 
 
 def default_contrasts(arms: list[str]) -> list[tuple[str, str]]:
@@ -68,6 +68,7 @@ class H2SimConfig(BaseModel):
     touch_horizon_s: float = 30.0
     touch_age_s: float = 10.0
     touch_prefetch: bool = False     # touch arms also prefetch evicted imminent sessions (speculative prefill)
+    touch_retry: bool = False        # a touch that finds the batch full waits for a slot (deployable behaviour)
     out_dir: str = "runs"
 
 
@@ -101,14 +102,16 @@ def _arm(name: str, cfg: H2SimConfig, engines: list[EngineConfig], train_program
         return ProxyRulesPolicy(cfg.window, pcfg)
     if name == "oracle":
         return OraclePolicy(cfg.window, pcfg, hold=True)
+    if name == "touch_random":
+        return RandomTouchPolicy(cfg.window, pcfg, budget_per_s=cfg.touch_budget_per_s, retry=cfg.touch_retry)
     if name == "oracle_touch":
         return OracleTouchPolicy(cfg.window, pcfg, horizon_s=cfg.touch_horizon_s, age_s=cfg.touch_age_s, budget_per_s=cfg.touch_budget_per_s,
-                                 prefetch=cfg.touch_prefetch)
+                                 prefetch=cfg.touch_prefetch, retry=cfg.touch_retry)
     if name in ("forecast_M1_touch", "forecast_M2_touch"):
         pred, table = fit_predictor_on_programs(name.split("_")[1], train_programs, engines, rng)
         return ForecastTouchPolicy(cfg.window, pcfg, pred, table, horizons=[30.0, 120.0, 300.0], n=64,
                                    horizon_s=cfg.touch_horizon_s, age_s=cfg.touch_age_s, budget_per_s=cfg.touch_budget_per_s,
-                                   prefetch=cfg.touch_prefetch)
+                                   prefetch=cfg.touch_prefetch, retry=cfg.touch_retry)
     if name in ("oracle_kv", "oracle_kv_size", "oracle_kv_cw"):
         return OracleKvPolicy(cfg.window, pcfg, size_aware=name.endswith("_size"),
                               bg_weight=cfg.kv_bg_weight if name.endswith("_cw") else 1.0)
@@ -202,7 +205,7 @@ def run_h2sim(cfg: H2SimConfig) -> pd.DataFrame:
             m = serving_metrics(log, sim.session_log, cfg.slo_ttft_s, cfg.duration_s, len(engines), makespan_s=sim.now)
             m["caps"] = sim.caps
             m["touches"], m["touch_hits"], m["touch_misses"], m["touch_fails"] = sim.touches, sim.touch_hits, sim.touch_misses, sim.touch_fails
-            m["touch_prefill_tokens"], m["touch_slot_s"] = sim.touch_prefill_tokens, sim.touch_slot_s
+            m["touch_prefill_tokens"], m["touch_slot_s"], m["touch_retries"] = sim.touch_prefill_tokens, sim.touch_slot_s, sim.touch_retries
             m["max_imposed_delay_by_tenant"] = json.dumps(m["max_imposed_delay_by_tenant"])
             rows.append({"arm": arm, "seed": seed, **m})
             sess = pd.DataFrame(sim.session_log)

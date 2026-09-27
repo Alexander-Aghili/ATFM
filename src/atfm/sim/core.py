@@ -78,6 +78,8 @@ class Simulator:
         self.touches = self.touch_hits = self.touch_misses = self.touch_fails = 0
         self.touch_prefill_tokens = 0                 # speculative prefill charged by touch misses
         self.touch_slot_s = 0.0                       # batch-slot seconds occupied by touches
+        self.touch_retries = 0                        # touches that waited for a batch slot and then ran
+        self._touch_waiting: list[tuple[str, int]] = []   # (session id, blocks) waiting for a slot
 
     # ---- helpers
     def _push(self, t: float, kind: str, payload=None) -> None:
@@ -106,6 +108,11 @@ class Simulator:
         if kind != "fail" and w.cfg.touch_step_s > 0:
             self.touch_slot_s += w.cfg.touch_step_s
             self._push(self.now + w.cfg.touch_step_s, "touch_end", w.worker_id)
+        elif kind == "fail" and getattr(self.policy, "retry", False) and w.cfg.touch_step_s > 0 \
+                and len(w.running) >= w.cfg.max_batch:
+            self.touches -= 1
+            self.touch_fails -= 1
+            self._touch_waiting.append((session_id, blocks))    # batch full: wait for a slot, do not drop
         if kind == "hit":
             self.touch_hits += 1
         elif kind == "miss":
@@ -114,6 +121,19 @@ class Simulator:
         else:
             self.touch_fails += 1
         return kind
+
+    def _retry_touches(self, t: float) -> None:
+        """A waiting touch runs as soon as a batch slot frees (called on worker_done and touch_end)."""
+        waiting, self._touch_waiting = self._touch_waiting, []
+        for sid, blocks in waiting:
+            s = self.sessions.get(sid)
+            w = s.worker if s is not None and s.worker is not None else self.workers[0]
+            if len(w.running) >= w.cfg.max_batch or (s is not None and s.done):
+                if s is not None and not s.done:
+                    self._touch_waiting.append((sid, blocks))
+                continue
+            self.touch_retries += 1
+            self.touch(sid, blocks)
 
     def evict_session_kv(self, session_id: str) -> None:
         """Drop a session's resident KV everywhere (a policy offloading a paused program)."""
@@ -313,6 +333,7 @@ class Simulator:
             elif kind == "first_token":
                 self._first_token(payload, t)
             elif kind == "worker_done":
+                self._retry_touches(t)
                 self._worker_done(payload, t)
             elif kind == "tool_progress":
                 sid, call_id, done, total = payload
@@ -324,6 +345,7 @@ class Simulator:
                 w = next(x for x in self.workers if x.worker_id == payload)
                 if w.expire_touches(t):
                     self._schedule_worker(w, t)
+                    self._retry_touches(t)
             elif kind == "tick":
                 self.policy.on_tick(self, t)
                 self._drain_proxy(t)
