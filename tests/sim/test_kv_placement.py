@@ -152,6 +152,9 @@ def test_oracle_kv_gives_running_sessions_a_return_time():
     w.submit(Request(request_id="run:9", session_id="run", cls="background", isl_total=900, isl_new=100, osl=400, tier=0, index=0.0, t_queued=0.5), 0.5)
     w.schedule(0.5)                          # 'run' is now running with t_end = 0.5 + 0.045 + 10 s
     assert any(r.session_id == "run" for r, _, _ in w.running.values())
+    import heapq
+    sim._heap = [e for e in sim._heap if "run" not in str(e[3])]   # no heap event mentions the running session
+    heapq.heapify(sim._heap)
     pol.on_tick(sim, 0.6)
     assert np.isfinite(pol._eta["run"]) and pol._eta["run"] < pol._eta["late"]
     assert pol.kv_victims(sim, w, ["run", "late"]) == ["late", "run"]
