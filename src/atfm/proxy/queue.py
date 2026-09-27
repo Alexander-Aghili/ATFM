@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from collections import deque
 import time
 from dataclasses import dataclass, field
 
@@ -26,7 +27,8 @@ class HoldQueue:
     not-before time for a session, capped at t_arrival + max_hold_s (D10).
     """
 
-    def __init__(self, window: int, clock=time.time, max_hold_s: float = 600.0, max_size: int | None = None):
+    def __init__(self, window: int, clock=time.time, max_hold_s: float = 600.0, max_size: int | None = None,
+                 release_order_max: int = 10000):
         self.window, self.clock, self.max_hold_s, self.max_size = window, clock, max_hold_s, max_size
         self.in_flight = 0
         self.pending: list[Entry] = []
@@ -34,7 +36,7 @@ class HoldQueue:
         self.caps = 0
         self.alarms = 0                 # overflow episodes (spec 10): queue over max_size forwards FCFS
         self.overflow = False
-        self.release_order: list[str] = []
+        self.release_order = deque(maxlen=release_order_max)
         self._timer: asyncio.TimerHandle | None = None
 
     def set_directive(self, session_id: str, release_not_before: float, reason: str, expires_at: float | None = None) -> None:

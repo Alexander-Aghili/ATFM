@@ -44,14 +44,16 @@ class GdpPlanner:
         """Interactive demand *within* each slot, (n,) samples: differences of the cumulative forecast at
         the horizons closest to consecutive slot ends, clipped at zero."""
         hz = np.asarray(snap.horizons, float)
-        cum = snap.samples[resource]["interactive"]
-        n = cum.shape[1]
-        out, prev = [], np.zeros(n)
+        order = np.argsort(hz)
+        hz = np.concatenate([[0.0], hz[order]])
+        cum = np.vstack([np.zeros((1, snap.samples[resource]["interactive"].shape[1])), snap.samples[resource]["interactive"][order]])
+        ends = (np.arange(self.n_slots) + 1) * self.slot_s
+        # each sample path interpolated at the slot ends (constant beyond the last horizon), then differenced
+        at = np.stack([np.interp(ends, hz, cum[:, j]) for j in range(cum.shape[1])], axis=1)   # (S, n)
+        out, prev = [], np.zeros(cum.shape[1])
         for k in range(self.n_slots):
-            h = int(np.argmin(np.abs(hz - (k + 1) * self.slot_s)))
-            cur = cum[h]
-            out.append(np.maximum(cur - prev, 0.0))
-            prev = np.maximum(cur, prev)
+            out.append(np.maximum(at[k] - prev, 0.0))
+            prev = np.maximum(at[k], prev)
         return out
 
     def _feasible(self, inter: np.ndarray, committed: float, need: float, cap: float) -> bool:
@@ -66,27 +68,29 @@ class GdpPlanner:
         tenant_max_delay = tenant_max_delay or {}
         out = []
         for d in sorted(deferrable, key=lambda x: (x.eta_s, x.session_id)):
-            start = max(0, int(d.eta_s // self.slot_s))
+            start = max(0, int(d.eta_s // self.slot_s))          # the session's own resumption slot
             chosen = None
             for k in range(start, self.n_slots):
-                if k * self.slot_s > self.max_hold_s:
+                if (k - start) * self.slot_s > self.max_hold_s:    # imposed delay is measured from resumption (spec 6.2)
                     break
                 if all(self._feasible(demand[r][k], committed[r][k], getattr(d, r), capacity.get(r, float("inf")))
                        for r in RESOURCES):
                     chosen = k
                     break
             if chosen is None:
-                delay, reason = self.max_hold_s, "capped"
+                imposed, reason, release = self.max_hold_s, "capped", now + d.eta_s + self.max_hold_s
             else:
-                delay, reason = chosen * self.slot_s, "gdp"
+                imposed, reason, release = (chosen - start) * self.slot_s, "gdp", now + chosen * self.slot_s
             bound = tenant_max_delay.get(d.tenant)
-            if bound is not None and delay > bound:
-                delay, reason, chosen = bound, "tenant_cap", None
-            if chosen is not None:
+            if bound is not None and imposed > bound:
+                imposed, reason = bound, "tenant_cap"
+                chosen = min(start + int(bound // self.slot_s), self.n_slots - 1)
+                release = now + chosen * self.slot_s
+            if chosen is not None:                                  # committed where it is actually released
                 self.last_assignment.setdefault(chosen, []).append(d.session_id)
                 for r in RESOURCES:
                     committed[r][chosen] += getattr(d, r)
-            self.max_imposed_delay[d.tenant] = max(self.max_imposed_delay.get(d.tenant, 0.0), delay)
-            out.append(HoldDirective(session_id=d.session_id, release_not_before=now + delay, reason=reason,
+            self.max_imposed_delay[d.tenant] = max(self.max_imposed_delay.get(d.tenant, 0.0), imposed)
+            out.append(HoldDirective(session_id=d.session_id, release_not_before=release, reason=reason,
                                      tenant=d.tenant, expires_at=now + self.slot_s))
         return out

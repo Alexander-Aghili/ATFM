@@ -67,7 +67,8 @@ def test_property_never_violates_cap_or_its_own_chance_constraint():
         out = planner.plan(0.0, snap, cap, defs)
         assert len(out) == len(defs)
         for d in out:
-            assert 0.0 <= d.release_not_before <= 120.0 + 1e-9
+            eta = next(x for x in defs if x.session_id == d.session_id).eta_s
+            assert 0.0 <= d.release_not_before <= eta + 120.0 + 1e-9        # never more than the cap after resumption
         # released (uncapped) sessions must satisfy the constraint on the planner's own samples
         assigned = planner.last_assignment                       # slot -> list of session ids
         for slot, sids in assigned.items():

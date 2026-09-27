@@ -147,13 +147,27 @@ def write_manifest(out: Path, cfg: H2SimConfig, inputs: list[dict]) -> dict:
     return m
 
 
+def split_table_for_training(table: TraceTable, test_fraction: float = 0.5, seed: int = 0) -> tuple[TraceTable, TraceTable]:
+    """Hold out whole session families (a child follows its root) by a stable hash, so predictors are never
+    fit on the sessions they are scored against (spec 9)."""
+    df = table.df
+    roots = df["parent_session_id"].where(df["parent_session_id"].notna(), df["session_id"]).astype(str)
+    frac = roots.map(lambda r: int(hashlib.sha256(f"{seed}:{r}".encode()).hexdigest()[:8], 16) / 0xFFFFFFFF)
+    test = frac < test_fraction
+    return TraceTable(df[~test].reset_index(drop=True)), TraceTable(df[test].reset_index(drop=True))
+
+
+_TRACE_SPLIT = {"test_fraction": 0.5, "seed": 0}
+
+
 def _programs_for(cfg: H2SimConfig, seed: int, train: bool):
     """Programs for one seed: synthetic from the regime spec, or a replayed trace table (overlaid at
-    `trace_rate_per_hour`). Training programs use a shifted seed."""
+    `trace_rate_per_hour`) split by session family into a training half and an evaluation half."""
     rng_seed = seed + cfg.train_seed_offset if train else seed
     if cfg.regime == "trace":
         table = TraceTable.from_parquet(cfg.trace_path)
-        return programs_from_table(table, cfg.trace_rate_per_hour, cfg.duration_s, np.random.default_rng(rng_seed))
+        train_t, test_t = split_table_for_training(table, **_TRACE_SPLIT)
+        return programs_from_table(train_t if train else test_t, cfg.trace_rate_per_hour, cfg.duration_s, np.random.default_rng(rng_seed))
     spec = regime_spec(cfg.regime, cfg.duration_s, rng_seed if train else seed, cfg.interactive_rate_per_hour, cfg.background_rate_per_hour)
     return programs_from_spec(spec, np.random.default_rng(rng_seed))
 
@@ -168,7 +182,7 @@ def run_h2sim(cfg: H2SimConfig) -> pd.DataFrame:
     out.mkdir(parents=True, exist_ok=True)
     engines = [EngineConfig(**e) for e in cfg.engines]
     rows, per_arm_sessions = [], {a: [] for a in cfg.arms}
-    write_manifest(out, cfg, inputs=[{"path": cfg.trace_path, "sha256": _sha256_file(cfg.trace_path)}] if cfg.trace_path else [])
+    write_manifest(out, cfg, inputs=[{"path": cfg.trace_path, "sha256": _sha256_file(cfg.trace_path), "split": _TRACE_SPLIT}] if cfg.trace_path else [])
     for seed in cfg.seeds:
         train_programs = _programs_for(cfg, seed, train=True)
         base_arrivals = None

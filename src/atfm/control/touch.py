@@ -23,8 +23,10 @@ class Residency:
 
 
 class TouchController:
-    def __init__(self, horizon_s: float = 30.0, age_s: float = 10.0, budget_per_s: float = 1.0, tick_s: float = 5.0):
+    def __init__(self, horizon_s: float = 30.0, age_s: float = 10.0, budget_per_s: float = 1.0, tick_s: float = 5.0,
+                 burst: float | None = None):
         self.horizon_s, self.age_s, self.budget_per_s, self.tick_s = horizon_s, age_s, budget_per_s, tick_s
+        self.burst = max(1.0, budget_per_s * tick_s) if burst is None else float(burst)   # credit ceiling: no stored-up surges
         self._credit = 0.0
         self.issued = 0
 
@@ -33,7 +35,7 @@ class TouchController:
         """`evict_frontier_age[worker]` is the age (seconds since last use) of the blocks the worker will
         evict next; a session within `age_s` of it is at risk. Budget accrues per tick and is spent in
         whole touches."""
-        self._credit += self.budget_per_s * self.tick_s
+        self._credit = min(self._credit + self.budget_per_s * self.tick_s, self.burst)
         allowed = int(math.floor(self._credit + 1e-9))
         if allowed <= 0:
             return []

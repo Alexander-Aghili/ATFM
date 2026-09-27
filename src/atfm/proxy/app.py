@@ -6,6 +6,8 @@ emits llm.* events. Fail-open everywhere (D10).
 """
 from __future__ import annotations
 
+from collections import OrderedDict
+
 import asyncio
 import json
 import time
@@ -50,7 +52,7 @@ def create_app(cfg: ProxyConfig, *, upstream_client: httpx.AsyncClient | None = 
     st.bus = bus if bus is not None else (JsonlBus(cfg.events_path) if cfg.events_path else InMemoryBus())
     st.client = upstream_client or httpx.AsyncClient(base_url=cfg.upstream_url, timeout=httpx.Timeout(600.0))
     st.queue = HoldQueue(cfg.window, clock=clock, max_hold_s=cfg.max_hold_s, max_size=cfg.max_queue_size)
-    st.last_body = {}           # session -> last request body (messages, model) for keep-alive touches
+    st.last_body = OrderedDict()   # session -> last request body (messages, model) for keep-alive touches; LRU-bounded
     st.touches, st.touch_tokens = 0, 0
     st.predictor = predictor
     st.pool = ThreadPoolExecutor(max_workers=4)
@@ -146,6 +148,9 @@ def create_app(cfg: ProxyConfig, *, upstream_client: httpx.AsyncClient | None = 
         meta = _meta_from(req, body, cfg, now, turn)
         st.turns[meta.session_id] = turn + 1
         st.last_body[meta.session_id] = body
+        st.last_body.move_to_end(meta.session_id)
+        while len(st.last_body) > cfg.max_remembered_sessions:
+            st.last_body.popitem(last=False)
         if meta.session_id not in st.known:
             st.known.add(meta.session_id)
             emit(SessionStart(t=now, session_id=meta.session_id, tenant=meta.tenant, cls=meta.cls,

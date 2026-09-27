@@ -28,20 +28,25 @@ def parse_prometheus(text: str) -> list[tuple[str, dict[str, str], float]]:
     return rows
 
 
-def _worker_of(labels: dict[str, str]) -> str | None:
+def _worker_of(labels: dict[str, str], default: str | None) -> str | None:
+    """Prometheus-server labels (instance, pod, ...) name the worker; a Dynamo page names component and
+    endpoint; a worker's own page has neither and takes the scrape's `default` (its URL or host)."""
+    if "dynamo_component" in labels or "dynamo_endpoint" in labels:
+        return "/".join(v for v in (labels.get("dynamo_component"), labels.get("dynamo_endpoint")) if v)
     for k in _WORKER_LABELS:
         if k in labels:
             return labels[k]
-    return None
+    return default
 
 
-def worker_metrics_from_prometheus(text: str, t: float, default_total_blocks: int | None = None) -> list[WorkerMetrics]:
+def worker_metrics_from_prometheus(text: str, t: float, default_total_blocks: int | None = None,
+                                   default_worker_id: str | None = None) -> list[WorkerMetrics]:
     """One event per worker. Total and used blocks come from `*kv_total_blocks` / `*kv_active_blocks`
     (Dynamo); a vLLM-only page gives `gpu_cache_usage_perc`, converted with `default_total_blocks`.
     Queue depth is `num_requests_waiting` or `requests_pending`. Workers without a total are skipped."""
     per: dict[str, dict] = {}
     for name, labels, value in parse_prometheus(text):
-        w = _worker_of(labels)
+        w = _worker_of(labels, default_worker_id)
         if w is None:
             continue
         d = per.setdefault(w, {})

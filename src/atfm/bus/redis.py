@@ -4,6 +4,7 @@ proxy resumes where it left off instead of replaying or skipping."""
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 from atfm.schema.events import Event, parse_event
@@ -25,6 +26,7 @@ class RedisStreamsBus:
         if self.cursor_path and self.cursor_path.exists():
             self.last_id = self.cursor_path.read_text().strip() or "0"
         self.dropped = 0
+        self.malformed = 0                    # entries skipped because they did not parse (never wedge, spec 10)
 
     def publish(self, e: Event) -> None:
         try:
@@ -35,13 +37,20 @@ class RedisStreamsBus:
     def drain(self) -> list[Event]:
         out: list[Event] = []
         res = self.client.xread({self.stream: self.last_id}, count=self.batch)
+        advanced = False
         for _name, entries in res or []:
             for eid, fields in entries:
-                raw = fields.get(b"json", fields.get("json"))
-                if isinstance(raw, bytes):
-                    raw = raw.decode()
-                out.append(parse_event(json.loads(raw)))
                 self.last_id = eid.decode() if isinstance(eid, bytes) else eid
-        if self.cursor_path is not None and out:
-            self.cursor_path.write_text(self.last_id)
+                advanced = True
+                try:
+                    raw = fields.get(b"json", fields.get("json"))
+                    if isinstance(raw, bytes):
+                        raw = raw.decode()
+                    out.append(parse_event(json.loads(raw)))
+                except Exception:
+                    self.malformed += 1
+        if self.cursor_path is not None and advanced:
+            tmp = self.cursor_path.with_name(self.cursor_path.name + ".tmp")
+            tmp.write_text(self.last_id)
+            os.replace(tmp, self.cursor_path)     # atomic: a crash never leaves an empty cursor that replays everything
         return out

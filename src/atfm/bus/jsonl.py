@@ -36,6 +36,10 @@ def read_events(path: str | Path) -> list[Event]:
     with open(p) as f:
         for line in f:
             line = line.strip()
-            if line:
+            if not line:
+                continue
+            try:
                 out.append(parse_event(json.loads(line)))
+            except Exception:
+                continue                          # a malformed line never blocks the rest (spec 10)
     return out

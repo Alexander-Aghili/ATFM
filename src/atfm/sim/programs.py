@@ -101,17 +101,24 @@ def programs_from_table(table: TraceTable, rate_per_hour: float | None, duration
                         rng: np.random.Generator) -> list[Program]:
     progs: dict[str, Program] = {}
     children: dict[str, list[Program]] = {}
+    t0 = float(table.df["t_request"].min()) if len(table.df) else 0.0   # rebase: replayed time starts at zero
     for sid, g in table.sessions():
         rows = g.to_dict("records")
         turns: list[Turn] = []
         prev_ctx = 0
-        for r in rows:
+        for i, r in enumerate(rows):
             reset = bool(turns) and int(r["isl"]) < prev_ctx
             isl_new = int(r["isl"]) if (not turns or reset) else int(r["isl"]) - prev_ctx
             prev_ctx = int(r["isl"]) + int(r["osl"])
             tool = r["tool_name"] if not _nan(r["tool_name"]) else None
             if tool is None or _nan(r["t_tool_start"]) or _nan(r["t_tool_end"]):
-                turns.append(Turn(isl_new, int(r["osl"]), None, None, reset=reset))
+                if i + 1 < len(rows):
+                    # no recorded tool phase but the session called again: the gap to the next request is the
+                    # think/tool time (a tool-less non-final turn would otherwise end the session in the simulator)
+                    gap = max(0.0, float(rows[i + 1]["t_request"]) - float(r["t_last_token"]))
+                    turns.append(Turn(isl_new, int(r["osl"]), "__gap__", gap, "local", [], think=True, reset=reset))
+                else:
+                    turns.append(Turn(isl_new, int(r["osl"]), None, None, reset=reset))
                 continue
             d = max(0.0, float(r["t_tool_end"]) - float(r["t_tool_start"]))
             think = tool in ("__think__", "__gap__")
@@ -120,7 +127,7 @@ def programs_from_table(table: TraceTable, rate_per_hour: float | None, duration
             backend = r["backend_id"] if not _nan(r["backend_id"]) else "local"
             turns.append(Turn(isl_new, int(r["osl"]), tool, d, backend, prog, think=think, reset=reset))
         parent = rows[0]["parent_session_id"] if not _nan(rows[0]["parent_session_id"]) else None
-        p = Program(session_id=sid, cls=rows[0]["class"], tenant=rows[0]["tenant"], t_arrival=float(rows[0]["t_request"]),
+        p = Program(session_id=sid, cls=rows[0]["class"], tenant=rows[0]["tenant"], t_arrival=float(rows[0]["t_request"]) - t0,
                     turns=turns, parent=parent)
         progs[sid] = p
         if parent is not None:

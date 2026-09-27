@@ -50,8 +50,10 @@ class SidecarExecutor:
 
 
 def wrap_executor(fn: Callable, cfg: SidecarConfig, *, output_key="output", rc_key="returncode",
-                  tuple_result: bool = False) -> Callable:
-    """Wrap `fn(command, **kw) -> result`. With `tuple_result`, the result is `(output, returncode)`."""
+                  tuple_result: bool = False, extract: Callable | None = None) -> Callable:
+    """Wrap `fn(command, **kw) -> result`. With `tuple_result`, the result is `(output, returncode)`; `extract`
+    maps any other result shape to `(output, returncode)`. The result is returned unchanged whatever happens
+    after the executor returns (spec 10: the result path is a pass-through)."""
 
     def wrapped(command: str, *args, **kwargs):
         _gate_wait(cfg)
@@ -66,12 +68,18 @@ def wrap_executor(fn: Callable, cfg: SidecarConfig, *, output_key="output", rc_k
         except BaseException:
             _safe_publish(cfg.bus, ToolEnd(t=cfg.clock(), session_id=cfg.session_id, call_id=call_id, exit_status=-1, output_chars=0))
             raise
-        if tuple_result:
-            output, rc = result[0], result[1]
-        else:
-            output, rc = result.get(output_key, ""), result.get(rc_key, 0)
-        text = output if isinstance(output, str) else bytes(output).decode("utf-8", errors="replace")
         t1 = cfg.clock()
+        try:
+            if extract is not None:
+                output, rc = extract(result)
+            elif tuple_result:
+                output, rc = result[0], result[1]
+            else:
+                output, rc = result.get(output_key, ""), result.get(rc_key, 0)
+            text = output if isinstance(output, str) else bytes(output).decode("utf-8", errors="replace")
+        except Exception:                          # unknown result shape: close the state path, hand the result back
+            _safe_publish(cfg.bus, ToolEnd(t=t1, session_id=cfg.session_id, call_id=call_id, exit_status=0, output_chars=0))
+            return result
         parsers = default_parsers()
         last = None
         for line in text.splitlines():
@@ -94,8 +102,11 @@ def wrap_executor(fn: Callable, cfg: SidecarConfig, *, output_key="output", rc_k
                                                             metric=d["metric"], value=float(d["value"])))
                 except Exception:
                     continue
-        _safe_publish(cfg.bus, ToolEnd(t=t1, session_id=cfg.session_id, call_id=call_id,
-                                       exit_status=int(rc) if rc is not None else 0, output_chars=len(text)))
+        try:
+            exit_status = int(rc) if rc is not None else 0
+        except (TypeError, ValueError):
+            exit_status = 0
+        _safe_publish(cfg.bus, ToolEnd(t=t1, session_id=cfg.session_id, call_id=call_id, exit_status=exit_status, output_chars=len(text)))
         return result
 
     return wrapped
