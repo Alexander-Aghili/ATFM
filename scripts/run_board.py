@@ -19,6 +19,7 @@ def main():
     ap.add_argument("--tick", type=float, default=5.0)
     ap.add_argument("--once", action="store_true")
     ap.add_argument("--serve", type=int, default=None, help="serve the board HTTP API on this port instead of the file loop")
+    ap.add_argument("--control", default=None, help="YAML with gdp/touch/tier/replica/metrics sections to attach controllers")
     a = ap.parse_args()
     train = TraceTable.from_parquet(a.train)
     fc = SessionForecaster(ProgressPredictor().fit(train), ExogenousModel().fit(train),
@@ -30,6 +31,19 @@ def main():
         from atfm.board.service import create_board_app
         from atfm.bus import JsonlBus
         app = create_board_app(board, bus=JsonlBus(a.events), rng=rng)
+        if a.control:
+            import threading
+            import yaml
+            from atfm.board.service import configure_controllers
+            ccfg = yaml.safe_load(open(a.control)) or {}
+            scrape = configure_controllers(app, ccfg)
+            interval = float(ccfg.get("metrics", {}).get("interval_s", a.tick))
+
+            def loop():
+                while True:
+                    scrape()
+                    time.sleep(interval)
+            threading.Thread(target=loop, daemon=True).start()
         uvicorn.run(app, host="127.0.0.1", port=a.serve, log_level="warning")
         return
     seen = 0
