@@ -79,7 +79,7 @@ def test_registry_and_trace_adapter_carry_args_hash():
 
 # ---------------------------------------------------------------- F1: interactive-long-tool regime
 def test_interactive_long_tool_regime_gives_interactive_sessions_long_signalled_tools():
-    from atfm.experiments.h2sim import regime_spec
+    from atfm_experiments.h2sim import regime_spec
     spec = regime_spec("interactive_long_tool")
     it = [c for c in spec.classes if c.cls == "interactive"][0]
     strong = [t for t in it.tools if t.signal == "strong"]
@@ -109,7 +109,7 @@ def test_oracle_rule_snapshot_is_true_first_call_demand_per_horizon():
 
 
 def test_oracle_rule_arm_is_registered_and_holds_only_background():
-    from atfm.experiments.h2sim import ARMS, _arm, H2SimConfig
+    from atfm_experiments.h2sim import ARMS, _arm, H2SimConfig
     assert "oracle_rule" in ARMS
     cfg = H2SimConfig(name="t", regime="short_tool", max_hold_s=60.0)
     engines = [EngineConfig(**e) for e in cfg.engines]
@@ -119,7 +119,7 @@ def test_oracle_rule_arm_is_registered_and_holds_only_background():
 
 # ---------------------------------------------------------------- F3: configurable hold cap
 def test_h2sim_config_hold_cap_reaches_the_simulator():
-    from atfm.experiments.h2sim import H2SimConfig, build_simulator
+    from atfm_experiments.h2sim import H2SimConfig, build_simulator
     cfg = H2SimConfig(name="t", regime="short_tool", max_hold_s=60.0)
     engines = [EngineConfig(**e) for e in cfg.engines]
     sim = build_simulator(cfg, [_prog("a", "interactive", 1.0, 100)], engines, _arm_stub(), seed=0)

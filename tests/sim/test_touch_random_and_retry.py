@@ -18,7 +18,7 @@ def test_random_touch_arm_touches_at_the_same_rate_without_a_forecast():
     assert pol.name == "touch_random" and sim.touches > 0
     assert sim.touches <= (sim.now / 5.0 + 1) * 5                      # never more than the budget
     assert len({sid for _, sid in pol.touched}) >= 3                     # spread over sessions, not a ranking
-    from atfm.experiments.h2sim import ARMS
+    from atfm_experiments.h2sim import ARMS
     assert "touch_random" in ARMS
 
 

@@ -7,6 +7,12 @@ resolution-markers = [
     "sys_platform != 'emscripten' and sys_platform != 'win32'",
 ]
 
+[manifest]
+members = [
+    "atfm",
+    "atfm-experiments",
+]
+
 [[package]]
 name = "absl-py"
 version = "2.5.0"
@@ -203,6 +209,11 @@ serve = [
     { name = "uvicorn" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "atfm-experiments" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "ai-dynamo", marker = "extra == 'dynamo'", specifier = ">=1.5" },
@@ -223,6 +234,28 @@ requires-dist = [
     { name = "uvicorn", marker = "extra == 'serve'", specifier = ">=0.30" },
 ]
 provides-extras = ["serve", "harness", "dynamo", "dev"]
+
+[package.metadata.requires-dev]
+dev = [{ name = "atfm-experiments", editable = "experiments" }]
+
+[[package]]
+name = "atfm-experiments"
+version = "0.1.0"
+source = { editable = "experiments" }
+dependencies = [
+    { name = "atfm" },
+    { name = "numpy" },
+    { name = "pandas" },
+    { name = "pydantic" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "atfm", editable = "." },
+    { name = "numpy", specifier = ">=1.26" },
+    { name = "pandas", specifier = ">=2.1" },
+    { name = "pydantic", specifier = ">=2.7" },
+]
 
 [[package]]
 name = "attrs"

@@ -8,7 +8,7 @@ import json
 import numpy as np
 import yaml
 
-from atfm.experiments.h2sim import H2SimConfig, _arm, _programs_for
+from atfm_experiments.h2sim import H2SimConfig, _arm, _programs_for
 from atfm.sim.diagnostics import eviction_records, summarize_evictions
 from atfm.sim.engine import EngineConfig
 

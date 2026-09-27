@@ -24,7 +24,7 @@ def test_paired_contrasts_report_named_pairs_from_the_same_draws():
 
 
 def test_runner_adds_m2_vs_m1_contrasts_when_both_arms_present():
-    from atfm.experiments.h2sim import H2SimConfig, default_contrasts
+    from atfm_experiments.h2sim import H2SimConfig, default_contrasts
     assert default_contrasts(["native", "forecast_M1", "forecast_M2", "forecast_M1_kv", "forecast_M2_kv", "oracle_kv"]) == \
         [("forecast_M2", "forecast_M1"), ("forecast_M2_kv", "forecast_M1_kv"), ("forecast_M2_kv", "oracle_kv"), ("forecast_M1_kv", "oracle_kv")]
     assert default_contrasts(["native", "proxy_rules"]) == []
@@ -46,7 +46,7 @@ def test_size_aware_ordering_evicts_the_most_idle_block_seconds_first():
 
 
 def test_size_aware_arms_registered():
-    from atfm.experiments.h2sim import ARMS, H2SimConfig, _arm
+    from atfm_experiments.h2sim import ARMS, H2SimConfig, _arm
     from atfm.sim.kv_placement import OracleKvPolicy
     assert {"forecast_M1_kv_size", "forecast_M2_kv_size", "oracle_kv_size"} <= set(ARMS)
     cfg = H2SimConfig(name="t", regime="short_tool")
@@ -69,7 +69,7 @@ def test_class_weighted_ordering_evicts_background_before_interactive_at_equal_a
 
 
 def test_class_weighted_arms_registered():
-    from atfm.experiments.h2sim import ARMS, H2SimConfig, _arm
+    from atfm_experiments.h2sim import ARMS, H2SimConfig, _arm
     from atfm.sim.kv_placement import OracleKvPolicy
     assert {"forecast_M1_kv_cw", "forecast_M2_kv_cw", "oracle_kv_cw"} <= set(ARMS)
     cfg = H2SimConfig(name="t", regime="short_tool", kv_bg_weight=3.0)

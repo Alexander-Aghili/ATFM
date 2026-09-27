@@ -57,13 +57,13 @@ def test_oracle_touch_arm_touches_imminent_at_risk_sessions_and_logs_costs():
 
 
 def test_forecast_touch_arm_registered_and_uses_predictor_quantiles():
-    from atfm.experiments.h2sim import ARMS, H2SimConfig, _arm
+    from atfm_experiments.h2sim import ARMS, H2SimConfig, _arm
     from atfm.sim.kv_placement import ForecastTouchPolicy
     assert {"forecast_M1_touch", "forecast_M2_touch", "oracle_touch"} <= set(ARMS)
     cfg = H2SimConfig(name="t", regime="short_tool", touch_budget_per_s=2.0, touch_horizon_s=45.0)
     engines = [EngineConfig(**e) for e in cfg.engines]
     from atfm.sim.programs import programs_from_spec
-    from atfm.experiments.h2sim import regime_spec
+    from atfm_experiments.h2sim import regime_spec
     train = programs_from_spec(regime_spec("short_tool", 300.0, 1), np.random.default_rng(1))
     pol = _arm("forecast_M2_touch", cfg, engines, train, np.random.default_rng(0))
     assert isinstance(pol, ForecastTouchPolicy) and pol.name == "forecast_M2_touch"

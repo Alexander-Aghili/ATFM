@@ -8,6 +8,8 @@
 | Distinguish implemented features from validated outcomes | [Implementation status](status.md) |
 | Start the proxy, board, and controller | [Local operations](operations.md) |
 | Change core code safely | [Core developer guide](development/core.md) |
+| Understand experiment packaging | [Experiment workspace](../experiments/README.md) |
+| Assess Python/Rust and scaling risks | [Performance assessment](development/performance.md) |
 | Prepare tests and a contribution | [Contributing](../CONTRIBUTING.md) |
 
 ## Architecture and design

@@ -14,7 +14,7 @@ def _progs():
 
 
 def test_eviction_records_have_truth_and_estimate_per_victim():
-    from atfm.experiments.h2sim import H2SimConfig, _arm
+    from atfm_experiments.h2sim import H2SimConfig, _arm
     cfg = H2SimConfig(name="d", regime="short_tool", engines=[{"kv_blocks": 200, "max_batch": 4, "prefill_tps": 20000.0, "decode_tps": 40.0}], window=4)
     engines = [EngineConfig(**e) for e in cfg.engines]
     pol = _arm("oracle_kv", cfg, engines, None, np.random.default_rng(0))
@@ -31,7 +31,7 @@ def test_eviction_records_have_truth_and_estimate_per_victim():
 
 
 def test_diagnostic_works_for_lru_and_forecast_arms_too():
-    from atfm.experiments.h2sim import H2SimConfig, _arm
+    from atfm_experiments.h2sim import H2SimConfig, _arm
     cfg = H2SimConfig(name="d", regime="short_tool", engines=[{"kv_blocks": 200, "max_batch": 4, "prefill_tps": 20000.0, "decode_tps": 40.0}], window=4)
     engines = [EngineConfig(**e) for e in cfg.engines]
     train = [_prog(f"t{i}", "background" if i % 2 else "interactive", 7.0 * i, 800, "bash", 30.0 + i, turns=2) for i in range(12)]

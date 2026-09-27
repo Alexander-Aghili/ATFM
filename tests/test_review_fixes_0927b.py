@@ -60,7 +60,7 @@ def test_jsonl_read_events_skips_malformed_lines(tmp_path):
 
 # ---------------------------------------------------------------- I3: trace regime holds out sessions from training
 def test_trace_regime_trains_on_held_out_sessions(tmp_path):
-    from atfm.experiments.h2sim import H2SimConfig, _programs_for, split_table_for_training
+    from atfm_experiments.h2sim import H2SimConfig, _programs_for, split_table_for_training
     rows = [_row(f"s{i}", k, 100.0 * i + 30.0 * k, tool="bash", tool_dur=3.0) for i in range(10) for k in range(2)]
     table = TraceTable.from_rows(rows)
     path = tmp_path / "t.parquet"

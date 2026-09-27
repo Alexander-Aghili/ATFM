@@ -1,4 +1,4 @@
-from atfm.experiments.h2sim import H2SimConfig, run_h2sim, regime_spec
+from atfm_experiments.h2sim import H2SimConfig, run_h2sim, regime_spec
 
 def test_h2sim_smoke_all_arms(tmp_path):
     cfg = H2SimConfig(name="smoke", regime="long_tool", seeds=[0], arms=["native", "proxy_rules", "forecast_M1", "forecast_M2", "oracle", "working_set"],

@@ -39,7 +39,7 @@ def test_forecast_pin_arm_pins_imminent_sessions_within_a_block_budget():
     assert sim.pins > 0 and "pins" in log.columns and pol.name == "oracle_pin"
     assert all(sid == "soon" or t >= 400.0 - 30.0 - 5.0 for t, sid in pol.pinned_log)
     assert max(pol.max_pinned_blocks_seen, 0) <= 200
-    from atfm.experiments.h2sim import ARMS
+    from atfm_experiments.h2sim import ARMS
     assert {"forecast_M1_pin", "forecast_M2_pin", "oracle_pin", "pin_random"} <= set(ARMS)
 
 

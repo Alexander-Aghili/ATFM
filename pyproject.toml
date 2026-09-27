@@ -28,3 +28,12 @@ packages = ["src/atfm"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+
+[dependency-groups]
+dev = ["atfm-experiments"]
+
+[tool.uv.workspace]
+members = ["experiments"]
+
+[tool.uv.sources]
+atfm-experiments = { workspace = true }

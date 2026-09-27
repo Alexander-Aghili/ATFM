@@ -6,6 +6,17 @@ This guide describes the executable forecasting and control paths. Start with
 for the research design and [results notes](../research/) for measured outcomes.
 The implementation contracts below matter when changing a predictor or policy.
 
+## Package boundary
+
+The `atfm` runtime lives in `src/atfm/`. H1/H2 configuration, sweeps, and run
+orchestration live in `experiments/src/atfm_experiments/`, a separate uv workspace
+package depending on the core. Keep dependencies one-way. The root development
+group installs the runners; `uv sync --no-dev --extra serve` omits them. Existing
+`scripts/run_h1.py` and `scripts/run_h2sim.py` commands remain supported.
+
+See the [experiment workspace guide](../../experiments/README.md) for packaging
+and [performance assessment](performance.md) for Python/Rust tradeoffs.
+
 ## Where behavior belongs
 
 | Responsibility | Implementation | Contract |

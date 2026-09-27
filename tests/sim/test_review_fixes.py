@@ -79,7 +79,7 @@ def test_held_session_kv_cost_and_displacement_are_charged():
 
 # I4: engine priority on by default in the experiment config
 def test_h2sim_engine_priority_default():
-    from atfm.experiments.h2sim import H2SimConfig
+    from atfm_experiments.h2sim import H2SimConfig
     cfg = H2SimConfig(name="x", regime="short_tool")
     assert all(e.get("priority", False) for e in cfg.engines)
 

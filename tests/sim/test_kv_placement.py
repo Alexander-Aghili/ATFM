@@ -78,7 +78,7 @@ def test_forecast_kv_policy_orders_by_predicted_return_and_prefers_unknown_first
 
 
 def test_kv_arms_registered_and_wired_into_workers():
-    from atfm.experiments.h2sim import ARMS, H2SimConfig, _arm, build_simulator
+    from atfm_experiments.h2sim import ARMS, H2SimConfig, _arm, build_simulator
     from atfm.sim.kv_placement import OracleKvPolicy
     assert {"forecast_M1_kv", "forecast_M2_kv", "oracle_kv"} <= set(ARMS)
     cfg = H2SimConfig(name="t", regime="short_tool")
@@ -91,7 +91,7 @@ def test_kv_arms_registered_and_wired_into_workers():
 
 def test_oracle_rule_noidx_arm_drops_the_next_tool_index_term():
     """Diagnostic for the index: same true-demand hold rule, but E[next tool] = 0 like proxy_rules."""
-    from atfm.experiments.h2sim import ARMS, H2SimConfig, _arm
+    from atfm_experiments.h2sim import ARMS, H2SimConfig, _arm
     from atfm.sim.forecast_arm import OracleRuleNoIdxPolicy
     assert "oracle_rule_noidx" in ARMS
     cfg = H2SimConfig(name="t", regime="short_tool")
@@ -162,7 +162,7 @@ def test_oracle_kv_gives_running_sessions_a_return_time():
 
 def test_oracle_kv_fresh_recomputes_return_times_at_each_eviction():
     """Diagnostic variant: the exact-return-time ranking evaluated at the eviction instant, not at the last tick."""
-    from atfm.experiments.h2sim import ARMS, H2SimConfig, _arm
+    from atfm_experiments.h2sim import ARMS, H2SimConfig, _arm
     from atfm.sim.core import Simulator
     from atfm.sim.kv_placement import OracleKvPolicy
     assert "oracle_kv_fresh" in ARMS

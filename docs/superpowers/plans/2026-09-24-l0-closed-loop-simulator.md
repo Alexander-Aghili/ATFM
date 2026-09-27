@@ -1,5 +1,9 @@
 # L0 Policies: Closed-Loop Fleet Simulator with Six Serving Arms. Implementation Plan
 
+> **Path migration:** experiment runner code now lives in
+> `experiments/src/atfm_experiments/` and imports as `atfm_experiments`.
+> Original snippets below preserve the layout used when this plan was written.
+
 > **Historical implementation plan.** Embedded code and task checklists are a design record,
 > not the current source of setup instructions. See [implementation status](../../status.md),
 > [operations](../../operations.md), and [core development](../../development/core.md).

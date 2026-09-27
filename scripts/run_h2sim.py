@@ -3,7 +3,7 @@ import sys
 import pandas as pd
 import yaml
 
-from atfm.experiments.h2sim import H2SimConfig, run_h2sim
+from atfm_experiments.h2sim import H2SimConfig, run_h2sim
 
 if __name__ == "__main__":
     cfg = H2SimConfig(**yaml.safe_load(open(sys.argv[1])))

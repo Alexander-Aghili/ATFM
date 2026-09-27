@@ -26,6 +26,8 @@ git status --short
 
 ## Make a focused change
 
+- Keep research orchestration in `experiments/src/atfm_experiments/`. The core
+  must not import the experiment package; its wheel must remain independent.
 - Keep shared contracts in `schema`, model logic in `board`, decisions in
   `control`, and simulation mechanics in `sim`.
 - Reuse the live board and placement-summary helpers when adding policy

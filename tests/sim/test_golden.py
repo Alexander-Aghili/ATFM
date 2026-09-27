@@ -5,7 +5,7 @@ from pathlib import Path
 
 import numpy as np
 
-from atfm.experiments.h2sim import H2SimConfig, regime_spec, _arm, build_simulator
+from atfm_experiments.h2sim import H2SimConfig, regime_spec, _arm, build_simulator
 from atfm.eval.serving import serving_metrics
 from atfm.sim.engine import EngineConfig
 from atfm.sim.programs import programs_from_spec

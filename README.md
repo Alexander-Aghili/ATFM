@@ -111,7 +111,6 @@ external services or provide a trace corpus.
 | `bus` | Event transport and replay | `InMemoryBus`, `JsonlBus`, `RedisStreamsBus` |
 | `sim` | Programs, workers, event loop, policy arms | `Simulator`, `EngineConfig` |
 | `eval` | Forecast and serving metrics, paired comparisons | `score_tick`, `serving_metrics`, `paired_contrasts` |
-| `experiments` | Configuration, runners, output artifacts | `H1Config`, `H2SimConfig` |
 | `dynamo`, `collect` | Local serving processes and Docker trace collection | `LocalDynamo`, `run_collection` |
 
 For timing, array shapes, state ownership, and extension contracts, read
@@ -120,6 +119,11 @@ For timing, array shapes, state ownership, and extension contracts, read
 system boundaries.
 
 ## Experiments
+
+Runners live in the separate [experiment workspace](experiments/README.md),
+under `experiments/src/atfm_experiments/`. The default development dependency
+group installs them; the `atfm` wheel contains only the reusable core. Use
+`uv sync --no-dev --extra serve` for a core-only service environment.
 
 ### H1: forecast accuracy
 
@@ -166,7 +170,7 @@ uv run python scripts/eviction_diagnostic.py experiments/h2sim_loaded_kv.yaml \
 H2 supports `short_tool`, `long_tool`, `interactive_long_tool`, and `trace`
 regimes. The trace regime requires a canonical parquet table configured through
 `trace_path`. Complete options live in
-[`H2SimConfig`](src/atfm/experiments/h2sim.py).
+[`H2SimConfig`](experiments/src/atfm_experiments/h2sim.py).
 
 | Policy family | Examples | What changes |
 | --- | --- | --- |
@@ -238,6 +242,14 @@ ATFM_DYNAMO=1 uv run pytest -q tests/dynamo tests/e2e
 See [CONTRIBUTING.md](CONTRIBUTING.md) for change scope, test expectations,
 reproducibility, and documentation conventions. Keep scientific invariants in
 comments and public contracts in docstrings; put design discussion in the docs.
+
+## Why Python?
+
+ATFM handles forecasting and orchestration; the upstream serving engine performs
+inference. Python supports the numerical and evaluation stack used here. Keep
+it until profiling establishes a bottleneck, then consider a native numerical
+kernel or a Rust proxy independently. Read the [performance assessment](docs/development/performance.md)
+for concrete risks in the current implementation and what to measure first.
 
 ## Further reading
 

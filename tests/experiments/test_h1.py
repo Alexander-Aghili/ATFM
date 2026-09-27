@@ -1,5 +1,5 @@
 import numpy as np
-from atfm.experiments.h1 import H1Config, run_h1
+from atfm_experiments.h1 import H1Config, run_h1
 from atfm.traces.synthetic import WorkloadSpec, ClassSpec, ToolSpec
 
 def test_run_h1_synthetic_smoke(tmp_path):
@@ -15,12 +15,12 @@ def test_run_h1_synthetic_smoke(tmp_path):
     assert df["pinball90"].notna().all() and (df["n"] > 5).all()
 
 def test_ticks_bounded_by_fleet_window():
-    from atfm.experiments.h1 import _ticks
+    from atfm_experiments.h1 import _ticks
     ticks = _ticks(t_min=0.0, t_max=1_000_000.0, window_s=1200.0, horizons=[30.0, 120.0], tick_s=60.0)
     assert ticks[0] == 0.0 and ticks[-1] <= 1200.0 - 120.0 and len(ticks) == 19
 
 def test_tracelab_tables_fit_on_unoverlaid_train(tmp_path):
-    from atfm.experiments.h1 import _tables
+    from atfm_experiments.h1 import _tables
     from atfm.schema.trace import TraceRow, TraceTable
     rows = []
     for k in range(12):
@@ -39,7 +39,7 @@ def test_tracelab_tables_fit_on_unoverlaid_train(tmp_path):
     assert test.df["session_id"].str.contains("#").all()            # replayed as a Poisson fleet
 
 def test_exogenous_starts_exclude_children():
-    from atfm.experiments.h1 import _session_starts
+    from atfm_experiments.h1 import _session_starts
     import pandas as pd
     df = pd.DataFrame({"turn_index": [0, 0, 1], "t_request": [1.0, 2.0, 3.0], "class": ["background"] * 3,
                        "parent_session_id": [None, "p", None]})
@@ -104,7 +104,7 @@ def test_h1_calibrate_wraps_session_models(tmp_path):
 def test_calibration_is_fitted_out_of_sample(tmp_path, monkeypatch):
     """The predictor used for calibration must be fitted on a strict subset of train (holdout > 0),
     and on all of train only in the in-sample diagnostic mode (holdout == 0)."""
-    import atfm.experiments.h1 as h1mod
+    import atfm_experiments.h1 as h1mod
     from atfm.traces.synthetic import generate
     tools = [ToolSpec(name="pytest", weight=1.0, log_mu=np.log(60.0), log_sigma=0.3, signal="none", backend_id="ci")]
     spec = WorkloadSpec(duration_s=2400.0, seed=3, classes=[
@@ -123,7 +123,7 @@ def test_calibration_is_fitted_out_of_sample(tmp_path, monkeypatch):
 
 def test_calibration_overlays_the_holdout_like_the_test(tmp_path, monkeypatch):
     """With an overlay rate configured, the calibration part of train is replayed as a fleet at that rate."""
-    import atfm.experiments.h1 as h1mod
+    import atfm_experiments.h1 as h1mod
     from atfm.schema.trace import TraceRow, TraceTable
     rows = []
     for k in range(16):
@@ -142,7 +142,7 @@ def test_calibration_overlays_the_holdout_like_the_test(tmp_path, monkeypatch):
     assert len(calls) == 1 and 0 < calls[0][0] < len(train) and calls[0][1] == 120.0 and calls[0][2] == 1800.0
 
 def test_calibration_ticks_stay_inside_the_overlay_window(tmp_path, monkeypatch):
-    import atfm.experiments.h1 as h1mod
+    import atfm_experiments.h1 as h1mod
     from atfm.schema.trace import TraceRow, TraceTable
     rows = []
     for k in range(16):                                      # sessions that run 10 hours after they start
@@ -166,7 +166,7 @@ def test_calibration_ticks_stay_inside_the_overlay_window(tmp_path, monkeypatch)
 def test_calibration_updates_exogenous_rate_incrementally(tmp_path, monkeypatch):
     """During calibration the exogenous arrival rate must track the fleet (about the configured rate),
     not a burst of every early start reported at the first tick."""
-    import atfm.experiments.h1 as h1mod
+    import atfm_experiments.h1 as h1mod
     from atfm.schema.trace import TraceRow, TraceTable
     rows = []
     for k in range(16):

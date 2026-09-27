@@ -5,7 +5,7 @@ import json
 import numpy as np
 import pandas as pd
 
-from atfm.experiments.h2sim import H2SimConfig, run_h2sim, write_manifest
+from atfm_experiments.h2sim import H2SimConfig, run_h2sim, write_manifest
 from atfm.schema.trace import TraceRow, TraceTable
 
 

@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from atfm.experiments.h1 import H1Config, run_h1
+from atfm_experiments.h1 import H1Config, run_h1
 
 
 def main():
