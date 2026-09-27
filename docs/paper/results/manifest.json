@@ -1,6 +1,6 @@
 {
   "description": "Frozen inputs for the revised paper; metrics copied from completed local runs. Original data/ and runs/ are gitignored. 2026-09-27 addendum: the 60-second-cap loaded run (same regime and rates as h2sim_long_tool_loaded) completed and is frozen here.",
-  "repository_commit": "315c8e309c3f33c3c6179628f42fe4888b86502b",
+  "repository_commit": "2faed32e8079e27a41f212a4c7bcf3040f0291f8",
   "sources": [
     {
       "source": "runs/sweep_tracelab.csv",
@@ -122,8 +122,44 @@
       "snapshot": "h2sim_long_tool_loaded_cap60__config.json",
       "sha256": "14827a2a21103297f081b7eee3124408215a3c77442514c721e631c32d5e5d47",
       "snapshot_sha256": "14827a2a21103297f081b7eee3124408215a3c77442514c721e631c32d5e5d47"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_v2/metrics.csv",
+      "snapshot": "h2sim_interactive_long_v2__metrics.csv",
+      "sha256": "53021e3fa7f9665c08db6531a03f1723cd879ecf647abf03a05bcdc37ca26a0b",
+      "snapshot_sha256": "53021e3fa7f9665c08db6531a03f1723cd879ecf647abf03a05bcdc37ca26a0b"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_v2/paired.csv",
+      "snapshot": "h2sim_interactive_long_v2__paired.csv",
+      "sha256": "505a70c213c69f419c1515442ed5c13c22fc38fd3cee02cb0d3b53e4e338d1f9",
+      "snapshot_sha256": "505a70c213c69f419c1515442ed5c13c22fc38fd3cee02cb0d3b53e4e338d1f9"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_v2/config.json",
+      "snapshot": "h2sim_interactive_long_v2__config.json",
+      "sha256": "287a6bed6e55fa0c67a13198e4833ffda79a8791ab221a04fc615ab863e4c38e",
+      "snapshot_sha256": "287a6bed6e55fa0c67a13198e4833ffda79a8791ab221a04fc615ab863e4c38e"
+    },
+    {
+      "source": "runs/h2sim_long_tool_loaded_cap60_v2/metrics.csv",
+      "snapshot": "h2sim_long_tool_loaded_cap60_v2__metrics.csv",
+      "sha256": "a84263d3b916cf46e2c25c05e59d9451679e70f3816be637ed98b0987c96396d",
+      "snapshot_sha256": "a84263d3b916cf46e2c25c05e59d9451679e70f3816be637ed98b0987c96396d"
+    },
+    {
+      "source": "runs/h2sim_long_tool_loaded_cap60_v2/paired.csv",
+      "snapshot": "h2sim_long_tool_loaded_cap60_v2__paired.csv",
+      "sha256": "87de16f3be75d3704fec434896a0503dc0be528d13cd34432639a05b369e5add",
+      "snapshot_sha256": "87de16f3be75d3704fec434896a0503dc0be528d13cd34432639a05b369e5add"
+    },
+    {
+      "source": "runs/h2sim_long_tool_loaded_cap60_v2/config.json",
+      "snapshot": "h2sim_long_tool_loaded_cap60_v2__config.json",
+      "sha256": "53f67e8a2f67da77d892b6e9428bbb001de8c8bb781a0d00258847be8b8a740d",
+      "snapshot_sha256": "53f67e8a2f67da77d892b6e9428bbb001de8c8bb781a0d00258847be8b8a740d"
     }
   ],
   "paper_revision_date": "2026-09-27",
-  "evidence_cutoff": "Includes completed summaries for h2sim_interactive_long and, as of 2026-09-27 addendum, the completed h2sim_long_tool_loaded_cap60 run; excludes the GDP-lite v2 reruns still in progress."
+  "evidence_cutoff": "Includes completed summaries for h2sim_interactive_long, h2sim_long_tool_loaded_cap60 and the GDP-lite v2 reruns of both (2026-09-27); excludes the KV placement and index-diagnostic runs still in progress."
 }

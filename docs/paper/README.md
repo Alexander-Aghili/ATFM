@@ -54,7 +54,7 @@ The revision draws on the architecture specification, master plan, research note
 - The expanded H1b score file has nine scored job families and 202 observations per model. Its M1/M2 loss ratios are 2.80 for q90 pinball and 1.96 for CRPS. Repeated observations are not independent replicates.
 - Session-weighted SLO is the average within-session fraction of eligible calls meeting the target. The loaded native point estimate is 0.853 from `paired.csv`; the older draft mixed in a different aggregation.
 - H2 intervals are a 300-draw paired bootstrap over common session IDs pooled across three seeds, not a seed-level uncertainty analysis.
-- The completed long-interactive experiment is included, including its lack of an M2 policy advantage. The 60-second-cap loaded run completed after the first cutoff and is included as Section 6.5 (a controlled cap ablation); the GDP-lite v2 reruns are not yet included.
+- The completed long-interactive experiment is included, including its lack of an M2 policy advantage. The 60-second-cap loaded run completed after the first cutoff and is included as Section 6.5 (a controlled cap ablation); the GDP-lite v2 reruns of both regimes are included as Section 6.6; the KV placement and index-diagnostic runs are not yet included.
 - Working-set and lookahead policies are local diagnostic baselines, not full published systems or optimal upper bounds.
 - First-resumption KV demand is not instantaneous resident occupancy, and prompt demand is not cache-miss-adjusted prefill work.
 - Current signature-aware progress support is separated from historical collection scores. Hardware validation, Redis deployment, KV placement, and replica control are not presented as completed results.

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="958" height="268" viewBox="0 0 958 268" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
+  <defs>
+    <marker id="arrow-333333" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/>
+    </marker>
+    <marker id="arrow-333333-back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="958" height="268" fill="#ffffff"/>
+  <path d="M48 40 H296 a8 8 0 0 1 8 8 V98 a8 8 0 0 1 -8 8 H48 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#eef2f6" stroke="#334155"/>
+  <text x="172" y="68.4" fill="#000000" text-anchor="middle">Observe each session</text>
+  <text x="172" y="87.4" fill="#000000" text-anchor="middle">Phase, elapsed time, context</text>
+  <path d="M368 40 H590 a8 8 0 0 1 8 8 V98 a8 8 0 0 1 -8 8 H368 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#f4efe9" stroke="#b14b20"/>
+  <text x="479" y="68.4" fill="#000000" text-anchor="middle">Predict each return</text>
+  <text x="479" y="87.4" fill="#000000" text-anchor="middle">Time and next prompt size</text>
+  <path d="M662 40 H910 a8 8 0 0 1 8 8 V98 a8 8 0 0 1 -8 8 H662 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#edf4ee" stroke="#35734d"/>
+  <text x="786" y="68.4" fill="#000000" text-anchor="middle">Sample the fleet</text>
+  <text x="786" y="87.4" fill="#000000" text-anchor="middle">Sum first returns by horizon</text>
+  <path d="M363.5 162 H594.5 a8 8 0 0 1 8 8 V220 a8 8 0 0 1 -8 8 H363.5 a8 8 0 0 1 -8 -8 V170 a8 8 0 0 1 8 -8 Z" fill="#f4efe9" stroke="#b14b20"/>
+  <text x="479" y="190.4" fill="#000000" text-anchor="middle">Future sessions</text>
+  <text x="479" y="209.4" fill="#000000" text-anchor="middle">Arrivals and child fan-out</text>
+  <path d="M683 162 H889 a8 8 0 0 1 8 8 V220 a8 8 0 0 1 -8 8 H683 a8 8 0 0 1 -8 -8 V170 a8 8 0 0 1 8 -8 Z" fill="#edf4ee" stroke="#35734d"/>
+  <text x="786" y="190.4" fill="#000000" text-anchor="middle">Publish demand</text>
+  <text x="786" y="209.4" fill="#000000" text-anchor="middle">Quantiles and intervals</text>
+  <path d="M 304 73 L 360 73" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <path d="M 598 73 L 654 73" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <path d="M 602.5 195 L 758 195 C 769.05 195, 778 186.05, 778 175 L 778 106" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <path d="M 794 106 L 794 130 C 794 132.21, 792.21 134, 790 134 L 790 134 C 787.79 134, 786 135.79, 786 138 L 786 162" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+</svg>

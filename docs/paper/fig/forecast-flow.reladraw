@@ -1,0 +1,14 @@
+diagram theme: print
+default edge line: (path: square, corners: rounded)
+style observed fill: #eef2f6 border: #334155
+style predicted fill: #f4efe9 border: #b14b20
+style aggregate fill: #edf4ee border: #35734d
+node state "Observe each session / Phase, elapsed time, context" style: observed
+node returns "Predict each return / Time and next prompt size" right of state style: predicted
+node draws "Sample the fleet / Sum first returns by horizon" right of returns style: aggregate
+node future "Future sessions / Arrivals and child fan-out" below returns style: predicted
+node quantile "Publish demand / Quantiles and intervals" below draws style: aggregate
+edge state -> returns from: right to: left
+edge returns -> draws from: right to: left
+edge future -> draws from: right to: bottom
+edge draws -> quantile from: bottom to: top

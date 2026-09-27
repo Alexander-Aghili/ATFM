@@ -1,0 +1,26 @@
+[
+  {
+    "file": "thunderagent-overview.png",
+    "url": "https://arxiv.org/html/2602.13692v3/TR5.png",
+    "authors": "Hao Kang et al.",
+    "title": "ThunderAgent",
+    "version": "2602.13692v3",
+    "figure": "Figure 3",
+    "license": "CC BY 4.0 (arXiv distribution)",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "modification": "None; scaled for placement. SVG converted to PDF without content changes.",
+    "sha256": "55a97c8e4e205b7280e062e8c9b244db2fc0115929cc7c58504724afe93b79bd"
+  },
+  {
+    "file": "continuum-cache.svg",
+    "url": "https://arxiv.org/html/2511.02230v7/intro.svg",
+    "authors": "Hanchen Li et al.",
+    "title": "Continuum",
+    "version": "2511.02230v7",
+    "figure": "Figure 1",
+    "license": "CC BY 4.0 (arXiv distribution)",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "modification": "None; scaled for placement. SVG converted to PDF without content changes.",
+    "sha256": "a57ce1b07d23cb4989df69ed87b4dc093653d2a47adc24e5cf9b11624c2fba59"
+  }
+]

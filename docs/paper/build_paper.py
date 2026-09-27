@@ -184,6 +184,22 @@ def policy_table(run):
     return ''.join(out)
 
 
+def v2_table():
+    runs = [paired('h2sim_long_tool_loaded_cap60_v2'), paired('h2sim_interactive_long_v2')]
+    out = []
+    for arm, label in ARM_LABELS.items():
+        if any((arm, 'bg_jct_mean') not in d for d in runs):
+            continue
+        vals = []
+        for d in runs:
+            for metric, scale, precision in (('slo_attainment_sessions', 100, 1), ('bg_jct_mean', 1, 0)):
+                r = d[arm, metric]
+                vals.append('-' if arm == 'native' else (f"{float(r['diff_mean'])*scale:+.{precision}f} "
+                            f"[{float(r['diff_ci_lo'])*scale:+.{precision}f}, {float(r['diff_ci_hi'])*scale:+.{precision}f}]"))
+        out.append('<tr>' + cell(label) + ''.join(cell(v, True) for v in vals) + '</tr>')
+    return ''.join(out)
+
+
 def cost_table():
     rows = read_csv('h2sim_long_tool_loaded__metrics.csv')
     out = []
@@ -209,7 +225,8 @@ def build():
                     'H1B_CHART': chart_h1b(), 'H2_CHART': chart_h2(),
                     'LOADED_TABLE': policy_table('h2sim_long_tool_loaded'),
                     'LONG_TABLE': policy_table('h2sim_interactive_long'),
-                    'CAP60_TABLE': policy_table('h2sim_long_tool_loaded_cap60'), 'COST_TABLE': cost_table()}
+                    'CAP60_TABLE': policy_table('h2sim_long_tool_loaded_cap60'), 'V2_TABLE': v2_table(),
+                    'COST_TABLE': cost_table()}
     for key, value in replacements.items():
         template = template.replace('{{' + key + '}}', value)
     if '{{' in template:

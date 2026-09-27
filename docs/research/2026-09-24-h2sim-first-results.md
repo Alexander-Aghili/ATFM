@@ -108,7 +108,23 @@ The rule now counts, as capacity for the slot, the running requests expected to 
 
 v2 does what it was meant to do on the cost side and nothing on the benefit side: the forecast arms now hold a sixth as often (460 to 756 caps per seed against 2800), their background cost falls from +275/+293 s to +73/+83 s, their deadline rate rises 5 points instead of falling, and their held KV block-seconds drop 5 to 8x. Their SLO gain stays within noise of zero. So (b) stands: in this regime the interactive tail is not something admission of background calls can move, with any forecast.
 
-**An unexpected attribution.** `oracle_rule` under v2 holds almost nothing (95 caps, 2 s mean hold, 1.2e5 held block-seconds) and still costs +878 s of background completion and 19 points of deadlines. Its holds cannot explain that; the only other thing it does differently from `proxy_rules` is the index term: like `oracle`, it uses the *true* duration of the tool each turn will launch as E[next tool]. Serving first the sessions about to vanish into long tools (the index's intent) starves the rest when that knowledge is exact. The heap `oracle` arm shows the same +962 s. This says the index's next-tool term, as weighted, is harmful to background completion, and that the forecast arms are protected from it only because their pooled or tool-conditioned estimate is coarse. A diagnostic arm (`oracle_rule` with the pooled E[next tool]) would isolate it; it is the next simulator run after the KV placement arms.
+**An unexpected attribution.** `oracle_rule` under v2 holds almost nothing (95 caps, 2 s mean hold, 1.2e5 held block-seconds) and still costs +878 s of background completion and 19 points of deadlines. Its holds cannot explain that; the only other thing it does differently from `proxy_rules` is the index term: like `oracle`, it uses the *true* duration of the tool each turn will launch as E[next tool]. Serving first the sessions about to vanish into long tools (the index's intent) starves the rest when that knowledge is exact. The heap `oracle` arm shows the same +962 s. This says the index's next-tool term, as weighted, is harmful to background completion, and that the forecast arms are protected from it only because their pooled or tool-conditioned estimate is coarse. A diagnostic arm (`oracle_rule_noidx`: the same true-demand holds with E[next tool] = 0 as in `proxy_rules`) is queued after the KV placement arms.
+
+#### long_tool loaded at 60 s with v2 (`h2sim_long_tool_loaded_cap60_v2`, 3 seeds)
+
+| arm | SLO diff vs native [95% CI] | bg JCT diff (s) | deadline diff | held KV block-s | mean hold s (bg) | caps |
+|---|---|---|---|---|---|---|
+| proxy_rules | +0.014 [-0.002, +0.028] | -35 [-90, +17] | +0.057 | 0 | 0 | 0 |
+| forecast_M1 (v2) | -0.013 [-0.029, +0.002] | +3 [-52, +49] | +0.047 | 4.5e5 | 6.0 | 523 |
+| forecast_M2 (v2) | -0.002 [-0.017, +0.011] | +7 [-52, +62] | +0.047 | 4.6e5 | 5.8 | 495 |
+| forecast_M2_nohold | -0.013 [-0.028, +0.001] | -35 [-97, +10] | +0.053 | 0 | 0 | 0 |
+| oracle_rule (v2) | -0.018 [-0.035, -0.003] | +1111 [1042, 1178] | -0.135 | 2.2e4 | 0.3 | 10 |
+| oracle (heap) | -0.001 [-0.015, +0.013] | +1150 [1085, 1213] | -0.129 | 1.8e6 | 25 | 2392 |
+| working_set | +0.017 [+0.002, +0.032] | +505 [445, 566] | -0.021 | 0 | 58 | 4049 |
+
+Same picture: with v2 the forecast arms' background cost vanishes (+3 and +7 s, intervals spanning zero; deadlines +4.7 points) and so does any SLO effect. `oracle_rule` under v2 holds ten calls per seed and still pays +1111 s and 13.5 deadline points, which pins the oracle arms' cost on the true-duration index term rather than on holds.
+
+**Where this leaves H2 (2026-09-27).** Across five loaded runs: forecast-driven admission holds at the proxy's 60 s cap neither help nor, with the v2 rule, hurt; the 9-point gain of the first batch was ten-minute deferral; rules alone are a small consistent win on SLO and deadlines; the working-set baseline buys the most SLO at a moderate, measured cost; and M1 versus M2 never enters the outcome. The forecast's remaining candidate lever in the simulator is KV placement (`forecast_*_kv`, `oracle_kv` arms, runs queued), where the per-session return time is what decides which context is recomputed.
 
 ### long_tool loaded, cap 60 s (`h2sim_long_tool_loaded_cap60`)
 
