@@ -271,6 +271,26 @@ def touch_table():
     return ''.join(out)
 
 
+def touch2_table():
+    labels = {'proxy_rules': 'Rules', 'forecast_M2_kv': 'M2 placement (eviction order)', 'forecast_M2_touch': 'M2 touch, queued',
+              'oracle_touch': 'True-return touch, queued', 'touch_random': 'Random touch, queued (ablation)'}
+    runs = ['h2sim_loaded_touch2', 'h2sim_interactive_long_touch2']
+    data = [paired(r) for r in runs]
+    mets = [read_csv(f'{r}__metrics.csv') for r in runs]
+    out = []
+    for arm, label in labels.items():
+        vals = []
+        for d, mrows in zip(data, mets):
+            slo = d.get((arm, 'slo_attainment_sessions'))
+            sel = [r for r in mrows if r['arm'] == arm]
+            rec = sum(float(r['recomputed_prefill_tokens']) for r in sel) / max(len(sel), 1) / 1e6
+            touches = sum(float(r.get('touches', 0)) for r in sel) / max(len(sel), 1)
+            vals += ['-' if slo is None else f"{float(slo['diff_mean'])*100:+.1f} [{float(slo['diff_ci_lo'])*100:+.1f}, {float(slo['diff_ci_hi'])*100:+.1f}]",
+                     f"{touches:,.0f}", f"{rec:.1f}"]
+        out.append('<tr>' + cell(label) + ''.join(cell(v, True) for v in vals) + '</tr>')
+    return ''.join(out)
+
+
 def cost_table():
     rows = read_csv('h2sim_long_tool_loaded__metrics.csv')
     out = []
@@ -296,7 +316,7 @@ def build():
                     'H1B_CHART': chart_h1b(), 'H2_CHART': chart_h2(),
                     'LOADED_TABLE': policy_table('h2sim_long_tool_loaded'),
                     'LONG_TABLE': policy_table('h2sim_interactive_long'),
-                    'CAP60_TABLE': policy_table('h2sim_long_tool_loaded_cap60'), 'V2_TABLE': v2_table(), 'KV_TABLE': kv_table(), 'CONTRAST_TABLE': contrast_table(), 'TOUCH_TABLE': touch_table(),
+                    'CAP60_TABLE': policy_table('h2sim_long_tool_loaded_cap60'), 'V2_TABLE': v2_table(), 'KV_TABLE': kv_table(), 'CONTRAST_TABLE': contrast_table(), 'TOUCH_TABLE': touch_table(), 'TOUCH2_TABLE': touch2_table(),
                     'COST_TABLE': cost_table()}
     for key, value in replacements.items():
         template = template.replace('{{' + key + '}}', value)

@@ -1,6 +1,6 @@
 {
   "description": "Frozen inputs for the revised paper; metrics copied from completed local runs. Original data/ and runs/ are gitignored. 2026-09-27 addendum: the 60-second-cap loaded run (same regime and rates as h2sim_long_tool_loaded) completed and is frozen here.",
-  "repository_commit": "31abf18896a88c9bfd90e5eb776b9ab01faf822b",
+  "repository_commit": "e1940a6888ffb8b3354f473fa0d0b8e27b5f78ac",
   "sources": [
     {
       "source": "runs/sweep_tracelab.csv",
@@ -380,8 +380,44 @@
       "snapshot": "h2sim_interactive_long_touch__config.json",
       "sha256": "dfaab08f8496e0e3d6a3b3582abeba9c33ed895b875d87cc2e234f94bc5cb857",
       "snapshot_sha256": "dfaab08f8496e0e3d6a3b3582abeba9c33ed895b875d87cc2e234f94bc5cb857"
+    },
+    {
+      "source": "runs/h2sim_loaded_touch2/metrics.csv",
+      "snapshot": "h2sim_loaded_touch2__metrics.csv",
+      "sha256": "0f2d72c46dfe65077bd6db2fbe87fc03e8645a62acefb3c7971648f77988fcea",
+      "snapshot_sha256": "0f2d72c46dfe65077bd6db2fbe87fc03e8645a62acefb3c7971648f77988fcea"
+    },
+    {
+      "source": "runs/h2sim_loaded_touch2/paired.csv",
+      "snapshot": "h2sim_loaded_touch2__paired.csv",
+      "sha256": "6ac1e673efcd66355c6380e831f3986132fe140b37126bad26700bcc336333d3",
+      "snapshot_sha256": "6ac1e673efcd66355c6380e831f3986132fe140b37126bad26700bcc336333d3"
+    },
+    {
+      "source": "runs/h2sim_loaded_touch2/config.json",
+      "snapshot": "h2sim_loaded_touch2__config.json",
+      "sha256": "71caaaf874664286008feefe0f2d71942631ecc759b38c4b830ea772b1c8ddc3",
+      "snapshot_sha256": "71caaaf874664286008feefe0f2d71942631ecc759b38c4b830ea772b1c8ddc3"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_touch2/metrics.csv",
+      "snapshot": "h2sim_interactive_long_touch2__metrics.csv",
+      "sha256": "e550c834122bfd625ce0093e03ff74db11f831a50ba3309288b7fc168b7601db",
+      "snapshot_sha256": "e550c834122bfd625ce0093e03ff74db11f831a50ba3309288b7fc168b7601db"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_touch2/paired.csv",
+      "snapshot": "h2sim_interactive_long_touch2__paired.csv",
+      "sha256": "bc827f5e6c383293918e9accf05b0d658fd614482107c6527dd8f2499b1e3752",
+      "snapshot_sha256": "bc827f5e6c383293918e9accf05b0d658fd614482107c6527dd8f2499b1e3752"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_touch2/config.json",
+      "snapshot": "h2sim_interactive_long_touch2__config.json",
+      "sha256": "bd9c33b80a97e83eda9b176ea69523594e69b5549e6ae9884a7bedb5b8a461e3",
+      "snapshot_sha256": "bd9c33b80a97e83eda9b176ea69523594e69b5549e6ae9884a7bedb5b8a461e3"
     }
   ],
   "paper_revision_date": "2026-09-27",
-  "evidence_cutoff": "Includes the interactive-long, 60-second-cap, GDP-lite v2, KV placement (with corrected true-return-time reruns) and index-diagnostic runs, all completed 2026-09-27; third batch (2026-09-27 evening): placement comparison with direct contrasts, size-aware and class-weighted variants, keep-alive touch arms, in both loaded regimes."
+  "evidence_cutoff": "Includes the interactive-long, 60-second-cap, GDP-lite v2, KV placement (with corrected true-return-time reruns) and index-diagnostic runs, all completed 2026-09-27; third batch (2026-09-27 evening): placement comparison with direct contrasts, size-aware and class-weighted variants, keep-alive touch arms, in both loaded regimes; touch ablation runs (random touches, queued touches) in both regimes."
 }
