@@ -22,8 +22,8 @@ class FakeClient:
         if self.fail:
             raise ConnectionError("lmcache down")
         self._n += 1
-        if url.endswith("/lookup"):
-            return FakeResponse(200, {"res": [{"instance_id": "vllm-0", "location": "LocalCPUBackend", "hit_tokens": len(json["tokens"]) // 2}]})
+        if url.endswith("/lookup"):          # documented response: instance-keyed (location, matched prefix length)
+            return FakeResponse(200, {"event_id": "ev", "vllm-0": ["LocalCPUBackend", len(json["tokens"]) // 2]})
         if url.endswith("/check_finish"):
             return FakeResponse(200, {"status": "finished"})
         return FakeResponse(200, {"event_id": f"ev{self._n}", "num_tokens": len(json.get("tokens", []))})
@@ -64,7 +64,7 @@ def test_expired_pins_are_released_and_failures_are_fail_open():
     act = LMCacheActuator(LMCacheConfig(url="http://lmcache:9000", instance_id="vllm-0"), client=client, tokens=_tokens())
     act.apply_touch(TouchDirective(session_id="sess", expires_at=100.0), now=50.0)
     assert act.release_expired(now=99.0) == [] and act.release_expired(now=101.0) == ["sess"]
-    assert client.calls[-1][0].endswith("/clear") and client.calls[-1][1]["tokens"] and "sess" not in act.pinned
+    assert client.calls[-1][0].endswith("/unpin") and client.calls[-1][1]["tokens"] and "sess" not in act.pinned
     dead = LMCacheActuator(LMCacheConfig(url="http://lmcache:9000", instance_id="vllm-0"), client=FakeClient(fail=True), tokens=_tokens())
     assert dead.apply_touch(TouchDirective(session_id="sess", expires_at=100.0), now=0.0)["ok"] is False and dead.errors == 1
     unknown = LMCacheActuator(LMCacheConfig(url="http://lmcache:9000", instance_id="vllm-0"), client=client, tokens=_tokens())

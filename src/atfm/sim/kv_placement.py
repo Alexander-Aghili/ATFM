@@ -124,6 +124,8 @@ class _TouchMixin:
     touched: list[str]
     prefetch: bool = False          # also touch imminent sessions whose KV is already gone (speculative prefill)
     retry: bool = False             # a touch that finds the batch full waits for a slot instead of being dropped
+    yield_to_requests: bool = False # a touch is skipped (not dropped, not queued) when no slot is free at that instant
+    skipped_busy: int = 0
 
     def e_tool_next(self, sim, call) -> float:
         return 0.0
@@ -152,6 +154,12 @@ class _TouchMixin:
                 residency[sid] = Residency(worker_id=w.worker_id, blocks=s.ctx // w.cfg.block_size + 1, last_used=float("-inf"))
         for d in self.touch.plan(now, resumptions, residency, frontier):
             blocks = residency[d.session_id].blocks
+            if self.yield_to_requests:
+                s = sim.sessions.get(d.session_id)
+                w = s.worker if s is not None and s.worker is not None else sim.workers[0]
+                if w.cfg.touch_step_s > 0 and len(w.running) >= w.cfg.max_batch:
+                    self.skipped_busy += 1
+                    continue
             sim.touch(d.session_id, blocks)
             self.touched.append((now, d.session_id))
 
@@ -162,11 +170,12 @@ class OracleTouchPolicy(_TouchMixin, OraclePolicy):
     name = "oracle_touch"
 
     def __init__(self, window: int, cfg: ProxyConfig, horizon_s: float = 30.0, age_s: float = 10.0,
-                 budget_per_s: float = 1.0, tick_s: float = 5.0, prefetch: bool = False, retry: bool = False):
+                 budget_per_s: float = 1.0, tick_s: float = 5.0, prefetch: bool = False, retry: bool = False,
+                 yield_to_requests: bool = False):
         super().__init__(window, cfg, hold=False)
         self.touch = TouchController(horizon_s=horizon_s, age_s=age_s, budget_per_s=budget_per_s, tick_s=tick_s)
         self.touched = []
-        self.prefetch, self.retry = prefetch, retry
+        self.prefetch, self.retry, self.yield_to_requests = prefetch, retry, yield_to_requests
 
     def _resumptions(self, sim, now):
         return {sid: (t - now, t - now, t - now) for sid, t in oracle_etas(sim, now).items() if np.isfinite(t)}
@@ -180,12 +189,12 @@ class ForecastTouchPolicy(_TouchMixin, ForecastPolicy):
 
     def __init__(self, window: int, cfg: ProxyConfig, predictor, train_table: TraceTable | None, horizons: list[float],
                  n: int = 64, horizon_s: float = 30.0, age_s: float = 10.0, budget_per_s: float = 1.0, tick_s: float = 5.0,
-                 prefetch: bool = False, retry: bool = False):
+                 prefetch: bool = False, retry: bool = False, yield_to_requests: bool = False):
         super().__init__(window, cfg, predictor, train_table, horizons, n=n, hold=False)
         self.name = f"forecast_{predictor.name.split('_')[0]}_touch"
         self.touch = TouchController(horizon_s=horizon_s, age_s=age_s, budget_per_s=budget_per_s, tick_s=tick_s)
         self.touched = []
-        self.prefetch, self.retry = prefetch, retry
+        self.prefetch, self.retry, self.yield_to_requests = prefetch, retry, yield_to_requests
         self._n = n
 
     def _resumptions(self, sim, now):
@@ -223,3 +232,92 @@ class RandomTouchPolicy(_TouchMixin, OraclePolicy):
 
     def on_tick(self, sim, now: float) -> None:
         self._touch_tick(sim, now)
+
+
+class _PinMixin:
+    """Hard-pin placement, the LMCache form: every tick, pin (exclude from eviction) the resident idle
+    sessions forecast to return within `horizon_s`, most imminent first, until `pin_budget_blocks` is
+    reached; each pin lasts `horizon_s`. Admission is rules-only."""
+    horizon_s: float = 30.0
+    pin_budget_blocks: int | None = None
+    pinned_log: list
+    max_pinned_blocks_seen: int = 0
+
+    def e_tool_next(self, sim, call) -> float:
+        return 0.0
+
+    def _resumptions(self, sim, now: float) -> dict[str, tuple[float, float, float]]:
+        raise NotImplementedError
+
+    def _pin_tick(self, sim, now: float) -> None:
+        res = self._resumptions(sim, now)
+        for w in sim.workers:
+            w.expire_pins(now)
+            running = w._running_sessions()
+            cands = sorted(((q[1], sid) for sid, q in res.items() if sid in w.resident and sid not in running and q[1] <= self.horizon_s))
+            used = w.pinned_blocks()
+            for q50, sid in cands:
+                if sid in w.pins:
+                    continue
+                blocks = w.resident.get(sid, 0)
+                if self.pin_budget_blocks is not None and used + blocks > self.pin_budget_blocks:
+                    continue
+                if w.pin(sid, until=now + self.horizon_s):
+                    used += blocks
+                    sim.pins += 1
+                    self.pinned_log.append((now, sid))
+            self.max_pinned_blocks_seen = max(self.max_pinned_blocks_seen, used)
+
+
+class OraclePinPolicy(_PinMixin, OraclePolicy):
+    name = "oracle_pin"
+
+    def __init__(self, window: int, cfg: ProxyConfig, horizon_s: float = 30.0, pin_budget_blocks: int | None = None):
+        super().__init__(window, cfg, hold=False)
+        self.horizon_s, self.pin_budget_blocks, self.pinned_log = horizon_s, pin_budget_blocks, []
+
+    def _resumptions(self, sim, now):
+        return {sid: (t - now, t - now, t - now) for sid, t in oracle_etas(sim, now).items() if np.isfinite(t)}
+
+    def on_tick(self, sim, now: float) -> None:
+        self._pin_tick(sim, now)
+
+
+class ForecastPinPolicy(_PinMixin, ForecastPolicy):
+    def __init__(self, window: int, cfg: ProxyConfig, predictor, train_table: TraceTable | None, horizons: list[float],
+                 n: int = 64, horizon_s: float = 30.0, pin_budget_blocks: int | None = None):
+        super().__init__(window, cfg, predictor, train_table, horizons, n=n, hold=False)
+        self.name = f"forecast_{predictor.name.split('_')[0]}_pin"
+        self.horizon_s, self.pin_budget_blocks, self.pinned_log, self._n = horizon_s, pin_budget_blocks, [], n
+
+    def _resumptions(self, sim, now):
+        out = {}
+        for st in self.registry.states(now):
+            samples = self.predictor.resumption(st, now, self._n, sim.rng)
+            finite = samples[np.isfinite(samples)]
+            if len(finite):
+                q = np.quantile(finite, [0.1, 0.5, 0.9])
+                out[st.session_id] = (float(q[0]), float(q[1]), float(q[2]))
+        return out
+
+    def on_tick(self, sim, now: float) -> None:
+        ForecastPolicy.on_tick(self, sim, now)
+        self._pin_tick(sim, now)
+
+
+class RandomPinPolicy(_PinMixin, OraclePolicy):
+    """Ablation: the same pin budget spent on random idle sessions."""
+
+    name = "pin_random"
+
+    def __init__(self, window: int, cfg: ProxyConfig, horizon_s: float = 30.0, pin_budget_blocks: int | None = None):
+        super().__init__(window, cfg, hold=False)
+        self.horizon_s, self.pin_budget_blocks, self.pinned_log = horizon_s, pin_budget_blocks, []
+
+    def _resumptions(self, sim, now):
+        sids = [sid for w in sim.workers for sid in w.resident if sid not in w._running_sessions()]
+        r = sim.rng.random(len(sids)) * self.horizon_s
+        return {sid: (float(x), float(x), float(x)) for sid, x in zip(sids, r)}
+
+    def on_tick(self, sim, now: float) -> None:
+        self._pin_tick(sim, now)

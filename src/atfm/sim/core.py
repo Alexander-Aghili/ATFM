@@ -79,6 +79,7 @@ class Simulator:
         self.touch_prefill_tokens = 0                 # speculative prefill charged by touch misses
         self.touch_slot_s = 0.0                       # batch-slot seconds occupied by touches
         self.touch_retries = 0                        # touches that waited for a batch slot and then ran
+        self.pins = 0                                 # hard pins issued (LMCache-style placement)
         self._touch_waiting: list[tuple[str, int]] = []   # (session id, blocks) waiting for a slot
 
     # ---- helpers
@@ -263,7 +264,7 @@ class Simulator:
             "held_s": self._hold_s(call), "hold_s": self._hold_s(call), "hold_reason": call.hold_reason,
             "queue_proxy_s": call.t_release - call.t_arrival, "queue_worker_s": ts - call.t_release,
             "hold_kv_block_s": s.held_kv_block_s, "evictions_caused": s.evictions_caused, "evictions_to_admit": ev,
-            "touches": self.touches, "touch_slot_s": self.touch_slot_s,
+            "touches": self.touches, "touch_slot_s": self.touch_slot_s, "pins": self.pins,
             "deadline": s.deadline,
             "deadline_missed": bool(s.deadline is not None and t > s.deadline),
             "tool_name": turn.tool_name, "tool_duration": turn.tool_duration,
@@ -347,6 +348,9 @@ class Simulator:
                     self._schedule_worker(w, t)
                     self._retry_touches(t)
             elif kind == "tick":
+                for w in self.workers:
+                    if w.pins and w.expire_pins(t):
+                        self._schedule_worker(w, t)
                 self.policy.on_tick(self, t)
                 self._drain_proxy(t)
                 others = [k for _, _, k, _ in self._heap if k != "tick"]

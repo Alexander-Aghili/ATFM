@@ -43,6 +43,7 @@ class Worker:
         self.victim_policy = None
         self.last_used: dict[str, float] = {}       # session -> last admission, completion or touch time
         self.touch_slot_s = 0.0                     # slot-seconds spent on touches
+        self.pins: dict[str, float] = {}            # session -> pin expiry; pinned sessions are never evicted
 
     def used_blocks(self) -> int:
         return sum(self.resident.values())
@@ -66,20 +67,38 @@ class Worker:
     def _running_sessions(self) -> set[str]:
         return {r.session_id for r, _, _ in self.running.values()}
 
+    def pin(self, session_id: str, until: float) -> bool:
+        """Hard pin (what an LMCache pin executes): the session's blocks are excluded from eviction until
+        `until`. Returns False when the session is not resident."""
+        if session_id not in self.resident:
+            return False
+        self.pins[session_id] = max(until, self.pins.get(session_id, 0.0))
+        return True
+
+    def expire_pins(self, now: float) -> int:
+        gone = [s for s, t in self.pins.items() if t <= now or s not in self.resident]
+        for s in gone:
+            del self.pins[s]
+        return len(gone)
+
+    def pinned_blocks(self) -> int:
+        return sum(self.resident.get(s, 0) for s in self.pins)
+
     def _make_room(self, needed: int, keep: str) -> list[str] | None:
-        """Evict idle LRU sessions (never `keep` or a running session) until `needed` blocks are free.
-        Returns the evicted session ids, or None when the room cannot be made."""
+        """Evict idle LRU sessions (never `keep`, a running session or a pinned one) until `needed` blocks
+        are free. Returns the evicted session ids, or None when the room cannot be made."""
         victims: list[str] = []
         running = self._running_sessions()
+        protected = running | set(self.pins)
         order = None
         if self.victim_policy is not None:
-            candidates = [s for s in self.resident if s not in running and s != keep]
+            candidates = [s for s in self.resident if s not in protected and s != keep]
             order = iter(list(self.victim_policy(candidates)))
         while self.free_blocks() < needed:
             if order is not None:
                 victim = next((s for s in order if s in self.resident), None)
             else:
-                victim = next((s for s in self.resident if s not in running and s != keep), None)
+                victim = next((s for s in self.resident if s not in protected and s != keep), None)
             if victim is None:
                 return None
             del self.resident[victim]

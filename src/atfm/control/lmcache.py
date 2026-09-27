@@ -24,8 +24,9 @@ class LMCacheConfig:
     disk_location: str = "LocalDiskBackend"
     tier_map: dict[str, str] = field(default_factory=dict)     # extra tier name -> LMCache location
     timeout_s: float = 2.0
-    paths: dict[str, str] = field(default_factory=lambda: {"pin": "/pin", "move": "/move", "lookup": "/lookup",
-                                                           "clear": "/clear", "check": "/check_finish"})
+    paths: dict[str, str] = field(default_factory=lambda: {"pin": "/pin", "unpin": "/unpin", "move": "/move", "lookup": "/lookup",
+                                                           "clear": "/clear", "check": "/check_finish", "health": "/health"})
+    release_op: str = "unpin"       # how an expired pin is released: "unpin" (controller op) or "clear" (drop the entry)
 
     def location(self, tier: str) -> str:
         return {"gpu": self.gpu_location, "cpu": self.cpu_location, "disk": self.disk_location, **self.tier_map}.get(tier, tier)
@@ -63,7 +64,7 @@ class LMCacheActuator:
         self.pinned: dict[str, tuple[float, str]] = {}      # session -> (expires_at, location)
         self.where: dict[str, str] = {}                      # session -> location we last placed it in
         self.errors = 0
-        self.ops = {"pin": 0, "move": 0, "clear": 0, "lookup": 0}
+        self.ops = {"pin": 0, "unpin": 0, "move": 0, "clear": 0, "lookup": 0}
 
     # ---- HTTP
     def _post(self, op: str, body: dict) -> dict | None:
@@ -110,7 +111,16 @@ class LMCacheActuator:
         if not toks:
             return []
         res = self._post("lookup", {"tokens": toks})
-        return list(res.get("res", [])) if res else []
+        if not res:
+            return []
+        if isinstance(res.get("res"), list):                       # list form
+            return list(res["res"])
+        out = []                                                   # documented form: {"event_id": ..., "<instance>": [location, hit]}
+        for k, v in res.items():
+            if k == "event_id" or not isinstance(v, (list, tuple)) or len(v) < 2:
+                continue
+            out.append({"instance_id": k, "location": v[0], "hit_tokens": int(v[1])})
+        return out
 
     def release_expired(self, now: float) -> list[str]:
         """Unpin sessions whose directive expired (clear the pin in its location); returns the session ids."""
@@ -118,7 +128,7 @@ class LMCacheActuator:
         for sid, (exp, loc) in list(self.pinned.items()):
             if now >= exp:
                 toks = self._toks(sid) or []
-                self._post("clear", {"instance_id": self.cfg.instance_id, "location": loc, "tokens": toks})
+                self._post(self.cfg.release_op, {"instance_id": self.cfg.instance_id, "location": loc, "tokens": toks})
                 del self.pinned[sid]
                 out.append(sid)
         return out
