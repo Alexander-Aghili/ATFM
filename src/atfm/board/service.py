@@ -11,6 +11,7 @@ from fastapi import FastAPI, Request
 from atfm.board.forecaster import CLASSES, TARGETS
 from atfm.board.live import LiveBoard, SessionRegistry
 from atfm.board.metrics import worker_metrics_from_prometheus
+from atfm.board.resumption import resumption_quantiles
 from atfm.bus import InMemoryBus
 from atfm.control import Deferrable, GdpPlanner, ReplicaFloor, Residency, TierLogger, TouchController
 
@@ -116,10 +117,10 @@ def create_board_app(board: LiveBoard, *, bus=None, clock=time.time, rng=None, b
 
         def _compute():
             return float(board.expected_service(sid, isl, osl)), float(board.expected_tool_next(sid))
-        try:                                     # the budget is enforced: past it the proxy's defaults are returned
+        try:
             e_service, e_tool = await asyncio.wait_for(asyncio.to_thread(_compute), timeout=budget_s)
             over = False
-        except (asyncio.TimeoutError, Exception):
+        except Exception:
             e_service, e_tool, over = 0.0, 0.0, True
         ms = (time.perf_counter() - t0) * 1000.0
         return {"e_service_s": e_service, "e_tool_next_s": e_tool, "elapsed_ms": ms, "over_budget": over or ms > budget_s * 1000.0}
@@ -135,22 +136,19 @@ def create_board_app(board: LiveBoard, *, bus=None, clock=time.time, rng=None, b
             return out
         if st.directives_cache is not None and st.directives_cache[0] is s:
             return st.directives_cache[1]
-        resumptions = {}
-        pred = board.forecaster.predictor
-        for state in board.registry.states(now):
-            try:
-                samples = pred.resumption(state, now, 64, st.rng)
-                finite = samples[np.isfinite(samples)]
-                if len(finite):
-                    q = np.quantile(finite, [0.1, 0.5, 0.9])
-                    resumptions[state.session_id] = (float(q[0]), float(q[1]), float(q[2]))
-            except Exception:
-                continue
+        states = {state.session_id: state for state in board.registry.states(now)}
+        resumptions = resumption_quantiles(
+            board.forecaster.predictor, states.values(), now, 64, st.rng, skip_errors=True,
+        )
         if st.gdp is not None and st.capacity:
-            deferrable = [Deferrable(session_id=sid, tenant=board.registry._s[sid].tenant, eta_s=q[1],
-                                     kv_blocks=int(np.ceil(board.registry._s[sid].ctx_tokens / 16)),
-                                     prefill_tokens=int(board.registry._s[sid].ctx_tokens))
-                          for sid, q in resumptions.items() if board.registry._s[sid].cls == "background"]
+            deferrable = [
+                Deferrable(
+                    session_id=sid, tenant=states[sid].tenant, eta_s=q[1],
+                    kv_blocks=int(np.ceil(states[sid].ctx_tokens / 16)),
+                    prefill_tokens=states[sid].ctx_tokens,
+                )
+                for sid, q in resumptions.items() if states[sid].cls == "background"
+            ]
             out["holds"] = [h.model_dump() for h in st.gdp.plan(now, s, st.capacity, deferrable)]
         if st.touch is not None:
             out["touches"] = [t.model_dump() for t in st.touch.plan(now, resumptions, st.residency, st.frontier)]

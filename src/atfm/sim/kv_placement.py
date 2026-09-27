@@ -1,17 +1,16 @@
-"""KV placement arms: the forecast (or the truth) decides which idle session's KV to evict, and admission is
-rules-only. The engine asks the policy for an eviction order whenever it must make room; the policy answers
-"the session forecast to return last goes first", with sessions it knows nothing about first of all.
+"""KV eviction, touch, and pin policies composed with forecast or oracle timing.
 
-This is the lever the second H2 batch points at: holds under load could not move the interactive tail,
-but the recompute paid on resumption is set by which KV survives, which is a per-session return-time
-prediction, exactly what the ladder scores."""
+Admission remains rules-only so placement effects can be measured separately.
+See docs/development/core.md for timing and finite-return summary contracts.
+"""
 from __future__ import annotations
 
 import numpy as np
 
+from atfm.board.resumption import resumption_quantiles
 from atfm.proxy.config import ProxyConfig
+from atfm.schema.forecast import ResumptionQuantiles
 from atfm.schema.trace import TraceTable
-
 from atfm.control import Residency, TouchController
 
 from .forecast_arm import ForecastPolicy, next_call_of
@@ -42,6 +41,11 @@ def oracle_etas(sim, now: float) -> dict[str, float]:
                 continue
             eta[req.session_id] = float(t_end + (turn.tool_duration or 0.0) + sim.harness_overhead_s)
     return eta
+
+
+def oracle_resumptions(sim, now: float) -> dict[str, ResumptionQuantiles]:
+    """Represent known next-call times as deterministic relative quantiles."""
+    return {sid: (t - now, t - now, t - now) for sid, t in oracle_etas(sim, now).items() if np.isfinite(t)}
 
 
 def order_victims(candidates: list[str], eta: dict[str, float], blocks: dict[str, int], now: float,
@@ -84,14 +88,21 @@ class OracleKvPolicy(_KvOrdering, OraclePolicy):
 
     name = "oracle_kv"
 
-    def __init__(self, window: int, cfg: ProxyConfig, size_aware: bool = False, bg_weight: float = 1.0):
+    def __init__(self, window: int, cfg: ProxyConfig, size_aware: bool = False, bg_weight: float = 1.0, fresh: bool = False):
         super().__init__(window, cfg, hold=False)
         self._eta = {}
-        self.size_aware, self.bg_weight = size_aware, bg_weight
+        self.size_aware, self.bg_weight, self.fresh = size_aware, bg_weight, fresh
         if size_aware:
             self.name = "oracle_kv_size"
         elif bg_weight != 1.0:
             self.name = "oracle_kv_cw"
+        elif fresh:
+            self.name = "oracle_kv_fresh"
+
+    def kv_victims(self, sim, worker, candidates: list[str]) -> list[str]:
+        if self.fresh:                                   # exact times at the eviction instant, not the last tick
+            self._eta = oracle_etas(sim, sim.now)
+        return super().kv_victims(sim, worker, candidates)
 
     def on_tick(self, sim, now: float) -> None:
         self._eta = oracle_etas(sim, now)
@@ -119,18 +130,22 @@ class ForecastKvPolicy(_KvOrdering, ForecastPolicy):
 
 
 class _TouchMixin:
-    """Keep-alive touches from per-session resumption quantiles (the deployable placement mechanism)."""
+    """Keep alive imminent sessions whose cached context is near eviction.
+
+    ``prefetch`` also admits evicted contexts; ``retry`` queues busy touches;
+    ``yield_to_requests`` skips a touch when its worker has no free slot.
+    """
     touch: TouchController
-    touched: list[str]
-    prefetch: bool = False          # also touch imminent sessions whose KV is already gone (speculative prefill)
-    retry: bool = False             # a touch that finds the batch full waits for a slot instead of being dropped
-    yield_to_requests: bool = False # a touch is skipped (not dropped, not queued) when no slot is free at that instant
+    touched: list[tuple[float, str]]
+    prefetch: bool = False
+    retry: bool = False
+    yield_to_requests: bool = False
     skipped_busy: int = 0
 
     def e_tool_next(self, sim, call) -> float:
         return 0.0
 
-    def _resumptions(self, sim, now: float) -> dict[str, tuple[float, float, float]]:
+    def _resumptions(self, sim, now: float) -> dict[str, ResumptionQuantiles]:
         raise NotImplementedError
 
     def _touch_tick(self, sim, now: float) -> None:
@@ -178,7 +193,7 @@ class OracleTouchPolicy(_TouchMixin, OraclePolicy):
         self.prefetch, self.retry, self.yield_to_requests = prefetch, retry, yield_to_requests
 
     def _resumptions(self, sim, now):
-        return {sid: (t - now, t - now, t - now) for sid, t in oracle_etas(sim, now).items() if np.isfinite(t)}
+        return oracle_resumptions(sim, now)
 
     def on_tick(self, sim, now: float) -> None:
         self._touch_tick(sim, now)
@@ -198,14 +213,7 @@ class ForecastTouchPolicy(_TouchMixin, ForecastPolicy):
         self._n = n
 
     def _resumptions(self, sim, now):
-        out = {}
-        for st in self.registry.states(now):
-            samples = self.predictor.resumption(st, now, self._n, sim.rng)
-            finite = samples[np.isfinite(samples)]
-            if len(finite):
-                q = np.quantile(finite, [0.1, 0.5, 0.9])
-                out[st.session_id] = (float(q[0]), float(q[1]), float(q[2]))
-        return out
+        return resumption_quantiles(self.predictor, self.registry.states(now), now, self._n, sim.rng)
 
     def on_tick(self, sim, now: float) -> None:
         ForecastPolicy.on_tick(self, sim, now)
@@ -246,7 +254,7 @@ class _PinMixin:
     def e_tool_next(self, sim, call) -> float:
         return 0.0
 
-    def _resumptions(self, sim, now: float) -> dict[str, tuple[float, float, float]]:
+    def _resumptions(self, sim, now: float) -> dict[str, ResumptionQuantiles]:
         raise NotImplementedError
 
     def _pin_tick(self, sim, now: float) -> None:
@@ -277,7 +285,7 @@ class OraclePinPolicy(_PinMixin, OraclePolicy):
         self.horizon_s, self.pin_budget_blocks, self.pinned_log = horizon_s, pin_budget_blocks, []
 
     def _resumptions(self, sim, now):
-        return {sid: (t - now, t - now, t - now) for sid, t in oracle_etas(sim, now).items() if np.isfinite(t)}
+        return oracle_resumptions(sim, now)
 
     def on_tick(self, sim, now: float) -> None:
         self._pin_tick(sim, now)
@@ -291,14 +299,7 @@ class ForecastPinPolicy(_PinMixin, ForecastPolicy):
         self.horizon_s, self.pin_budget_blocks, self.pinned_log, self._n = horizon_s, pin_budget_blocks, [], n
 
     def _resumptions(self, sim, now):
-        out = {}
-        for st in self.registry.states(now):
-            samples = self.predictor.resumption(st, now, self._n, sim.rng)
-            finite = samples[np.isfinite(samples)]
-            if len(finite):
-                q = np.quantile(finite, [0.1, 0.5, 0.9])
-                out[st.session_id] = (float(q[0]), float(q[1]), float(q[2]))
-        return out
+        return resumption_quantiles(self.predictor, self.registry.states(now), now, self._n, sim.rng)
 
     def on_tick(self, sim, now: float) -> None:
         ForecastPolicy.on_tick(self, sim, now)

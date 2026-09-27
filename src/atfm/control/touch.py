@@ -10,9 +10,9 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
-from .directives import TierDirective, TouchDirective
+from atfm.schema.forecast import ResumptionQuantiles as Quantiles
 
-Quantiles = tuple[float, float, float]   # (q10, q50, q90) seconds until the session's next call
+from .directives import TierDirective, TouchDirective
 
 
 @dataclass

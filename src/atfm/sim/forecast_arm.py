@@ -6,7 +6,7 @@ from typing import Literal
 import numpy as np
 
 from atfm.board.forecaster import CLASSES, TARGETS, ExogenousModel, SessionForecaster
-from atfm.board.live import SessionRegistry
+from atfm.board.live import LiveBoard, SessionRegistry
 from atfm.board.predictors import ProgressPredictor, SurvivalPredictor
 from atfm.proxy.config import ProxyConfig
 from atfm.proxy.index import compute_index, service_time, tier
@@ -56,6 +56,33 @@ def freeing_capacity(sim, now: float, slot_s: float, e_service_s: float | None) 
     return slots, blocks
 
 
+def forecast_hold_until(
+    sim: Simulator,
+    snapshot: ForecastSnapshot,
+    cfg: ProxyConfig,
+    gdp: GdpLite,
+    mean_isl: float,
+    *,
+    oracle: bool = False,
+) -> float | None:
+    """Apply the same admission rule to forecast and oracle demand.
+
+    Both paths estimate service occupancy from observed prompt sizes. Only the
+    oracle may use true completion times when counting capacity freed this slot.
+    The caller decides which requests are eligible and records the hold reason.
+    """
+    free_blocks = sum(w.capacity_free_blocks() for w in sim.workers)
+    free_slots = sum(max(0, w.cfg.max_batch - len(w.running)) for w in sim.workers)
+    e_service = mean_isl / cfg.prefill_tps + cfg.default_osl / cfg.decode_tps
+    freeing_slots, freeing_blocks = freeing_capacity(
+        sim, sim.now, gdp.slot_s, None if oracle else e_service,
+    )
+    return gdp.hold_until(
+        sim.now, snapshot, free_blocks, free_slots, mean_isl,
+        e_service_s=e_service, freeing_slots=freeing_slots, freeing_blocks=freeing_blocks,
+    )
+
+
 class ForecastPolicy:
     def __init__(self, window: int, cfg: ProxyConfig, predictor, train_table: TraceTable | None, horizons: list[float],
                  n: int = 128, hold: bool = True, gdp: GdpLite | None = None):
@@ -70,7 +97,7 @@ class ForecastPolicy:
         self.snapshot: ForecastSnapshot | None = None
         self.snapshots = 0
         self.last_hold_reason = ""
-        self._starts_ptr = 0.0
+        self.board = LiveBoard(self.registry, self.forecaster)
         self._isl_sum, self._isl_n = 0.0, 0
 
     def window(self, sim) -> int | None:
@@ -82,27 +109,20 @@ class ForecastPolicy:
             if e.kind == "llm.request":
                 self._isl_sum += e.isl
                 self._isl_n += 1
-        for sid in list(self.registry._s):   # ended sessions must not be forecast as imminent demand
+        for sid in self.registry.session_ids():
             run = sim.sessions.get(sid)
             if run is not None and run.done:
                 self.registry.drop(sid)
 
     def on_tick(self, sim, now: float) -> None:
         self._ingest(sim)
-        starts = [s for s in self.registry.new_starts_since(self._starts_ptr) if s[0] < now]
-        self._starts_ptr = now
-        self.forecaster.exo.update(now, starts)
-        self.snapshot = self.forecaster.forecast(now, self.registry.states(now), sim.rng)
+        self.snapshot = self.board.step(now, sim.rng)
         self.snapshots += 1
 
     def e_tool_next(self, sim, call) -> float:
         """Expected duration of the tool this session will run next, conditioned on its tool history
         (current tool if running, else the last one); pooled mean when nothing is known."""
-        st = self.registry._s.get(call.session.program.session_id)
-        tool = None
-        if st is not None:
-            tool = st.tool_name if st.phase == "tool_running" else (st.tool_history[-1][0] if st.tool_history else None)
-        return float(self.predictor.dm.mean(tool))
+        return float(self.board.expected_tool_next(call.session.program.session_id))
 
     def tier_and_index(self, sim, call) -> tuple[int, float]:
         m = _meta(call, sim.now)
@@ -112,13 +132,8 @@ class ForecastPolicy:
     def on_arrival(self, sim, call) -> float | None:
         if not self.hold or call.session.program.cls != "background" or self.snapshot is None:
             return None
-        free_blocks = sum(w.capacity_free_blocks() for w in sim.workers)
-        free_slots = sum(max(0, w.cfg.max_batch - len(w.running)) for w in sim.workers)
         mean_isl = (self._isl_sum / self._isl_n) if self._isl_n else 3000.0
-        e_service = mean_isl / self.cfg.prefill_tps + self.cfg.default_osl / self.cfg.decode_tps
-        fs, fb = freeing_capacity(sim, sim.now, self.gdp.slot_s, e_service)
-        t = self.gdp.hold_until(sim.now, self.snapshot, free_blocks, free_slots, mean_isl, e_service_s=e_service,
-                                freeing_slots=fs, freeing_blocks=fb)
+        t = forecast_hold_until(sim, self.snapshot, self.cfg, self.gdp, mean_isl)
         if t is not None:
             self.last_hold_reason = "forecast_surge"
         return t
@@ -193,13 +208,8 @@ class OracleRulePolicy(OraclePolicy):
     def on_arrival(self, sim, call) -> float | None:
         if call.session.program.cls != "background" or self.snapshot is None:
             return None
-        free_blocks = sum(w.capacity_free_blocks() for w in sim.workers)
-        free_slots = sum(max(0, w.cfg.max_batch - len(w.running)) for w in sim.workers)
         mean_isl = (self._isl_sum / self._isl_n) if self._isl_n else 3000.0
-        e_service = mean_isl / self.cfg.prefill_tps + self.cfg.default_osl / self.cfg.decode_tps
-        fs, fb = freeing_capacity(sim, sim.now, self.gdp.slot_s, None)     # true completion times
-        t = self.gdp.hold_until(sim.now, self.snapshot, free_blocks, free_slots, mean_isl, e_service_s=e_service,
-                                freeing_slots=fs, freeing_blocks=fb)
+        t = forecast_hold_until(sim, self.snapshot, self.cfg, self.gdp, mean_isl, oracle=True)
         if t is not None:
             self.last_hold_reason = "oracle_rule_surge"
         return t

@@ -158,3 +158,20 @@ def test_oracle_kv_gives_running_sessions_a_return_time():
     pol.on_tick(sim, 0.6)
     assert np.isfinite(pol._eta["run"]) and pol._eta["run"] < pol._eta["late"]
     assert pol.kv_victims(sim, w, ["run", "late"]) == ["late", "run"]
+
+
+def test_oracle_kv_fresh_recomputes_return_times_at_each_eviction():
+    """Diagnostic variant: the exact-return-time ranking evaluated at the eviction instant, not at the last tick."""
+    from atfm.experiments.h2sim import ARMS, H2SimConfig, _arm
+    from atfm.sim.core import Simulator
+    from atfm.sim.kv_placement import OracleKvPolicy
+    assert "oracle_kv_fresh" in ARMS
+    cfg = H2SimConfig(name="t", regime="short_tool")
+    engines = [EngineConfig(**e) for e in cfg.engines]
+    pol = _arm("oracle_kv_fresh", cfg, engines, None, np.random.default_rng(0))
+    assert isinstance(pol, OracleKvPolicy) and pol.fresh and pol.name == "oracle_kv_fresh"
+    progs = [_prog("soon", "background", 0.0, 800, "pytest", 20.0), _prog("late", "background", 0.0, 800, "build", 400.0)]
+    sim = Simulator(progs, [EngineConfig(kv_blocks=3000, max_batch=4, prefill_tps=20000.0, decode_tps=40.0)], pol, rng=np.random.default_rng(0))
+    sim.prime(); sim.run(until=10.0)
+    pol._eta = {}                                                        # stale/empty tick state must not matter
+    assert pol.kv_victims(sim, sim.workers[0], ["soon", "late"]) == ["late", "soon"]

@@ -31,7 +31,7 @@ ARMS = ["native", "proxy_rules", "forecast_M1", "forecast_M2", "oracle", "oracle
         "forecast_M1_kv_size", "forecast_M2_kv_size", "oracle_kv_size",
         "forecast_M1_kv_cw", "forecast_M2_kv_cw", "oracle_kv_cw",
         "forecast_M1_touch", "forecast_M2_touch", "oracle_touch", "touch_random",
-        "forecast_M1_pin", "forecast_M2_pin", "oracle_pin", "pin_random"]
+        "forecast_M1_pin", "forecast_M2_pin", "oracle_pin", "pin_random", "oracle_kv_fresh"]
 
 
 def default_contrasts(arms: list[str]) -> list[tuple[str, str]]:
@@ -125,9 +125,9 @@ def _arm(name: str, cfg: H2SimConfig, engines: list[EngineConfig], train_program
         return ForecastTouchPolicy(cfg.window, pcfg, pred, table, horizons=[30.0, 120.0, 300.0], n=64,
                                    horizon_s=cfg.touch_horizon_s, age_s=cfg.touch_age_s, budget_per_s=cfg.touch_budget_per_s,
                                    prefetch=cfg.touch_prefetch, retry=cfg.touch_retry, yield_to_requests=cfg.touch_yield)
-    if name in ("oracle_kv", "oracle_kv_size", "oracle_kv_cw"):
+    if name in ("oracle_kv", "oracle_kv_size", "oracle_kv_cw", "oracle_kv_fresh"):
         return OracleKvPolicy(cfg.window, pcfg, size_aware=name.endswith("_size"),
-                              bg_weight=cfg.kv_bg_weight if name.endswith("_cw") else 1.0)
+                              bg_weight=cfg.kv_bg_weight if name.endswith("_cw") else 1.0, fresh=name.endswith("_fresh"))
     if name in ("forecast_M1_kv", "forecast_M2_kv", "forecast_M1_kv_size", "forecast_M2_kv_size",
                 "forecast_M1_kv_cw", "forecast_M2_kv_cw"):
         pred, table = fit_predictor_on_programs(name.split("_")[1], train_programs, engines, rng)

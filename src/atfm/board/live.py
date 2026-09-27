@@ -10,6 +10,12 @@ from atfm.schema.forecast import ForecastSnapshot
 
 
 class SessionRegistry:
+    """Mutable session state reconstructed from events, with inactivity expiry.
+
+    Reads return the owned state objects, not copies. ``states(now)`` applies
+    expiry; ``get`` and ``session_ids`` inspect without advancing time.
+    """
+
     def __init__(self, expire_s: float = 7200.0):
         self.expire_s = expire_s
         self._s: dict[str, SessionState] = {}
@@ -65,14 +71,21 @@ class SessionRegistry:
         elif k == "spawn.request":
             self._get(e.child_session_id, e.t).parent_session_id = e.parent_session_id
 
+    def get(self, session_id: str) -> SessionState | None:
+        """Look up a session without creating it or refreshing its expiry."""
+        return self._s.get(session_id)
+
+    def session_ids(self) -> tuple[str, ...]:
+        """Snapshot the identifiers so callers can drop sessions while iterating."""
+        return tuple(self._s)
+
     def drop(self, session_id: str) -> None:
         self._s.pop(session_id, None)
         self._last.pop(session_id, None)
 
     def states(self, now: float) -> list[SessionState]:
         for sid in [s for s, t in self._last.items() if now - t > self.expire_s]:
-            self._s.pop(sid, None)
-            self._last.pop(sid, None)
+            self.drop(sid)
         return list(self._s.values())
 
     def new_starts_since(self, t: float) -> list[tuple[float, str]]:
@@ -80,6 +93,12 @@ class SessionRegistry:
 
 
 class LiveBoard:
+    """Advance a session forecaster on wall-clock or simulated time.
+
+    Each step feeds starts in [previous tick, now) to the exogenous model.
+    Ticks must be nondecreasing and share the event timestamp time base.
+    """
+
     def __init__(self, registry: SessionRegistry, forecaster: SessionForecaster, tick_s: float = 5.0,
                  prefill_tps: float = 20000.0, decode_tps: float = 60.0):
         self.registry, self.forecaster, self.tick_s = registry, forecaster, tick_s
@@ -96,7 +115,7 @@ class LiveBoard:
         dm = getattr(self.forecaster.predictor, "dm", None)
         if dm is None:
             return 0.0
-        s = self.registry._s.get(session_id)
+        s = self.registry.get(session_id)
         tool = None
         if s is not None:
             tool = s.tool_name if s.phase == "tool_running" else (s.tool_history[-1][0] if s.tool_history else None)
