@@ -31,11 +31,10 @@ def test_eviction_records_have_truth_and_estimate_per_victim():
 
 
 def test_diagnostic_works_for_lru_and_forecast_arms_too():
-    from atfm.experiments.h2sim import H2SimConfig, _arm, regime_spec
-    from atfm.sim.programs import programs_from_spec
-    cfg = H2SimConfig(name="d", regime="short_tool", engines=[{"kv_blocks": 600, "max_batch": 4, "prefill_tps": 20000.0, "decode_tps": 40.0}], window=4)
+    from atfm.experiments.h2sim import H2SimConfig, _arm
+    cfg = H2SimConfig(name="d", regime="short_tool", engines=[{"kv_blocks": 200, "max_batch": 4, "prefill_tps": 20000.0, "decode_tps": 40.0}], window=4)
     engines = [EngineConfig(**e) for e in cfg.engines]
-    train = programs_from_spec(regime_spec("short_tool", 300.0, 1), np.random.default_rng(1))
+    train = [_prog(f"t{i}", "background" if i % 2 else "interactive", 7.0 * i, 800, "bash", 30.0 + i, turns=2) for i in range(12)]
     for arm in ("proxy_rules", "forecast_M1_kv"):
         df = eviction_records(_progs(), engines, _arm(arm, cfg, engines, train, np.random.default_rng(0)), seed=0)
         assert len(df) > 0 and df["arm"].iloc[0] == arm
