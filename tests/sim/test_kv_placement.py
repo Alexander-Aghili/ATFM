@@ -85,3 +85,15 @@ def test_kv_arms_registered_and_wired_into_workers():
     assert isinstance(pol, OracleKvPolicy)
     sim = build_simulator(cfg, [_prog("a", "background", 1.0, 100, "bash", 1.0)], engines, pol, seed=0)
     assert all(w.victim_policy is not None for w in sim.workers)
+
+
+def test_oracle_rule_noidx_arm_drops_the_next_tool_index_term():
+    """Diagnostic for the index: same true-demand hold rule, but E[next tool] = 0 like proxy_rules."""
+    from atfm.experiments.h2sim import ARMS, H2SimConfig, _arm
+    from atfm.sim.forecast_arm import OracleRuleNoIdxPolicy
+    assert "oracle_rule_noidx" in ARMS
+    cfg = H2SimConfig(name="t", regime="short_tool")
+    engines = [EngineConfig(**e) for e in cfg.engines]
+    pol = _arm("oracle_rule_noidx", cfg, engines, None, np.random.default_rng(0))
+    assert isinstance(pol, OracleRuleNoIdxPolicy) and pol.name == "oracle_rule_noidx"
+    assert pol.e_tool_next(None, None) == 0.0

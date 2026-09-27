@@ -94,6 +94,22 @@ Reading, and it is a negative result for the hold lever in this regime:
 
 The rule now counts, as capacity for the slot, the running requests expected to finish inside it (`freeing_capacity`: start + E[S] for the forecast arms, the engine's true end for `oracle_rule`), so that under load the decision depends on the forecast rather than collapsing to "always hold". Reruns of both regimes with v2 are `h2sim_interactive_long_v2` and `h2sim_long_tool_loaded_cap60_v2`.
 
+#### interactive_long_tool with v2 (`h2sim_interactive_long_v2`, cap 60 s, 3 seeds)
+
+| arm | SLO diff vs native [95% CI] | bg JCT diff (s) | deadline diff | held KV block-s | mean hold s (bg) | caps |
+|---|---|---|---|---|---|---|
+| proxy_rules | +0.020 [+0.006, +0.038] | +48 [-5, +100] | +0.080 | 0 | 0 | 0 |
+| forecast_M1 (v2) | +0.001 [-0.015, +0.015] | +73 [28, 119] | +0.053 | 4.2e5 | 6.6 | 460 |
+| forecast_M2 (v2) | +0.008 [-0.008, +0.023] | +83 [41, 133] | +0.053 | 7.0e5 | 10.7 | 756 |
+| forecast_M2_nohold | +0.001 [-0.014, +0.017] | +60 [16, 115] | +0.068 | 0 | 0 | 0 |
+| oracle_rule (v2, true completions) | -0.004 [-0.020, +0.015] | +878 [822, 948] | -0.191 | 1.2e5 | 2.0 | 95 |
+| oracle (heap) | +0.008 [-0.007, +0.022] | +962 [899, 1031] | -0.192 | 2.2e6 | 32 | 2303 |
+| working_set | +0.026 [+0.010, +0.039] | +611 [557, 676] | -0.060 | 0 | 58 | 684 |
+
+v2 does what it was meant to do on the cost side and nothing on the benefit side: the forecast arms now hold a sixth as often (460 to 756 caps per seed against 2800), their background cost falls from +275/+293 s to +73/+83 s, their deadline rate rises 5 points instead of falling, and their held KV block-seconds drop 5 to 8x. Their SLO gain stays within noise of zero. So (b) stands: in this regime the interactive tail is not something admission of background calls can move, with any forecast.
+
+**An unexpected attribution.** `oracle_rule` under v2 holds almost nothing (95 caps, 2 s mean hold, 1.2e5 held block-seconds) and still costs +878 s of background completion and 19 points of deadlines. Its holds cannot explain that; the only other thing it does differently from `proxy_rules` is the index term: like `oracle`, it uses the *true* duration of the tool each turn will launch as E[next tool]. Serving first the sessions about to vanish into long tools (the index's intent) starves the rest when that knowledge is exact. The heap `oracle` arm shows the same +962 s. This says the index's next-tool term, as weighted, is harmful to background completion, and that the forecast arms are protected from it only because their pooled or tool-conditioned estimate is coarse. A diagnostic arm (`oracle_rule` with the pooled E[next tool]) would isolate it; it is the next simulator run after the KV placement arms.
+
 ### long_tool loaded, cap 60 s (`h2sim_long_tool_loaded_cap60`)
 
 Same regime and rates as the first-batch loaded run, hold cap 60 s instead of 600 s, `oracle_rule` added.

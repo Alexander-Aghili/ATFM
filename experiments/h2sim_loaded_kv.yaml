@@ -1,0 +1,15 @@
+# Loaded variant of the long-tool regime: 3x interactive, 2.5x background arrivals on a smaller engine, so the window binds.
+name: h2sim_loaded_kv
+regime: long_tool
+seeds: [0, 1, 2]
+arms: [native, proxy_rules, forecast_M1_kv, forecast_M2_kv, oracle_kv, working_set]
+engines:
+  - {kv_blocks: 6000, max_batch: 6, prefill_tps: 20000.0, decode_tps: 40.0, priority: true}
+window: 6
+beta: 0.5
+slo_ttft_s: 2.0
+working_set_budget: 4500
+duration_s: 3600
+interactive_rate_per_hour: 360
+background_rate_per_hour: 600
+max_hold_s: 60

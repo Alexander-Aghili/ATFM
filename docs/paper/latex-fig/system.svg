@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1177" height="294" viewBox="0 0 1177 294" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
+  <defs>
+    <marker id="arrow-333333" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/>
+    </marker>
+    <marker id="arrow-333333-back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1177" height="294" fill="#ffffff"/>
+  <path d="M90 40 H262 a8 8 0 0 1 8 8 V98 a8 8 0 0 1 -8 8 H90 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#ffffff" stroke="#334155"/>
+  <text x="176" y="68.4" fill="#172033" text-anchor="middle">Agent harness</text>
+  <text x="176" y="87.4" fill="#172033" text-anchor="middle">Tools and LLM calls</text>
+  <path d="M451.9 40 H673.9 a8 8 0 0 1 8 8 V98 a8 8 0 0 1 -8 8 H451.9 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#ffffff" stroke="#334155"/>
+  <text x="562.9" y="68.4" fill="#172033" text-anchor="middle">Admission proxy</text>
+  <text x="562.9" y="87.4" fill="#172033" text-anchor="middle">Window, priorities, holds</text>
+  <path d="M880.3 40 H1128.3 a8 8 0 0 1 8 8 V98 a8 8 0 0 1 -8 8 H880.3 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#ffffff" stroke="#334155"/>
+  <text x="1004.3" y="68.4" fill="#172033" text-anchor="middle">Serving engine</text>
+  <text x="1004.3" y="87.4" fill="#172033" text-anchor="middle">Batch scheduler and KV cache</text>
+  <path d="M48 187.4 H304 a8 8 0 0 1 8 8 V245.4 a8 8 0 0 1 -8 8 H48 a8 8 0 0 1 -8 -8 V195.4 a8 8 0 0 1 8 -8 Z" fill="#eef2f6" stroke="#334155"/>
+  <text x="176" y="215.8" fill="#172033" text-anchor="middle">Tool sidecar</text>
+  <text x="176" y="234.8" fill="#172033" text-anchor="middle">Progress and lifecycle events</text>
+  <path d="M443.4 162 H682.4 a8 8 0 0 1 8 8 V220 a8 8 0 0 1 -8 8 H443.4 a8 8 0 0 1 -8 -8 V170 a8 8 0 0 1 8 -8 Z" fill="#eef2f6" stroke="#334155"/>
+  <text x="562.9" y="190.4" fill="#172033" text-anchor="middle">Demand board</text>
+  <text x="562.9" y="209.4" fill="#172033" text-anchor="middle">Session state and forecasts</text>
+  <path d="M893.3 187.4 H1115.3 a8 8 0 0 1 8 8 V245.4 a8 8 0 0 1 -8 8 H893.3 a8 8 0 0 1 -8 -8 V195.4 a8 8 0 0 1 8 -8 Z" fill="#eef2f6" stroke="#334155"/>
+  <text x="1004.3" y="215.8" fill="#172033" text-anchor="middle">Hold policy</text>
+  <text x="1004.3" y="234.8" fill="#172033" text-anchor="middle">Capacity and delay budget</text>
+  <path d="M 270 73 L 443.9 73" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="317.95" y="63.5" width="78" height="19" fill="#ffffff"/>
+  <text x="356.95" y="77.9" fill="#000000" text-anchor="middle">requests</text>
+  <path d="M 681.9 73 L 872.3 73" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="713.1" y="63.5" width="128" height="19" fill="#ffffff"/>
+  <text x="777.1" y="77.9" fill="#000000" text-anchor="middle">admitted calls</text>
+  <path d="M 176 106 L 176 187.4" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="124.5" y="137.2" width="103" height="19" fill="#ffffff"/>
+  <text x="176" y="151.6" fill="#000000" text-anchor="middle">tool output</text>
+  <path d="M 312 220.4 L 361 220.4 C 368.01 220.4, 373.7 214.71, 373.7 207.7 L 373.7 207.7 C 373.7 200.69, 379.39 195, 386.4 195 L 435.4 195" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="312.35" y="210.9" width="61" height="19" fill="#ffffff"/>
+  <text x="342.85" y="225.3" fill="#000000" text-anchor="middle">events</text>
+  <path d="M 690.4 195 L 775.15 195 C 782.16 195, 787.85 200.69, 787.85 207.7 L 787.85 207.7 C 787.85 214.71, 793.54 220.4, 800.55 220.4 L 885.3 220.4" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="675.13" y="185.5" width="128" height="19" fill="#ffffff"/>
+  <text x="739.13" y="199.9" fill="#000000" text-anchor="middle">demand samples</text>
+  <path d="M 1004.3 106 L 1004.3 142.7 C 1004.3 144.91, 1006.09 146.7, 1008.3 146.7 L 1008.3 146.7 C 1010.51 146.7, 1012.3 148.49, 1012.3 150.7 L 1012.3 187.4" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="965.3" y="116.85" width="78" height="19" fill="#ffffff"/>
+  <text x="1004.3" y="131.25" fill="#000000" text-anchor="middle">capacity</text>
+  <path d="M 996.3 187.4 L 996.3 166.7 C 996.3 155.65, 987.35 146.7, 976.3 146.7 L 582.9 146.7 C 571.85 146.7, 562.9 137.75, 562.9 126.7 L 562.9 106" fill="none" stroke="#333333" stroke-width="1.6" stroke-dasharray="6.4 4.8" marker-end="url(#arrow-333333)"/>
+  <rect x="745.1" y="127.7" width="69" height="38" fill="#ffffff"/>
+  <text x="779.6" y="142.1" fill="#000000" text-anchor="middle">hold</text>
+  <text x="779.6" y="161.1" fill="#000000" text-anchor="middle">release</text>
+</svg>

@@ -2,28 +2,45 @@
 
 Open `atfm-paper.pdf` for the paginated paper or `atfm-paper.html` for the self-contained web version.
 
-## Edit and rebuild
+## Edit and rebuild (LaTeX)
 
-- `manuscript.html`: manuscript source, citations, equations, and captions.
-- `paper.css`: screen and A4 print typography.
-- `build_paper.py`: charts, numeric tables, HTML generation, and optional PDF export.
-- `fig/fig-system.reladraw`: the paper's architecture figure source.
-- `results/`: frozen experiment summaries used by the paper. `manifest.json` records source paths, hashes, and capture commit. Original experiment inputs and outputs remain under the repository's ignored `data/` and `runs/` directories.
+The primary editable manuscript is now `atfm-paper.tex`. It uses native LaTeX equations, tables, section numbering, cross-references, and BibTeX citations. `references.bib` contains the bibliography; `latex-fig/` contains standalone vector PDF figures and their SVG sources. `atfm-paper.pdf` is compiled from this LaTeX source.
 
 From the repository root:
 
 ```bash
-python3 docs/paper/build_paper.py
-python3 docs/paper/build_paper.py --pdf
+python3 docs/paper/build_latex.py
+# Also refresh the portable source bundle:
+python3 docs/paper/build_latex.py --bundle
 ```
 
-The builder uses only the Python standard library. PDF export additionally requires `google-chrome` or `chromium`. It uses a temporary browser profile, local fonts, and no remote web assets. Both HTML output names intentionally contain the same document; print CSS supplies pagination and page numbers.
+Or compile directly from this directory:
 
-To edit the diagram:
+```bash
+latexmk -pdf atfm-paper.tex
+```
+
+A standard TeX Live installation with `latexmk`, pdfLaTeX, BibTeX, `newtx`, `microtype`, `tabularx`, `booktabs`, `makecell`, `caption`, `fvextra`, `placeins`, `needspace`, `natbib`, `xurl`, and `hyperref` is sufficient. No Python, raw traces, browser, or Inkscape is needed for the direct LaTeX build. The Python wrapper places auxiliary files in `tmp/latex/`, checks for unresolved references and overflowing boxes, then publishes the PDF.
+
+`atfm-latex.zip` is a portable source bundle suitable for Overleaf: select `atfm-paper.tex` as the main document and pdfLaTeX as the compiler. It includes the bibliography, vector figures, and frozen result summaries.
+
+To refresh the figures from the existing result snapshots (requires Python and Inkscape):
+
+```bash
+python3 docs/paper/build_latex.py --figures
+```
+
+The manuscript and native table cells are editable directly in `atfm-paper.tex`; figure refresh does not overwrite them. If experiment results change, update the tables and associated claims deliberately, then rebuild. `results/manifest.json` identifies the frozen CSV sources and hashes. Original raw inputs and run outputs remain in the repository's ignored `data/` and `runs/` directories.
+
+## Earlier HTML version
+
+`manuscript.html`, `paper.css`, and `build_paper.py` preserve the earlier web publication. They are not synchronized automatically with edits to the LaTeX manuscript. Run `python3 docs/paper/build_paper.py` to rebuild its HTML files. Its optional `--pdf` output is now `atfm-paper-html.pdf`, so it cannot overwrite the primary LaTeX PDF.
+
+The architecture source is `fig/fig-system.reladraw`. To edit and propagate that figure:
 
 ```bash
 npx reladraw docs/paper/fig/fig-system.reladraw -o docs/paper/fig/fig-system.svg
-python3 docs/paper/build_paper.py --pdf
+python3 docs/paper/build_latex.py --figures
 ```
 
 Earlier architecture and roadmap diagrams remain in `fig/` as historical assets but are not embedded in the revised manuscript.
@@ -47,3 +64,7 @@ External references were checked against primary paper, dataset, and vendor page
 ## Verification
 
 Rebuilding does not rerun experiments. Inspect every exported PDF page after layout changes, and check that tables and plot labels remain legible. The retained CSVs allow numeric elements to be rebuilt without raw traces; they do not substitute for an experiment release with input versions and historical code commits.
+
+## LaTeX conversion checks
+
+The conversion preserves the latest five-regime manuscript, including the controlled 60-second cap ablation. Two consistency corrections were made: the appendix now identifies that completed run, and Section 6.5 no longer describes the working-set row as unchanged when its table values change. The source compiles without missing citations, unresolved references, missing glyphs, or overfull boxes. All rendered pages were inspected.

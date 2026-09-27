@@ -231,10 +231,10 @@ def main():
         with tempfile.TemporaryDirectory(prefix='atfm-paper-chrome-') as profile:
             subprocess.run([chrome, '--headless=new', '--disable-gpu', '--no-sandbox',
                             '--no-pdf-header-footer', f'--user-data-dir={profile}',
-                            f'--print-to-pdf={HERE / "atfm-paper.pdf"}',
+                            f'--print-to-pdf={HERE / "atfm-paper-html.pdf"}',
                             (HERE / 'atfm-paper-print.html').as_uri()], check=True,
                            stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
-        print(HERE / 'atfm-paper.pdf')
+        print(HERE / 'atfm-paper-html.pdf')
 
 
 if __name__ == '__main__':

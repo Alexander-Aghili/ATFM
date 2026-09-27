@@ -205,6 +205,16 @@ class OracleRulePolicy(OraclePolicy):
         return t
 
 
+class OracleRuleNoIdxPolicy(OracleRulePolicy):
+    """`oracle_rule` without the true-duration index term (E[next tool] = 0, as in `proxy_rules`), to attribute
+    the oracle arms' background cost between the hold rule and the index."""
+
+    name = "oracle_rule_noidx"
+
+    def e_tool_next(self, sim, call) -> float:
+        return 0.0
+
+
 def fit_predictor_on_programs(kind: Literal["M1", "M2"], programs, engines: list[EngineConfig], rng):
     """Run the training programs under the native arm and fit the predictor on the resulting trace table."""
     sim = Simulator(programs, engines, NativePolicy(), rng=rng)
