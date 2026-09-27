@@ -18,12 +18,20 @@ def main():
     ap.add_argument("--train", required=True, help="parquet trace table to fit the predictor on")
     ap.add_argument("--tick", type=float, default=5.0)
     ap.add_argument("--once", action="store_true")
+    ap.add_argument("--serve", type=int, default=None, help="serve the board HTTP API on this port instead of the file loop")
     a = ap.parse_args()
     train = TraceTable.from_parquet(a.train)
     fc = SessionForecaster(ProgressPredictor().fit(train), ExogenousModel().fit(train),
                            horizons=[10.0, 30.0, 120.0, 300.0, 900.0], n=256)
     board = LiveBoard(SessionRegistry(), fc, tick_s=a.tick)
     rng = np.random.default_rng(0)
+    if a.serve is not None:
+        import uvicorn
+        from atfm.board.service import create_board_app
+        from atfm.bus import JsonlBus
+        app = create_board_app(board, bus=JsonlBus(a.events), rng=rng)
+        uvicorn.run(app, host="127.0.0.1", port=a.serve, log_level="warning")
+        return
     seen = 0
     with open(a.snapshots, "a") as out:
         while True:

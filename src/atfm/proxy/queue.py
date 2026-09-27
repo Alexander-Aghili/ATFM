@@ -26,20 +26,28 @@ class HoldQueue:
     not-before time for a session, capped at t_arrival + max_hold_s (D10).
     """
 
-    def __init__(self, window: int, clock=time.time, max_hold_s: float = 600.0):
-        self.window, self.clock, self.max_hold_s = window, clock, max_hold_s
+    def __init__(self, window: int, clock=time.time, max_hold_s: float = 600.0, max_size: int | None = None):
+        self.window, self.clock, self.max_hold_s, self.max_size = window, clock, max_hold_s, max_size
         self.in_flight = 0
         self.pending: list[Entry] = []
-        self.directives: dict[str, tuple[float, str]] = {}
+        self.directives: dict[str, tuple[float, str, float | None]] = {}   # sid -> (release, reason, expires_at)
         self.caps = 0
+        self.alarms = 0                 # overflow episodes (spec 10): queue over max_size forwards FCFS
+        self.overflow = False
+        self.release_order: list[str] = []
         self._timer: asyncio.TimerHandle | None = None
 
-    def set_directive(self, session_id: str, release_not_before: float, reason: str) -> None:
-        self.directives[session_id] = (release_not_before, reason)
+    def set_directive(self, session_id: str, release_not_before: float, reason: str, expires_at: float | None = None) -> None:
+        self.directives[session_id] = (release_not_before, reason, expires_at)
 
     def directive_for(self, session_id: str) -> float | None:
         d = self.directives.get(session_id)
-        return None if d is None else d[0]
+        if d is None:
+            return None
+        if d[2] is not None and self.clock() >= d[2]:
+            del self.directives[session_id]     # expired: dropped on read (spec 10)
+            return None
+        return d[0]
 
     def submit(self, e: Entry) -> None:
         d = self.directive_for(e.session_id)
@@ -49,6 +57,12 @@ class HoldQueue:
                 self.caps += 1
             e.not_before = min(d, cap)
         self.pending.append(e)
+        if self.max_size is not None and len(self.pending) > self.max_size:
+            if not self.overflow:
+                self.alarms += 1
+            self.overflow = True
+            for p in self.pending:            # forward everything FCFS: holds are dropped under overflow
+                p.not_before = 0.0
         self.tick()
 
     def complete(self, e: Entry | None = None) -> None:
@@ -77,11 +91,17 @@ class HoldQueue:
             eligible = [e for e in self.pending if e.not_before <= now]
             if not eligible:
                 break
-            best = max(eligible, key=lambda e: (e.tier, e.index, -e.t_arrival))
+            if self.overflow:
+                best = min(eligible, key=lambda e: e.t_arrival)
+            else:
+                best = max(eligible, key=lambda e: (e.tier, e.index, -e.t_arrival))
             self.pending.remove(best)
             self.in_flight += 1
             best.t_release = now
             best.released.set()
+            self.release_order.append(best.session_id)
+        if self.overflow and (self.max_size is None or len(self.pending) <= self.max_size // 2):
+            self.overflow = False
         self._arm_timer(now)
 
     def _arm_timer(self, now: float) -> None:
@@ -100,7 +120,8 @@ class HoldQueue:
     def stats(self) -> dict:
         now = self.clock()
         return {"queued": len(self.pending), "in_flight": self.in_flight,
-                "held": sum(1 for e in self.pending if e.not_before > now), "caps": self.caps}
+                "held": sum(1 for e in self.pending if e.not_before > now), "caps": self.caps,
+                "alarms": self.alarms, "overflow": self.overflow}
 
     def tier_indices(self, tier: int) -> list[float]:
         return [e.index for e in self.pending if e.tier == tier]

@@ -49,7 +49,9 @@ def create_app(cfg: ProxyConfig, *, upstream_client: httpx.AsyncClient | None = 
     st.cfg = cfg
     st.bus = bus if bus is not None else (JsonlBus(cfg.events_path) if cfg.events_path else InMemoryBus())
     st.client = upstream_client or httpx.AsyncClient(base_url=cfg.upstream_url, timeout=httpx.Timeout(600.0))
-    st.queue = HoldQueue(cfg.window, clock=clock, max_hold_s=cfg.max_hold_s)
+    st.queue = HoldQueue(cfg.window, clock=clock, max_hold_s=cfg.max_hold_s, max_size=cfg.max_queue_size)
+    st.last_body = {}           # session -> last request body (messages, model) for keep-alive touches
+    st.touches, st.touch_tokens = 0, 0
     st.predictor = predictor
     st.pool = ThreadPoolExecutor(max_workers=4)
     st.turns = {}
@@ -99,14 +101,37 @@ def create_app(cfg: ProxyConfig, *, upstream_client: httpx.AsyncClient | None = 
 
     @app.get("/state")
     async def state():
-        return st.queue.stats()
+        return {**st.queue.stats(), "touches": st.touches, "touch_tokens": st.touch_tokens}
 
     @app.post("/directives")
     async def directives(req: Request):
         d = await req.json()
-        st.queue.set_directive(d["session_id"], float(d["release_not_before"]), d.get("reason", ""))
+        st.queue.set_directive(d["session_id"], float(d["release_not_before"]), d.get("reason", ""),
+                               expires_at=d.get("expires_at"))
         st.queue.tick()
         return {"ok": True}
+
+    @app.post("/touch")
+    async def touch(req: Request):
+        """Keep-alive touch: re-send the session's last prompt with max_tokens 1 at the lowest priority so
+        its prefix becomes most-recently used in the engine's cache. Fail-open: unknown session -> ok false."""
+        d = await req.json()
+        last = st.last_body.get(d.get("session_id", ""))
+        if last is None:
+            return {"ok": False, "prompt_tokens": 0}
+        body = {k: v for k, v in last.items() if k in ("model", "messages")}
+        body["max_tokens"] = 1
+        body["stream"] = False
+        body["nvext"] = {"agent_hints": {"priority": 0, "strict_priority": 0, "osl": 1}}
+        headers = {"content-type": "application/json", "x-dynamo-session-id": d["session_id"], "x-atfm-touch": "1"}
+        try:
+            r = await st.client.post("/v1/chat/completions", json=body, headers=headers)
+            tokens = int(r.json().get("usage", {}).get("prompt_tokens", 0)) if r.status_code == 200 else 0
+        except Exception:
+            return {"ok": False, "prompt_tokens": 0}
+        st.touches += 1
+        st.touch_tokens += tokens
+        return {"ok": r.status_code == 200, "prompt_tokens": tokens}
 
     @app.post("/gate")
     async def gate(req: Request):
@@ -120,6 +145,7 @@ def create_app(cfg: ProxyConfig, *, upstream_client: httpx.AsyncClient | None = 
         turn = st.turns.get(req.headers.get("x-atfm-session", ""), 0)
         meta = _meta_from(req, body, cfg, now, turn)
         st.turns[meta.session_id] = turn + 1
+        st.last_body[meta.session_id] = body
         if meta.session_id not in st.known:
             st.known.add(meta.session_id)
             emit(SessionStart(t=now, session_id=meta.session_id, tenant=meta.tenant, cls=meta.cls,
