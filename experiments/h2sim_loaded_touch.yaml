@@ -1,0 +1,19 @@
+# Loaded variant of the long-tool regime: 3x interactive, 2.5x background arrivals on a smaller engine, so the window binds.
+name: h2sim_loaded_touch
+regime: long_tool
+seeds: [0, 1, 2]
+arms: [native, proxy_rules, forecast_M2_kv, forecast_M1_touch, forecast_M2_touch, oracle_touch, working_set]
+engines:
+  - {kv_blocks: 6000, max_batch: 6, prefill_tps: 20000.0, decode_tps: 40.0, priority: true, touch_step_s: 0.05}
+window: 6
+beta: 0.5
+slo_ttft_s: 2.0
+working_set_budget: 4500
+duration_s: 3600
+interactive_rate_per_hour: 360
+background_rate_per_hour: 600
+max_hold_s: 60
+touch_budget_per_s: 1.0
+touch_horizon_s: 30.0
+touch_age_s: 10.0
+touch_prefetch: true
