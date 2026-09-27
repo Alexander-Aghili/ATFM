@@ -208,7 +208,8 @@ def build():
                     chart_ratio(TRACELAB, '(a) TraceLab') + chart_ratio(AGENTX, '(b) AgentX') + '</div>',
                     'H1B_CHART': chart_h1b(), 'H2_CHART': chart_h2(),
                     'LOADED_TABLE': policy_table('h2sim_long_tool_loaded'),
-                    'LONG_TABLE': policy_table('h2sim_interactive_long'), 'COST_TABLE': cost_table()}
+                    'LONG_TABLE': policy_table('h2sim_interactive_long'),
+                    'CAP60_TABLE': policy_table('h2sim_long_tool_loaded_cap60'), 'COST_TABLE': cost_table()}
     for key, value in replacements.items():
         template = template.replace('{{' + key + '}}', value)
     if '{{' in template:

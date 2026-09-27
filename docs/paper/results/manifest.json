@@ -1,6 +1,6 @@
 {
-  "description": "Frozen inputs for the revised paper; metrics copied from completed local runs. Original data/ and runs/ are gitignored.",
-  "repository_commit": "c157ad9ed5d088f9d228b80d4c3fad2cc4d3fffc",
+  "description": "Frozen inputs for the revised paper; metrics copied from completed local runs. Original data/ and runs/ are gitignored. 2026-09-27 addendum: the 60-second-cap loaded run (same regime and rates as h2sim_long_tool_loaded) completed and is frozen here.",
+  "repository_commit": "315c8e309c3f33c3c6179628f42fe4888b86502b",
   "sources": [
     {
       "source": "runs/sweep_tracelab.csv",
@@ -104,8 +104,26 @@
       "transformation": "Arithmetic mean by family/model and by model over all observation points; n summed. Session identifiers omitted.",
       "source_sha256": "a7b8de0486e44c2f6ec0a708975922ae19d6d88b977e5a489d9cb35b7d51b76d",
       "snapshot_sha256": "918900d7059b7846f7f7d38e0f842e7de8b5307f282e00d981004fa43a24ead5"
+    },
+    {
+      "source": "runs/h2sim_long_tool_loaded_cap60/metrics.csv",
+      "snapshot": "h2sim_long_tool_loaded_cap60__metrics.csv",
+      "sha256": "1afd7e9a25a6055aef5346085640b401cce9a4e82ff48129d19d69f31c14024e",
+      "snapshot_sha256": "1afd7e9a25a6055aef5346085640b401cce9a4e82ff48129d19d69f31c14024e"
+    },
+    {
+      "source": "runs/h2sim_long_tool_loaded_cap60/paired.csv",
+      "snapshot": "h2sim_long_tool_loaded_cap60__paired.csv",
+      "sha256": "9264cbee0c46ac34badad629be74e6bcbcf914100fd2df2cc6c7e788e20b9574",
+      "snapshot_sha256": "9264cbee0c46ac34badad629be74e6bcbcf914100fd2df2cc6c7e788e20b9574"
+    },
+    {
+      "source": "runs/h2sim_long_tool_loaded_cap60/config.json",
+      "snapshot": "h2sim_long_tool_loaded_cap60__config.json",
+      "sha256": "14827a2a21103297f081b7eee3124408215a3c77442514c721e631c32d5e5d47",
+      "snapshot_sha256": "14827a2a21103297f081b7eee3124408215a3c77442514c721e631c32d5e5d47"
     }
   ],
   "paper_revision_date": "2026-09-27",
-  "evidence_cutoff": "Includes completed summaries for h2sim_interactive_long; excludes the incomplete h2sim_long_tool_loaded_cap60 run."
+  "evidence_cutoff": "Includes completed summaries for h2sim_interactive_long and, as of 2026-09-27 addendum, the completed h2sim_long_tool_loaded_cap60 run; excludes the GDP-lite v2 reruns still in progress."
 }

@@ -64,3 +64,51 @@ Under load the forecast arms buy 9 points of interactive SLO for a 24% increase 
 - Add an interactive-long-tool regime (interactive sessions running 60 to 300 s tools with progress output) so M1 and M2 can separate in closed loop.
 - Record on the real engine exactly the columns measured here: hold seconds, held KV block-seconds, evictions attributed to holds, recomputed prefill after resumption, and caps.
 - Replace the heap-reading oracle with a same-rule oracle fed true demand.
+
+## Second batch (2026-09-27): interactive long tools, a like-for-like oracle, a 60 s cap
+
+Three changes since the first batch: an `interactive_long_tool` regime in which interactive sessions also run 120 s test suites (strong signal) and 300 s builds (weak signal), so that *when* interactive sessions return is what the hold rule must predict; an `oracle_rule` arm that runs the same GDP-lite rule and index as the forecast arms on the true first-call demand per horizon read from the event heap; and `max_hold_s` as a config field, set to 60 s for these runs. Loaded rates (300 interactive and 480 background sessions/h on the 6000-block, batch-6 engine).
+
+### interactive_long_tool, cap 60 s, 3 seeds (`h2sim_interactive_long`)
+
+| arm | SLO sessions, diff vs native [95% CI] | TTFT after tool p95 (s) | background JCT diff (s) | deadline hit, diff | held KV block-s | mean hold s (bg) | share of bg calls held | caps |
+|---|---|---|---|---|---|---|---|---|
+| native | 0.867 | 2.54 | 2309 | 0.320 | 0 | 0 | 0 | 0 |
+| proxy_rules | 0.887, **+0.020 [+0.006, +0.038]** | 2.72 | +48 [-5, +100] | **+0.080** | 0 | 0 | 0 | 0 |
+| forecast_M1 | 0.882, +0.015 [0.000, +0.030] | 2.79 | +275 [228, 321] | -0.015 | 3.2e6 | 42 | 0.42 | 2802 |
+| forecast_M2 | 0.877, +0.011 [-0.005, +0.025] | 2.79 | +293 [244, 340] | -0.012 | 3.3e6 | 43 | 0.42 | 2845 |
+| forecast_M2_nohold | 0.868, +0.001 [-0.014, +0.017] | 2.96 | +60 [16, 115] | +0.068 | 0 | 0 | 0 | 0 |
+| oracle (heap, occupancy rule) | 0.874, +0.008 [-0.007, +0.022] | 2.84 | +962 [899, 1031] | -0.192 | 2.2e6 | 32 | | 2303 |
+| oracle_rule (same rule, true demand) | 0.877, +0.010 [-0.004, +0.026] | 2.75 | +1003 [941, 1075] | -0.195 | 2.4e6 | 35 | 0.62 | 2596 |
+| working_set | 0.893, +0.026 [+0.010, +0.039] | 2.47 | +611 [557, 676] | -0.060 | 0 | 58 | | 684 |
+
+Reading, and it is a negative result for the hold lever in this regime:
+
+1. **Holds do not buy the interactive tail here, and perfect information does not rescue them.** `oracle_rule` holds 62% of background calls with the true demand in hand and gains 1 SLO point for +1003 s of background completion time and 19 points fewer deadlines. The forecast arms hold 42% of calls for a similar, statistically marginal gain at a third of that cost. Whatever the forecast arms lose against the oracle is forecast error; here they lose nothing, because the rule itself is not the right lever.
+2. **Why.** Interactive calls wait 2.5 s at p95 at the proxy in every proxy arm, and that wait is interactive-on-interactive: the window of six is filled by interactive calls with large contexts (4000 tokens growing 800 per turn, 150 output tokens at 40 tok/s). Holding background calls frees slots that other interactive calls take before the held call would have run, so the tail does not move. The hold lever pays when deferrable work is what occupies the pool (the loaded long_tool regime, where it gained 9 points); it cannot pay when interactive load alone saturates the window. A rule that recognises capacity freeing up within the slot (v2 below) reduces the needless holds; it cannot create capacity.
+3. **Rules alone are the best trade in this regime.** Class tiers and the index with no holds gain 2 SLO points and 8 points of deadlines at +48 s background time (CI includes zero). The no-hold forecast ablation is again within noise of rules.
+4. **M1 and M2 still do not separate** (+0.015 vs +0.011, overlapping intervals), for a new reason: under this load the rule's decision is almost always "hold" (2800 caps per seed at a 60 s cap), so the quality of the forecast never enters. The GDP-lite v1 test compares forecast demand with *instantaneous* free capacity, which under load is zero at every moment.
+5. **The working-set baseline gets the best SLO** (+0.026) at +611 s background time, by pausing whole programs and letting the window drain; its holds are 58 s on average but it holds fewer calls.
+
+### GDP-lite v2
+
+The rule now counts, as capacity for the slot, the running requests expected to finish inside it (`freeing_capacity`: start + E[S] for the forecast arms, the engine's true end for `oracle_rule`), so that under load the decision depends on the forecast rather than collapsing to "always hold". Reruns of both regimes with v2 are `h2sim_interactive_long_v2` and `h2sim_long_tool_loaded_cap60_v2`.
+
+### long_tool loaded, cap 60 s (`h2sim_long_tool_loaded_cap60`)
+
+Same regime and rates as the first-batch loaded run, hold cap 60 s instead of 600 s, `oracle_rule` added.
+
+| arm | SLO sessions, diff vs native [95% CI] | TTFT after tool p95 (s) | background JCT diff (s) | deadline hit, diff | held KV block-s | mean hold s (bg) | caps |
+|---|---|---|---|---|---|---|---|
+| native | 0.853 | 2.68 | 3310 | 0.190 | 0 | 0 | 0 |
+| proxy_rules | 0.867, +0.014 [-0.002, +0.028] | 3.01 | -35 [-90, +17] | +0.057 | 0 | 0 | 0 |
+| forecast_M1 | 0.852, -0.001 [-0.016, +0.015] | 3.23 | +124 [68, 180] | +0.017 | 3.7e6 | 35 | 2764 |
+| forecast_M2 | 0.843, -0.010 [-0.024, +0.004] | 3.14 | +136 [81, 187] | +0.018 | 3.7e6 | 35 | 2768 |
+| forecast_M2_nohold | 0.841, -0.013 [-0.028, +0.001] | 3.23 | -35 [-97, +10] | +0.053 | 0 | 0 | 0 |
+| oracle (heap) | 0.852, -0.001 [-0.015, +0.013] | 3.06 | +1150 [1085, 1213] | -0.129 | 1.8e6 | 25 | 2392 |
+| oracle_rule | 0.842, -0.011 [-0.024, +0.004] | 3.17 | +1162 [1099, 1226] | -0.130 | 1.9e6 | 26 | 2585 |
+| working_set | 0.870, +0.017 [+0.002, +0.032] | 2.62 | +505 [445, 566] | -0.021 | 0 | 58 | 4049 |
+
+**The first-batch gain was the long cap.** With holds limited to 60 s the forecast arms' +9 SLO points vanish (-0.001 and -0.010, intervals spanning zero) while they still pay +124 to +136 s of background time and 3.7 million held KV block-seconds; the same-rule oracle with true demand does no better (-0.011 at +1162 s). At a 600 s cap the "hold" was in effect a ten-minute deferral of most background work, which is what moved the tail. Read together with the interactive-long regime: in this simulator, short forecast-driven holds do not improve the interactive SLO under either load pattern; long deferrals do, at a cost comparable to pausing; rules alone give a small consistent gain; the working-set baseline has the best SLO at moderate cost in both.
+
+**What this changes.** H2 as stated ("a proxy that admits, orders and holds calls against the forecast improves the interactive tail at a stated cost") is not supported by the simulator for short holds. Two candidate reasons remain open and the v2 reruns test the first: (a) the v1 rule collapses to "always hold" under load, so the forecast never enters the decision; (b) the interactive tail in these regimes is set by service-time variance and interactive-on-interactive queueing, which no admission policy on background can fix. If v2 holds selectively and the tail still does not move, (b) stands and the lever the forecast should drive is not admission but KV placement (keep the returning sessions' KV resident, evict the held ones), which is what the H100 study can measure and the simulator's engine cannot yet.
