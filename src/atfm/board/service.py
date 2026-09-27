@@ -8,10 +8,67 @@ import time
 import numpy as np
 from fastapi import FastAPI, Request
 
-from atfm.board.live import LiveBoard
-from atfm.bus import InMemoryBus
-from atfm.control import Deferrable, GdpPlanner, ReplicaFloor, TierLogger, TouchController
 from atfm.board.forecaster import CLASSES, TARGETS
+from atfm.board.live import LiveBoard, SessionRegistry
+from atfm.board.metrics import worker_metrics_from_prometheus
+from atfm.bus import InMemoryBus
+from atfm.control import Deferrable, GdpPlanner, ReplicaFloor, Residency, TierLogger, TouchController
+
+
+def residency_from_registry(registry: SessionRegistry, now: float, block_size: int = 16, default_worker: str = "w0") -> dict[str, Residency]:
+    """Deploy-side view of who holds KV: every session not currently in a call, with its context in
+    blocks and the time of its last completed call, on the worker that served it."""
+    out = {}
+    for s in registry.states(now):
+        if s.phase == "llm_running" or s.t_last_done is None:
+            continue
+        out[s.session_id] = Residency(worker_id=s.worker_id or default_worker, blocks=s.ctx_tokens // block_size + 1, last_used=s.t_last_done)
+    return out
+
+
+def configure_controllers(app, cfg: dict, fetch=None):
+    """Attach controllers from a config dict and return a scrape callable that turns a Prometheus page
+    (from `fetch()`, default: HTTP GET of cfg["metrics"]["url"]) into capacity, worker metrics and the
+    eviction frontier the touch controller needs. Under cache pressure (usage over the threshold) every idle
+    context is at risk, so the frontier age is 0; otherwise nothing is."""
+    st = app.state
+    if "gdp" in cfg:
+        st.gdp = GdpPlanner(**cfg["gdp"])
+    if "touch" in cfg:
+        st.touch = TouchController(**cfg["touch"])
+    if "tier" in cfg:
+        st.tier = TierLogger(**cfg["tier"])
+    if "replica" in cfg:
+        st.replica = ReplicaFloor(**cfg["replica"])
+    m = cfg.get("metrics", {})
+    st.worker_metrics = {}
+    st.metrics_cfg = m
+    if fetch is None:
+        url = m.get("url")
+
+        def fetch():
+            import httpx
+            return httpx.get(url, timeout=2.0).text if url else ""
+
+    def scrape():
+        try:
+            page = fetch()
+        except Exception:
+            return
+        evs = worker_metrics_from_prometheus(page, t=time.time(), default_total_blocks=m.get("default_total_blocks"),
+                                             default_worker_id=m.get("default_worker_id"))
+        if not evs:
+            return
+        st.worker_metrics = {e.worker_id: e for e in evs}
+        free = float(sum(e.kv_blocks_total - e.kv_blocks_used for e in evs))
+        slot = st.gdp.slot_s if st.gdp is not None else 30.0
+        tps = float(m.get("prefill_tps_per_worker", cfg.get("replica", {}).get("prefill_tps_per_replica", 0.0)))
+        st.capacity = {"kv_blocks": free, "prefill_tokens": tps * slot * len(evs)}
+        thr = float(m.get("pressure_threshold", 0.9))
+        st.frontier = {e.worker_id: 0.0 for e in evs if e.kv_blocks_total and e.kv_blocks_used / e.kv_blocks_total >= thr}
+        st.residency = residency_from_registry(st.board.registry, time.time(), int(m.get("block_size", 16)),
+                                               default_worker=next(iter(st.worker_metrics)))
+    return scrape
 
 
 def create_board_app(board: LiveBoard, *, bus=None, clock=time.time, rng=None, budget_s: float = 0.05,

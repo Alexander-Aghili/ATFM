@@ -54,7 +54,11 @@ def create_app(cfg: ProxyConfig, *, upstream_client: httpx.AsyncClient | None = 
     st.queue = HoldQueue(cfg.window, clock=clock, max_hold_s=cfg.max_hold_s, max_size=cfg.max_queue_size)
     st.last_body = OrderedDict()   # session -> last request body (messages, model) for keep-alive touches; LRU-bounded
     st.touches, st.touch_tokens, st.touch_failures = 0, 0, 0
+    if predictor is None and cfg.board_url:
+        from atfm.proxy.board_client import BoardClient
+        predictor = BoardClient(cfg.board_url, timeout_s=max(cfg.board_timeout_s, 0.5))   # the await below enforces the budget
     st.predictor = predictor
+    st.last_index = {}
     st.pool = ThreadPoolExecutor(max_workers=4)
     st.turns = {}
     st.known = set()
@@ -161,6 +165,7 @@ def create_app(cfg: ProxyConfig, *, upstream_client: httpx.AsyncClient | None = 
                               parent_session_id=meta.parent, deadline=meta.deadline))
         e_service, e_tool = await predict(meta)
         idx = compute_index(meta, cfg, e_service, e_tool)
+        st.last_index[meta.session_id] = idx
         tr = tier(meta, cfg, now, e_service)
         entry = Entry(session_id=meta.session_id, tier=tr, index=idx, t_arrival=now,
                       promote_at=promote_at(meta, cfg, e_service))

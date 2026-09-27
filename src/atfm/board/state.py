@@ -16,6 +16,8 @@ class SessionState:
     turn_index: int
     tool_name: str | None = None
     tool_args_hash: str | None = None   # command signature: keys progress curves finer than the tool name
+    worker_id: str | None = None        # worker that served the last completed call (for keep-alive touches)
+    t_last_done: float | None = None
     backend_id: str | None = None
     t_tool_start: float | None = None
     progress: list[dict] = field(default_factory=list)

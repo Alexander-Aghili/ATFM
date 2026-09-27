@@ -15,6 +15,7 @@ class ProxyConfig(BaseModel):
     default_osl: int = 256
     max_hold_s: float = 600.0
     board_timeout_s: float = 0.05
+    board_url: str | None = None           # board service for per-request predictions (None: in-process predictor or defaults)
     max_queue_size: int | None = None      # hold-queue size beyond which the proxy forwards FCFS and alarms (spec 10)
     max_remembered_sessions: int = 10000   # bound on per-session state kept for keep-alive touches (LRU)
     events_path: str | None = None

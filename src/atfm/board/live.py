@@ -38,6 +38,9 @@ class SessionRegistry:
         elif k == "llm.done":
             s = self._get(e.session_id, e.t)
             s.phase, s.t_phase_start = "llm_pending", e.t
+            if getattr(e, "worker_id", None):
+                s.worker_id = e.worker_id
+            s.t_last_done = e.t
         elif k == "tool.start":
             s = self._get(e.session_id, e.t)
             s.phase, s.tool_name, s.backend_id = "tool_running", e.tool_name, e.backend_id
