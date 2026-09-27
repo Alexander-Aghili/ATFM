@@ -273,3 +273,18 @@ keeping sessions that the truth says return late but that, when kept, avoid a re
 window is contended. A per-eviction diagnostic (victim's class, true remaining time, whether the recompute it
 caused landed inside a contended window) is the next step; until it runs, the placement result stands as
 "forecast-ranked eviction beats LRU and beats exact-return-time eviction, for reasons not yet understood".
+
+### Class-weighted placement, interactive long tools (`h2sim_interactive_long_cw`, 3 seeds)
+
+| contrast | SLO diff [95% CI] |
+|---|---|
+| oracle_kv_cw vs oracle_kv | **+0.014 [+0.001, +0.027]** |
+| forecast_M1_kv_cw vs forecast_M1_kv | +0.012 [-0.002, +0.026] |
+| forecast_M2_kv_cw vs forecast_M2_kv | -0.004 [-0.016, +0.008] |
+| forecast_M2_kv_cw vs oracle_kv_cw | +0.009 [-0.004, +0.022] |
+
+Here class weighting does help the exact-return-time arm (+1.4 points, interval clear of zero) and closes
+about half of its gap to the forecast arms (the remaining +0.9 is no longer a tested difference). So in the
+regime where interactive sessions run long tools, part of the oracle gap is the class effect; in the loaded
+regime it is not. The forecast arms themselves gain nothing from the weight. Net: forecast-ranked eviction
+remains the best placement rule in both regimes, and the reason it beats the truth is only partly understood.
