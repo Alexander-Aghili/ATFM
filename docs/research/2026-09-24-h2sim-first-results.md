@@ -327,3 +327,20 @@ contrast). Nine in ten touch attempts still fail on a full batch.
 positive in both regimes, robust to size and class weighting, ahead of exact return times for reasons only partly
 understood, and deliverable through keep-alive touches at negligible slot cost. This is what the H100 study
 tests; its ablation (`touch_random`) and a queued rather than dropped touch are the two remaining simulator changes.
+
+### Touch ablation, loaded long_tool (`h2sim_loaded_touch2`, 3 seeds; touches wait for a slot, prefetch on)
+
+| arm | SLO diff vs native [95% CI] | bg JCT diff (s) | touches (hit / miss / retried) per seed | recomputed prefill |
+|---|---|---|---|---|
+| proxy_rules | +0.014 [-0.002, +0.028] | -35 | 0 | 3.82e7 |
+| forecast_M2_kv (eviction order) | +0.025 [+0.011, +0.037] | -29 | 0 | 4.10e7 |
+| forecast_M2_touch | **+0.027 [+0.013, +0.040]** | -37 | 2242 (1282 / 960 / 1643) | **3.56e7** |
+| oracle_touch | +0.025 [+0.010, +0.038] | -39 | 2688 (2222 / 466 / 2067) | 3.58e7 |
+| touch_random (same budget, random targets) | +0.011 [-0.004, +0.023] | -37 | 3771 (3065 / 706 / 1605) | 3.84e7 |
+
+With touches queued instead of dropped, none fail, the forecast touch arm matches the eviction-order arm
+(+2.7 against +2.5 points) with the lowest recompute of any arm, and the true-return-time touch arm now
+equals it (the oracle gap seen with dropped touches was an artefact of which touches happened to find a
+slot). The ablation is the important row: random touches at the same rate give +1.1 points, within noise of
+rules alone (+1.4), so the mechanism carries nothing by itself; the gain comes from touching the sessions
+the forecast says return soon.
