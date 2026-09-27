@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1959" height="253" viewBox="0 0 1959 253" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
+  <defs>
+    <marker id="arrow-333333" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/>
+    </marker>
+    <marker id="arrow-333333-back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1959" height="253" fill="#ffffff"/>
+  <path d="M48 49.5 H153 a8 8 0 0 1 8 8 V107.5 a8 8 0 0 1 -8 8 H48 a8 8 0 0 1 -8 -8 V57.5 a8 8 0 0 1 8 -8 Z" fill="#f2f2f0" stroke="#8a8a86"/>
+  <text x="100.5" y="77.9" fill="#2a2a28" text-anchor="middle">B0 constant</text>
+  <text x="100.5" y="96.9" fill="#6b6b68" text-anchor="middle">last window</text>
+  <path d="M317.4 49.5 H447.4 a8 8 0 0 1 8 8 V107.5 a8 8 0 0 1 -8 8 H317.4 a8 8 0 0 1 -8 -8 V57.5 a8 8 0 0 1 8 -8 Z" fill="#f2f2f0" stroke="#8a8a86"/>
+  <text x="382.4" y="77.9" fill="#2a2a28" text-anchor="middle">B1 Kalman</text>
+  <text x="382.4" y="96.9" fill="#6b6b68" text-anchor="middle">history series</text>
+  <path d="M661.8 49.5 H833.8 a8 8 0 0 1 8 8 V107.5 a8 8 0 0 1 -8 8 H661.8 a8 8 0 0 1 -8 -8 V57.5 a8 8 0 0 1 8 -8 Z" fill="#f2f2f0" stroke="#8a8a86"/>
+  <text x="747.8" y="77.9" fill="#2a2a28" text-anchor="middle">B2 per-tool history</text>
+  <text x="747.8" y="96.9" fill="#6b6b68" text-anchor="middle">elapsed ignored</text>
+  <path d="M1040.2 40 H1162.2 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H1040.2 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#ece8f7" stroke="#6b56b8"/>
+  <text x="1101.2" y="68.4" fill="#241a4d" text-anchor="middle">M1 survival</text>
+  <text x="1101.2" y="87.4" fill="#6b6b68" text-anchor="middle">conditions on</text>
+  <text x="1101.2" y="106.4" fill="#6b6b68" text-anchor="middle">elapsed</text>
+  <path d="M1360.6 40 H1549.6 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H1360.6 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#fdece4" stroke="#d95926"/>
+  <text x="1455.1" y="68.4" fill="#4a1e0b" text-anchor="middle">M2 progress</text>
+  <text x="1455.1" y="87.4" fill="#6b6b68" text-anchor="middle">rate filter + learned</text>
+  <text x="1455.1" y="106.4" fill="#6b6b68" text-anchor="middle">curve</text>
+  <path d="M1756 49.5 H1911 a8 8 0 0 1 8 8 V107.5 a8 8 0 0 1 -8 8 H1756 a8 8 0 0 1 -8 -8 V57.5 a8 8 0 0 1 8 -8 Z" fill="#ece8f7" stroke="#6b56b8"/>
+  <text x="1833.5" y="77.9" fill="#241a4d" text-anchor="middle">M3 backend factor</text>
+  <text x="1833.5" y="96.9" fill="#6b6b68" text-anchor="middle">shared slowdowns</text>
+  <g font-size="12px">
+  <text x="1164.9" y="193.2" fill="#000000" text-anchor="start">H1a: M1 vs B1 3 to 5x at 5 to 15 min</text>
+  <text x="1164.9" y="209.2" fill="#000000" text-anchor="start">H1b: M2 vs M1 2.8x on remaining time</text>
+  </g>
+  <path d="M 161 82.5 C 220.36 82.5, 250.04 82.5, 309.4 82.5" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="192.2" y="73" width="86" height="19" fill="#ffffff"/>
+  <text x="235.2" y="87.4" fill="#000000" text-anchor="middle">+ history</text>
+  <path d="M 455.4 82.5 C 534.76 82.5, 574.44 82.5, 653.8 82.5" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="486.6" y="73" width="136" height="19" fill="#ffffff"/>
+  <text x="554.6" y="87.4" fill="#000000" text-anchor="middle">+ session state</text>
+  <path d="M 841.8 82.5 C 917.96 82.5, 956.04 82.5, 1032.2 82.5" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="873" y="73" width="128" height="19" fill="#ffffff"/>
+  <text x="937" y="87.4" fill="#000000" text-anchor="middle">+ elapsed time</text>
+  <path d="M 1170.2 82.5 C 1243.16 82.5, 1279.64 82.5, 1352.6 82.5" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="1201.4" y="73" width="120" height="19" fill="#ffffff"/>
+  <text x="1261.4" y="87.4" fill="#000000" text-anchor="middle">+ tool output</text>
+  <path d="M 1557.6 82.5 C 1633.76 82.5, 1671.84 82.5, 1748 82.5" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="1588.8" y="73" width="128" height="19" fill="#ffffff"/>
+  <text x="1652.8" y="87.4" fill="#000000" text-anchor="middle">+ fleet signal</text>
+</svg>

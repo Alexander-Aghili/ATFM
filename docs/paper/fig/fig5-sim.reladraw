@@ -1,0 +1,23 @@
+// The closed-loop simulator: programs drive a proxy queue and KV-aware workers; every arm is a policy object.
+default edge  line: (path: square, corners: rounded)
+style svc  fill: #ece8f7  border: #6b56b8  text: (color: #241a4d)
+style ext  fill: #f2f2f0  border: #8a8a86  text: (color: #2a2a28)
+style hot  fill: #fdece4  border: #d95926  text: (color: #4a1e0b)
+style out  fill: #e6f1e6  border: #4a7f4a  text: (color: #163016)
+style dim  text: (color: #6b6b68)
+
+node loop "heap event loop / [dim]start, arrive, tick 5 s, first_token, worker_done, tool_progress, tool_end[/dim]" (wrap: 36)  style: svc  gap: wide
+node progs "programs / [dim]synthetic spec or trace table; turns with ISL growth, tool duration, progress, fan-out[/dim]" (wrap: 32)  style: ext  left of loop
+node policy "policy (one arm) / [dim]window, tier + index, on_arrival hold, on_tick[/dim]" (wrap: 30)  style: hot  above loop
+node queue "proxy queue / [dim]eligible when release time passed; hold capped and re-consulted[/dim]" (wrap: 30)  style: svc  right of loop
+node worker "worker engine / [dim]KV LRU with prefix reuse, batch limit, priority head-of-line[/dim]" (wrap: 30)  style: svc  below queue
+node log "per-call log / [dim]queue_proxy_s, hold_s, hold_kv_block_s, evictions, recompute[/dim]" (wrap: 30)  style: out  below worker
+node metrics "serving metrics / [dim]TTFT after tool, SLO, JCT, deadlines, paired bootstrap[/dim]" (wrap: 30)  style: out  below progs
+
+edge progs -> loop    "turns"                           from: right   to: left
+edge policy -> loop   "decisions"                        from: bottom  to: top
+edge loop -> queue    "llm.request"                      from: right   to: left
+edge queue -> worker  "admitted (window)"                from: bottom  to: top
+edge worker -> loop   "first_token, done"                from: left    to: bottom
+edge worker -> log    "lifecycle rows"                   from: bottom  to: top
+edge log -> metrics   "per seed, per arm"                from: left    to: right

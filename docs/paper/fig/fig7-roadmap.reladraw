@@ -1,0 +1,18 @@
+// Demonstration ladder: what is built, what runs where, and what comes next.
+style done fill: #e6f1e6  border: #4a7f4a  text: (color: #163016)
+style part fill: #fdf3dc  border: #b8860b  text: (color: #3d2c00)
+style next fill: #f2f2f0  border: #8a8a86  text: (color: #2a2a28)
+style dim  text: (color: #6b6b68)
+
+node l0 "L0 forecast core / [dim]two real corpora, H1a done[/dim]" (wrap: 22)  style: done
+node l1 "L1 plumbing / [dim]sidecar, proxy, board, Mocker; H1b gate passed[/dim]" (wrap: 24)  style: done  right of l0
+node sim "L0 policies / [dim]closed-loop simulator, six arms, three regimes[/dim]" (wrap: 24)  style: done  right of l1
+node l2 "L2 H100 study / [dim]2x H100, real KV, hold costs measured[/dim]" (wrap: 24)  style: next  right of sim
+node tiers "memory tiers, pre-staging, replica floors / [dim]logged only in v1[/dim]" (wrap: 26)  style: next  below l2
+
+edge l0 -> l1   "predictors"           from: right  to: left
+edge l1 -> sim  "trace adapters"       from: right  to: left
+edge sim -> l2  "regimes, metrics"     from: right  to: left
+edge l2 -> tiers "if holds pay"        from: bottom to: top
+
+node now "now: 2026-09-27" (size: small)  shape: none  below sim

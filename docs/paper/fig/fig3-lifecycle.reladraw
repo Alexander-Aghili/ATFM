@@ -1,0 +1,19 @@
+// What one turn of a session moves through, and what the board conditions on in each phase.
+default edge  line: (path: square, corners: rounded)
+style phase fill: #ece8f7  border: #6b56b8  text: (color: #241a4d)
+style ext   fill: #f2f2f0  border: #8a8a86  text: (color: #2a2a28)
+style dim   text: (color: #6b6b68)
+
+node running "llm_running / [dim]decode in progress; remaining = f(elapsed decode)[/dim]" (wrap: 30)  style: phase  gap: wide
+node queued  "queued at proxy / [dim]window, tier, index; hold if deferrable[/dim]" (wrap: 28)  style: phase  left of running
+node tool    "tool_running / [dim]elapsed, progress events, backend factor[/dim]" (wrap: 28)  style: phase  right of running
+node pending "llm_pending / [dim]tool ended, next request not yet sent; conditional gap[/dim]" (wrap: 30)  style: phase  below tool
+node harness "harness / [dim]assembles next prompt[/dim]" (wrap: 22)  style: ext  below queued
+node ended   "session end / [dim]no-return mass p(tool)[/dim]" (wrap: 22)  style: ext  right of pending
+
+edge queued -> running  "admitted"                        from: right   to: left
+edge running -> tool    "last token; tool launched"       from: right   to: left
+edge tool -> pending    "tool.end"                        from: bottom  to: top
+edge pending -> harness "next request"                    from: left    to: right
+edge harness -> queued  "llm.request (KV needed now)"     from: top     to: bottom
+edge pending -> ended   "no further call"                 from: right   to: left

@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1702" height="332" viewBox="0 0 1702 332" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
+  <defs>
+    <marker id="arrow-333333" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/>
+    </marker>
+    <marker id="arrow-333333-back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1702" height="332" fill="#ffffff"/>
+  <path d="M452.4 40 H708.4 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H452.4 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#ece8f7" stroke="#6b56b8"/>
+  <text x="580.4" y="68.4" fill="#241a4d" text-anchor="middle">llm_running</text>
+  <text x="580.4" y="87.4" fill="#6b6b68" text-anchor="middle">decode in progress; remaining</text>
+  <text x="580.4" y="106.4" fill="#6b6b68" text-anchor="middle">= f(elapsed decode)</text>
+  <path d="M48 40 H296 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H48 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#ece8f7" stroke="#6b56b8"/>
+  <text x="172" y="68.4" fill="#241a4d" text-anchor="middle">queued at proxy</text>
+  <text x="172" y="87.4" fill="#6b6b68" text-anchor="middle">window, tier, index; hold if</text>
+  <text x="172" y="106.4" fill="#6b6b68" text-anchor="middle">deferrable</text>
+  <path d="M1006.8 40 H1228.8 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H1006.8 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#ece8f7" stroke="#6b56b8"/>
+  <text x="1117.8" y="68.4" fill="#241a4d" text-anchor="middle">tool_running</text>
+  <text x="1117.8" y="87.4" fill="#6b6b68" text-anchor="middle">elapsed, progress events,</text>
+  <text x="1117.8" y="106.4" fill="#6b6b68" text-anchor="middle">backend factor</text>
+  <path d="M993.8 206.4 H1241.8 a8 8 0 0 1 8 8 V283.4 a8 8 0 0 1 -8 8 H993.8 a8 8 0 0 1 -8 -8 V214.4 a8 8 0 0 1 8 -8 Z" fill="#ece8f7" stroke="#6b56b8"/>
+  <text x="1117.8" y="234.8" fill="#241a4d" text-anchor="middle">llm_pending</text>
+  <text x="1117.8" y="253.8" fill="#6b6b68" text-anchor="middle">tool ended, next request not</text>
+  <text x="1117.8" y="272.8" fill="#6b6b68" text-anchor="middle">yet sent; conditional gap</text>
+  <path d="M77.5 206.4 H266.5 a8 8 0 0 1 8 8 V264.4 a8 8 0 0 1 -8 8 H77.5 a8 8 0 0 1 -8 -8 V214.4 a8 8 0 0 1 8 -8 Z" fill="#f2f2f0" stroke="#8a8a86"/>
+  <text x="172" y="234.8" fill="#2a2a28" text-anchor="middle">harness</text>
+  <text x="172" y="253.8" fill="#6b6b68" text-anchor="middle">assembles next prompt</text>
+  <path d="M1456.2 215.9 H1653.2 a8 8 0 0 1 8 8 V273.9 a8 8 0 0 1 -8 8 H1456.2 a8 8 0 0 1 -8 -8 V223.9 a8 8 0 0 1 8 -8 Z" fill="#f2f2f0" stroke="#8a8a86"/>
+  <text x="1554.7" y="244.3" fill="#2a2a28" text-anchor="middle">session end</text>
+  <text x="1554.7" y="263.3" fill="#6b6b68" text-anchor="middle">no-return mass p(tool)</text>
+  <path d="M 304 82.5 L 444.4 82.5" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="335.2" y="73" width="78" height="19" fill="#ffffff"/>
+  <text x="374.2" y="87.4" fill="#000000" text-anchor="middle">admitted</text>
+  <path d="M 716.4 82.5 L 998.8 82.5" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="747.6" y="73" width="220" height="19" fill="#ffffff"/>
+  <text x="857.6" y="87.4" fill="#000000" text-anchor="middle">last token; tool launched</text>
+  <path d="M 1117.8 125 L 1117.8 206.4" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="1078.8" y="156.2" width="78" height="19" fill="#ffffff"/>
+  <text x="1117.8" y="170.6" fill="#000000" text-anchor="middle">tool.end</text>
+  <path d="M 985.8 248.9 L 634.9 248.9 C 632.28 248.9, 630.15 246.77, 630.15 244.15 L 630.15 244.15 C 630.15 241.53, 628.02 239.4, 625.4 239.4 L 274.5 239.4" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="752.47" y="239.4" width="111" height="19" fill="#ffffff"/>
+  <text x="807.97" y="253.8" fill="#000000" text-anchor="middle">next request</text>
+  <path d="M 172 206.4 L 172 125" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="53.5" y="156.2" width="237" height="19" fill="#ffffff"/>
+  <text x="172" y="170.6" fill="#000000" text-anchor="middle">llm.request (KV needed now)</text>
+  <path d="M 1249.8 248.9 L 1448.2 248.9" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="1281" y="239.4" width="136" height="19" fill="#ffffff"/>
+  <text x="1349" y="253.8" fill="#000000" text-anchor="middle">no further call</text>
+</svg>

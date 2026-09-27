@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1129" height="750" viewBox="0 0 1129 750" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
+  <defs>
+    <marker id="arrow-333333" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/>
+    </marker>
+    <marker id="arrow-333333-back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1129" height="750" fill="#ffffff"/>
+  <path d="M442.4 235 H664.4 a8 8 0 0 1 8 8 V331 a8 8 0 0 1 -8 8 H442.4 a8 8 0 0 1 -8 -8 V243 a8 8 0 0 1 8 -8 Z" fill="#ece8f7" stroke="#6b56b8"/>
+  <text x="553.4" y="263.4" fill="#241a4d" text-anchor="middle">heap event loop</text>
+  <text x="553.4" y="282.4" fill="#6b6b68" text-anchor="middle">start, arrive, tick 5 s,</text>
+  <text x="553.4" y="301.4" fill="#6b6b68" text-anchor="middle">first_token, worker_done,</text>
+  <text x="553.4" y="320.4" fill="#6b6b68" text-anchor="middle">tool_progress, tool_end</text>
+  <path d="M48 235 H312 a8 8 0 0 1 8 8 V331 a8 8 0 0 1 -8 8 H48 a8 8 0 0 1 -8 -8 V243 a8 8 0 0 1 8 -8 Z" fill="#f2f2f0" stroke="#8a8a86"/>
+  <text x="180" y="263.4" fill="#2a2a28" text-anchor="middle">programs</text>
+  <text x="180" y="282.4" fill="#6b6b68" text-anchor="middle">synthetic spec or trace table;</text>
+  <text x="180" y="301.4" fill="#6b6b68" text-anchor="middle">turns with ISL growth, tool</text>
+  <text x="180" y="320.4" fill="#6b6b68" text-anchor="middle">duration, progress, fan-out</text>
+  <path d="M446.4 40 H660.4 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H446.4 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#fdece4" stroke="#d95926"/>
+  <text x="553.4" y="68.4" fill="#4a1e0b" text-anchor="middle">policy (one arm)</text>
+  <text x="553.4" y="87.4" fill="#6b6b68" text-anchor="middle">window, tier + index,</text>
+  <text x="553.4" y="106.4" fill="#6b6b68" text-anchor="middle">on_arrival hold, on_tick</text>
+  <path d="M845.8 235 H1076.8 a8 8 0 0 1 8 8 V331 a8 8 0 0 1 -8 8 H845.8 a8 8 0 0 1 -8 -8 V243 a8 8 0 0 1 8 -8 Z" fill="#ece8f7" stroke="#6b56b8"/>
+  <text x="961.3" y="263.4" fill="#241a4d" text-anchor="middle">proxy queue</text>
+  <text x="961.3" y="282.4" fill="#6b6b68" text-anchor="middle">eligible when release time</text>
+  <text x="961.3" y="301.4" fill="#6b6b68" text-anchor="middle">passed; hold capped and</text>
+  <text x="961.3" y="320.4" fill="#6b6b68" text-anchor="middle">re-consulted</text>
+  <path d="M850.3 420.4 H1072.3 a8 8 0 0 1 8 8 V516.4 a8 8 0 0 1 -8 8 H850.3 a8 8 0 0 1 -8 -8 V428.4 a8 8 0 0 1 8 -8 Z" fill="#ece8f7" stroke="#6b56b8"/>
+  <text x="961.3" y="448.8" fill="#241a4d" text-anchor="middle">worker engine</text>
+  <text x="961.3" y="467.8" fill="#6b6b68" text-anchor="middle">KV LRU with prefix reuse,</text>
+  <text x="961.3" y="486.8" fill="#6b6b68" text-anchor="middle">batch limit, priority</text>
+  <text x="961.3" y="505.8" fill="#6b6b68" text-anchor="middle">head-of-line</text>
+  <path d="M841.8 605.8 H1080.8 a8 8 0 0 1 8 8 V701.8 a8 8 0 0 1 -8 8 H841.8 a8 8 0 0 1 -8 -8 V613.8 a8 8 0 0 1 8 -8 Z" fill="#e6f1e6" stroke="#4a7f4a"/>
+  <text x="961.3" y="634.2" fill="#163016" text-anchor="middle">per-call log</text>
+  <text x="961.3" y="653.2" fill="#6b6b68" text-anchor="middle">queue_proxy_s, hold_s,</text>
+  <text x="961.3" y="672.2" fill="#6b6b68" text-anchor="middle">hold_kv_block_s, evictions,</text>
+  <text x="961.3" y="691.2" fill="#6b6b68" text-anchor="middle">recompute</text>
+  <path d="M60.5 395 H299.5 a8 8 0 0 1 8 8 V472 a8 8 0 0 1 -8 8 H60.5 a8 8 0 0 1 -8 -8 V403 a8 8 0 0 1 8 -8 Z" fill="#e6f1e6" stroke="#4a7f4a"/>
+  <text x="180" y="423.4" fill="#163016" text-anchor="middle">serving metrics</text>
+  <text x="180" y="442.4" fill="#6b6b68" text-anchor="middle">TTFT after tool, SLO, JCT,</text>
+  <text x="180" y="461.4" fill="#6b6b68" text-anchor="middle">deadlines, paired bootstrap</text>
+  <path d="M 320 287 L 434.4 287" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="351.2" y="277.5" width="52" height="19" fill="#ffffff"/>
+  <text x="377.2" y="291.9" fill="#000000" text-anchor="middle">turns</text>
+  <path d="M 553.4 125 L 553.4 235" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="510.4" y="170.5" width="86" height="19" fill="#ffffff"/>
+  <text x="553.4" y="184.9" fill="#000000" text-anchor="middle">decisions</text>
+  <path d="M 672.4 287 L 837.8 287" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="703.6" y="277.5" width="103" height="19" fill="#ffffff"/>
+  <text x="755.1" y="291.9" fill="#000000" text-anchor="middle">llm.request</text>
+  <path d="M 961.3 339 L 961.3 420.4" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="884.8" y="370.2" width="153" height="19" fill="#ffffff"/>
+  <text x="961.3" y="384.6" fill="#000000" text-anchor="middle">admitted (window)</text>
+  <path d="M 842.3 472.4 L 573.4 472.4 C 562.35 472.4, 553.4 463.45, 553.4 452.4 L 553.4 339" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="621.35" y="462.9" width="153" height="19" fill="#ffffff"/>
+  <text x="697.85" y="477.3" fill="#000000" text-anchor="middle">first_token, done</text>
+  <path d="M 961.3 524.4 L 961.3 605.8" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="897.3" y="555.6" width="128" height="19" fill="#ffffff"/>
+  <text x="961.3" y="570" fill="#000000" text-anchor="middle">lifecycle rows</text>
+  <path d="M 833.8 657.8 L 590.65 657.8 C 579.6 657.8, 570.65 648.85, 570.65 637.8 L 570.65 457.5 C 570.65 446.45, 561.7 437.5, 550.65 437.5 L 307.5 437.5" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="625.72" y="648.3" width="153" height="19" fill="#ffffff"/>
+  <text x="702.22" y="662.7" fill="#000000" text-anchor="middle">per seed, per arm</text>
+</svg>

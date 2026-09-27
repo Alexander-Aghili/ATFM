@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1184" height="351" viewBox="0 0 1184 351" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
+  <defs>
+    <marker id="arrow-333333" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/>
+    </marker>
+    <marker id="arrow-333333-back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1184" height="351" fill="#ffffff"/>
+  <path d="M94 59 H300 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H94 a8 8 0 0 1 -8 -8 V67 a8 8 0 0 1 8 -8 Z" fill="#ece8f7" stroke="#6b56b8"/>
+  <text x="197" y="87.4" fill="#241a4d" text-anchor="middle">background call arrives</text>
+  <text x="197" y="106.4" fill="#6b6b68" text-anchor="middle">tier, index computed</text>
+  <path d="M484.9 40 H748.9 a8 8 0 0 1 8 8 V136 a8 8 0 0 1 -8 8 H484.9 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#ece8f7" stroke="#6b56b8"/>
+  <text x="616.9" y="68.4" fill="#241a4d" text-anchor="middle">GDP-lite rule</text>
+  <text x="616.9" y="87.4" fill="#6b6b68" text-anchor="middle">q90 of interactive KV or busy</text>
+  <text x="616.9" y="106.4" fill="#6b6b68" text-anchor="middle">slots in the next 30 s exceeds</text>
+  <text x="616.9" y="125.4" fill="#6b6b68" text-anchor="middle">free capacity?</text>
+  <path d="M904.3 40 H1135.3 a8 8 0 0 1 8 8 V136 a8 8 0 0 1 -8 8 H904.3 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#ece8f7" stroke="#6b56b8"/>
+  <text x="1019.8" y="68.4" fill="#241a4d" text-anchor="middle">held</text>
+  <text x="1019.8" y="87.4" fill="#6b6b68" text-anchor="middle">release-not-before = now +</text>
+  <text x="1019.8" y="106.4" fill="#6b6b68" text-anchor="middle">slot, capped at arrival +</text>
+  <text x="1019.8" y="125.4" fill="#6b6b68" text-anchor="middle">max_hold</text>
+  <path d="M929.8 225.4 H1109.8 a8 8 0 0 1 8 8 V302.4 a8 8 0 0 1 -8 8 H929.8 a8 8 0 0 1 -8 -8 V233.4 a8 8 0 0 1 8 -8 Z" fill="#ece8f7" stroke="#6b56b8"/>
+  <text x="1019.8" y="253.8" fill="#241a4d" text-anchor="middle">re-consult at expiry</text>
+  <text x="1019.8" y="272.8" fill="#6b6b68" text-anchor="middle">hold only while the</text>
+  <text x="1019.8" y="291.8" fill="#6b6b68" text-anchor="middle">constraint binds</text>
+  <path d="M518.4 225.4 H715.4 a8 8 0 0 1 8 8 V302.4 a8 8 0 0 1 -8 8 H518.4 a8 8 0 0 1 -8 -8 V233.4 a8 8 0 0 1 8 -8 Z" fill="#ece8f7" stroke="#6b56b8"/>
+  <text x="616.9" y="253.8" fill="#241a4d" text-anchor="middle">released to window</text>
+  <text x="616.9" y="272.8" fill="#6b6b68" text-anchor="middle">ordinary queueing from</text>
+  <text x="616.9" y="291.8" fill="#6b6b68" text-anchor="middle">here</text>
+  <path d="M48 181 H346 a8 8 0 0 1 8 8 V277 a8 8 0 0 1 -8 8 H48 a8 8 0 0 1 -8 -8 V189 a8 8 0 0 1 8 -8 Z" fill="#fdece4" stroke="#d95926"/>
+  <text x="197" y="209.4" fill="#4a1e0b" text-anchor="middle">charged to the held session</text>
+  <text x="197" y="228.4" fill="#6b6b68" text-anchor="middle">hold_s, blocks x hold time,</text>
+  <text x="197" y="247.4" fill="#6b6b68" text-anchor="middle">displacement evictions, recomputed</text>
+  <text x="197" y="266.4" fill="#6b6b68" text-anchor="middle">prefill on resume</text>
+  <path d="M 308 92 L 476.9 92" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="345.45" y="82.5" width="94" height="19" fill="#ffffff"/>
+  <text x="392.45" y="96.9" fill="#000000" text-anchor="middle">deferrable</text>
+  <path d="M 756.9 92 L 822.6 92 C 824.81 92, 826.6 90.21, 826.6 88 L 826.6 88 C 826.6 85.79, 828.39 84, 830.6 84 L 896.3 84" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="773.75" y="82.5" width="36" height="19" fill="#ffffff"/>
+  <text x="791.75" y="96.9" fill="#000000" text-anchor="middle">yes</text>
+  <path d="M 616.9 144 L 616.9 225.4" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="603.4" y="175.2" width="27" height="19" fill="#ffffff"/>
+  <text x="616.9" y="189.6" fill="#000000" text-anchor="middle">no</text>
+  <path d="M 1019.8 144 L 1019.8 225.4" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="993.8" y="175.2" width="52" height="19" fill="#ffffff"/>
+  <text x="1019.8" y="189.6" fill="#000000" text-anchor="middle">timer</text>
+  <path d="M 921.8 259.9 L 885.1 259.9 C 874.05 259.9, 865.1 250.95, 865.1 239.9 L 865.1 120 C 865.1 108.95, 874.05 100, 885.1 100 L 896.3 100" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="813.6" y="170.45" width="103" height="19" fill="#ffffff"/>
+  <text x="865.1" y="184.85" fill="#000000" text-anchor="middle">still binds</text>
+  <path d="M 921.8 275.9 L 826.6 275.9 C 824.39 275.9, 822.6 274.11, 822.6 271.9 L 822.6 271.9 C 822.6 269.69, 820.81 267.9, 818.6 267.9 L 723.4 267.9" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="804.2" y="266.4" width="136" height="19" fill="#ffffff"/>
+  <text x="872.2" y="280.8" fill="#000000" text-anchor="middle">clear or capped</text>
+  <path d="M 510.4 267.9 L 449.65 267.9 C 440.01 267.9, 432.2 260.09, 432.2 250.45 L 432.2 250.45 C 432.2 240.81, 424.39 233, 414.75 233 L 354 233" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="424.3" y="258.4" width="94" height="19" fill="#ffffff"/>
+  <text x="471.3" y="272.8" fill="#000000" text-anchor="middle">accounting</text>
+</svg>

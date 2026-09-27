@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1448" height="574" viewBox="0 0 1448 574" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
+  <defs>
+    <marker id="arrow-333333" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/>
+    </marker>
+    <marker id="arrow-333333-back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1448" height="574" fill="#ffffff"/>
+  <path d="M438 235 H803 a8 8 0 0 1 8 8 V350 a8 8 0 0 1 -8 8 H438 a8 8 0 0 1 -8 -8 V243 a8 8 0 0 1 8 -8 Z" fill="#ece8f7" stroke="#6b56b8"/>
+  <text x="620.5" y="263.4" fill="#241a4d" text-anchor="middle">ATFM</text>
+  <text x="620.5" y="282.4" fill="#6b6b68" text-anchor="middle">forecasts fleet LLM demand from in-flight</text>
+  <text x="620.5" y="301.4" fill="#6b6b68" text-anchor="middle">sessions;</text>
+  <text x="620.5" y="320.4" fill="#6b6b68" text-anchor="middle">admits, orders and holds calls on a shared</text>
+  <text x="620.5" y="339.4" fill="#6b6b68" text-anchor="middle">Dynamo pool</text>
+  <path d="M73 122.5 H287 a8 8 0 0 1 8 8 V199.5 a8 8 0 0 1 -8 8 H73 a8 8 0 0 1 -8 -8 V130.5 a8 8 0 0 1 8 -8 Z" fill="#e8eef8" stroke="#3b6ea8"/>
+  <text x="180" y="150.9" fill="#10263f" text-anchor="middle">Developer</text>
+  <text x="180" y="169.9" fill="#6b6b68" text-anchor="middle">interactive coding-agent</text>
+  <text x="180" y="188.9" fill="#6b6b68" text-anchor="middle">sessions</text>
+  <path d="M48 263.5 H312 a8 8 0 0 1 8 8 V321.5 a8 8 0 0 1 -8 8 H48 a8 8 0 0 1 -8 -8 V271.5 a8 8 0 0 1 8 -8 Z" fill="#e8eef8" stroke="#3b6ea8"/>
+  <text x="180" y="291.9" fill="#10263f" text-anchor="middle">Batch job owner</text>
+  <text x="180" y="310.9" fill="#6b6b68" text-anchor="middle">background jobs with deadlines</text>
+  <path d="M52 385.5 H308 a8 8 0 0 1 8 8 V462.5 a8 8 0 0 1 -8 8 H52 a8 8 0 0 1 -8 -8 V393.5 a8 8 0 0 1 8 -8 Z" fill="#e8eef8" stroke="#3b6ea8"/>
+  <text x="180" y="413.9" fill="#10263f" text-anchor="middle">Platform operator</text>
+  <text x="180" y="432.9" fill="#6b6b68" text-anchor="middle">class weights, delay budgets,</text>
+  <text x="180" y="451.9" fill="#6b6b68" text-anchor="middle">SLOs</text>
+  <path d="M505 40 H736 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H505 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#f2f2f0" stroke="#8a8a86"/>
+  <text x="620.5" y="68.4" fill="#2a2a28" text-anchor="middle">Agent harnesses</text>
+  <text x="620.5" y="87.4" fill="#6b6b68" text-anchor="middle">mini-SWE-agent, OpenHands,</text>
+  <text x="620.5" y="106.4" fill="#6b6b68" text-anchor="middle">Harbor</text>
+  <path d="M1177.4 244.5 H1399.4 a8 8 0 0 1 8 8 V340.5 a8 8 0 0 1 -8 8 H1177.4 a8 8 0 0 1 -8 -8 V252.5 a8 8 0 0 1 8 -8 Z" fill="#f2f2f0" stroke="#8a8a86"/>
+  <text x="1288.4" y="272.9" fill="#2a2a28" text-anchor="middle">NVIDIA Dynamo pool</text>
+  <text x="1288.4" y="291.9" fill="#6b6b68" text-anchor="middle">frontend, KV router, vLLM</text>
+  <text x="1288.4" y="310.9" fill="#6b6b68" text-anchor="middle">SGLang</text>
+  <text x="1288.4" y="329.9" fill="#6b6b68" text-anchor="middle">Mocker workers</text>
+  <path d="M934.4 103.5 H1148.4 a8 8 0 0 1 8 8 V180.5 a8 8 0 0 1 -8 8 H934.4 a8 8 0 0 1 -8 -8 V111.5 a8 8 0 0 1 8 -8 Z" fill="#f2f2f0" stroke="#8a8a86"/>
+  <text x="1041.4" y="131.9" fill="#2a2a28" text-anchor="middle">Tool backends</text>
+  <text x="1041.4" y="150.9" fill="#6b6b68" text-anchor="middle">CI runners, build farms,</text>
+  <text x="1041.4" y="169.9" fill="#6b6b68" text-anchor="middle">warehouses, APIs</text>
+  <path d="M530.5 468 H710.5 a8 8 0 0 1 8 8 V526 a8 8 0 0 1 -8 8 H530.5 a8 8 0 0 1 -8 -8 V476 a8 8 0 0 1 8 -8 Z" fill="#f2f2f0" stroke="#8a8a86"/>
+  <text x="620.5" y="496.4" fill="#2a2a28" text-anchor="middle">Public trace corpora</text>
+  <text x="620.5" y="515.4" fill="#6b6b68" text-anchor="middle">TraceLab, AgentX</text>
+  <path d="M 180 122.5 C 180 -5.75, 368.75 74.5, 497 74.5" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="230.41" y="40.91" width="120" height="19" fill="#ffffff"/>
+  <text x="290.41" y="55.31" fill="#000000" text-anchor="middle">chats through</text>
+  <path d="M 180 263.5 C 180 123.5, 357 90.5, 497 90.5" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="218" y="115" width="136" height="19" fill="#ffffff"/>
+  <text x="286" y="129.4" fill="#000000" text-anchor="middle">submits jobs to</text>
+  <path d="M 316 428 C 385.61 428, 360.39 296.5, 430 296.5" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="263" y="352.75" width="220" height="19" fill="#ffffff"/>
+  <text x="373" y="367.15" fill="#000000" text-anchor="middle">configures; reads results</text>
+  <path d="M 620.5 125 C 620.5 169, 620.5 191, 620.5 235" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="485" y="170.5" width="271" height="19" fill="#ffffff"/>
+  <text x="620.5" y="184.9" fill="#000000" text-anchor="middle">LLM calls, tool progress events</text>
+  <path d="M 744 82.5 C 821.25 82.5, 849.15 146, 926.4 146" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="775.2" y="104.75" width="120" height="19" fill="#ffffff"/>
+  <text x="835.2" y="119.15" fill="#000000" text-anchor="middle">runs tools on</text>
+  <path d="M 811 287 C 951 287, 1029.4 287, 1169.4 287" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="842.2" y="277.5" width="296" height="19" fill="#ffffff"/>
+  <text x="990.2" y="291.9" fill="#000000" text-anchor="middle">admitted calls + nvext.agent_hints</text>
+  <path d="M 1169.4 306 C 1029.4 306, 951 306, 811 306" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="846.2" y="296.5" width="288" height="19" fill="#ffffff"/>
+  <text x="990.2" y="310.9" fill="#000000" text-anchor="middle">KV and queue metrics (Prometheus)</text>
+  <path d="M 620.5 358 C 620.5 402, 620.5 424, 620.5 468" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="472.5" y="403.5" width="296" height="19" fill="#ffffff"/>
+  <text x="620.5" y="417.9" fill="#000000" text-anchor="middle">replays sessions offline (parquet)</text>
+</svg>

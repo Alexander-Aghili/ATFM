@@ -1,0 +1,26 @@
+style system   fill: #ece8f7  border: #6b56b8  text: (color: #241a4d)
+style person   fill: #e8eef8  border: #3b6ea8  text: (color: #10263f)
+style external fill: #f2f2f0  border: #8a8a86  text: (color: #2a2a28)
+style svc      fill: #ece8f7  border: #6b56b8  text: (color: #241a4d)
+style store    fill: #e6f1e6  border: #4a7f4a  text: (color: #163016)  badge: database
+style dim      text: (color: #6b6b68)
+style hot      fill: #fdece4  border: #d95926  text: (color: #4a1e0b)
+node atfm "ATFM / [dim]forecasts fleet LLM demand from in-flight sessions; / admits, orders and holds calls on a shared Dynamo pool[/dim]" (wrap: 44)  style: system  gap: wide
+
+node dev       "Developer / [dim]interactive coding-agent sessions[/dim]" (wrap: 30)        style: person  above scheduler
+node scheduler "Batch job owner / [dim]background jobs with deadlines[/dim]" (wrap: 30)     style: person  left of atfm  level with atfm
+node operator  "Platform operator / [dim]class weights, delay budgets, SLOs[/dim]" (wrap: 30) style: person  below scheduler
+
+node harness  "Agent harnesses / [dim]mini-SWE-agent, OpenHands, Harbor[/dim]" (wrap: 30)   style: external  above atfm
+node dynamo   "NVIDIA Dynamo pool / [dim]frontend, KV router, vLLM / SGLang / Mocker workers[/dim]" (wrap: 32)  style: external  right of atfm
+node backends "Tool backends / [dim]CI runners, build farms, warehouses, APIs[/dim]" (wrap: 30)  style: external  right of harness  above dynamo
+node traces   "Public trace corpora / [dim]TraceLab, AgentX[/dim]" (wrap: 30)                style: external  below atfm
+
+edge dev -> harness        "chats through"                        from: top     to: left
+edge scheduler -> harness  "submits jobs to"                      from: top     to: left
+edge operator -> atfm      "configures; reads results"            from: right   to: left
+edge harness -> atfm       "LLM calls, tool progress events"      from: bottom  to: top
+edge harness -> backends   "runs tools on"                        from: right   to: left
+edge atfm -> dynamo        "admitted calls + nvext.agent_hints"   from: right   to: left
+edge dynamo -> atfm        "KV and queue metrics (Prometheus)"    from: left    to: right
+edge atfm -> traces        "replays sessions offline (parquet)"   from: bottom  to: top

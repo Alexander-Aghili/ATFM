@@ -1,0 +1,20 @@
+// What happens to a deferrable call under a forecast-driven hold, and where each cost is charged.
+default edge  line: (path: square, corners: rounded)
+style step fill: #ece8f7  border: #6b56b8  text: (color: #241a4d)
+style cost fill: #fdece4  border: #d95926  text: (color: #4a1e0b)
+style dim  text: (color: #6b6b68)
+
+node arrive "background call arrives / [dim]tier, index computed[/dim]" (wrap: 26)  style: step
+node rule "GDP-lite rule / [dim]q90 of interactive KV or busy slots in the next 30 s exceeds free capacity?[/dim]" (wrap: 34)  style: step  right of arrive
+node held "held / [dim]release-not-before = now + slot, capped at arrival + max_hold[/dim]" (wrap: 30)  style: step  right of rule
+node recheck "re-consult at expiry / [dim]hold only while the constraint binds[/dim]" (wrap: 28)  style: step  below held
+node release "released to window / [dim]ordinary queueing from here[/dim]" (wrap: 26)  style: step  below rule
+node cost "charged to the held session / [dim]hold_s, blocks x hold time, displacement evictions, recomputed prefill on resume[/dim]" (wrap: 34)  style: cost  below arrive
+
+edge arrive -> rule    "deferrable"          from: right   to: left
+edge rule -> held      "yes"                 from: right   to: left
+edge rule -> release   "no"                  from: bottom  to: top
+edge held -> recheck   "timer"               from: bottom  to: top
+edge recheck -> held   "still binds"         from: left    to: left
+edge recheck -> release "clear or capped"    from: left    to: right
+edge release -> cost   "accounting"          from: left    to: right

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1514" height="332" viewBox="0 0 1514 332" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
+  <defs>
+    <marker id="arrow-333333" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/>
+    </marker>
+    <marker id="arrow-333333-back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1514" height="332" fill="#ffffff"/>
+  <path d="M48 40 H237 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H48 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#e6f1e6" stroke="#4a7f4a"/>
+  <text x="142.5" y="68.4" fill="#163016" text-anchor="middle">L0 forecast core</text>
+  <text x="142.5" y="87.4" fill="#6b6b68" text-anchor="middle">two real corpora, H1a</text>
+  <text x="142.5" y="106.4" fill="#6b6b68" text-anchor="middle">done</text>
+  <path d="M409.4 40 H615.4 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H409.4 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#e6f1e6" stroke="#4a7f4a"/>
+  <text x="512.4" y="68.4" fill="#163016" text-anchor="middle">L1 plumbing</text>
+  <text x="512.4" y="87.4" fill="#6b6b68" text-anchor="middle">sidecar, proxy, board,</text>
+  <text x="512.4" y="106.4" fill="#6b6b68" text-anchor="middle">Mocker; H1b gate passed</text>
+  <path d="M821.8 40 H1027.8 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H821.8 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#e6f1e6" stroke="#4a7f4a"/>
+  <text x="924.8" y="68.4" fill="#163016" text-anchor="middle">L0 policies</text>
+  <text x="924.8" y="87.4" fill="#6b6b68" text-anchor="middle">closed-loop simulator,</text>
+  <text x="924.8" y="106.4" fill="#6b6b68" text-anchor="middle">six arms, three regimes</text>
+  <path d="M1251.2 40 H1448.2 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H1251.2 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#f2f2f0" stroke="#8a8a86"/>
+  <text x="1349.7" y="68.4" fill="#2a2a28" text-anchor="middle">L2 H100 study</text>
+  <text x="1349.7" y="87.4" fill="#6b6b68" text-anchor="middle">2x H100, real KV, hold</text>
+  <text x="1349.7" y="106.4" fill="#6b6b68" text-anchor="middle">costs measured</text>
+  <path d="M1234.2 206.4 H1465.2 a8 8 0 0 1 8 8 V283.4 a8 8 0 0 1 -8 8 H1234.2 a8 8 0 0 1 -8 -8 V214.4 a8 8 0 0 1 8 -8 Z" fill="#f2f2f0" stroke="#8a8a86"/>
+  <text x="1349.7" y="234.8" fill="#2a2a28" text-anchor="middle">memory tiers, pre-staging,</text>
+  <text x="1349.7" y="253.8" fill="#2a2a28" text-anchor="middle">replica floors</text>
+  <text x="1349.7" y="272.8" fill="#6b6b68" text-anchor="middle">logged only in v1</text>
+  <g font-size="12px">
+  <text x="870.8" y="193.2" fill="#000000" text-anchor="start">now: 2026-09-27</text>
+  </g>
+  <path d="M 245 82.5 C 307.56 82.5, 338.84 82.5, 401.4 82.5" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="276.2" y="73" width="94" height="19" fill="#ffffff"/>
+  <text x="323.2" y="87.4" fill="#000000" text-anchor="middle">predictors</text>
+  <path d="M 623.4 82.5 C 699.56 82.5, 737.64 82.5, 813.8 82.5" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="654.6" y="73" width="128" height="19" fill="#ffffff"/>
+  <text x="718.6" y="87.4" fill="#000000" text-anchor="middle">trace adapters</text>
+  <path d="M 1035.8 82.5 C 1118.76 82.5, 1160.24 82.5, 1243.2 82.5" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="1067" y="73" width="145" height="19" fill="#ffffff"/>
+  <text x="1139.5" y="87.4" fill="#000000" text-anchor="middle">regimes, metrics</text>
+  <path d="M 1349.7 125 C 1349.7 157.56, 1349.7 173.84, 1349.7 206.4" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#arrow-333333)"/>
+  <rect x="1294.2" y="156.2" width="111" height="19" fill="#ffffff"/>
+  <text x="1349.7" y="170.6" fill="#000000" text-anchor="middle">if holds pay</text>
+</svg>

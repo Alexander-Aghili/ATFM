@@ -1,0 +1,20 @@
+// The predictor ladder: each rung adds one source of information; H1 asks which rungs pay.
+style base fill: #f2f2f0  border: #8a8a86  text: (color: #2a2a28)
+style ours fill: #ece8f7  border: #6b56b8  text: (color: #241a4d)
+style hot  fill: #fdece4  border: #d95926  text: (color: #4a1e0b)
+style dim  text: (color: #6b6b68)
+
+node b0 "B0 constant / [dim]last window[/dim]" (wrap: 18)  style: base
+node b1 "B1 Kalman / [dim]history series[/dim]" (wrap: 18)  style: base  right of b0
+node b2 "B2 per-tool history / [dim]elapsed ignored[/dim]" (wrap: 20)  style: base  right of b1
+node m1 "M1 survival / [dim]conditions on elapsed[/dim]" (wrap: 20)  style: ours  right of b2
+node m2 "M2 progress / [dim]rate filter + learned curve[/dim]" (wrap: 22)  style: hot  right of m1
+node m3 "M3 backend factor / [dim]shared slowdowns[/dim]" (wrap: 20)  style: ours  right of m2
+
+edge b0 -> b1 "+ history"        from: right  to: left
+edge b1 -> b2 "+ session state"  from: right  to: left
+edge b2 -> m1 "+ elapsed time"   from: right  to: left
+edge m1 -> m2 "+ tool output"    from: right  to: left
+edge m2 -> m3 "+ fleet signal"   from: right  to: left
+
+node evid "H1a: M1 vs B1 3 to 5x at 5 to 15 min / H1b: M2 vs M1 2.8x on remaining time" (wrap: 40, size: small)  shape: none  below m1 and m2
