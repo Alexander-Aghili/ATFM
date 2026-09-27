@@ -59,6 +59,8 @@ class TierLogger:
     """Per session, the deepest tier whose lead time is under the resumption q10 (spec 6.3). Logged only."""
 
     def __init__(self, tier_lead_s: dict[str, float]):
+        if not tier_lead_s:
+            raise ValueError("TierLogger needs at least one tier with a lead time")
         self.tiers = sorted(tier_lead_s.items(), key=lambda kv: kv[1])   # fastest first
         self.log: list[tuple[float, list[TierDirective]]] = []
 

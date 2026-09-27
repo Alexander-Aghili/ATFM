@@ -2,6 +2,7 @@
 snapshots for operators, and the controllers' directives (holds, touches, tier log, replica floor)."""
 from __future__ import annotations
 
+import asyncio
 import time
 
 import numpy as np
@@ -21,6 +22,7 @@ def create_board_app(board: LiveBoard, *, bus=None, clock=time.time, rng=None, b
     st = app.state
     st.board, st.bus, st.rng = board, bus if bus is not None else InMemoryBus(), rng if rng is not None else np.random.default_rng(0)
     st.snapshot = None
+    st.directives_cache = None       # (snapshot object, response): computed once per snapshot, served to every poller
     st.gdp, st.capacity, st.touch, st.tier, st.replica = gdp, capacity or {}, touch, tier, replica
     st.residency, st.frontier = {}, {}          # fed by a metrics scraper when one is attached
 
@@ -53,21 +55,29 @@ def create_board_app(board: LiveBoard, *, bus=None, clock=time.time, rng=None, b
     async def predict(req: Request):
         d = await req.json()
         t0 = time.perf_counter()
-        try:
-            e_tool = float(board.expected_tool_next(d.get("session_id", "")))
-            e_service = float(board.expected_service(d.get("session_id", ""), int(d.get("isl", 0)), int(d.get("osl", 0))))
-        except Exception:                        # fail-open: defaults the proxy would use anyway
-            e_tool, e_service = 0.0, 0.0
-        ms = (time.perf_counter() - t0) * 1000.0
-        return {"e_service_s": e_service, "e_tool_next_s": e_tool, "elapsed_ms": ms, "over_budget": ms > budget_s * 1000.0}
+        sid, isl, osl = d.get("session_id", ""), int(d.get("isl", 0)), int(d.get("osl", 0))
 
-    @app.get("/directives")
+        def _compute():
+            return float(board.expected_service(sid, isl, osl)), float(board.expected_tool_next(sid))
+        try:                                     # the budget is enforced: past it the proxy's defaults are returned
+            e_service, e_tool = await asyncio.wait_for(asyncio.to_thread(_compute), timeout=budget_s)
+            over = False
+        except (asyncio.TimeoutError, Exception):
+            e_service, e_tool, over = 0.0, 0.0, True
+        ms = (time.perf_counter() - t0) * 1000.0
+        return {"e_service_s": e_service, "e_tool_next_s": e_tool, "elapsed_ms": ms, "over_budget": over or ms > budget_s * 1000.0}
+
+    @app.post("/directives")
     async def directives():
+        """Controllers run once per snapshot (they spend touch credit and reset planner state); every poller
+        of the same snapshot gets the cached answer. POST because it is not free of side effects."""
         now = clock()
-        out = {"t": now, "holds": [], "touches": [], "tier": [], "replica": None}
         s = st.snapshot
+        out = {"t": now, "snapshot_t": None if s is None else s.t, "holds": [], "touches": [], "tier": [], "replica": None}
         if s is None:
             return out
+        if st.directives_cache is not None and st.directives_cache[0] is s:
+            return st.directives_cache[1]
         resumptions = {}
         pred = board.forecaster.predictor
         for state in board.registry.states(now):
@@ -91,6 +101,7 @@ def create_board_app(board: LiveBoard, *, bus=None, clock=time.time, rng=None, b
             out["tier"] = [t.model_dump() for t in st.tier.plan(now, resumptions)]
         if st.replica is not None:
             out["replica"] = st.replica.propose(now, s).model_dump()
+        st.directives_cache = (s, out)
         return out
 
     return app

@@ -48,6 +48,6 @@ async def test_snapshot_predict_and_directives(board):
         assert p["e_service_s"] > 0 and 30.0 < p["e_tool_next_s"] < 120.0 and p["elapsed_ms"] >= 0
         p2 = (await c.post("/predict", json={"session_id": "unknown", "isl": 120, "osl": 20})).json()
         assert p2["e_tool_next_s"] > 0                                   # pooled fallback, never an error
-        d = (await c.get("/directives")).json()
+        d = (await c.post("/directives")).json()
         assert d["holds"] == [] and d["touches"] == [] and d["tier"] == [] and "replica" in d
         assert (await c.get("/healthz")).json()["ok"] is True

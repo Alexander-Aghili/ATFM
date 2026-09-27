@@ -31,7 +31,7 @@ class ControlLoop:
         try:
             r = self.client.post(f"{self.board_url}/tick")
             s["sessions"] = int(r.json().get("sessions", 0)) if r.status_code == 200 else 0
-            d = self.client.get(f"{self.board_url}/directives").json()
+            d = self.client.post(f"{self.board_url}/directives").json()
         except Exception:
             s["errors"] += 1
             self.totals["errors"] += 1

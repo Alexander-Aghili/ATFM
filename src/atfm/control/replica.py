@@ -14,6 +14,10 @@ from .directives import ReplicaDirective
 
 class ReplicaFloor:
     def __init__(self, lead_time_s: float, blocks_per_replica: float, prefill_tps_per_replica: float, min_replicas: int = 1):
+        if lead_time_s <= 0:
+            raise ValueError("lead_time_s must be positive")
+        if blocks_per_replica <= 0:
+            raise ValueError("blocks_per_replica must be positive")
         self.lead_time_s, self.blocks_per_replica = lead_time_s, blocks_per_replica
         self.prefill_tps_per_replica, self.min_replicas = prefill_tps_per_replica, min_replicas
 

@@ -39,7 +39,7 @@ DIRECTIVES = {"t": 100.0,
 
 def test_step_pushes_holds_and_touches_and_logs_tier_and_replica(tmp_path):
     client = FakeClient({("POST", "http://board/tick"): FakeResponse(200, {"sessions": 3}),
-                         ("GET", "http://board/directives"): FakeResponse(200, DIRECTIVES),
+                         ("POST", "http://board/directives"): FakeResponse(200, DIRECTIVES),
                          ("POST", "http://proxy/directives"): FakeResponse(200, {"ok": True}),
                          ("POST", "http://proxy/touch"): FakeResponse(200, {"ok": True, "prompt_tokens": 400})})
     loop = ControlLoop(board_url="http://board", proxy_url="http://proxy", client=client, log_path=tmp_path / "control.jsonl")
@@ -56,7 +56,7 @@ def test_expired_directives_are_not_pushed_and_failures_are_counted_not_raised(t
     stale = dict(DIRECTIVES)
     stale["holds"] = [dict(DIRECTIVES["holds"][0], expires_at=90.0)]        # already expired at now=100
     client = FakeClient({("POST", "http://board/tick"): FakeResponse(200, {"sessions": 1}),
-                         ("GET", "http://board/directives"): FakeResponse(200, stale),
+                         ("POST", "http://board/directives"): FakeResponse(200, stale),
                          ("POST", "http://proxy/directives"): FakeResponse(200, {"ok": True}),
                          ("POST", "http://proxy/touch"): ConnectionError("proxy down")})
     loop = ControlLoop(board_url="http://board", proxy_url="http://proxy", client=client)

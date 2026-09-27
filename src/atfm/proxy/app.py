@@ -53,7 +53,7 @@ def create_app(cfg: ProxyConfig, *, upstream_client: httpx.AsyncClient | None = 
     st.client = upstream_client or httpx.AsyncClient(base_url=cfg.upstream_url, timeout=httpx.Timeout(600.0))
     st.queue = HoldQueue(cfg.window, clock=clock, max_hold_s=cfg.max_hold_s, max_size=cfg.max_queue_size)
     st.last_body = OrderedDict()   # session -> last request body (messages, model) for keep-alive touches; LRU-bounded
-    st.touches, st.touch_tokens = 0, 0
+    st.touches, st.touch_tokens, st.touch_failures = 0, 0, 0
     st.predictor = predictor
     st.pool = ThreadPoolExecutor(max_workers=4)
     st.turns = {}
@@ -103,7 +103,7 @@ def create_app(cfg: ProxyConfig, *, upstream_client: httpx.AsyncClient | None = 
 
     @app.get("/state")
     async def state():
-        return {**st.queue.stats(), "touches": st.touches, "touch_tokens": st.touch_tokens}
+        return {**st.queue.stats(), "touches": st.touches, "touch_tokens": st.touch_tokens, "touch_failures": st.touch_failures}
 
     @app.post("/directives")
     async def directives(req: Request):
@@ -130,10 +130,14 @@ def create_app(cfg: ProxyConfig, *, upstream_client: httpx.AsyncClient | None = 
             r = await st.client.post("/v1/chat/completions", json=body, headers=headers)
             tokens = int(r.json().get("usage", {}).get("prompt_tokens", 0)) if r.status_code == 200 else 0
         except Exception:
+            st.touch_failures += 1
+            return {"ok": False, "prompt_tokens": 0}
+        if r.status_code != 200:
+            st.touch_failures += 1
             return {"ok": False, "prompt_tokens": 0}
         st.touches += 1
         st.touch_tokens += tokens
-        return {"ok": r.status_code == 200, "prompt_tokens": tokens}
+        return {"ok": True, "prompt_tokens": tokens}
 
     @app.post("/gate")
     async def gate(req: Request):
