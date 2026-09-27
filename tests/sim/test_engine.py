@@ -43,3 +43,12 @@ def test_router_affinity():
     assert r.pick(_req("r2", "a", 32, 16, 1)) is w
     other = r.pick(_req("r3", "b", 16, 16, 1))
     assert other is not w
+
+
+def test_request_larger_than_the_cache_is_refused_immediately_not_stalled():
+    """A request whose context cannot fit even an empty cache would wait forever; refuse it with a clear error."""
+    import pytest
+    from atfm.sim.engine import EngineConfig, Request, Worker
+    w = Worker("w0", EngineConfig(kv_blocks=100, max_batch=4, prefill_tps=1e4, decode_tps=100.0))
+    with pytest.raises(ValueError, match=r"needs 126 blocks.*worker w0 has 100"):
+        w.submit(Request(request_id="big:0", session_id="big", cls="background", isl_total=2000, isl_new=2000, osl=16, tier=0, index=0.0, t_queued=0.0), 0.0)

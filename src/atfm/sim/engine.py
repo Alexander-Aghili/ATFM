@@ -61,6 +61,10 @@ class Worker:
         return self.resident.get(session_id, 0)
 
     def submit(self, req: Request, now: float) -> None:
+        needed = math.ceil((req.isl_total + req.osl) / self.cfg.block_size)
+        if needed > self.cfg.kv_blocks:
+            raise ValueError(f"request {req.request_id} needs {needed} blocks but worker {self.worker_id} has {self.cfg.kv_blocks}: "
+                             f"it could never be admitted (raise kv_blocks or shrink the programs' contexts)")
         req.t_queued = now
         self.queue.append(req)
 
