@@ -1,0 +1,46 @@
+{
+  "name": "h2sim_loaded_place",
+  "regime": "long_tool",
+  "trace_path": null,
+  "trace_rate_per_hour": null,
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "arms": [
+    "native",
+    "proxy_rules",
+    "forecast_M1_kv",
+    "forecast_M2_kv",
+    "forecast_M1_kv_size",
+    "forecast_M2_kv_size",
+    "oracle_kv",
+    "oracle_kv_size"
+  ],
+  "engines": [
+    {
+      "kv_blocks": 6000,
+      "max_batch": 6,
+      "prefill_tps": 20000.0,
+      "decode_tps": 40.0,
+      "priority": true
+    }
+  ],
+  "window": 6,
+  "beta": 0.5,
+  "slo_ttft_s": 2.0,
+  "working_set_budget": 4500,
+  "duration_s": 3600.0,
+  "interactive_rate_per_hour": 360.0,
+  "background_rate_per_hour": 600.0,
+  "train_seed_offset": 1000,
+  "max_hold_s": 60.0,
+  "contrasts": [],
+  "kv_bg_weight": 3.0,
+  "touch_budget_per_s": 1.0,
+  "touch_horizon_s": 30.0,
+  "touch_age_s": 10.0,
+  "touch_prefetch": false,
+  "out_dir": "runs"
+}

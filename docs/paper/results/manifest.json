@@ -1,6 +1,6 @@
 {
   "description": "Frozen inputs for the revised paper; metrics copied from completed local runs. Original data/ and runs/ are gitignored. 2026-09-27 addendum: the 60-second-cap loaded run (same regime and rates as h2sim_long_tool_loaded) completed and is frozen here.",
-  "repository_commit": "972a4c78cbf2f10c802368879c4be3ca792869b9",
+  "repository_commit": "31abf18896a88c9bfd90e5eb776b9ab01faf822b",
   "sources": [
     {
       "source": "runs/sweep_tracelab.csv",
@@ -248,8 +248,140 @@
       "snapshot": "h2sim_interactive_long_kv_oracle__config.json",
       "sha256": "a328fa2af4c9fbc3576949e6c7fbf8fb8ae8a13c93a00ddda4beaefb12247555",
       "snapshot_sha256": "a328fa2af4c9fbc3576949e6c7fbf8fb8ae8a13c93a00ddda4beaefb12247555"
+    },
+    {
+      "source": "runs/h2sim_loaded_place/metrics.csv",
+      "snapshot": "h2sim_loaded_place__metrics.csv",
+      "sha256": "0f6e1194f21b554553ad7c97774b56deb95917de11792cf08f08bd434c1c307a",
+      "snapshot_sha256": "0f6e1194f21b554553ad7c97774b56deb95917de11792cf08f08bd434c1c307a"
+    },
+    {
+      "source": "runs/h2sim_loaded_place/paired.csv",
+      "snapshot": "h2sim_loaded_place__paired.csv",
+      "sha256": "c7c38b6040f319405439690ed9eb66820b394a5a6744b67e06dd23b5aa766897",
+      "snapshot_sha256": "c7c38b6040f319405439690ed9eb66820b394a5a6744b67e06dd23b5aa766897"
+    },
+    {
+      "source": "runs/h2sim_loaded_place/contrasts.csv",
+      "snapshot": "h2sim_loaded_place__contrasts.csv",
+      "sha256": "0f6bde82208ded7f46a018b97ff93bbd43975f0c80b3dd0acc6b7c87c821e328",
+      "snapshot_sha256": "0f6bde82208ded7f46a018b97ff93bbd43975f0c80b3dd0acc6b7c87c821e328"
+    },
+    {
+      "source": "runs/h2sim_loaded_place/config.json",
+      "snapshot": "h2sim_loaded_place__config.json",
+      "sha256": "fd32a467f7c2e310126358864e35d122030098920c8773113bfa7f8de684aff4",
+      "snapshot_sha256": "fd32a467f7c2e310126358864e35d122030098920c8773113bfa7f8de684aff4"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_place/metrics.csv",
+      "snapshot": "h2sim_interactive_long_place__metrics.csv",
+      "sha256": "5564e9ee6628a654a42050d55ceb8559a5007c2485257a28c3a6824aa89f7d7e",
+      "snapshot_sha256": "5564e9ee6628a654a42050d55ceb8559a5007c2485257a28c3a6824aa89f7d7e"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_place/paired.csv",
+      "snapshot": "h2sim_interactive_long_place__paired.csv",
+      "sha256": "8ae654d1b4777f1e18aca12dc51d2a0d6b633f3ba1db92ea9bfa1cc968673597",
+      "snapshot_sha256": "8ae654d1b4777f1e18aca12dc51d2a0d6b633f3ba1db92ea9bfa1cc968673597"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_place/contrasts.csv",
+      "snapshot": "h2sim_interactive_long_place__contrasts.csv",
+      "sha256": "f9bbf896b46808320953bc3a19f7650c3d2a86d8b53752599e9958c31029a7c9",
+      "snapshot_sha256": "f9bbf896b46808320953bc3a19f7650c3d2a86d8b53752599e9958c31029a7c9"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_place/config.json",
+      "snapshot": "h2sim_interactive_long_place__config.json",
+      "sha256": "df0d2b1596761aa0423ae32cdb86124ef41a60927964d402827dabcdca6e9ca7",
+      "snapshot_sha256": "df0d2b1596761aa0423ae32cdb86124ef41a60927964d402827dabcdca6e9ca7"
+    },
+    {
+      "source": "runs/h2sim_loaded_cw/metrics.csv",
+      "snapshot": "h2sim_loaded_cw__metrics.csv",
+      "sha256": "c645d37c89fc7aa81e05f63e178ee6411f6805664895f687ed510ecbd063dc3a",
+      "snapshot_sha256": "c645d37c89fc7aa81e05f63e178ee6411f6805664895f687ed510ecbd063dc3a"
+    },
+    {
+      "source": "runs/h2sim_loaded_cw/paired.csv",
+      "snapshot": "h2sim_loaded_cw__paired.csv",
+      "sha256": "fbefbd3bdd79a13eaa8f7cffaaa705b4ace349c58bc5c63da3184e18dce4671c",
+      "snapshot_sha256": "fbefbd3bdd79a13eaa8f7cffaaa705b4ace349c58bc5c63da3184e18dce4671c"
+    },
+    {
+      "source": "runs/h2sim_loaded_cw/contrasts.csv",
+      "snapshot": "h2sim_loaded_cw__contrasts.csv",
+      "sha256": "b5d97c5071e83572dfddb0b3f0283d1557d453c8976166bd25ab9b0656796f65",
+      "snapshot_sha256": "b5d97c5071e83572dfddb0b3f0283d1557d453c8976166bd25ab9b0656796f65"
+    },
+    {
+      "source": "runs/h2sim_loaded_cw/config.json",
+      "snapshot": "h2sim_loaded_cw__config.json",
+      "sha256": "f3e425fa140b0f9a39de430e6fa6097018f4caf75ce8b668f7d27b2d259f57ea",
+      "snapshot_sha256": "f3e425fa140b0f9a39de430e6fa6097018f4caf75ce8b668f7d27b2d259f57ea"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_cw/metrics.csv",
+      "snapshot": "h2sim_interactive_long_cw__metrics.csv",
+      "sha256": "4818889644ecceca9622302f36995351c07d90d62fae4ef733225c79a833fa9a",
+      "snapshot_sha256": "4818889644ecceca9622302f36995351c07d90d62fae4ef733225c79a833fa9a"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_cw/paired.csv",
+      "snapshot": "h2sim_interactive_long_cw__paired.csv",
+      "sha256": "792cc350f7be7442130a66d3f2121379747617085dabf94cc333a99f045f8665",
+      "snapshot_sha256": "792cc350f7be7442130a66d3f2121379747617085dabf94cc333a99f045f8665"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_cw/contrasts.csv",
+      "snapshot": "h2sim_interactive_long_cw__contrasts.csv",
+      "sha256": "7c0e51fa8aa9a9fe15845eec555490c57610ba596aab0e4bb5c482604027f3aa",
+      "snapshot_sha256": "7c0e51fa8aa9a9fe15845eec555490c57610ba596aab0e4bb5c482604027f3aa"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_cw/config.json",
+      "snapshot": "h2sim_interactive_long_cw__config.json",
+      "sha256": "6d42a09095fb5d9949c91130ecac7f237ff6a7c2773c7b9504563ef0551b5019",
+      "snapshot_sha256": "6d42a09095fb5d9949c91130ecac7f237ff6a7c2773c7b9504563ef0551b5019"
+    },
+    {
+      "source": "runs/h2sim_loaded_touch/metrics.csv",
+      "snapshot": "h2sim_loaded_touch__metrics.csv",
+      "sha256": "eb6eed3e50adb117dfd5c7832a157198eab2aaa4ee9db4307624cae9879009b3",
+      "snapshot_sha256": "eb6eed3e50adb117dfd5c7832a157198eab2aaa4ee9db4307624cae9879009b3"
+    },
+    {
+      "source": "runs/h2sim_loaded_touch/paired.csv",
+      "snapshot": "h2sim_loaded_touch__paired.csv",
+      "sha256": "590b1978b387e1a6fb810f681a639f38c5227fd464638ed20e99d2c6d5e77748",
+      "snapshot_sha256": "590b1978b387e1a6fb810f681a639f38c5227fd464638ed20e99d2c6d5e77748"
+    },
+    {
+      "source": "runs/h2sim_loaded_touch/config.json",
+      "snapshot": "h2sim_loaded_touch__config.json",
+      "sha256": "aa33cf7b96129e549a63d4e7929f60bee90995f32c545f4c84440bebf83e6415",
+      "snapshot_sha256": "aa33cf7b96129e549a63d4e7929f60bee90995f32c545f4c84440bebf83e6415"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_touch/metrics.csv",
+      "snapshot": "h2sim_interactive_long_touch__metrics.csv",
+      "sha256": "2530183ea43f8f8c19428dd43d649011f477ed9526d1ba3c85496014b89e4e9b",
+      "snapshot_sha256": "2530183ea43f8f8c19428dd43d649011f477ed9526d1ba3c85496014b89e4e9b"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_touch/paired.csv",
+      "snapshot": "h2sim_interactive_long_touch__paired.csv",
+      "sha256": "18615f467830b5a11227e57ac4401c6f28d1f98dadb6af29eede1f8843406bb5",
+      "snapshot_sha256": "18615f467830b5a11227e57ac4401c6f28d1f98dadb6af29eede1f8843406bb5"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_touch/config.json",
+      "snapshot": "h2sim_interactive_long_touch__config.json",
+      "sha256": "dfaab08f8496e0e3d6a3b3582abeba9c33ed895b875d87cc2e234f94bc5cb857",
+      "snapshot_sha256": "dfaab08f8496e0e3d6a3b3582abeba9c33ed895b875d87cc2e234f94bc5cb857"
     }
   ],
   "paper_revision_date": "2026-09-27",
-  "evidence_cutoff": "Includes the interactive-long, 60-second-cap, GDP-lite v2, KV placement (with corrected true-return-time reruns) and index-diagnostic runs, all completed 2026-09-27."
+  "evidence_cutoff": "Includes the interactive-long, 60-second-cap, GDP-lite v2, KV placement (with corrected true-return-time reruns) and index-diagnostic runs, all completed 2026-09-27; third batch (2026-09-27 evening): placement comparison with direct contrasts, size-aware and class-weighted variants, keep-alive touch arms, in both loaded regimes."
 }

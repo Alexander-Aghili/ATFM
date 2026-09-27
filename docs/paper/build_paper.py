@@ -225,6 +225,52 @@ def kv_table():
     return ''.join(out)
 
 
+def contrasts(run):
+    return {(r['a'], r['b'], r['metric']): r for r in read_csv(f'{run}__contrasts.csv')}
+
+
+def contrast_table():
+    """Direct paired contrasts from the third batch, both regimes, SLO in points and JCT in seconds."""
+    runs = [('h2sim_loaded_place', 'h2sim_interactive_long_place'), ('h2sim_loaded_cw', 'h2sim_interactive_long_cw')]
+    pairs = [('forecast_M2_kv', 'forecast_M1_kv', 'M2 placement vs M1 placement', 0),
+             ('forecast_M2_kv', 'oracle_kv', 'M2 placement vs true-return placement', 0),
+             ('forecast_M1_kv', 'oracle_kv', 'M1 placement vs true-return placement', 0),
+             ('forecast_M2_kv_size', 'forecast_M2_kv', 'size-aware vs size-blind (M2)', 0),
+             ('oracle_kv_size', 'oracle_kv', 'size-aware vs size-blind (true return)', 0),
+             ('forecast_M2_kv_cw', 'forecast_M2_kv', 'class-weighted vs plain (M2)', 1),
+             ('oracle_kv_cw', 'oracle_kv', 'class-weighted vs plain (true return)', 1)]
+    out = []
+    for a, bb, label, which in pairs:
+        vals = []
+        for run in runs[which]:
+            c = contrasts(run)
+            for metric, scale, precision in (('slo_attainment_sessions', 100, 1), ('bg_jct_mean', 1, 0)):
+                r = c.get((a, bb, metric))
+                vals.append('-' if r is None else (f"{float(r['diff_mean'])*scale:+.{precision}f} "
+                            f"[{float(r['diff_ci_lo'])*scale:+.{precision}f}, {float(r['diff_ci_hi'])*scale:+.{precision}f}]"))
+        out.append('<tr>' + cell(label) + ''.join(cell(v, True) for v in vals) + '</tr>')
+    return ''.join(out)
+
+
+def touch_table():
+    labels = {'proxy_rules': 'Rules', 'forecast_M2_kv': 'M2 placement (eviction order)', 'forecast_M1_touch': 'M1 touch',
+              'forecast_M2_touch': 'M2 touch', 'oracle_touch': 'True-return touch', 'working_set': 'Working set'}
+    runs = ['h2sim_loaded_touch', 'h2sim_interactive_long_touch']
+    data = [paired(r) for r in runs]
+    mets = [read_csv(f'{r}__metrics.csv') for r in runs]
+    out = []
+    for arm, label in labels.items():
+        vals = []
+        for d, mrows in zip(data, mets):
+            slo, jct = d.get((arm, 'slo_attainment_sessions')), d.get((arm, 'bg_jct_mean'))
+            sel = [r for r in mrows if r['arm'] == arm]
+            rec = sum(float(r['recomputed_prefill_tokens']) for r in sel) / max(len(sel), 1) / 1e6
+            vals += ['-' if slo is None else f"{float(slo['diff_mean'])*100:+.1f} [{float(slo['diff_ci_lo'])*100:+.1f}, {float(slo['diff_ci_hi'])*100:+.1f}]",
+                     '-' if jct is None else f"{float(jct['diff_mean']):+.0f}", f"{rec:.1f}"]
+        out.append('<tr>' + cell(label) + ''.join(cell(v, True) for v in vals) + '</tr>')
+    return ''.join(out)
+
+
 def cost_table():
     rows = read_csv('h2sim_long_tool_loaded__metrics.csv')
     out = []
@@ -250,7 +296,7 @@ def build():
                     'H1B_CHART': chart_h1b(), 'H2_CHART': chart_h2(),
                     'LOADED_TABLE': policy_table('h2sim_long_tool_loaded'),
                     'LONG_TABLE': policy_table('h2sim_interactive_long'),
-                    'CAP60_TABLE': policy_table('h2sim_long_tool_loaded_cap60'), 'V2_TABLE': v2_table(), 'KV_TABLE': kv_table(),
+                    'CAP60_TABLE': policy_table('h2sim_long_tool_loaded_cap60'), 'V2_TABLE': v2_table(), 'KV_TABLE': kv_table(), 'CONTRAST_TABLE': contrast_table(), 'TOUCH_TABLE': touch_table(),
                     'COST_TABLE': cost_table()}
     for key, value in replacements.items():
         template = template.replace('{{' + key + '}}', value)
