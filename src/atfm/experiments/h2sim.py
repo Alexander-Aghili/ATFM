@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel, Field
 
-from atfm.eval.serving import paired_bootstrap, serving_metrics
+from atfm.eval.serving import paired_bootstrap, paired_contrasts, serving_metrics
 from atfm.proxy.config import ProxyConfig
 from atfm.sim.core import Simulator
 from atfm.sim.engine import EngineConfig
@@ -20,7 +20,18 @@ from atfm.sim.programs import programs_from_spec
 from atfm.traces.synthetic import ClassSpec, ToolSpec, WorkloadSpec
 
 ARMS = ["native", "proxy_rules", "forecast_M1", "forecast_M2", "oracle", "oracle_rule", "working_set",
-        "forecast_M1_kv", "forecast_M2_kv", "oracle_kv", "oracle_rule_noidx"]
+        "forecast_M1_kv", "forecast_M2_kv", "oracle_kv", "oracle_rule_noidx",
+        "forecast_M1_kv_size", "forecast_M2_kv_size", "oracle_kv_size"]
+
+
+def default_contrasts(arms: list[str]) -> list[tuple[str, str]]:
+    """Direct paired contrasts worth reporting when both arms ran: M2 against M1, forecast placement
+    against true-return-time placement, size-aware against size-blind."""
+    cands = [("forecast_M2", "forecast_M1"), ("forecast_M2_kv", "forecast_M1_kv"),
+             ("forecast_M2_kv", "oracle_kv"), ("forecast_M1_kv", "oracle_kv"),
+             ("forecast_M2_kv_size", "forecast_M2_kv"), ("forecast_M1_kv_size", "forecast_M1_kv"),
+             ("oracle_kv_size", "oracle_kv"), ("forecast_M2_kv_size", "oracle_kv_size")]
+    return [(a, b) for a, b in cands if a in arms and b in arms]
 ABLATIONS = ["forecast_M1_nohold", "forecast_M2_nohold"]
 
 
@@ -39,6 +50,7 @@ class H2SimConfig(BaseModel):
     background_rate_per_hour: float = 240.0
     train_seed_offset: int = 1000
     max_hold_s: float = 600.0        # cap on any policy hold, enforced in the simulator core
+    contrasts: list[list[str]] = Field(default_factory=list)   # explicit [a, b] pairs; empty = default_contrasts(arms)
     out_dir: str = "runs"
 
 
@@ -72,11 +84,12 @@ def _arm(name: str, cfg: H2SimConfig, engines: list[EngineConfig], train_program
         return ProxyRulesPolicy(cfg.window, pcfg)
     if name == "oracle":
         return OraclePolicy(cfg.window, pcfg, hold=True)
-    if name == "oracle_kv":
-        return OracleKvPolicy(cfg.window, pcfg)
-    if name in ("forecast_M1_kv", "forecast_M2_kv"):
+    if name in ("oracle_kv", "oracle_kv_size"):
+        return OracleKvPolicy(cfg.window, pcfg, size_aware=name.endswith("_size"))
+    if name in ("forecast_M1_kv", "forecast_M2_kv", "forecast_M1_kv_size", "forecast_M2_kv_size"):
         pred, table = fit_predictor_on_programs(name.split("_")[1], train_programs, engines, rng)
-        return ForecastKvPolicy(cfg.window, pcfg, pred, table, horizons=[30.0, 120.0, 300.0], n=64)
+        return ForecastKvPolicy(cfg.window, pcfg, pred, table, horizons=[30.0, 120.0, 300.0], n=64,
+                                size_aware=name.endswith("_size"))
     if name == "oracle_rule_noidx":
         return OracleRuleNoIdxPolicy(cfg.window, pcfg, horizons=[30.0, 120.0, 300.0], gdp=GdpLite(max_hold_s=cfg.max_hold_s))
     if name == "oracle_rule":
@@ -143,6 +156,14 @@ def run_h2sim(cfg: H2SimConfig) -> pd.DataFrame:
         pb["metric"] = metric
         paired.append(pb)
     pd.concat(paired, ignore_index=True).to_csv(out / "paired.csv", index=False)
+    pairs = [tuple(p) for p in cfg.contrasts] or default_contrasts(cfg.arms)
+    if pairs:
+        contrasts = []
+        for metric, fn in metric_fns.items():
+            c = paired_contrasts(per, fn, pairs, n_boot=300, rng=np.random.default_rng(0))
+            c["metric"] = metric
+            contrasts.append(c)
+        pd.concat(contrasts, ignore_index=True).to_csv(out / "contrasts.csv", index=False)
     df[["arm", "seed", "queue_proxy_share", "queue_worker_share", "mean_held_s_background", "hold_kv_block_s",
         "evictions_caused_by_holds"]].to_csv(out / "queue_location.csv", index=False)
     (out / "config.json").write_text(cfg.model_dump_json(indent=2))

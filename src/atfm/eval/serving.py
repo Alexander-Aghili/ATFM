@@ -40,9 +40,8 @@ def serving_metrics(log: pd.DataFrame, sessions: list[dict], slo_ttft_s: float, 
     }
 
 
-def paired_bootstrap(per_session: dict, metric_fn, n_boot: int = 500, rng=None) -> pd.DataFrame:
-    """Resample the same session ids for every arm; report each arm's CI and its paired difference to the first arm."""
-    rng = np.random.default_rng(0) if rng is None else rng
+def _paired_draws(per_session: dict, metric_fn, n_boot: int, rng) -> tuple[dict, dict]:
+    """Bootstrap draws of `metric_fn` over the same resampled session ids for every arm."""
     arms = list(per_session)
     ids = sorted(set.intersection(*[set(df["session_id"]) for df in per_session.values()]))
     idx = {a: per_session[a].set_index("session_id").loc[ids] for a in arms}
@@ -51,6 +50,27 @@ def paired_bootstrap(per_session: dict, metric_fn, n_boot: int = 500, rng=None) 
         sample = rng.choice(ids, size=len(ids), replace=True)
         for a in arms:
             draws[a].append(metric_fn(idx[a].loc[sample].reset_index()))
+    return draws, idx
+
+
+def paired_contrasts(per_session: dict, metric_fn, pairs: list[tuple[str, str]], n_boot: int = 500, rng=None) -> pd.DataFrame:
+    """Direct paired differences a - b for named arm pairs, from one set of session resamples."""
+    rng = np.random.default_rng(0) if rng is None else rng
+    draws, idx = _paired_draws(per_session, metric_fn, n_boot, rng)
+    rows = []
+    for a, b in pairs:
+        diff = np.asarray(draws[a], float) - np.asarray(draws[b], float)
+        rows.append({"contrast": f"{a} vs {b}", "a": a, "b": b,
+                     "diff_mean": float(metric_fn(idx[a].reset_index()) - metric_fn(idx[b].reset_index())),
+                     "diff_ci_lo": float(np.nanquantile(diff, 0.025)), "diff_ci_hi": float(np.nanquantile(diff, 0.975))})
+    return pd.DataFrame(rows)
+
+
+def paired_bootstrap(per_session: dict, metric_fn, n_boot: int = 500, rng=None) -> pd.DataFrame:
+    """Resample the same session ids for every arm; report each arm's CI and its paired difference to the first arm."""
+    rng = np.random.default_rng(0) if rng is None else rng
+    arms = list(per_session)
+    draws, idx = _paired_draws(per_session, metric_fn, n_boot, rng)
     base = np.asarray(draws[arms[0]], float)
     rows = []
     for a in arms:

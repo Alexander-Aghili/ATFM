@@ -16,17 +16,32 @@ from .forecast_arm import ForecastPolicy, next_call_of
 from .policies import OraclePolicy
 
 
+def order_victims(candidates: list[str], eta: dict[str, float], blocks: dict[str, int], now: float,
+                  size_aware: bool) -> list[str]:
+    """Eviction order, first to go first. Absence = max(0, eta - now); unknown sessions (no eta) go first.
+    size_aware scores idle block-seconds (absence x resident blocks) instead of absence alone."""
+    def score(sid: str) -> float:
+        e = eta.get(sid, float("inf"))
+        if not np.isfinite(e):
+            return float("inf")
+        absence = max(0.0, e - now)
+        return absence * blocks.get(sid, 1) if size_aware else absence
+    return sorted(candidates, key=lambda sid: -score(sid))
+
+
 class _KvOrdering:
     """Shared eviction ordering over a per-session expected return time (absolute seconds). Admission is
     exactly `proxy_rules` (no next-tool index term), so the arms differ from rules by placement alone."""
     _eta: dict[str, float]
+    size_aware: bool = False
+    _now: float = 0.0
 
     def e_tool_next(self, sim, call) -> float:
         return 0.0
 
     def kv_victims(self, sim, worker, candidates: list[str]) -> list[str]:
-        eta = self._eta
-        return sorted(candidates, key=lambda sid: -eta.get(sid, float("inf")))
+        blocks = {sid: worker.resident_blocks(sid) for sid in candidates}
+        return order_victims(candidates, self._eta, blocks, sim.now, self.size_aware)
 
 
 class OracleKvPolicy(_KvOrdering, OraclePolicy):
@@ -34,9 +49,12 @@ class OracleKvPolicy(_KvOrdering, OraclePolicy):
 
     name = "oracle_kv"
 
-    def __init__(self, window: int, cfg: ProxyConfig):
+    def __init__(self, window: int, cfg: ProxyConfig, size_aware: bool = False):
         super().__init__(window, cfg, hold=False)
         self._eta = {}
+        self.size_aware = size_aware
+        if size_aware:
+            self.name = "oracle_kv_size"
 
     def on_tick(self, sim, now: float) -> None:
         eta: dict[str, float] = {}
@@ -66,9 +84,10 @@ class ForecastKvPolicy(_KvOrdering, ForecastPolicy):
     """Rules-only admission plus eviction by the predictor's median time-to-next-call per session."""
 
     def __init__(self, window: int, cfg: ProxyConfig, predictor, train_table: TraceTable | None, horizons: list[float],
-                 n: int = 64):
+                 n: int = 64, size_aware: bool = False):
         super().__init__(window, cfg, predictor, train_table, horizons, n=n, hold=False)
-        self.name = f"forecast_{predictor.name.split('_')[0]}_kv"
+        self.size_aware = size_aware
+        self.name = f"forecast_{predictor.name.split('_')[0]}_kv" + ("_size" if size_aware else "")
         self._eta = {}
         self._n = n
 
