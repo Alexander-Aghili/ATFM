@@ -8,6 +8,7 @@ style hot      fill: #fdece4  border: #d95926  text: (color: #4a1e0b)
 node proxy   "Harness proxy / [dim]FastAPI, OpenAI endpoint; index, global window, holds, tiers[/dim]" (wrap: 34)  style: svc  gap: wide
 node harness "Agent harness / [dim]mini-SWE-agent, OpenHands, Harbor[/dim]" (wrap: 28)  style: external  left of proxy
 node dynamo  "NVIDIA Dynamo pool / [dim]frontend + KV router + workers + planner[/dim]" (wrap: 30)  style: external  right of proxy
+node lmcache "LMCache controller / [dim]pin, move, lookup by prefix tokens; CPU and disk tiers[/dim]" (wrap: 30)  style: external  right of control (gap: wide)  below dynamo
 
 node sidecar "Tool-runtime sidecar / [dim]in-process; wraps tool subprocesses; emits progress[/dim]" (wrap: 30)  style: svc  below harness  gap: wide
 node bus     "Event bus / [dim]Redis Streams (deploy); in-memory or JSONL (dev)[/dim]" (wrap: 28)  style: svc  right of sidecar
@@ -29,6 +30,8 @@ edge bus -> board        "events"                                    from: right
 edge board -> proxy      "predictions for / pending calls" (size: small)  from: top     to: bottom
 edge board -> control    "ForecastSnapshot per horizon"              from: right   to: left
 edge control -> proxy    "HoldDirective" (size: small)               from: top     to: bottom
+edge control -> lmcache  "placement: / pin, move" (size: small)     from: right   to: left
+edge lmcache -> dynamo   "KV tiers under the workers" (size: small)   from: top     to: bottom
 edge bus -> store        "JSONL events -> trace table"               from: bottom  to: top
 edge board -> store      "forecast snapshots"                        from: bottom  to: right
 edge sim -> store        "reads traces; writes run metrics"          from: left    to: right

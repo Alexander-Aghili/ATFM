@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2275" height="597" viewBox="-101 -32 2275 597" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
+<svg xmlns="http://www.w3.org/2000/svg" width="2497" height="597" viewBox="-101 -32 2497 597" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
   <defs>
     <marker id="arrow-5c5c7c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#5c5c7c"/>
@@ -7,7 +7,7 @@
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#5c5c7c"/>
     </marker>
   </defs>
-  <rect x="-101" y="-32" width="2275" height="597" fill="#111111"/>
+  <rect x="-101" y="-32" width="2497" height="597" fill="#111111"/>
   <path d="M619.9 40 H900.9 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H619.9 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#2d1f4f" stroke="#7a5cc0"/>
   <text x="760.4" y="68.4" fill="#efe8ff" text-anchor="middle">Harness proxy</text>
   <text x="760.4" y="87.4" fill="#9a9a9a" text-anchor="middle">FastAPI, OpenAI endpoint; index,</text>
@@ -20,6 +20,10 @@
   <text x="1415.3" y="68.4" fill="#dcdcdc" text-anchor="middle">NVIDIA Dynamo pool</text>
   <text x="1415.3" y="87.4" fill="#9a9a9a" text-anchor="middle">frontend + KV router + workers</text>
   <text x="1415.3" y="106.4" fill="#9a9a9a" text-anchor="middle">+ planner</text>
+  <path d="M1793.6 181 H2032.6 a8 8 0 0 1 8 8 V258 a8 8 0 0 1 -8 8 H1793.6 a8 8 0 0 1 -8 -8 V189 a8 8 0 0 1 8 -8 Z" fill="#2a2a2a" stroke="#6a6a6a"/>
+  <text x="1913.1" y="209.4" fill="#dcdcdc" text-anchor="middle">LMCache controller</text>
+  <text x="1913.1" y="228.4" fill="#9a9a9a" text-anchor="middle">pin, move, lookup by prefix</text>
+  <text x="1913.1" y="247.4" fill="#9a9a9a" text-anchor="middle">tokens; CPU and disk tiers</text>
   <path d="M48 235.4 H296 a8 8 0 0 1 8 8 V312.4 a8 8 0 0 1 -8 8 H48 a8 8 0 0 1 -8 -8 V243.4 a8 8 0 0 1 8 -8 Z" fill="#2d1f4f" stroke="#7a5cc0"/>
   <text x="172" y="263.8" fill="#efe8ff" text-anchor="middle">Tool-runtime sidecar</text>
   <text x="172" y="282.8" fill="#9a9a9a" text-anchor="middle">in-process; wraps tool</text>
@@ -33,11 +37,11 @@
   <text x="945.8" y="273.3" fill="#9a9a9a" text-anchor="middle">session registry; predictors</text>
   <text x="945.8" y="292.3" fill="#9a9a9a" text-anchor="middle">B0..M3; Monte Carlo forecast</text>
   <text x="945.8" y="311.3" fill="#9a9a9a" text-anchor="middle">every 5 s</text>
-  <path d="M1394.2 225.9 H1650.2 a8 8 0 0 1 8 8 V321.9 a8 8 0 0 1 -8 8 H1394.2 a8 8 0 0 1 -8 -8 V233.9 a8 8 0 0 1 8 -8 Z" fill="#2d1f4f" stroke="#7a5cc0"/>
-  <text x="1522.2" y="254.3" fill="#efe8ff" text-anchor="middle">Controllers</text>
-  <text x="1522.2" y="273.3" fill="#9a9a9a" text-anchor="middle">ground delay program;</text>
-  <text x="1522.2" y="292.3" fill="#9a9a9a" text-anchor="middle">pre-staging and replica floor</text>
-  <text x="1522.2" y="311.3" fill="#9a9a9a" text-anchor="middle">log only</text>
+  <path d="M1394.2 225.9 H1633.2 a8 8 0 0 1 8 8 V321.9 a8 8 0 0 1 -8 8 H1394.2 a8 8 0 0 1 -8 -8 V233.9 a8 8 0 0 1 8 -8 Z" fill="#2d1f4f" stroke="#7a5cc0"/>
+  <text x="1513.7" y="254.3" fill="#efe8ff" text-anchor="middle">Controllers</text>
+  <text x="1513.7" y="273.3" fill="#9a9a9a" text-anchor="middle">GDP planner, touch and tier</text>
+  <text x="1513.7" y="292.3" fill="#9a9a9a" text-anchor="middle">placement, replica floor,</text>
+  <text x="1513.7" y="311.3" fill="#9a9a9a" text-anchor="middle">control loop</text>
   <path d="M431.9 430.4 H718.9 a8 8 0 0 1 8 8 V507.4 a8 8 0 0 1 -8 8 H431.9 a8 8 0 0 1 -8 -8 V438.4 a8 8 0 0 1 8 -8 Z" fill="#142814" stroke="#486544"/>
   <text x="551.4" y="458.8" fill="#e4f2e4" text-anchor="middle">Trace and run store</text>
   <text x="551.4" y="477.8" fill="#9a9a9a" text-anchor="middle">trace table, snapshots, run</text>
@@ -48,12 +52,12 @@
     <path d="M3 11 a9 3.4 0 0 0 18 0" fill="none" stroke="#8d8d8e" stroke-width="1.1" stroke-linejoin="round"/>
     <path d="M3 15.6 a9 3.4 0 0 0 18 0" fill="none" stroke="#8d8d8e" stroke-width="1.1" stroke-linejoin="round"/>
   </g>
-  <path d="M1398.2 439.9 H1646.2 a8 8 0 0 1 8 8 V516.9 a8 8 0 0 1 -8 8 H1398.2 a8 8 0 0 1 -8 -8 V447.9 a8 8 0 0 1 8 -8 Z" fill="#2d1f4f" stroke="#7a5cc0"/>
-  <text x="1522.2" y="468.3" fill="#efe8ff" text-anchor="middle">Simulator and evaluation</text>
-  <text x="1522.2" y="487.3" fill="#9a9a9a" text-anchor="middle">closed-loop fleet model;</text>
-  <text x="1522.2" y="506.3" fill="#9a9a9a" text-anchor="middle">forecast and serving metrics</text>
-  <path d="M1970.6 458.9 H2125.6 a8 8 0 0 1 8 8 V497.9 a8 8 0 0 1 -8 8 H1970.6 a8 8 0 0 1 -8 -8 V466.9 a8 8 0 0 1 8 -8 Z" fill="#1f3a5f" stroke="#3b6ea8"/>
-  <text x="2048.1" y="487.3" fill="#e8f0fa" text-anchor="middle">Platform operator</text>
+  <path d="M1389.7 439.9 H1637.7 a8 8 0 0 1 8 8 V516.9 a8 8 0 0 1 -8 8 H1389.7 a8 8 0 0 1 -8 -8 V447.9 a8 8 0 0 1 8 -8 Z" fill="#2d1f4f" stroke="#7a5cc0"/>
+  <text x="1513.7" y="468.3" fill="#efe8ff" text-anchor="middle">Simulator and evaluation</text>
+  <text x="1513.7" y="487.3" fill="#9a9a9a" text-anchor="middle">closed-loop fleet model;</text>
+  <text x="1513.7" y="506.3" fill="#9a9a9a" text-anchor="middle">forecast and serving metrics</text>
+  <path d="M1962.1 458.9 H2117.1 a8 8 0 0 1 8 8 V497.9 a8 8 0 0 1 -8 8 H1962.1 a8 8 0 0 1 -8 -8 V466.9 a8 8 0 0 1 8 -8 Z" fill="#1f3a5f" stroke="#3b6ea8"/>
+  <text x="2039.6" y="487.3" fill="#e8f0fa" text-anchor="middle">Platform operator</text>
   <path d="M 295.5 82.5 L 611.9 82.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#arrow-5c5c7c)"/>
   <rect x="326.7" y="73" width="254" height="19" fill="#111111"/>
   <text x="453.7" y="87.4" fill="#d9d9d9" text-anchor="middle">chat completions (OpenAI API)</text>
@@ -97,10 +101,21 @@
   <path d="M 1077.8 277.9 L 1386.2 277.9" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#arrow-5c5c7c)"/>
   <rect x="1109" y="268.4" width="246" height="19" fill="#111111"/>
   <text x="1232" y="282.8" fill="#d9d9d9" text-anchor="middle">ForecastSnapshot per horizon</text>
-  <path d="M 1522.2 225.9 L 1522.2 195.45 C 1522.2 184.4, 1513.25 175.45, 1502.2 175.45 L 796.4 175.45 C 785.35 175.45, 776.4 166.5, 776.4 155.45 L 776.4 125" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#arrow-5c5c7c)"/>
-  <rect x="1097.3" y="167.45" width="104" height="16" fill="#111111"/>
+  <path d="M 1513.7 225.9 L 1513.7 195.45 C 1513.7 184.4, 1504.75 175.45, 1493.7 175.45 L 796.4 175.45 C 785.35 175.45, 776.4 166.5, 776.4 155.45 L 776.4 125" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#arrow-5c5c7c)"/>
+  <rect x="1093.05" y="167.45" width="104" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="1149.3" y="179.65" fill="#d9d9d9" text-anchor="middle">HoldDirective</text>
+  <text x="1145.05" y="179.65" fill="#d9d9d9" text-anchor="middle">HoldDirective</text>
+  </g>
+  <path d="M 1641.2 277.9 L 1693.4 277.9 C 1704.45 277.9, 1713.4 268.95, 1713.4 257.9 L 1713.4 243.5 C 1713.4 232.45, 1722.35 223.5, 1733.4 223.5 L 1785.6 223.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#arrow-5c5c7c)"/>
+  <rect x="1636.3" y="261.9" width="82" height="32" fill="#111111"/>
+  <g font-size="12px">
+  <text x="1677.3" y="274.1" fill="#d9d9d9" text-anchor="middle">placement:</text>
+  <text x="1677.3" y="290.1" fill="#d9d9d9" text-anchor="middle">pin, move</text>
+  </g>
+  <path d="M 1913.1 181 L 1913.1 169.8 C 1913.1 160.52, 1905.58 153, 1896.3 153 L 1432.1 153 C 1422.82 153, 1415.3 145.48, 1415.3 136.2 L 1415.3 125" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#arrow-5c5c7c)"/>
+  <rect x="1565.2" y="145" width="198" height="16" fill="#111111"/>
+  <g font-size="12px">
+  <text x="1664.2" y="157.2" fill="#d9d9d9" text-anchor="middle">KV tiers under the workers</text>
   </g>
   <path d="M 575.4 320.4 L 575.4 430.4" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#arrow-5c5c7c)"/>
   <rect x="456.9" y="365.9" width="237" height="19" fill="#111111"/>
@@ -108,13 +123,13 @@
   <path d="M 945.8 329.9 L 945.8 444.9 C 945.8 455.95, 936.85 464.9, 925.8 464.9 L 726.9 464.9" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#arrow-5c5c7c)"/>
   <rect x="755.35" y="455.4" width="162" height="19" fill="#111111"/>
   <text x="836.35" y="469.8" fill="#d9d9d9" text-anchor="middle">forecast snapshots</text>
-  <path d="M 1390.2 482.4 L 1059.3 482.4 C 1058.89 482.4, 1058.55 482.06, 1058.55 481.65 L 1058.55 481.65 C 1058.55 481.24, 1058.21 480.9, 1057.8 480.9 L 726.9 480.9" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#arrow-5c5c7c)"/>
-  <rect x="1084.88" y="472.9" width="279" height="19" fill="#111111"/>
-  <text x="1224.38" y="487.3" fill="#d9d9d9" text-anchor="middle">reads traces; writes run metrics</text>
-  <path d="M 1962.6 482.4 L 1654.2 482.4" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#arrow-5c5c7c)"/>
-  <rect x="1685.4" y="472.9" width="246" height="19" fill="#111111"/>
-  <text x="1808.4" y="487.3" fill="#d9d9d9" text-anchor="middle">runs experiments (CLI, YAML)</text>
-  <path d="M 2048.1 458.9 L 2048.1 447.7 C 2048.1 436.65, 2039.15 427.7, 2028.1 427.7 L 1840.2 427.7 C 1829.15 427.7, 1820.2 418.75, 1820.2 407.7 L 1820.2 28.8 C 1820.2 17.75, 1811.25 8.8, 1800.2 8.8 L 788.4 8.8 C 777.35 8.8, 768.4 17.75, 768.4 28.8 L 768.4 40" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#arrow-5c5c7c)"/>
-  <rect x="1668.2" y="208.75" width="304" height="19" fill="#111111"/>
-  <text x="1820.2" y="223.15" fill="#d9d9d9" text-anchor="middle">class weights, budgets, SLOs (YAML)</text>
+  <path d="M 1381.7 482.4 L 1055.05 482.4 C 1054.64 482.4, 1054.3 482.06, 1054.3 481.65 L 1054.3 481.65 C 1054.3 481.24, 1053.96 480.9, 1053.55 480.9 L 726.9 480.9" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#arrow-5c5c7c)"/>
+  <rect x="1078.5" y="472.9" width="279" height="19" fill="#111111"/>
+  <text x="1218" y="487.3" fill="#d9d9d9" text-anchor="middle">reads traces; writes run metrics</text>
+  <path d="M 1954.1 482.4 L 1645.7 482.4" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#arrow-5c5c7c)"/>
+  <rect x="1676.9" y="472.9" width="246" height="19" fill="#111111"/>
+  <text x="1799.9" y="487.3" fill="#d9d9d9" text-anchor="middle">runs experiments (CLI, YAML)</text>
+  <path d="M 2039.6 458.9 L 2039.6 447.7 C 2039.6 436.65, 2048.55 427.7, 2059.6 427.7 L 2182.6 427.7 C 2193.65 427.7, 2202.6 418.75, 2202.6 407.7 L 2202.6 28.8 C 2202.6 17.75, 2193.65 8.8, 2182.6 8.8 L 788.4 8.8 C 777.35 8.8, 768.4 17.75, 768.4 28.8 L 768.4 40" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#arrow-5c5c7c)"/>
+  <rect x="2050.6" y="208.75" width="304" height="19" fill="#111111"/>
+  <text x="2202.6" y="223.15" fill="#d9d9d9" text-anchor="middle">class weights, budgets, SLOs (YAML)</text>
 </svg>

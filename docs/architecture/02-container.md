@@ -3,7 +3,7 @@
 > **Diagram type**: Container
 > **Scope**: the independently deployable parts of ATFM and how they exchange data with each other, the agent harness and the Dynamo pool.
 > **Audience**: the engineering team building and operating ATFM.
-> **Status**: draft v1.1, generated from the architecture spec (2026-09-23); diagrams moved from Mermaid C4 to reladraw on 2026-09-27; pending founder validation.
+> **Status**: draft v1.1, generated from the architecture spec (2026-09-23); diagrams moved from Mermaid C4 to reladraw on 2026-09-27; LMCache added as the placement actuator (D3 amendment); pending founder validation.
 
 ## Overview
 
@@ -29,11 +29,12 @@ style dim      text: (color: #9a9a9a)
 node proxy   "Harness proxy / [dim]FastAPI, OpenAI endpoint; index, global window, holds, tiers[/dim]" (wrap: 34)  style: svc  gap: wide
 node harness "Agent harness / [dim]mini-SWE-agent, OpenHands, Harbor[/dim]" (wrap: 28)  style: external  left of proxy
 node dynamo  "NVIDIA Dynamo pool / [dim]frontend + KV router + workers + planner[/dim]" (wrap: 30)  style: external  right of proxy
+node lmcache "LMCache controller / [dim]pin, move, lookup by prefix tokens; CPU and disk tiers[/dim]" (wrap: 30)  style: external  right of control (gap: wide)  below dynamo
 
 node sidecar "Tool-runtime sidecar / [dim]in-process; wraps tool subprocesses; emits progress[/dim]" (wrap: 30)  style: svc  below harness  gap: wide
 node bus     "Event bus / [dim]Redis Streams (deploy); in-memory or JSONL (dev)[/dim]" (wrap: 28)  style: svc  right of sidecar
 node board   "Demand board / [dim]session registry; predictors B0..M3; Monte Carlo forecast every 5 s[/dim]" (wrap: 32)  style: svc  right of bus
-node control "Controllers / [dim]ground delay program; pre-staging and replica floor log only[/dim]" (wrap: 30)  style: svc  right of board
+node control "Controllers / [dim]GDP planner, touch and tier placement, replica floor, control loop[/dim]" (wrap: 30)  style: svc  right of board
 
 node store    "Trace and run store / [dim]trace table, snapshots, run metrics (parquet + JSON)[/dim]" (wrap: 28)  style: store  below bus  gap: wide
 node sim      "Simulator and evaluation / [dim]closed-loop fleet model; forecast and serving metrics[/dim]" (wrap: 30)  style: svc  below control  gap: wide
@@ -43,13 +44,15 @@ edge harness -> proxy    "chat completions (OpenAI API)"             from: right
 edge proxy -> dynamo     "admitted calls + tier / OSL hints"         from: right   to: left
 edge dynamo -> proxy     "KV blocks, queue depth (Prometheus)"       from: left    to: right
 edge harness -> sidecar  "execute(action)"                           from: bottom  to: top
-edge sidecar -> proxy    "launch gate" (size: small)                 from: right   to: bottom  above bus  line: (path: curved)
+edge sidecar -> proxy    "launch gate" (size: small)   from: left  to: top  left of harness
 edge sidecar -> bus      "tool.start / progress / data / end"        from: right   to: left
-edge proxy -> bus        "llm.request, first_token, done" (size: small)  from: bottom  to: top  line: (path: curved)
+edge proxy -> bus        "llm.request / first_token / done" (size: small)  from: bottom  to: top
 edge bus -> board        "events"                                    from: right   to: left
-edge board -> proxy      "predictions for pending calls" (size: small)  from: top     to: bottom  line: (path: curved)
+edge board -> proxy      "predictions for / pending calls" (size: small)  from: top     to: bottom
 edge board -> control    "ForecastSnapshot per horizon"              from: right   to: left
-edge control -> proxy    "HoldDirective" (size: small)               from: top     to: bottom  line: (path: curved)
+edge control -> proxy    "HoldDirective" (size: small)               from: top     to: bottom
+edge control -> lmcache  "pin / move (placement)" (size: small)       from: right   to: left
+edge lmcache -> dynamo   "KV tiers under the workers" (size: small)   from: top     to: bottom
 edge bus -> store        "JSONL events -> trace table"               from: bottom  to: top
 edge board -> store      "forecast snapshots"                        from: bottom  to: right
 edge sim -> store        "reads traces; writes run metrics"          from: left    to: right
