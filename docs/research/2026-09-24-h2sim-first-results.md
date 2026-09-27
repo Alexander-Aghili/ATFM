@@ -209,3 +209,33 @@ With all three defects fixed the true-return-time arm is no longer worse than LR
 Same ordering as the loaded regime: the corrected true-return-time arm (+1.4 points) sits below both forecast arms (+2.5, +3.5) at equal recompute. The size-blind ordering is the leading explanation; a size-aware variant is the next change.
 
 **State of H2 at the end of 2026-09-27.** Admission holds: negative (five runs, two rules, cap ablation, true demand). Index next-tool term: harmful when accurate (diagnostic). KV placement by predicted return time: positive in sign in both loaded regimes and for both predictors (+2.5 to +3.5 SLO points over native, above rules and the working-set baseline, at rules' background cost), with M2 ahead of M1 where interactive tools emit progress; magnitude and the ordering against exact return times not yet explained.
+
+## Third batch (2026-09-27, evening): size-aware ordering, direct contrasts, touch arms
+
+The runner now reports direct paired contrasts (`contrasts.csv`) alongside the native-referenced table, so
+"A ahead of B" is a tested difference rather than an ordering of point estimates.
+
+### Placement comparison, loaded long_tool (`h2sim_loaded_place`, 3 seeds, 8 arms)
+
+| contrast | SLO diff [95% CI] | bg JCT diff (s) |
+|---|---|---|
+| forecast_M2_kv vs forecast_M1_kv | -0.005 [-0.018, +0.008] | -4 [-12, +1] |
+| forecast_M1_kv vs oracle_kv (true return times) | **+0.014 [+0.002, +0.028]** | **-17 [-24, -8]** |
+| forecast_M2_kv vs oracle_kv | +0.009 [-0.006, +0.022] | **-21 [-26, -17]** |
+| forecast_M2_kv_size vs forecast_M2_kv | +0.008 [-0.003, +0.019] | 0 [-5, +3] |
+| forecast_M1_kv_size vs forecast_M1_kv | -0.006 [-0.020, +0.005] | -4 [-12, +2] |
+| oracle_kv_size vs oracle_kv | 0.000 [-0.012, +0.014] | +2 [-4, +8] |
+
+Readings:
+- **Size-aware ordering changes nothing**, for the forecast arms or the oracle. The "Belady is only optimal for
+  equal sizes" explanation of the oracle gap is ruled out.
+- **The forecast arms beat exact return times**, and the M1 comparison is now a tested difference (+1.4 points,
+  interval clear of zero; 17 to 21 s less background time). Something the exact ranking does is worse for the
+  per-interactive-session SLO than what the noisy ranking does.
+- M1 and M2 do not differ here (interactive sessions run short tools).
+
+Remaining hypothesis for the oracle gap: the objective is per-interactive-session SLO, and the oracle ranks
+by return time regardless of class. Interactive think times are lognormal with a heavy tail, so an interactive
+session with a long think is correctly judged "late" and evicted, then recomputes its whole context on return
+under load, while the forecast (whose conditional think-time estimate is shorter than the truth for that tail)
+keeps it. The class-weighted arms (`*_kv_cw`, background absence x3) test exactly this and are next in the chain.
