@@ -12,8 +12,36 @@ import numpy as np
 from atfm.proxy.config import ProxyConfig
 from atfm.schema.trace import TraceTable
 
+from atfm.control import Residency, TouchController
+
 from .forecast_arm import ForecastPolicy, next_call_of
 from .policies import OraclePolicy
+
+
+def oracle_etas(sim, now: float) -> dict[str, float]:
+    """True absolute time of every session's next LLM call, from the heap plus the proxy and worker
+    queues plus running requests (end of call plus tool)."""
+    eta: dict[str, float] = {}
+    for t, _, kind, payload in sorted(sim._heap, key=lambda x: (x[0], x[1])):
+        if kind not in ("start", "arrive", "tool_end"):
+            continue
+        nc = next_call_of(sim, kind, payload)
+        if nc is not None and nc[0] not in eta:
+            eta[nc[0]] = float(t)
+    for c in sim.proxy_queue:
+        eta[c.session.program.session_id] = max(now, float(c.release_not_before))
+    for w in sim.workers:
+        for req in w.queue:
+            eta[req.session_id] = now
+        for req, _, t_end in w.running.values():
+            s = sim.sessions.get(req.session_id)
+            if s is None:
+                continue
+            turn = s.program.turns[min(s.turn, len(s.program.turns) - 1)]
+            if s.turn + 1 >= len(s.program.turns) or turn.tool_name is None:
+                continue
+            eta[req.session_id] = float(t_end + (turn.tool_duration or 0.0) + sim.harness_overhead_s)
+    return eta
 
 
 def order_victims(candidates: list[str], eta: dict[str, float], blocks: dict[str, int], now: float,
@@ -66,27 +94,7 @@ class OracleKvPolicy(_KvOrdering, OraclePolicy):
             self.name = "oracle_kv_cw"
 
     def on_tick(self, sim, now: float) -> None:
-        eta: dict[str, float] = {}
-        for t, _, kind, payload in sorted(sim._heap, key=lambda x: (x[0], x[1])):
-            if kind not in ("start", "arrive", "tool_end"):
-                continue
-            nc = next_call_of(sim, kind, payload)
-            if nc is not None and nc[0] not in eta:
-                eta[nc[0]] = float(t)
-        for c in sim.proxy_queue:                 # waiting for the window: no heap event, but the call is imminent
-            eta[c.session.program.session_id] = max(now, float(c.release_not_before))
-        for w in sim.workers:                     # released but not yet scheduled (batch full or no KV room): imminent
-            for req in w.queue:
-                eta[req.session_id] = now
-            for req, _, t_end in w.running.values():   # running now: the next call comes after this one and its tool
-                s = sim.sessions.get(req.session_id)
-                if s is None:
-                    continue
-                turn = s.program.turns[min(s.turn, len(s.program.turns) - 1)]
-                if s.turn + 1 >= len(s.program.turns) or turn.tool_name is None:
-                    continue                                    # last call: the session ends, unknown is right
-                eta[req.session_id] = float(t_end + (turn.tool_duration or 0.0) + sim.harness_overhead_s)
-        self._eta = eta
+        self._eta = oracle_etas(sim, now)
 
 
 class ForecastKvPolicy(_KvOrdering, ForecastPolicy):
@@ -108,3 +116,75 @@ class ForecastKvPolicy(_KvOrdering, ForecastPolicy):
             finite = samples[np.isfinite(samples)]
             eta[st.session_id] = now + float(np.median(finite)) if len(finite) else float("inf")
         self._eta = eta
+
+
+class _TouchMixin:
+    """Keep-alive touches from per-session resumption quantiles (the deployable placement mechanism)."""
+    touch: TouchController
+    touched: list[str]
+
+    def e_tool_next(self, sim, call) -> float:
+        return 0.0
+
+    def _resumptions(self, sim, now: float) -> dict[str, tuple[float, float, float]]:
+        raise NotImplementedError
+
+    def _touch_tick(self, sim, now: float) -> None:
+        resumptions = self._resumptions(sim, now)
+        residency, frontier = {}, {}
+        for w in sim.workers:
+            running = w._running_sessions()
+            fa = w.frontier_age(now)
+            if fa is not None:
+                frontier[w.worker_id] = fa
+            for sid, blocks in w.resident.items():
+                if sid not in running:
+                    residency[sid] = Residency(worker_id=w.worker_id, blocks=blocks, last_used=w.last_used.get(sid, 0.0))
+        for d in self.touch.plan(now, resumptions, residency, frontier):
+            blocks = residency[d.session_id].blocks
+            sim.touch(d.session_id, blocks)
+            self.touched.append((now, d.session_id))
+
+
+class OracleTouchPolicy(_TouchMixin, OraclePolicy):
+    """Rules-only admission plus touches driven by the true next-call times."""
+
+    name = "oracle_touch"
+
+    def __init__(self, window: int, cfg: ProxyConfig, horizon_s: float = 30.0, age_s: float = 10.0,
+                 budget_per_s: float = 1.0, tick_s: float = 5.0):
+        super().__init__(window, cfg, hold=False)
+        self.touch = TouchController(horizon_s=horizon_s, age_s=age_s, budget_per_s=budget_per_s, tick_s=tick_s)
+        self.touched = []
+
+    def _resumptions(self, sim, now):
+        return {sid: (t - now, t - now, t - now) for sid, t in oracle_etas(sim, now).items() if np.isfinite(t)}
+
+    def on_tick(self, sim, now: float) -> None:
+        self._touch_tick(sim, now)
+
+
+class ForecastTouchPolicy(_TouchMixin, ForecastPolicy):
+    """Rules-only admission plus touches driven by the predictor's resumption quantiles per session."""
+
+    def __init__(self, window: int, cfg: ProxyConfig, predictor, train_table: TraceTable | None, horizons: list[float],
+                 n: int = 64, horizon_s: float = 30.0, age_s: float = 10.0, budget_per_s: float = 1.0, tick_s: float = 5.0):
+        super().__init__(window, cfg, predictor, train_table, horizons, n=n, hold=False)
+        self.name = f"forecast_{predictor.name.split('_')[0]}_touch"
+        self.touch = TouchController(horizon_s=horizon_s, age_s=age_s, budget_per_s=budget_per_s, tick_s=tick_s)
+        self.touched = []
+        self._n = n
+
+    def _resumptions(self, sim, now):
+        out = {}
+        for st in self.registry.states(now):
+            samples = self.predictor.resumption(st, now, self._n, sim.rng)
+            finite = samples[np.isfinite(samples)]
+            if len(finite):
+                q = np.quantile(finite, [0.1, 0.5, 0.9])
+                out[st.session_id] = (float(q[0]), float(q[1]), float(q[2]))
+        return out
+
+    def on_tick(self, sim, now: float) -> None:
+        ForecastPolicy.on_tick(self, sim, now)
+        self._touch_tick(sim, now)

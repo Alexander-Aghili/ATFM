@@ -40,6 +40,7 @@ class Worker:
         # optional placement policy: given the evictable idle sessions, return them in eviction order (first first);
         # None keeps LRU. This is where a forecast can act on KV residency instead of admission.
         self.victim_policy = None
+        self.last_used: dict[str, float] = {}       # session -> last admission, completion or touch time
 
     def used_blocks(self) -> int:
         return sum(self.resident.values())
@@ -108,6 +109,7 @@ class Worker:
                 continue
             self.resident[req.session_id] = needed_total
             self.resident.move_to_end(req.session_id)
+            self.last_used[req.session_id] = now
             self.last_evictions.extend((req.request_id, v) for v in victims)
             recomputed = req.isl_total - prefix_hit
             t_first = now + recomputed / self.cfg.prefill_tps
@@ -121,6 +123,32 @@ class Worker:
         req, _, _ = self.running.pop(request_id)
         if req.session_id in self.resident:
             self.resident.move_to_end(req.session_id)
+            self.last_used[req.session_id] = now
+
+    def frontier_age(self, now: float) -> float | None:
+        """Age of the idle resident session that would be evicted next (the LRU head), or None."""
+        running = self._running_sessions()
+        for sid in self.resident:
+            if sid not in running:
+                return now - self.last_used.get(sid, 0.0)
+        return None
+
+    def touch(self, session_id: str, blocks: int, now: float) -> tuple[str, list[str]]:
+        """Keep-alive touch. Resident: refresh recency ("hit"). Not resident: speculative prefill, which makes
+        room like an admission ("miss", victims). No room: ("fail", [])."""
+        if session_id in self.resident:
+            self.resident.move_to_end(session_id)
+            self.last_used[session_id] = now
+            return "hit", []
+        snapshot = OrderedDict(self.resident)
+        victims = self._make_room(blocks, keep=session_id)
+        if victims is None:
+            self.resident = snapshot
+            return "fail", []
+        self.resident[session_id] = blocks
+        self.resident.move_to_end(session_id)
+        self.last_used[session_id] = now
+        return "miss", victims
 
     def evict_session(self, session_id: str) -> int:
         return self.resident.pop(session_id, 0)

@@ -1,0 +1,23 @@
+{
+  "forecast_M2_kv": {
+    "bg_jct_mean": 1476.923779,
+    "deadline_hit_rate": 0.727273,
+    "recomputed_prefill_tokens": 914069,
+    "sessions_completed": 38,
+    "ttft_after_tool_p95": 0.60365
+  },
+  "native": {
+    "bg_jct_mean": 1477.14289,
+    "deadline_hit_rate": 0.727273,
+    "recomputed_prefill_tokens": 1030934,
+    "sessions_completed": 38,
+    "ttft_after_tool_p95": 0.62715
+  },
+  "proxy_rules": {
+    "bg_jct_mean": 1477.14289,
+    "deadline_hit_rate": 0.727273,
+    "recomputed_prefill_tokens": 1030934,
+    "sessions_completed": 38,
+    "ttft_after_tool_p95": 0.62715
+  }
+}
