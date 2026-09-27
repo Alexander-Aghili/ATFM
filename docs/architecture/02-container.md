@@ -3,7 +3,7 @@
 > **Diagram type**: Container
 > **Scope**: the independently deployable parts of ATFM and how they exchange data with each other, the agent harness and the Dynamo pool.
 > **Audience**: the engineering team building and operating ATFM.
-> **Status**: draft v1.1, generated from the architecture spec (2026-09-23); pending founder validation.
+> **Status**: draft v1.1, generated from the architecture spec (2026-09-23); diagrams moved from Mermaid C4 to reladraw on 2026-09-27; pending founder validation.
 
 ## Overview
 
@@ -13,44 +13,51 @@ The simulator and evaluation tools are offline programs that reuse the same pred
 
 ## Diagram
 
-```mermaid
-C4Container
-    title Container diagram for ATFM (v1.1)
-    UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
+```reladraw
+// ATFM container diagram (v1.1).
+// Row 1 is the request path: harness -> proxy -> Dynamo. Row 2 is the event and forecast cycle,
+// left to right: sidecar -> bus -> board -> controllers, with the board's predictions and the
+// controllers' hold directives returning up to the proxy. Row 3: the store on the left, the
+// offline simulator under the controllers, the operator at the far right.
+default edge  line: (path: square, corners: rounded)
+style person   fill: #1f3a5f  border: #3b6ea8  text: (color: #e8f0fa)
+style external fill: #2a2a2a  border: #6a6a6a  text: (color: #dcdcdc)
+style svc      fill: #2d1f4f  border: #7a5cc0  text: (color: #efe8ff)
+style store    fill: #142814  border: #486544  text: (color: #e4f2e4)  badge: database
+style dim      text: (color: #9a9a9a)
 
-    Person(operator, "Platform operator", "Configures budgets and SLOs; reads results.")
-    System_Ext(harness, "Agent harness", "mini-SWE-agent / OpenHands / Harbor process running the agent loop.")
-    System_Ext(dynamo, "NVIDIA Dynamo pool", "Frontend + KV router + vLLM/SGLang or Mocker workers + planner.")
+node proxy   "Harness proxy / [dim]FastAPI, OpenAI endpoint; index, global window, holds, tiers[/dim]" (wrap: 34)  style: svc  gap: wide
+node harness "Agent harness / [dim]mini-SWE-agent, OpenHands, Harbor[/dim]" (wrap: 28)  style: external  left of proxy
+node dynamo  "NVIDIA Dynamo pool / [dim]frontend + KV router + workers + planner[/dim]" (wrap: 30)  style: external  right of proxy
 
-    System_Boundary(atfm, "ATFM") {
-        Container(sidecar, "Tool-runtime sidecar", "Python library, in-process with the harness", "Wraps tool subprocesses; result path unchanged; emits progress events; consults the launch gate.")
-        Container(proxy, "Harness proxy", "Python 3.12, FastAPI/ASGI", "OpenAI-compatible endpoint: index, global window, holds, priority tiers, call log.")
-        ContainerQueue(bus, "Event bus", "Redis Streams (deploy), in-memory or JSONL (dev/replay)", "Session, tool and worker events; off the request path.")
-        Container(board, "Demand board", "Python 3.12 service, numpy", "Session registry, predictor ladder B0..M3, Monte Carlo fleet forecast every 5 s.")
-        Container(control, "Controllers", "Python 3.12, co-located with the board", "Ground delay program (heuristic); pre-staging and replica floor log only.")
-        ContainerDb(store, "Trace and run store", "Parquet + JSON files", "Trace table, forecast snapshots, run metrics.")
-        Container(sim, "Simulator and evaluation", "Python 3.12, offline CLI", "Closed-loop fleet model reusing deployment classes; forecast and serving metrics.")
-    }
+node sidecar "Tool-runtime sidecar / [dim]in-process; wraps tool subprocesses; emits progress[/dim]" (wrap: 30)  style: svc  below harness  gap: wide
+node bus     "Event bus / [dim]Redis Streams (deploy); in-memory or JSONL (dev)[/dim]" (wrap: 28)  style: svc  right of sidecar
+node board   "Demand board / [dim]session registry; predictors B0..M3; Monte Carlo forecast every 5 s[/dim]" (wrap: 32)  style: svc  right of bus
+node control "Controllers / [dim]ground delay program; pre-staging and replica floor log only[/dim]" (wrap: 30)  style: svc  right of board
 
-    Rel(harness, sidecar, "Executes each tool through", "Python call, execute(action)")
-    Rel(harness, proxy, "Sends chat completions to", "HTTP/JSON, OpenAI API")
-    Rel(proxy, dynamo, "Forwards admitted calls with priority tier and OSL hints to", "HTTP/JSON, nvext.agent_hints")
-    Rel(sidecar, bus, "Publishes tool.start/progress/data/end events to", "Redis Streams")
-    Rel(sidecar, proxy, "Asks the launch gate whether a deferrable tool or spawn may start", "HTTP/JSON")
-    Rel(proxy, bus, "Publishes llm.request/first_token/done events to", "Redis Streams")
-    Rel(proxy, dynamo, "Scrapes worker KV blocks, queue depth and tier occupancy from", "HTTP/Prometheus")
-    Rel(bus, board, "Delivers session, tool and worker events to", "Redis Streams consumer")
-    Rel(board, proxy, "Returns E[service time], E[next tool duration], predicted OSL for pending calls to", "HTTP/JSON or in-process")
-    Rel(board, control, "Publishes ForecastSnapshot samples per horizon to", "in-process")
-    Rel(control, proxy, "Issues HoldDirectives with release-not-before times to", "HTTP/JSON")
-    Rel(proxy, store, "Appends trace rows for every call to", "Parquet")
-    Rel(board, store, "Writes forecast snapshots to", "JSON")
-    Rel(sim, store, "Reads trace tables and writes run metrics to", "Parquet, JSON")
-    Rel(operator, sim, "Runs experiments and reads metrics with", "CLI, YAML configs")
-    Rel(operator, proxy, "Sets class weights, delay budgets and SLOs on", "YAML config")
+node store    "Trace and run store / [dim]trace table, snapshots, run metrics (parquet + JSON)[/dim]" (wrap: 28)  style: store  below bus  gap: wide
+node sim      "Simulator and evaluation / [dim]closed-loop fleet model; forecast and serving metrics[/dim]" (wrap: 30)  style: svc  below control  gap: wide
+node operator "Platform operator" style: person  right of sim
+
+edge harness -> proxy    "chat completions (OpenAI API)"             from: right   to: left
+edge proxy -> dynamo     "admitted calls + tier / OSL hints"         from: right   to: left
+edge dynamo -> proxy     "KV blocks, queue depth (Prometheus)"       from: left    to: right
+edge harness -> sidecar  "execute(action)"                           from: bottom  to: top
+edge sidecar -> proxy    "launch gate" (size: small)                 from: right   to: bottom  above bus  line: (path: curved)
+edge sidecar -> bus      "tool.start / progress / data / end"        from: right   to: left
+edge proxy -> bus        "llm.request, first_token, done" (size: small)  from: bottom  to: top  line: (path: curved)
+edge bus -> board        "events"                                    from: right   to: left
+edge board -> proxy      "predictions for pending calls" (size: small)  from: top     to: bottom  line: (path: curved)
+edge board -> control    "ForecastSnapshot per horizon"              from: right   to: left
+edge control -> proxy    "HoldDirective" (size: small)               from: top     to: bottom  line: (path: curved)
+edge bus -> store        "JSONL events -> trace table"               from: bottom  to: top
+edge board -> store      "forecast snapshots"                        from: bottom  to: right
+edge sim -> store        "reads traces; writes run metrics"          from: left    to: right
+edge operator -> sim     "runs experiments (CLI, YAML)"              from: left    to: right
+edge operator -> proxy   "class weights, budgets, SLOs (YAML)"       from: top     to: top   right of dynamo and control
 ```
 
-Rendered copy: [02-container.svg](./02-container.svg).
+Source: `02-container.reladraw` (rendered with `npx reladraw 02-container.reladraw -o 02-container.svg`). Rendered copy: [02-container.svg](./02-container.svg).
 
 ## Legend
 

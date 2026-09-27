@@ -134,7 +134,7 @@ td.k{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
 <tr><td>M1 survival on elapsed time</td><td class="num">5567</td><td class="num"><b>5254</b></td><td class="num"><b>5679</b></td><td class="num"><b>6604</b></td><td class="num"><b>7700</b></td></tr>
 </tbody></table></div>
 <p>Elapsed-time conditioning beats the Kalman baseline by 1.9x at 2 min, 2.1x at 5 min and 3.4x at 15 min, and loses by 18% at 10 s. Demand is 81 to 99% endogenous at these horizons. The session models are under-dispersed (40 to 71% coverage of a 90% interval); out-of-sample dispersion calibration lifts that to 65 to 86% but not to 90, which says the remaining miss is bias on sessions and tools unseen in training rather than variance. On a synthetic fleet with progress-emitting tools, live progress (M2) adds 30 to 40% over M1 at 10 s to 5 min on background work; on TraceLab M2 equals M1 because no progress events exist, which is exactly why the L1 collection is needed.</p>
-<div class="callout"><p>Two harness bugs found in review were fixed before these numbers: a shared exogenous-arrival model multiplied the arrival rate by the model count, and the pending state after a tool was treated as due now although the tool-end to next-request gap has a heavy tail in TraceLab (p99 45 s, max 128 h). Full note: <code>docs/research/2026-09-22-h1-first-results.md</code>. C4 context and container diagrams: <code>docs/architecture/01-context.md</code>, <code>02-container.md</code>.</p></div>
+<div class="callout"><p>Two harness bugs found in review were fixed before these numbers: a shared exogenous-arrival model multiplied the arrival rate by the model count, and the pending state after a tool was treated as due now although the tool-end to next-request gap has a heavy tail in TraceLab (p99 45 s, max 128 h). Full note: <code>docs/research/2026-09-22-h1-first-results.md</code>. Context and container diagrams (reladraw source and SVG): <code>docs/architecture/01-context.md</code>, <code>02-container.md</code>.</p></div>
 
 <h2 id="decisions">Decisions this design commits to</h2>
 <p>Each row is a choice that the research forced or the founder made. The rejected column is what we are not building in v1.</p>
@@ -157,6 +157,8 @@ td.k{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
 
 <h2 id="context">System context: what talks to what</h2>
 <p>Two paths leave every agent harness. The <b>request path</b> carries LLM calls through our proxy into Dynamo. The <b>state path</b> carries tool progress from the sidecar over the event bus to the demand board, which feeds the controllers. Nothing on the state path can block the request path.</p>
+
+<div class="callout"><p><b>Production evidence for this workload shape (DeepSeek DSec, arXiv 2609.22978, Sept 2026).</b> On a sandbox fleet of ~380k concurrent environments and ~3 million a day, median session lifetime is 15 to 17 minutes with a p99 over three hours, and about 90% of sessions use at most 5% of their requested CPU: long-lived, mostly idle, bursty. From DeepSeek-V4.1 the agent loop runs off the GPU pods and calls model serving as a separate service, the topology this design assumes. Their lever under preemption is pause/resume (docker pause plus swap, or a microVM snapshot), which is what the working-set baseline models. The paper has nothing on inference serving or forecasting; it is evidence for the shape of the demand, not a method.</p></div>
 
 <figure>
 <div class="diag">

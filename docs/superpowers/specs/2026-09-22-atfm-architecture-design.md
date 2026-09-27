@@ -38,6 +38,16 @@ Goal: a control layer for agent fleets on a shared Dynamo-served GPU pool that (
 
 Non-goals for v1: multi-node KV transfer, a Rust router plugin, hosted-API token quotas, customer-facing packaging, strategic (weeks-scale) capacity planning.
 
+### 1.1 Workload evidence from production (added 2026-09-27)
+
+DeepSeek's sandbox platform report (DSec, arXiv 2609.22978, September 2026) measures the CPU side of the same workload ATFM manages, at production scale (one unit of about 160 CPU nodes: ~3 million sandboxes a day, ~380k concurrent, over 5,000 creations a second, jobs of up to 32k sandboxes). Three findings motivate this design directly:
+
+- **Sessions are long-lived and mostly idle.** Median sandbox lifetime is 15 to 17 minutes with a p99 over three hours, and about 90% of sandboxes use at most 5% of their requested CPU on average; the tool-call phase is "short CPU bursts separated by periods" of waiting on the model. The sessions whose KV this design holds, evicts or pre-stages are therefore long-lived objects with sparse, bursty GPU demand, which is the regime where forecasting when a session returns is worth more than reacting when it does. This matches the heavy-tailed tool and pending-gap distributions measured on TraceLab and AgentX (section 5.2) on a fleet three orders of magnitude larger.
+- **The agent loop is decoupled from the GPU pool in production.** From DeepSeek-V4.1 the rollout loop runs on the sandbox platform and calls model serving as a separate service. That is the topology this design assumes: a fleet of stateful sessions whose timing is set by tool execution elsewhere, hitting a shared serving pool. Training rollout fleets are a demand source alongside interactive coding agents.
+- **Pause and resume is the operator's default lever without a forecast.** DSec preempts sandboxes with docker pause plus swap, or a microVM snapshot, and reports no resume cost. That is occupancy-triggered pausing, the behaviour the `working_set` baseline models (section 12); the simulator's first runs put it at 2.6x the background cost of demand-aware holds for the same interactive SLO, a comparison the H100 study must confirm.
+
+DSec says nothing about inference serving, KV cache, admission control or demand forecasting; it is evidence for the workload shape and the deployment topology, not a method to adopt.
+
 ## 2. System context
 
 ```

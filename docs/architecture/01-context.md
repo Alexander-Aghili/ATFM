@@ -3,7 +3,7 @@
 > **Diagram type**: System Context
 > **Scope**: ATFM (Agent Traffic Flow Management) as one system, the people who depend on it, and the external systems it touches.
 > **Audience**: everyone: founders, reviewers, platform operators, agent developers.
-> **Status**: draft v1.1, generated from the architecture spec (2026-09-23); pending founder validation.
+> **Status**: draft v1.1, generated from the architecture spec (2026-09-23); diagrams moved from Mermaid C4 to reladraw on 2026-09-27; pending founder validation.
 
 ## Overview
 
@@ -13,32 +13,35 @@ Three kinds of people depend on it: developers driving interactive agents who wa
 
 ## Diagram
 
-```mermaid
-C4Context
-    title System Context diagram for ATFM (Agent Traffic Flow Management)
+```reladraw
+// ATFM system context. ATFM in the middle; people on the left, external systems on the right and below.
+style person   fill: #1f3a5f  border: #3b6ea8  text: (color: #e8f0fa)
+style system   fill: #2d1f4f  border: #7a5cc0  text: (color: #efe8ff)
+style external fill: #2a2a2a  border: #6a6a6a  text: (color: #dcdcdc)
+style dim      text: (color: #9a9a9a)
 
-    Person(dev, "Developer", "Drives interactive coding-agent sessions and expects fast replies after each tool call.")
-    Person(operator, "Platform operator", "Runs the shared GPU pool; sets class weights, delay budgets and SLOs; reads experiment results.")
-    Person(scheduler, "Batch job owner", "Submits background agent jobs (CI fixes, migrations, pipelines) with deadlines.")
+node atfm "ATFM / [dim]forecasts fleet LLM demand from in-flight sessions; / admits, orders and holds calls on a shared Dynamo pool[/dim]" (wrap: 44)  style: system  gap: wide
 
-    System(atfm, "ATFM", "Forecasts fleet LLM demand from in-flight agent sessions and admits, orders and holds LLM calls on a shared Dynamo pool.")
+node dev       "Developer / [dim]interactive coding-agent sessions[/dim]" (wrap: 30)        style: person  above scheduler
+node scheduler "Batch job owner / [dim]background jobs with deadlines[/dim]" (wrap: 30)     style: person  left of atfm  level with atfm
+node operator  "Platform operator / [dim]class weights, delay budgets, SLOs[/dim]" (wrap: 30) style: person  below scheduler
 
-    System_Ext(harness, "Agent harnesses", "mini-SWE-agent, OpenHands, Harbor: run the agent loop and execute tools; ATFM's sidecar and proxy sit in their path.")
-    System_Ext(dynamo, "NVIDIA Dynamo pool", "Frontend, KV router, vLLM/SGLang or Mocker workers, planner. Serves the LLM calls.")
-    System_Ext(backends, "Tool backends", "CI runners, build farms, data warehouses, external APIs that agent tools depend on.")
-    System_Ext(traces, "Public trace corpora", "TraceLab, AgentX: recorded agent sessions used offline for forecast evaluation.")
+node harness  "Agent harnesses / [dim]mini-SWE-agent, OpenHands, Harbor[/dim]" (wrap: 30)   style: external  above atfm
+node dynamo   "NVIDIA Dynamo pool / [dim]frontend, KV router, vLLM / SGLang / Mocker workers[/dim]" (wrap: 32)  style: external  right of atfm
+node backends "Tool backends / [dim]CI runners, build farms, warehouses, APIs[/dim]" (wrap: 30)  style: external  right of harness  above dynamo
+node traces   "Public trace corpora / [dim]TraceLab, AgentX[/dim]" (wrap: 30)                style: external  below atfm
 
-    Rel(dev, harness, "Chats with an interactive agent through")
-    Rel(scheduler, harness, "Submits background jobs to")
-    Rel(operator, atfm, "Configures class weights, delay budgets and SLOs in; reads forecasts and run results from")
-    Rel(harness, atfm, "Sends LLM calls and tool progress events to", "HTTPS/JSON, events")
-    Rel(atfm, dynamo, "Forwards admitted LLM calls with priority hints to", "HTTPS/JSON, nvext.agent_hints")
-    Rel(atfm, dynamo, "Scrapes worker KV and queue metrics from", "HTTP/Prometheus")
-    Rel(harness, backends, "Runs tools (tests, builds, queries) on")
-    Rel(atfm, traces, "Replays recorded sessions offline from", "parquet files")
+edge dev -> harness        "chats through"                        from: top     to: left
+edge scheduler -> harness  "submits jobs to"                      from: top     to: left
+edge operator -> atfm      "configures; reads results"            from: right   to: left
+edge harness -> atfm       "LLM calls, tool progress events"      from: bottom  to: top
+edge harness -> backends   "runs tools on"                        from: right   to: left
+edge atfm -> dynamo        "admitted calls + nvext.agent_hints"   from: right   to: left
+edge dynamo -> atfm        "KV and queue metrics (Prometheus)"    from: left    to: right
+edge atfm -> traces        "replays sessions offline (parquet)"   from: bottom  to: top
 ```
 
-Rendered copy: [01-context.svg](./01-context.svg).
+Source: `01-context.reladraw` (rendered with `npx reladraw 01-context.reladraw -o 01-context.svg`). Rendered copy: [01-context.svg](./01-context.svg).
 
 ## Legend
 
