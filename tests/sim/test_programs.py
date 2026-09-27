@@ -34,7 +34,7 @@ def test_programs_from_table_isl_growth_and_gaps():
             TraceRow(session_id="a", cls="interactive", tenant="t", turn_index=2, t_request=200.0, t_first_token=201.0, t_last_token=202.0,
                      isl=1400, osl=10, tool_name=None, source="test")]
     progs = programs_from_table(TraceTable.from_rows(rows), rate_per_hour=None, duration_s=1000.0, rng=np.random.default_rng(0))
-    assert len(progs) == 1 and progs[0].t_arrival == 100.0
+    assert len(progs) == 1 and progs[0].t_arrival == 0.0          # replayed time is rebased to the first request
     t0, t1, t2 = progs[0].turns
     assert t0.isl_new == 1000 and t0.tool_duration == 60.0 and t0.progress == [(30.0, 50.0, 100.0)]
     assert t1.isl_new == 400 and t1.think and t1.tool_duration == 34.0

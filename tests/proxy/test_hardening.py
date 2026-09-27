@@ -28,7 +28,7 @@ def test_hold_queue_over_max_size_forwards_fcfs_and_counts_alarms():
     assert q.alarms == 1 and q.overflow is True
     assert first.released.is_set()
     q.complete(first)
-    assert q.release_order == ["a", "b"]              # FCFS under overflow, not tier order
+    assert list(q.release_order) == ["a", "b"]        # FCFS under overflow, not tier order
 
 
 def test_expired_directive_is_ignored():
