@@ -3,7 +3,7 @@ import ast
 from pathlib import Path
 
 
-def test_core_does_not_import_experiment_runners():
+def test_core_does_not_import_experiment_or_observability_packages():
     core = Path(__file__).resolve().parents[1] / "src" / "atfm"
     violations = []
     for path in core.rglob("*.py"):
@@ -18,6 +18,6 @@ def test_core_does_not_import_experiment_runners():
                 continue
             for module in modules:
                 if any(module == prefix or module.startswith(prefix + ".")
-                       for prefix in ("atfm_experiments", "atfm.experiments")):
+                       for prefix in ("atfm_experiments", "atfm.experiments", "phoenix", "openinference", "opentelemetry")):
                     violations.append(f"{path.relative_to(core)}:{node.lineno}: {module}")
-    assert not violations, "Core imports research runners:\n" + "\n".join(violations)
+    assert not violations, "Core imports experiment/observability packages:\n" + "\n".join(violations)
