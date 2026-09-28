@@ -5,6 +5,8 @@ from collections import defaultdict
 
 import numpy as np
 
+from atfm.board.sampling import empirical_draw
+
 from atfm.board.state import SessionState
 from atfm.schema.trace import TraceTable
 
@@ -82,7 +84,7 @@ class DurationModel:
         """Draw from the sorted empirical array conditioned on value > elapsed, with a tail fallback."""
         tail = arr[np.searchsorted(arr, elapsed, side="right"):]
         if len(tail) >= min_conditional:
-            return rng.choice(tail, size=n, replace=True)
+            return empirical_draw(tail, n, rng)
         if lognorm is None:
             pos = arr[arr > 0]
             logs = np.log(pos) if len(pos) else np.array([0.0])
@@ -106,7 +108,7 @@ class DurationModel:
         return tool if tool in self.durations else POOLED
 
     def sample(self, tool: str | None, n: int, rng: np.random.Generator) -> np.ndarray:
-        return rng.choice(self.durations[self._key(tool)], size=n, replace=True)
+        return empirical_draw(self.durations[self._key(tool)], n, rng)
 
     def sample_conditional(self, tool: str | None, elapsed: float, n: int, rng: np.random.Generator) -> np.ndarray:
         """Draw durations D given D > elapsed (survival conditioning), with a log-normal tail fallback."""
@@ -115,7 +117,7 @@ class DurationModel:
 
     def gap(self, tool: str | None, n: int, rng: np.random.Generator) -> np.ndarray:
         """Pending gap after a tool of this kind ends (harness overhead, or a user who walked away)."""
-        return rng.choice(self._gaps[self._key(tool)], size=n, replace=True)
+        return empirical_draw(self._gaps[self._key(tool)], n, rng)
 
     def gap_conditional(self, tool: str | None, elapsed: float, n: int, rng: np.random.Generator) -> np.ndarray:
         return self._conditional(self._gaps[self._key(tool)], elapsed, n, rng, self.min_conditional)
@@ -133,7 +135,7 @@ class DurationModel:
         arr = self._llm.get(cls)
         if arr is None or len(arr) == 0:
             arr = np.concatenate(list(self._llm.values())) if self._llm else np.array([1.0])
-        return rng.choice(arr, size=n, replace=True)
+        return empirical_draw(arr, n, rng)
 
     def mean(self, tool: str | None) -> float:
         return float(self.durations[self._key(tool)].mean())
@@ -145,7 +147,7 @@ class DurationModel:
         return self._overhead[self._key(tool)]
 
     def isl_delta(self, tool: str | None, n: int, rng: np.random.Generator) -> np.ndarray:
-        return rng.choice(self._isl_delta[self._key(tool)], size=n, replace=True)
+        return empirical_draw(self._isl_delta[self._key(tool)], n, rng)
 
     def spawn_rate(self, tool: str | None) -> float:
         return self._spawn_rate[self._key(tool)]

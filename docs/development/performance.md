@@ -31,7 +31,7 @@ performance optimization.
 | Board ticks | `board/service.py` calls `board.step` synchronously inside an async endpoint. | Forecast computation blocks that event loop; measure tick duration and overlapping `/predict` latency. |
 | Per-request predictions | `proxy/board_client.py` retrieves service time and next-tool duration together. | One HTTP round trip; the four-worker pool can still remain occupied after caller timeout. |
 | Event ingestion | `JsonlBus.drain()` consumes complete appended records using a per-instance byte cursor. | O(new bytes) parsing; idle drains perform a metadata check. Restart replays once; downstream transactional recovery remains separate. |
-| Forecast aggregation | Per-session Python loops plus `(horizons, draws)` NumPy operations. | Work grows with sessions, horizons, draws, and fan-out. Profile sampling versus aggregation and allocation. |
+| Forecast aggregation | Per-session loops with streamlined empirical draws and `(horizons, draws)` NumPy operations. | Work grows with sessions, horizons, draws, and fan-out. Profile sampling versus aggregation and allocation. |
 | Admission queue | `HoldQueue` maintains ready, delayed, promotion, and FCFS heaps. | Admission release is amortized O(log Q); peer-rank queries and diagnostic counts remain O(Q). |
 | Logging | Request completion writes and flushes a trace; JSONL publishing opens/appends a file. | Synchronous disk work can delay the request handler. Measure event-loop lag and buffered/asynchronous alternatives. |
 | Simulation sweeps | Python event loop and worker/policy logic across many arms and seeds. | CPU cost affects experiment throughput, not automatically live request latency. Parallelize independent runs or optimize measured kernels. |

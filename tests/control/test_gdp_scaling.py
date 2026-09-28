@@ -46,3 +46,41 @@ def test_exact_probability_and_floating_point_boundaries():
             options = dict(slot_s=1, horizon_s=1, eps=eps)
             args = (0, snap, {"kv_blocks": cap}, [Deferrable("s", "t", 0, 0, 0)])
             assert GdpPlanner(**options).plan(*args) == reference_planner(**options).plan(*args)
+
+
+@pytest.mark.parametrize('hold', [0, .3, np.nextafter(.3, 0), np.nextafter(.3, 1), 15, float('inf')])
+def test_indexed_and_bounded_search_match_original_with_tenant_updates(hold):
+    rng = np.random.default_rng(734)
+    slots, draws = 129, 7
+    for _ in range(5):
+        snap = ForecastSnapshot(0, [float((i + 1) * .1) for i in range(slots)], 'test', {
+            r: {'interactive': np.cumsum(rng.integers(0, 100, (slots, draws)), axis=0)}
+            for r in ('kv_blocks', 'prefill_tokens')})
+        defs = [Deferrable(str(i), str(i % 3), float(rng.uniform(-1, 14)),
+                          int(rng.integers(0, 100)), int(rng.integers(0, 100))) for i in range(100)]
+        options = dict(slot_s=.1, horizon_s=12.9, max_hold_s=hold, eps=.3)
+        new, old = GdpPlanner(**options), reference_planner(**options)
+        args = (100, snap, {'kv_blocks': 130., 'prefill_tokens': 150.}, defs, {'1': .2})
+        assert new.plan(*args) == old.plan(*args)
+        assert new.last_assignment == old.last_assignment
+        assert new.max_imposed_delay == old.max_imposed_delay
+
+
+def test_range_minima_do_not_imply_joint_feasibility():
+    from atfm.control.gdp import _SlotIndex
+    thresholds = {'kv_blocks': np.array([0., 10., 0., 10.]),
+                  'prefill_tokens': np.array([10., 0., 10., 0.])}
+    index = _SlotIndex(thresholds)
+    assert index.first(0, 4, (1, 1), (5, 5)) is None
+    assert index.first(1, 4, (0, 0), (10, 0)) == 1
+    assert index.first(2, 3, (0, 0), (10, 0)) is None
+
+
+def test_large_index_preserves_capacity_rounding_and_fallback():
+    for need in [0., 1., -1., float('inf'), float('nan')]:
+        for capacity in [np.nextafter(1., 0), 1., float('inf'), float('nan')]:
+            snap = ForecastSnapshot(0, [100.], 'test', {
+                r: {'interactive': np.array([[100.]])} for r in ('kv_blocks', 'prefill_tokens')})
+            options = dict(slot_s=1, horizon_s=100, max_hold_s=100)
+            args = (0, snap, {'kv_blocks': capacity}, [Deferrable('a', 't', 0, need, 0), Deferrable('b', 't', 0, 0, 0)])
+            assert GdpPlanner(**options).plan(*args) == reference_planner(**options).plan(*args)

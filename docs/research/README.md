@@ -8,6 +8,7 @@ predate today's launchers. Use the [project README](../../README.md) and
 
 | Note | Role |
 | --- | --- |
+| [Control scaling implementation](../development/control-scaling.md) | Implemented fixes, design tradeoffs, parity tests, and before/after measurements. |
 | [Current bottleneck audit](2026-09-27-current-bottlenecks.md) | Fresh CPU profiles, history/queue trials, and whole-control-cycle priorities. |
 | [GDP stress tests](2026-09-27-gdp-stress.md) | 100,000- and one-million-session synthetic CPU/memory trials. |
 | [Agent observability infrastructure](2026-09-27-agent-observability.md) | Existing tool tracing/evaluation systems and proposed ATFM signal boundaries. |

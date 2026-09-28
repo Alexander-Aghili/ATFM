@@ -129,3 +129,83 @@ and 356 ms for 100,000 queued requests. The first two pre-change medians were
 excluded; one warmup and three repetitions use the same local synthetic fixture.
 [Timings/source hashes](../research/results/control-scaling-2026-09-27/admission/)
 are retained. The targeted proxy/control/deployment suite passed 84 tests.
+
+## 4. Planner pruning and empirical sampling
+
+GDP first tests the requested slot. On failure it finds the exclusive end of the
+permitted hold interval by binary search using the original floating-point delay
+comparison. The vector fallback allocates only that eligible interval: O(S W)
+search rather than O(S F), plus O(S log F) bound finding, where S is sessions,
+F all slots, and W eligible slots. Threshold construction and session sorting
+remain separate costs. This bound preserves behavior at fractional hold limits.
+
+For at least 64 slots and a hold allowance spanning at least 64 slots, a segment
+tree is enabled lazily on the first nontrivial search. Leaves contain the exact
+`threshold + committed` quantity per resource; internal nodes contain per-resource
+minima. If a minimum plus the session's need exceeds capacity, the entire interval
+is impossible. Otherwise search visits the left interval first and checks leaves.
+Minima for different resources can occur at different slots: passing an internal
+node is necessary, not sufficient, for a feasible assignment. Worst-case search
+is still O(F), not a universal O(log F). The index uses O(resources * F) memory and
+O(resources * F) construction, with O(resources * log F) commitment updates once
+built. Open cases that always fit the first slot never build it. Short horizons
+and short hold windows retain the bounded vector path. Nonfinite session needs
+disable the index; unsupported chance-threshold inputs retain the sample scan.
+
+The numerical comparison remains `(threshold + committed) + need <= capacity`.
+We do not subtract demand from capacity, which would change floating-point edge
+cases. Tenant-cap overrides update the actual chosen leaf. Parity tests compare
+full directives and assignments against the frozen sample-scan planner, including
+fractional caps, nonfinite fallback, non-power-of-two horizons, and resources
+whose minima disagree.
+
+Forecasting now shares `empirical_draw`, a narrow primitive for uniform draws
+with replacement from a one-dimensional array. It indexes the empirical array
+with `Generator.integers` instead of invoking `Generator.choice`'s generic
+shape/axis machinery thousands of times. This reduces constants without changing
+O(S M H) aggregation (sessions, draws, horizons), model semantics, dependence,
+or interleaving of random draws. Exact sample and subsequent RNG-stream parity
+are tested for four NumPy generators and for a full forecast fixture.
+
+Cross-session batching and reuse of forecast draws for directive quantiles remain
+future work: they would change random-stream ordering or the existing 128/64-draw
+protocol. The current optimization deliberately preserves seeded experiments.
+Any such later change needs explicit statistical and reproducibility validation.
+Separating mutable control-state ownership from HTTP handling also remains open;
+these kernels do not remove the event-loop blocking hazard.
+
+Repeated local measurements (one warmup, three repetitions, setup excluded):
+
+| Component and fixture | Previous median | Updated median |
+| --- | ---: | ---: |
+| GDP saturated: 100,000 sessions, 10,000 slots, 1,024 draws | 7.322 s | 1.691 s |
+| GDP mixed: same dimensions, heterogeneous sessions | 4.706 s | 1.874 s |
+| GDP saturated: one million sessions, 300 slots, 128 draws | 15.910 s | 7.477 s |
+| Forecast: 100,000 sessions, 3 horizons, 128 draws | 4.120 s | 3.785 s |
+
+All four output hashes match the earlier measurements exactly. The separate
+8,192-session GDP checks measured 40.6 ms open and 76.3 ms mixed; they test additional
+regimes, not a matched historical speedup. Forecast at 8,192 sessions measured
+304 ms. Full suite: 384 passed, 6 optional-dependency tests skipped. Warnings are
+existing dependency deprecations and empty-slice evaluation fixtures. No live
+worker or concurrent network capacity conclusion follows from these trials.
+
+[Raw results, profiles, environments and source hashes](../research/results/control-scaling-2026-09-27/)
+include each fixture. Reproduce sequentially to avoid CPU contention:
+
+```bash
+uv run python -m atfm_experiments.benchmark_gdp --sessions 100000 \\
+  --slots 10000 --draws 1024 --regimes saturated mixed --repeats 3 --out runs/gdp-index
+uv run python -m atfm_experiments.benchmark_gdp --sessions 1000000 \\
+  --slots 300 --draws 128 --regimes saturated --repeats 3 --out runs/gdp-index-million
+uv run python -m atfm_experiments.benchmark_cpu --cases forecast \\
+  --sizes 8192 100000 --repeats 3 --profile --out runs/forecast-sampling
+uv run python -m atfm_experiments.profile_bottlenecks --cases queue --out runs/queue-index
+```
+
+The queue fixture measures individual completion scheduling with setup excluded.
+Persistent indexes add construction/memory overhead; this result is not a claim
+that bulk loading and releasing an entire backlog in one call is faster than the
+previous batch-selection implementation. Historical measurements were taken at
+separate times on the same workstation, with uncontrolled affinity and background
+activity. Component times must not be added into an end-to-end cycle estimate.

@@ -5,6 +5,8 @@ from collections import defaultdict
 
 import numpy as np
 
+from atfm.board.sampling import empirical_draw
+
 from atfm.board.state import SessionState
 from atfm.schema.trace import TraceTable
 
@@ -154,7 +156,7 @@ class ProgressPredictor(SurvivalPredictor):
         arr = self._residual.get(tool, self._residual.get(POOLED))
         if arr is None or len(arr) == 0:
             return np.zeros(n)
-        return rng.choice(arr, size=n, replace=True)
+        return empirical_draw(arr, n, rng)
 
     def _remaining_from_progress(self, s: SessionState, now: float, n: int, rng) -> np.ndarray | None:
         usable = [e for e in s.progress if e.get("total") not in (None, 0) and e.get("completed") is not None]

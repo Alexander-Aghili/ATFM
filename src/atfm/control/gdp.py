@@ -9,6 +9,7 @@ by `tenant_max_delay`. Everything is evaluated on samples, never on moments (D5)
 from __future__ import annotations
 
 from dataclasses import dataclass
+import math
 
 import numpy as np
 
@@ -28,6 +29,60 @@ class Deferrable:
     prefill_tokens: int
     cost_per_s: float = 1.0
     deadline: float | None = None
+
+
+class _SlotIndex:
+    """Range minima of threshold + commitment, preserving feasibility arithmetic.
+
+    Each resource minimum is a necessary condition only: different resources may
+    attain their minima in different slots. Search can still visit every leaf.
+    """
+
+    def __init__(self, thresholds: dict[str, np.ndarray], committed=None):
+        self.thresholds, self.committed = thresholds, committed
+        self.values = None
+
+    def _build(self) -> None:
+        thresholds = self.thresholds
+        count = len(thresholds[RESOURCES[0]])
+        self.size = 1 << (count - 1).bit_length()
+        self.values = np.full((len(RESOURCES), 2 * self.size), np.inf)
+        for i, resource in enumerate(RESOURCES):
+            self.values[i, self.size:self.size + count] = (thresholds[resource] if self.committed is None
+                                                        else thresholds[resource] + self.committed[resource])
+        width = self.size
+        while width > 1:
+            self.values[:, width // 2:width] = np.minimum(
+                self.values[:, width:2 * width:2], self.values[:, width + 1:2 * width:2])
+            width //= 2
+
+    def update(self, slot: int, thresholds, committed) -> None:
+        if self.values is None:
+            return
+        node = self.size + slot
+        for i, resource in enumerate(RESOURCES):
+            self.values[i, node] = thresholds[resource][slot] + committed[resource][slot]
+        node //= 2
+        while node:
+            self.values[:, node] = np.minimum(self.values[:, 2 * node], self.values[:, 2 * node + 1])
+            node //= 2
+
+    def first(self, start: int, stop: int, need: tuple, capacity: tuple) -> int | None:
+        if self.values is None:
+            self._build()
+        stack = [(1, 0, self.size)]
+        while stack:
+            node, left, right = stack.pop()
+            if right <= start or left >= stop:
+                continue
+            if any(not (self.values[i, node] + amount <= capacity[i]) for i, amount in enumerate(need)):
+                continue
+            if right - left == 1:
+                return left
+            middle = (left + right) // 2
+            stack.append((2 * node + 1, middle, right))
+            stack.append((2 * node, left, middle))
+        return None
 
 
 class GdpPlanner:
@@ -79,7 +134,7 @@ class GdpPlanner:
             thresholds[resource] = np.partition(samples, required - 1, axis=1)[:, required - 1].copy()
         return thresholds
 
-    def _first_slot(self, d: Deferrable, start: int, demand, thresholds, committed, capacity) -> int | None:
+    def _first_slot(self, d: Deferrable, start: int, demand, thresholds, committed, capacity, index=None) -> int | None:
         if thresholds is None:
             for k in range(start, self.n_slots):
                 if (k - start) * self.slot_s > self.max_hold_s:
@@ -93,8 +148,19 @@ class GdpPlanner:
         if all(thresholds[r][start] + committed[r][start] + getattr(d, r) <= capacity.get(r, float("inf"))
                for r in RESOURCES):
             return start
-        slots = np.arange(start + 1, self.n_slots)
-        eligible = ~((slots - start) * self.slot_s > self.max_hold_s)
+        low, high = start, self.n_slots
+        while low < high:
+            middle = (low + high) // 2
+            if (middle - start) * self.slot_s > self.max_hold_s:
+                high = middle
+            else:
+                low = middle + 1
+        stop = low
+        if index is not None:
+            return index.first(start + 1, stop, (d.kv_blocks, d.prefill_tokens),
+                               tuple(capacity.get(r, float("inf")) for r in RESOURCES))
+        slots = np.arange(start + 1, stop)
+        eligible = np.ones(len(slots), dtype=bool)
         for r in RESOURCES:
             eligible &= thresholds[r][slots] + committed[r][slots] + getattr(d, r) <= capacity.get(r, float("inf"))
         feasible = np.flatnonzero(eligible)
@@ -105,13 +171,17 @@ class GdpPlanner:
         demand = {r: self.slot_demand(snap, r) for r in RESOURCES}
         thresholds = self._slot_thresholds(demand)
         committed = {r: np.zeros(self.n_slots) for r in RESOURCES}
+        index = (_SlotIndex(thresholds, committed) if thresholds is not None and self.n_slots >= 64
+                 and self.max_hold_s >= 64 * self.slot_s else None)
         self.last_assignment = {}
         self.max_imposed_delay = {}
         tenant_max_delay = tenant_max_delay or {}
         out = []
         for d in sorted(deferrable, key=lambda x: (x.eta_s, x.session_id)):
             start = max(0, int(d.eta_s // self.slot_s))          # the session's own resumption slot
-            chosen = self._first_slot(d, start, demand, thresholds, committed, capacity)
+            if index is not None and not (math.isfinite(d.kv_blocks) and math.isfinite(d.prefill_tokens)):
+                index = None
+            chosen = self._first_slot(d, start, demand, thresholds, committed, capacity, index)
             if chosen is None:
                 imposed, reason, release = self.max_hold_s, "capped", now + d.eta_s + self.max_hold_s
             else:
@@ -125,6 +195,8 @@ class GdpPlanner:
                 self.last_assignment.setdefault(chosen, []).append(d.session_id)
                 for r in RESOURCES:
                     committed[r][chosen] += getattr(d, r)
+                if index is not None:
+                    index.update(chosen, thresholds, committed)
             self.max_imposed_delay[d.tenant] = max(self.max_imposed_delay.get(d.tenant, 0.0), imposed)
             out.append(HoldDirective(session_id=d.session_id, release_not_before=release, reason=reason,
                                      tenant=d.tenant, expires_at=now + self.slot_s))

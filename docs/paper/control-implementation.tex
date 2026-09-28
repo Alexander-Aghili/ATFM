@@ -53,3 +53,59 @@ tracks holds and promotions. Randomized differential tests compare release order
 and state with the former scan implementation. Diagnostic counts and peer-rank
 queries still scan the backlog, so this is not a logarithmic bound on the whole
 HTTP request path. The simulator's worker queue is a separate implementation.
+
+\paragraph{Planner search and forecast sampling.}
+GDP search now bounds candidate slots before allocation using the original delay
+comparison. For $S$ sessions, $F$ total slots, and $W$ eligible slots, vector search
+costs $O(SW)$ plus $O(S\log F)$ interval-bound work, excluding threshold preparation
+and sorting. For larger windows, a lazily constructed segment tree stores
+per-resource minima of the exact threshold-plus-commitment quantity. A range is
+skipped when any resource cannot fit even at that minimum. Passing a range test
+does not imply joint feasibility, since resource minima can occur in different
+slots; leaves retain exact comparisons. Search therefore remains $O(F)$ in the
+worst case, with $O(\log F)$ commitment updates for fixed resource count. Small
+windows retain vector search, and open cases need not build the tree. Tests compare
+full directives and assignments with the original sample-scan planner, including
+floating-point boundaries and tenant-cap overrides.
+
+Empirical forecast sampling uses integer-indexed draws instead of generic
+unweighted replacement choice. This preserves sampled values and random-stream
+consumption under the tested NumPy generators while reducing repeated small-call
+overhead. It does not change the $O(SMH)$ aggregation order for $M$ draws and $H$
+horizons, nor introduce shared session samples. Cross-session batching, reuse of
+forecast draws for directive quantiles, and separation of control computation
+from request handling remain future work requiring statistical or state-ownership
+validation. The implementation changes do not imply a change in forecast quality.
+
+\paragraph{Component measurements.}
+Table~\ref{tab:control-cpu} compares saved pre-change medians with the updated
+implementation on the same Intel Core Ultra 9 185H workstation. Each timing has
+one warmup and three repetitions; fixture setup is excluded. CPU affinity and
+background activity are uncontrolled, and baseline runs were taken separately.
+The JSONL fixture has no newly appended events; its initial replay still reads
+all records. Queue drainage signals individual completions without service time.
+The GDP cases are extreme stress fixtures, not the local ten-slot configuration.
+The forecast fixture uses homogeneous tool-running sessions, three horizons,
+128 draws, and no exogenous arrivals or fan-out. GDP and forecast output hashes
+match their saved baselines exactly. These component costs cannot be summed into
+an end-to-end latency estimate; persistent queue indexes also add construction
+and memory costs not measured by the drainage fixture.
+
+\begin{table}[!htbp]
+\centering
+\small
+\caption{Local component medians in seconds; independent synthetic workloads.}
+\label{tab:control-cpu}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Component and workload & Before & After \\
+\midrule
+Unchanged JSONL, $10^6$ historical events & 4.297 & 0.0000063 \\
+Single-slot drainage, 4,000 queued requests & 1.974 & 0.00703 \\
+Saturated GDP, $10^5$ sessions / $10^4$ slots & 7.322 & 1.691 \\
+Mixed GDP, $10^5$ sessions / $10^4$ slots & 4.706 & 1.874 \\
+Saturated GDP, $10^6$ sessions / 300 slots & 15.910 & 7.477 \\
+Forecast, $10^5$ sessions & 4.120 & 3.785 \\
+\bottomrule
+\end{tabular}
+\end{table}

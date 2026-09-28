@@ -1,0 +1,26 @@
+{
+  "python": "3.12.13",
+  "platform": "Linux-6.17.0-1032-oem-x86_64-with-glibc2.39",
+  "numpy": "2.5.3",
+  "source_sha256": "7f09d12b6513e1bdc9bbd89a13af44f3f9332f0f68ab3dc374834e126eae622b",
+  "driver_sha256": "43889d79c1faed2ac3d1b06a3a9f786f65edc3a60c4dafab0305e3027223c372",
+  "arguments": {
+    "sessions": [
+      8192
+    ],
+    "slots": [
+      300
+    ],
+    "draws": [
+      128
+    ],
+    "regimes": [
+      "open",
+      "mixed"
+    ],
+    "repeats": 3,
+    "out": "runs/indexed-gdp-regimes"
+  },
+  "rss": "Process high-water RSS including imports, setup, results and hashing; cumulative across cases. Run one case per process for attribution.",
+  "setup": "excluded; one untimed warmup; three repeats by default; serialization excluded"
+}

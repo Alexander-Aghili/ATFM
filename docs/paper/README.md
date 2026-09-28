@@ -84,3 +84,12 @@ The probability expansion adds return/no-return mixtures, pending-gap convolutio
 ## HTML evidence synchronization
 
 The LaTeX abstract now introduces the problem, approach, and qualitative findings without detailed experimental numbers. The results include the completed no-index diagnostic, both KV-eviction workloads, and corrected lookahead reruns from the updated HTML and frozen CSVs. The dated revision notes describe successive manuscript states. For the current set of included placement variants and direct contrasts, consult the LaTeX results sections and frozen CSV manifest; hardware validation remains separate. Native-referenced intervals are not described as equivalence tests or direct M1/M2 comparisons.
+
+## Control implementation revisions
+
+`control-implementation.tex`, included by `atfm-paper.tex`, records incremental
+JSONL ingestion, batched hold delivery, indexed admission, planner range pruning,
+and empirical-sampling choices. It distinguishes component CPU measurements from
+simulation outcomes and real-worker capacity. [Development decisions](../development/control-scaling.md)
+contain contracts, limitations, test coverage, and benchmark commands. The source
+bundle includes this file; regenerate with `python3 docs/paper/build_latex.py --bundle`.

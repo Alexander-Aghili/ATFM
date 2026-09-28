@@ -4,6 +4,8 @@ from collections import defaultdict, deque
 
 import numpy as np
 
+from atfm.board.sampling import empirical_draw
+
 from atfm.board.predictors.backend import BackendPredictor
 from atfm.board.predictors.base import SeriesPredictor, SessionPredictor
 from atfm.board.state import SessionState
@@ -54,13 +56,13 @@ class ExogenousModel:
         kv = np.zeros(n)
         pf = np.zeros(n)
         for i in np.nonzero(k)[0]:
-            isl = rng.choice(self.first_isl[cls], size=k[i], replace=True)
+            isl = empirical_draw(self.first_isl[cls], k[i], rng)
             kv[i] = np.ceil(isl / self.block_size).sum()
             pf[i] = isl.sum()
         return kv, pf
 
     def first_call_isl(self, cls: str, n: int, rng: np.random.Generator) -> np.ndarray:
-        return rng.choice(self.first_isl[cls], size=n, replace=True)
+        return empirical_draw(self.first_isl[cls], n, rng)
 
 
 def _empty(horizons, n):
