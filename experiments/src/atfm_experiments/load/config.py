@@ -20,6 +20,7 @@ class LoadConfig(BaseModel):
     worker_service_s: float = Field(default=.05, gt=0)
     worker_fail_every: int = Field(default=0, ge=0)
     proxy_window: int = Field(default=16, ge=1)
+    upstream_keepalive_connections: int | None = Field(default=None, ge=0, strict=True)
     prediction_limit: int = Field(default=4, ge=1)
     prediction_max_age_s: float | None = Field(default=None, gt=0)
     prediction_budget_s: float = Field(default=.05, gt=0)

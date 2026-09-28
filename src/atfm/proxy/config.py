@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 class ProxyConfig(BaseModel):
     upstream_url: str
     window: int = 8
+    upstream_keepalive_connections: int | None = Field(default=None, ge=0, strict=True)
     w_interactive: float = 10.0
     w_background: float = 1.0
     beta: float = 0.0

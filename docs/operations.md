@@ -295,3 +295,18 @@ runner and their caller budget; their arbitrary internal state is not converted
 into immutable prediction views. Thread isolation does not remove Python GIL
 contention or provide hard real-time deadlines. Forecast/controller algorithms
 and their random-number order are unchanged.
+
+## Upstream connection reuse
+
+The proxy's owned HTTP client retains `max(20, window)` idle upstream connections
+by default, so a busy admission window larger than HTTPX's usual 20-connection
+keep-alive limit does not continually discard reusable connections. Override
+with `--upstream-keepalive N` (`upstream_keepalive_connections` in `ProxyConfig`);
+zero disables reuse. Total connection capacity is `max(100, window, keepalive)`.
+Limits are set at client construction, not dynamically when a queue window changes.
+The existing 600-second transport timeout and five-second idle expiry remain.
+Injected upstream clients keep their caller-selected limits and ownership.
+
+This controls proxy-to-upstream connections, separately from the load generator's
+`client_keepalive_connections` for client-to-proxy traffic and from board prediction
+transport. It does not change admission, holds, predictions or upstream payloads.
