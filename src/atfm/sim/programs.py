@@ -1,12 +1,11 @@
 """Closed-loop session programs: what a session will do, without when (the simulator decides when)."""
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass, field
 
 import numpy as np
 
-from atfm.schema.trace import TraceTable
+from atfm.schema.trace import TraceTable, is_missing_scalar as _nan
 from atfm.traces.synthetic import ClassSpec, ToolSpec, WorkloadSpec, _factor
 
 
@@ -91,10 +90,6 @@ def programs_from_spec(spec: WorkloadSpec, rng: np.random.Generator) -> list[Pro
             out.append(gen.program(cs, float(t0), t_abs_hint=float(t0)))
     out.sort(key=lambda p: p.t_arrival)
     return out
-
-
-def _nan(v) -> bool:
-    return v is None or (isinstance(v, float) and math.isnan(v))
 
 
 def programs_from_table(table: TraceTable, rate_per_hour: float | None, duration_s: float,

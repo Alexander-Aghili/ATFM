@@ -10,17 +10,20 @@ from .adapters import SidecarExecutor
 from .config import DEFAULT_BACKENDS, SidecarConfig
 
 
-
 class SidecarMixin:
     """Provides sidecar_execute for environment subclasses that carry a `sidecar` config."""
 
     sidecar: SidecarConfig
 
+    def __init__(self, *, sidecar: SidecarConfig, **kwargs):
+        super().__init__(**kwargs)
+        self.sidecar = sidecar
+
     def sidecar_execute(self, command: str, cwd: str, timeout: float | None, argv_builder, host_cwd: str | None = "",
                         env: dict | None = None) -> dict:
         """`cwd` is the tool's working directory as the harness understands it (inside the container for
         Docker); `host_cwd` is where the launching subprocess runs on this host (default: same as cwd)."""
-        output = SidecarExecutor(self.sidecar, argv_builder).execute(
+        output = SidecarExecutor(self.sidecar, lambda value: argv_builder(value)).execute(
             command, cwd=cwd if host_cwd == "" else host_cwd, timeout=timeout, env=env,
         )
         self._check_finished(output)
@@ -39,10 +42,6 @@ else:
 if LocalEnvironment is not None:
 
     class SidecarLocalEnvironment(SidecarMixin, LocalEnvironment):
-        def __init__(self, *, sidecar: SidecarConfig, **kwargs):
-            super().__init__(**kwargs)
-            self.sidecar = sidecar
-
         def execute(self, action: dict, cwd: str = "", *, timeout: int | None = None) -> dict:
             command = action.get("command", "")
             cwd = cwd or self.config.cwd or os.getcwd()
@@ -50,10 +49,6 @@ if LocalEnvironment is not None:
                                         env=os.environ | dict(self.config.env or {}))
 
     class SidecarDockerEnvironment(SidecarMixin, DockerEnvironment):
-        def __init__(self, *, sidecar: SidecarConfig, **kwargs):
-            super().__init__(**kwargs)
-            self.sidecar = sidecar
-
         def execute(self, action: dict, cwd: str = "", *, timeout: int | None = None) -> dict:
             command = action.get("command", "")
             cwd = cwd or self.config.cwd

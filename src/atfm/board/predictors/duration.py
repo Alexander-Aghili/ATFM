@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import math
 from collections import defaultdict
 
 import numpy as np
@@ -8,15 +7,11 @@ import numpy as np
 from atfm.board.sampling import empirical_draw
 
 from atfm.board.state import SessionState
-from atfm.schema.trace import TraceTable
+from atfm.schema.trace import TraceTable, is_missing_scalar as _isnan
 
 from .base import SessionPredictor
 
 POOLED = "__pooled__"
-
-
-def _isnan(v) -> bool:
-    return v is None or (isinstance(v, float) and math.isnan(v))
 
 
 class DurationModel:

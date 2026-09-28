@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import math
 from itertools import groupby
 from pathlib import Path
 from typing import Iterator, Literal
@@ -10,6 +11,11 @@ import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field
 
 Class = Literal["interactive", "background"]
+
+
+def is_missing_scalar(value) -> bool:
+    """Recognize the None/float-NaN sentinels used by canonical trace records."""
+    return value is None or (isinstance(value, float) and math.isnan(value))
 
 
 class ProgressEvent(BaseModel):

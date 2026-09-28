@@ -10,10 +10,9 @@ from __future__ import annotations
 import uuid
 from typing import Callable
 
-from atfm.schema.events import ToolEnd, ToolStart
+from atfm.schema.events import ToolData, ToolEnd, ToolProgress, ToolStart
 from atfm.sidecar.core import ToolContext, _safe_publish, classify_tool, command_signature, run_tool
 from atfm.sidecar.config import SidecarConfig
-from atfm.sidecar.events import publish_progress
 from atfm.sidecar.parsers import default_parsers
 
 
@@ -71,9 +70,28 @@ def wrap_executor(fn: Callable, cfg: SidecarConfig, *, output_key="output", rc_k
         except Exception:                          # unknown result shape: close the state path, hand the result back
             _safe_publish(cfg.bus, ToolEnd(t=t1, session_id=cfg.session_id, call_id=call_id, exit_status=0, output_chars=0))
             return result
-        parsers, last_completed = default_parsers(), None
+        parsers = default_parsers()
+        last = None
         for line in text.splitlines():
-            last_completed = publish_progress(line, t1, parsers, cfg.bus, cfg.session_id, call_id, last_completed)
+            for p in parsers:
+                try:
+                    prog = p.feed(line, t1)
+                    if prog is not None:
+                        if prog.get("completed") != last:
+                            last = prog["completed"]
+                            total = prog.get("total")
+                            _safe_publish(cfg.bus, ToolProgress(t=t1, session_id=cfg.session_id, call_id=call_id,
+                                                                completed=float(prog["completed"]),
+                                                                total=None if total is None else float(total), phase=prog.get("phase")))
+                        break
+                    fd = getattr(p, "feed_data", None)
+                    if fd is not None:
+                        d = fd(line, t1)
+                        if d is not None:
+                            _safe_publish(cfg.bus, ToolData(t=t1, session_id=cfg.session_id, call_id=call_id,
+                                                            metric=d["metric"], value=float(d["value"])))
+                except Exception:
+                    continue
         try:
             exit_status = int(rc) if rc is not None else 0
         except (TypeError, ValueError):

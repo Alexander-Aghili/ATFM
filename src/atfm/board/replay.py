@@ -4,13 +4,9 @@ import math
 
 import numpy as np
 
-from atfm.schema.trace import TraceTable
+from atfm.schema.trace import TraceTable, is_missing_scalar as _isnan
 
 from .state import SessionState
-
-
-def _isnan(v) -> bool:
-    return v is None or (isinstance(v, float) and math.isnan(v))
 
 
 def _last_llm_time(row: dict) -> float:

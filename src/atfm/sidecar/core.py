@@ -10,9 +10,7 @@ import time
 import uuid
 from dataclasses import dataclass
 
-from atfm.schema.events import ToolEnd, ToolStart
-
-from .events import publish_progress, _safe_publish
+from atfm.schema.events import ToolData, ToolEnd, ToolProgress, ToolStart
 
 from .parsers import default_parsers
 
@@ -73,6 +71,13 @@ def classify_tool(command: str) -> str:
     return last.split()[0] if last else "sh"
 
 
+def _safe_publish(bus, e) -> None:
+    try:
+        bus.publish(e)
+    except Exception:
+        pass
+
+
 def run_tool(cmd, ctx: ToolContext, bus, *, cwd=None, env=None, timeout: float | None = None, shell=None,
              parsers=None, clock=time.time) -> ToolResult:
     """Run a tool subprocess. The returned bytes are exactly what the tool wrote (stdout+stderr merged);
@@ -104,7 +109,7 @@ def run_tool(cmd, ctx: ToolContext, bus, *, cwd=None, env=None, timeout: float |
 
     threading.Thread(target=_reader, daemon=True).start()
     chunks: list[bytes] = []
-    last_completed = None
+    last_completed: float | None = None
     timed_out = False
     deadline = None if timeout is None else t_start + timeout
     try:
@@ -122,7 +127,26 @@ def run_tool(cmd, ctx: ToolContext, bus, *, cwd=None, env=None, timeout: float |
             chunks.append(line)
             now = clock()
             text = line.decode("utf-8", errors="replace").rstrip("\n")
-            last_completed = publish_progress(text, now, parsers, bus, ctx.session_id, call_id, last_completed)
+            for p in parsers:
+                try:
+                    prog = p.feed(text, now)
+                    if prog is not None:
+                        if prog.get("completed") != last_completed:
+                            last_completed = prog["completed"]
+                            total = prog.get("total")
+                            _safe_publish(bus, ToolProgress(t=now, session_id=ctx.session_id, call_id=call_id,
+                                                            completed=float(prog["completed"]),
+                                                            total=None if total is None else float(total),
+                                                            phase=prog.get("phase")))
+                        break
+                    fd = getattr(p, "feed_data", None)
+                    if fd is not None:
+                        d = fd(text, now)
+                        if d is not None:
+                            _safe_publish(bus, ToolData(t=now, session_id=ctx.session_id, call_id=call_id,
+                                                        metric=d["metric"], value=float(d["value"])))
+                except Exception:
+                    continue
     finally:
         if timed_out:
             try:

@@ -9,11 +9,8 @@ from atfm.board.sampling import empirical_draw
 from atfm.board.predictors.backend import BackendPredictor
 from atfm.board.predictors.base import SeriesPredictor, SessionPredictor
 from atfm.board.state import SessionState
-from atfm.schema.forecast import ForecastSnapshot
+from atfm.schema.forecast import CLASSES, TARGETS, ForecastSnapshot
 from atfm.schema.trace import TraceTable
-
-CLASSES = ("interactive", "background")
-TARGETS = ("kv_blocks", "prefill_tokens")
 
 
 class ExogenousModel:

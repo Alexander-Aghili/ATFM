@@ -5,6 +5,9 @@ from dataclasses import dataclass, field
 import numpy as np
 
 
+CLASSES = ("interactive", "background")
+TARGETS = ("kv_blocks", "prefill_tokens")
+
 ResumptionQuantiles = tuple[float, float, float]
 
 

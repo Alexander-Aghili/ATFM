@@ -10,10 +10,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from atfm.schema.forecast import ForecastSnapshot
-
-CLASSES = ("interactive", "background")
-TARGETS = ("kv_blocks", "prefill_tokens")
+from atfm.schema.forecast import CLASSES, TARGETS, ForecastSnapshot
 
 
 def inflate(samples: np.ndarray, k: np.ndarray) -> np.ndarray:
