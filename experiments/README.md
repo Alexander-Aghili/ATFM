@@ -74,3 +74,9 @@ time. These trials are not constant-load fleet capacity estimates.
 See the [CPU scaling report](../docs/research/2026-09-27-cpu-scaling.md) for
 results, complexity bounds, and remaining limits. Timing thresholds are not
 asserted in the unit suite; deterministic numerical contracts are.
+
+For independent GDP session/slot/sample sweeps, use
+`uv run python -m atfm_experiments.benchmark_gdp --out runs/gdp`.
+The CPU driver also supports `--cases admission`, measuring one full-window
+release batch. See the [large-session study](../docs/research/2026-09-27-large-control-paths.md)
+for baseline revisions, open/saturated workloads, and the remaining limits.

@@ -6,6 +6,10 @@ rewrite. They do not establish production capacity or proxy tail latency.
 Experiments now live in the separate `experiments/src/atfm_experiments` package;
 `src/atfm` contains reusable runtime, model, simulation, and evaluation code.
 
+A [follow-up control-path study](2026-09-27-large-control-paths.md) subsequently
+removed the GDP sample-count multiplier and optimized batch admission. The bounds
+below describe the initial study revision; use the follow-up for those two paths.
+
 ## Measured results
 
 Median wall time from three repetitions after one untimed warmup:

@@ -1,0 +1,7 @@
+{
+  "python": "3.12.13",
+  "platform": "Linux-6.17.0-1032-oem-x86_64-with-glibc2.39",
+  "numpy": "2.5.3",
+  "source_sha256": "dff7730deefabc09ca183be20b3ddaf862b8f8786d8fe19772457d4c3a49e7ca",
+  "setup": "excluded; one untimed warmup; three repeats by default; serialization excluded"
+}

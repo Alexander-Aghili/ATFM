@@ -71,6 +71,15 @@ See the [results and complexity table](../research/2026-09-27-cpu-scaling.md)
 for speedups and bounds. The live HTTP/JSONL concerns above remain separate,
 unfixed findings; CPU benchmark success is not a live-service load test.
 
+## Large-session control paths
+
+GDP now prepares exact empirical chance thresholds once per slot and reuses them
+across sessions, removing the draw-count multiplier from assignment searches.
+Admission selects each release batch once instead of rescanning the queue for
+every released request. See the [large-session study](../research/2026-09-27-large-control-paths.md)
+for measured gains, a small-workload regression, remaining linear scans, and
+why neither result establishes that CPU cost is negligible compared with I/O.
+
 ## A targeted Rust path
 
 If profiling shows a hot CPU kernel dominates forecasting or simulation, move
