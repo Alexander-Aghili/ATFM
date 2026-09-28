@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import resource
 import socket
 import subprocess
 import sys
@@ -33,6 +34,7 @@ def provenance() -> dict:
                 if line.startswith('model name')), None) if cpuinfo.exists() else None
     return {'cpu': cpu, 'python': sys.version, 'platform': platform.platform(), 'cpu_count': os.cpu_count(),
             'git_commit': git('rev-parse', 'HEAD'),
+            'rlimit_nofile': dict(zip(('soft', 'hard'), resource.getrlimit(resource.RLIMIT_NOFILE))),
             'packages': {name: version(name) for name in ('atfm', 'atfm-experiments', 'numpy', 'httpx', 'httpcore', 'uvicorn')},
             'source_sha256': {str(p.relative_to(root) if p.is_relative_to(root) else p):
                               hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}}

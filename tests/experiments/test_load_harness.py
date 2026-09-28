@@ -154,3 +154,10 @@ def test_control_off_keeps_predictions_but_never_ticks_board(tmp_path):
     counts = result['final_observations']['proxy']['metrics']['predictions']
     assert counts['attempted'] == 8 and counts['pending'] == 0
     assert counts['used'] + counts['error'] + counts['timeout'] == 8
+
+
+def test_provenance_records_inherited_descriptor_limits():
+    import resource
+    from atfm_experiments.load.runtime import provenance
+
+    assert provenance()['rlimit_nofile'] == dict(zip(('soft', 'hard'), resource.getrlimit(resource.RLIMIT_NOFILE)))

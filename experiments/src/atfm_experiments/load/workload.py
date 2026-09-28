@@ -136,6 +136,7 @@ async def exercise(cfg: LoadConfig, endpoints: dict[str, str], directory: Path) 
                         record['status'] = response.status_code
                     except httpx.HTTPError as exc:
                         record['error'] = type(exc).__name__
+                        record['error_detail'] = str(exc)
                     except asyncio.CancelledError:
                         record['error'] = 'drain_deadline'
                         raise

@@ -202,10 +202,25 @@ The proxy now exposes fixed-size `predictions` counters in `/state` and harness
 observations: `attempted`, `used`, `timeout`, `error`, `cancelled`,
 `pending`, and `disabled`. For enabled predictions,
 attempted = used + timeout + error + cancelled + pending.
-`used` means the caller received a result within its await budget.
+`used` means the await returned a result without raising. Event-loop stalls
+can delay timeout handling, so this is not a hard wall-clock deadline guarantee.
 `timeout` includes TimeoutError raised by the predictor as well as the caller's
 deadline; `error` covers other exceptions. Neither counter represents worker
 thread occupancy. A timed-out synchronous HTTP call can continue after the
 caller has fallen back; `pending` counts awaiting callers, not those threads.
 Counters are process-local and reset on restart. No per-request history is
 retained in the production proxy.
+
+At large concurrency, check `ulimit -Sn`: inbound waiting requests retain
+sockets, and the proxy also needs upstream/prediction connections and log files.
+Provenance records the inherited soft/hard `RLIMIT_NOFILE`; the harness does
+not change it automatically. For an explicit local capacity experiment:
+
+```bash
+(ulimit -Sn 8192
+ python -m atfm_experiments.load.attribution --out runs/control-attribution-fd8192 \
+   --sessions 1024 --repeats 3)
+```
+
+Check server logs as well as client outcomes for resource exhaustion. Client
+transport failures retain exception type and message in the raw request record.
