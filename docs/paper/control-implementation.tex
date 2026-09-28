@@ -163,3 +163,31 @@ prediction handling from control work; they do not identify a particular hot
 function, establish sustained serving capacity, or justify a language rewrite.
 The repository's repeated-control-attribution report retains configurations,
 source hashes, compressed raw evidence, and individual results for all 24 trials.
+
+\paragraph{Proxy profiling and a transport dependency correction.}
+Per-thread CPU profiling of the fast-worker workload identified repeated
+missing-module searches in HTTPcore's asynchronous-runtime detector.
+The tested serving environment lacked its optional \texttt{sniffio} dependency.
+Two instrumented runs spent 4.10--4.44\,s in runtime detection on the serving
+thread, versus 1.32--1.33\,s scanning queued peer indices and 0.58--0.61\,s
+publishing events. These are profiler-inflated cumulative function timings,
+not uninstrumented request costs. Supplying \texttt{sniffio} reduced the detector
+to 0.067--0.068\,s in follow-up profiles. A focused unprofiled test reduced
+10,000 checks from a seven-repeat median of 255.11\,ms to 2.45\,ms.
+
+Three paired seeds per control mode then compared otherwise identical package
+environments with and without the dependency, alternating trial order.
+All 36,864 calls succeeded. With periodic control, the median of run p95
+latencies fell from 3.495 to 2.437\,s and median proxy CPU from 9.046 to
+6.892\,s; without control, these changed from 4.035 to 3.007\,s and
+9.772 to 7.825\,s. However, pooled prediction timeout rates increased from
+55.62\% to 63.31\% with control and from 38.43\% to 47.81\% without.
+The dependency is available to the generator and all services, so the integrated
+effect includes changed request timing and prediction completion patterns.
+These results support removing redundant import work but do not demonstrate
+better scheduling quality or establish a universal speedup.
+The serving extra now supplies the detector explicitly; scheduling algorithms
+are unchanged. The next priority is bounded, deadline-aware prediction work.
+Thread-aware profiling remains an optional experiment dependency, and the
+repository's proxy-profiling report preserves all individual trials and
+measurement limitations.

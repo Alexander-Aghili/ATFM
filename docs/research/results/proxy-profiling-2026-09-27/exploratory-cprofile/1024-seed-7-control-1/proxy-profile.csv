@@ -1,0 +1,1489 @@
+file,line,function,primitive_calls,calls,self_s,cumulative_s
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/_weakrefset.py,39,_remove,40020,40020,0.016413148000000002,0.024660235000000003
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/_weakrefset.py,85,add,40024,40024,0.032401639,0.042111074000000005
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,100,_ipaddr_info,6144,6144,0.011209435,0.016942784000000002
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,192,_set_nodelay,6147,6147,0.0061469720000000005,0.025375722
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,202,_check_ssl_socket,3073,3073,0.0011705230000000001,0.001617313
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,277,__init__,1,1,1.534e-06,1.534e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,294,_attach,3075,3075,0.0005162200000000001,0.0005162200000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,298,_detach,3075,3075,0.0009763310000000001,0.0009763310000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,304,_wakeup,1,1,6.95e-07,6.95e-07
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,311,_start_serving,1,1,4.159e-06,4.2566000000000005e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,334,close,1,1,6.1e-06,3.1823000000000003e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,380,wait_closed,1,1,6.240000000000001e-07,6.240000000000001e-07
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,446,create_future,24812,24812,0.015604865,0.019554574
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,450,create_task,9284,9284,0.016362175,0.088418256
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,490,get_task_factory,3072,3072,0.000356859,0.000356859
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,543,_check_closed,142148,142148,0.013067333,0.013067333
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,556,_asyncgen_firstiter_hook,30736,30736,0.009492287,0.031319444
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,724,is_closed,25749,25749,0.002486372,0.002486372
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,738,time,41232,41232,0.010838194,0.017424768
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,747,call_later,3378,3378,0.006779599000000001,0.027267376000000003
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,771,call_at,21811,21811,0.026374308000000003,0.09786568300000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,789,call_soon,95676,95676,0.044849829,0.271668725
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,818,_call_soon,98748,98748,0.129677244,0.227246829
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,842,call_soon_threadsafe,2739,3072,0.004088131,1.109129802
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,981,_connect_sock,6144,6144,0.009690644,1.168741727
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,1024,create_connection,9216,9216,0.010575187000000002,1.457198223
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,1171,_create_connection_transport,6144,6144,0.004967465,0.084174105
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,1457,_ensure_resolved,6144,6144,0.004802902,0.021745686
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,1477,create_server,2,2,9.879e-06,6.7e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,1907,_add_callback,15564,15564,0.0027641040000000003,0.004084095
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,1917,_timer_handle_cancelled,19187,19187,0.003679696,0.003679696
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,1922,_run_once,861,862,0.099525756,17.912666257
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py,2017,get_debug,210769,210769,0.019424470000000003,0.019436440000000003
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_futures.py,13,isfuture,18432,18432,0.005043645,0.007291504000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_futures.py,24,_format_callbacks,3072,3072,0.002624335,0.02408389
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_futures.py,30,format_cb,3072,3072,0.001483806,0.021119581000000002
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_futures.py,44,_future_repr_info,3072,3072,0.0045853790000000005,0.029861875000000003
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_tasks.py,9,_task_repr_info,3072,3072,0.007723364000000001,0.050126726
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_tasks.py,28,_task_repr,3072,3072,0.0029420930000000002,0.053902616
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/coroutines.py,32,iscoroutine,3072,3072,0.0008730280000000001,0.0008730280000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/coroutines.py,48,_format_coroutine,3072,3072,0.0060453270000000005,0.010344592000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/coroutines.py,51,get_name,3072,3072,0.0012085120000000001,0.0016778350000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/events.py,36,__init__,132864,132864,0.099109952,0.12072043900000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/events.py,72,cancel,31492,31492,0.017907379,0.020499907
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/events.py,83,cancelled,3072,3072,0.000370921,0.000370921
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/events.py,86,_run,114207,114208,0.064622127,28.129843784000002
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/events.py,111,__init__,21811,21811,0.017035868000000003,0.044148333000000005
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/events.py,127,__lt__,90741,90741,0.017352129,0.023064181000000003
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/events.py,155,cancel,19187,19187,0.016351488,0.032190162
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/format_helpers.py,10,_get_function_source,3072,3072,0.003420704,0.009002121
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/format_helpers.py,22,_format_callback_source,3072,3072,0.0032160500000000002,0.019635775
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/format_helpers.py,30,_format_args_and_kwargs,3072,3072,0.0017043490000000002,0.0033863200000000004
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/format_helpers.py,44,_format_callback,3072,3072,0.0030573130000000003,0.007417604
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/futures.py,301,_get_loop,3072,3072,0.0027829860000000003,0.003309438
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/futures.py,313,_set_result_unless_cancelled,6387,6387,0.0029227040000000004,0.016359812
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/futures.py,347,_copy_future_state,3072,3072,0.003119189,0.020379254000000003
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/futures.py,367,_chain_future,3072,3072,0.010685162000000002,0.026921811
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/futures.py,383,_set_state,3072,3072,0.0014464170000000002,0.023084651
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/futures.py,389,_call_check_cancel,3072,3072,0.001333744,0.011828226
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/futures.py,396,_call_set_state,2739,3072,0.006391773000000001,1.1346020940000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/futures.py,411,wrap_future,3072,3072,0.005679387,0.037878988
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/locks.py,166,__init__,33860,33860,0.025381942,0.025430595
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/locks.py,177,is_set,12290,12290,0.001620661,0.001620661
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/locks.py,181,set,40049,40049,0.017655419000000002,0.033725077
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/locks.py,193,clear,6161,6161,0.000819157,0.000819157
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/locks.py,199,wait,27598,27598,0.021234842,0.045132992000000004
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/mixins.py,12,_get_loop,9150,9150,0.008654335,0.011499582000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/queues.py,50,_get,1,1,5.800000000000001e-07,7.26e-07
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/queues.py,53,_put,1,1,1.311e-06,1.4450000000000001e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/queues.py,58,_wakeup_next,2,2,2.458e-06,5.0850000000000004e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/queues.py,95,empty,3,3,4.6500000000000005e-07,4.6500000000000005e-07
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/queues.py,99,full,2,2,3.54e-07,3.54e-07
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/queues.py,110,put,1,1,4.483e-06,1.8346e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/queues.py,137,put_nowait,1,1,6.922000000000001e-06,1.3597e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/queues.py,149,get,2,2,5.53e-06,1.4161e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/queues.py,175,get_nowait,1,1,2.2370000000000004e-06,3.1560000000000004e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,69,_make_socket_transport,6147,6147,0.005529480000000001,0.227701694
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,129,_read_from_self,72,72,0.00020911100000000002,0.19818646
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,141,_write_to_self,2739,3072,0.072833988,1.090820362
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,159,_start_serving,1,1,2.706e-06,3.4099e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,167,_accept_connection,63,63,0.002396637,0.614047424
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,213,_accept_connection2,6150,6150,0.0038607880000000004,0.192017709
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,260,_ensure_fd_no_transport,12291,12291,0.083761391,0.09154976000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,278,_add_reader,9233,9233,0.014814966,0.265114828
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,294,_remove_reader,12285,12285,0.017199568000000002,0.09540314500000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,315,_add_writer,3072,3072,0.0059378090000000005,0.44013681400000004
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,331,_remove_writer,9199,9199,0.00892536,0.045579823000000005
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,369,remove_writer,3072,3072,0.002520524,0.028900632000000002
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,631,sock_connect,6144,6144,0.009586626000000001,1.118802995
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,656,_sock_connect,3072,3072,0.008918685,1.0817603230000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,679,_sock_write_done,3072,3072,0.0021519900000000003,0.032826171
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,683,_sock_connect_cb,3072,3072,0.0024132610000000003,0.017966853
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,750,_process_events,861,861,0.006077048000000001,0.010161143000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,764,_stop_serving,1,1,1.807e-06,2.5028e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,779,__init__,6147,6147,0.018445987,0.06015937700000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,835,abort,3052,3052,0.001338294,0.0019078760000000002
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,838,set_protocol,6147,6147,0.0011146980000000001,0.0011146980000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,845,is_closing,28359,28359,0.00404954,0.00404954
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,848,is_reading,15389,15389,0.004864007,0.006995973000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,851,pause_reading,6157,6157,0.008449027000000001,0.06975872000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,859,resume_reading,3085,3085,0.0025936460000000002,0.050513276
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,867,close,9202,9202,0.009017782,0.086306534
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,877,__del__,6072,6072,0.001281189,0.001281189
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,896,_force_close,3052,3052,0.000569582,0.000569582
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,908,_call_connection_lost,6127,6127,0.028852517,1.6773546760000002
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,922,get_write_buffer_size,3072,3072,0.001658043,0.002089015
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,925,_add_reader,9232,9232,0.008070922000000001,0.27817445700000004
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,936,__init__,6147,6147,0.013364772,0.14049134300000002
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,961,set_protocol,6147,6147,0.00490344,0.006803043000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,969,_read_ready,9285,9285,0.005336422,0.6020313190000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,1009,_read_ready__data_received,9285,9285,0.007904483,0.588888783
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,1034,_read_ready__on_eof,3075,3075,0.002676869,0.052002169
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,1055,write,15555,15555,0.022741694,0.457337777
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,1167,write_eof,3052,3052,0.00252839,0.033353107
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,1191,_call_connection_lost,6127,6127,0.007017111,1.697484173
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py,1211,close,9202,9202,0.007126615,0.09595421200000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/tasks.py,472,wait_for,6145,6145,0.007581107,0.045887309
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/tasks.py,641,__sleep0,36826,36826,0.004687633,0.004687633
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/tasks.py,653,sleep,37307,37307,0.017235054,0.025141949
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/timeouts.py,33,__init__,3073,3073,0.000809803,0.000809803
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/timeouts.py,50,reschedule,3073,3073,0.003613648,0.021987873
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/timeouts.py,85,__aenter__,3073,3073,0.005400424,0.028640311
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/timeouts.py,97,__aexit__,3073,3073,0.002781899,0.003964766000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/timeouts.py,121,_on_timeout,2623,2623,0.0011638310000000002,0.0065024290000000005
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/timeouts.py,129,timeout,3073,3073,0.0029262010000000002,0.0053672400000000006
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/transports.py,14,__init__,6147,6147,0.000838965,0.000838965
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/transports.py,19,get_extra_info,25155,25155,0.006605596,0.011196973
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/transports.py,270,__init__,6147,6147,0.004952247,0.00732741
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/transports.py,277,_maybe_pause_protocol,3072,3072,0.001150968,0.003239983
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/transports.py,314,_set_write_buffer_limits,9219,9219,0.002440092,0.002440092
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/transports.py,330,set_write_buffer_limits,3072,3072,0.0019436330000000002,0.00608751
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/trsock.py,15,__init__,6147,6147,0.001240081,0.001240081
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/trsock.py,18,family,6334,6334,0.00226859,0.017051112
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/trsock.py,56,fileno,3262,3262,0.001008238,0.001584288
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/trsock.py,76,getpeername,9409,9409,0.0034195400000000004,0.019927546
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/trsock.py,79,getsockname,3075,3075,0.0008906540000000001,0.004721001000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/unix_events.py,81,_process_self_data,79,79,8.409400000000001e-05,8.409400000000001e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/collections/__init__.py,355,namedtuple,1,1,3.4231000000000005e-05,8.129300000000001e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/collections/__init__.py,429,<genexpr>,7,7,1.091e-06,1.091e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/collections/__init__.py,447,_make,611,611,0.00011066900000000001,0.00019737200000000002
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py,328,__init__,3072,3072,0.002451889,0.015916007
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py,337,_invoke_callbacks,2739,3072,0.006363129,1.1917852530000002
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py,364,cancel,4132,4132,0.003568672,0.014802406
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py,383,cancelled,1563,1563,0.0007724100000000001,0.001692853
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py,393,done,3072,3072,0.002226698,0.005171047000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py,398,__get_result,1563,1563,0.00027446800000000004,0.00027446800000000004
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py,408,add_done_callback,3072,3072,0.0035680760000000003,0.007152077000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py,428,result,1563,1563,0.0010971070000000002,0.0021991890000000003
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py,463,exception,1563,1563,0.0007804750000000001,0.0016251290000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py,497,set_running_or_notify_cancel,3072,3072,0.004385094,0.009403435
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py,537,set_result,1679,2005,0.006566843,1.0171401260000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py,552,set_exception,13,20,7.380800000000001e-05,0.498594864
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/thread.py,48,__init__,3072,3072,0.0008867510000000001,0.0008867510000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/thread.py,54,run,91,3072,0.010451956,2.199630392
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/thread.py,165,submit,3072,3072,0.009586113,0.055219823
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/thread.py,184,_adjust_thread_count,3072,3072,0.002856599,0.025826607
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/contextlib.py,104,__init__,99082,99082,0.08028196900000001,0.09571739100000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/contextlib.py,132,__enter__,86794,99082,0.056756177000000005,0.399997406
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/contextlib.py,141,__exit__,86795,99083,0.049433994,0.202451284
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/contextlib.py,214,__aexit__,1,1,7.639000000000001e-06,5.8696e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/contextlib.py,299,helper,99082,99082,0.045504758000000006,0.14122214900000002
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/contextlib.py,481,__init__,9411,9411,0.005612401,0.005612401
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/contextlib.py,704,__aenter__,9411,9411,0.006072824,0.006072824
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/contextlib.py,707,__aexit__,9411,9411,0.006804295,0.010061384000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,250,_recursive_repr,14,14,2.6909000000000003e-05,9.015700000000001e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,309,__init__,38,38,7.357000000000001e-06,7.357000000000001e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,349,__set_name__,11,11,3.385e-06,4.749000000000001e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,372,__init__,14,14,2.807e-06,2.807e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,404,field,38,38,2.4676000000000002e-05,3.2033e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,428,_fields_in_init_order,14,14,2.0762000000000002e-05,2.8567000000000003e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,432,<genexpr>,42,42,5.5490000000000006e-06,5.5490000000000006e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,433,<genexpr>,14,14,2.256e-06,2.256e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,437,_tuple_str,4,4,2.3260000000000003e-06,2.8050000000000002e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,449,_create_fn,30,30,9.8522e-05,0.001556562
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,461,<genexpr>,86,86,1.2263000000000001e-05,1.2263000000000001e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,477,_field_assign,32,32,6.807e-06,6.807e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,489,_field_init,38,38,1.6564000000000003e-05,2.3371e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,549,_init_param,28,28,7.349e-06,7.349e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,568,_init_fn,14,14,6.2326e-05,0.001028368
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,604,<genexpr>,4,4,7.92e-07,7.92e-07
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,627,_repr_fn,14,14,2.7353e-05,0.000671177
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,661,_cmp_fn,2,2,1.779e-06,8.624400000000001e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,683,_is_classvar,67,67,1.1329000000000001e-05,1.1329000000000001e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,691,_is_initvar,67,67,9.131000000000001e-06,9.131000000000001e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,697,_is_kw_only,67,67,6.878e-06,6.878e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,701,_is_type,114,114,0.00010354,0.00022666
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,760,_get_field,38,38,8.7236e-05,0.00028184600000000004
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,857,_set_qualname,43,43,1.7921e-05,2.1747e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,864,_set_new_attribute,44,44,2.5998e-05,6.757800000000001e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,879,_hash_set_none,2,2,1.66e-07,1.66e-07
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,921,_process_class,14,14,0.000272392,0.0032206260000000003
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,1142,<genexpr>,42,42,4.352e-06,4.352e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,1247,dataclass,14,14,5.472e-06,0.000404867
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,1264,wrap,14,14,1.6789e-05,0.003237415
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/dataclasses.py,1301,is_dataclass,5371,5371,0.0015025350000000002,0.0022731500000000003
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/email/_policybase.py,209,header_max_count,40792,40792,0.0030930420000000003,0.0030930420000000003
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/email/_policybase.py,289,_sanitize_header,32,32,3.0991e-05,5.4911e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/email/_policybase.py,313,header_store_parse,40792,40792,0.003502517,0.003502517
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/email/_policybase.py,319,header_fetch_parse,32,32,2.2521e-05,7.7432e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/email/message.py,29,_splitparam,32,32,4.0405000000000004e-05,5.8619e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/email/message.py,156,__init__,10210,10210,0.002407715,0.002407715
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/email/message.py,431,__setitem__,40792,40792,0.02595864,0.037356349000000004
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/email/message.py,504,get,32,32,4.9411000000000005e-05,0.00013628700000000002
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/email/message.py,539,get_all,10194,10194,0.00936502,0.015445926
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/email/message.py,606,get_content_type,32,32,7.503900000000001e-05,0.000289774
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/email/message.py,630,get_content_maintype,16,16,3.5133000000000004e-05,0.000248708
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/email/message.py,639,get_content_subtype,16,16,1.3536e-05,0.000100235
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/email/utils.py,52,_has_surrogates,32,32,1.396e-05,2.0838000000000003e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/email/utils.py,233,_format_timetuple_and_zone,10,10,3.7657e-05,3.7657e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/email/utils.py,242,formatdate,10,10,3.9859000000000006e-05,0.000198042
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/email/utils.py,271,format_datetime,10,10,2.3964000000000003e-05,0.00011532
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/encodings/__init__.py,43,normalize_encoding,2,2,1.2641000000000001e-05,1.8322000000000002e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/encodings/__init__.py,71,search_function,1,2,1.8933e-05,7.158300000000001e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/encodings/idna.py,1,<module>,1,1,1.3853000000000001e-05,0.000638271
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/encodings/idna.py,154,Codec,1,1,7.5e-07,7.5e-07
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/encodings/idna.py,155,encode,4,4,1.7587e-05,2.379e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/encodings/idna.py,226,IncrementalEncoder,1,1,5.5e-07,5.5e-07
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/encodings/idna.py,261,IncrementalDecoder,1,1,4.33e-07,4.33e-07
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/encodings/idna.py,300,StreamWriter,1,1,2.15e-07,2.15e-07
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/encodings/idna.py,303,StreamReader,1,1,2.22e-07,2.22e-07
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/encodings/idna.py,308,getregentry,2,2,1.2793000000000001e-05,1.9408e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/enum.py,202,__get__,12678,12678,0.002633898,0.00263456
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/enum.py,720,__call__,34027,34027,0.013024041,0.020462788000000003
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/enum.py,1128,__new__,34027,34027,0.007438747000000001,0.007438747000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/enum.py,1291,value,2,2,6.620000000000001e-07,6.620000000000001e-07
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/enum.py,1543,_get_value,18,18,8.541e-06,1.2632e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/enum.py,1561,__and__,6,6,1.3988e-05,3.459e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/functools.py,35,update_wrapper,16,16,3.4764e-05,6.1727e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/functools.py,65,wraps,16,16,9.602e-06,9.602e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/functools.py,424,_unwrap_partial,4,4,8.680000000000001e-07,1.1320000000000001e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/functools.py,982,__get__,1,1,2.5980000000000004e-06,3.0250000000000003e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/http/cookiejar.py,44,_debug,5097,5097,0.000834436,0.000834436
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/http/cookiejar.py,1227,deepvalues,5097,5097,0.0041557600000000005,0.005130166
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/http/cookiejar.py,1599,make_cookies,5097,5097,0.009734069000000001,0.06881074000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/http/cookiejar.py,1680,extract_cookies,5097,5097,0.014593259,0.157181531
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/http/cookiejar.py,1753,__iter__,5097,5097,0.002183485,0.002183485
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py,73,import_module,8,41,3.7352000000000004e-05,0.020016097
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,176,get_annotations,21,21,6.3837e-05,9.1211e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,298,ismodule,20,20,6.374e-06,9.416000000000001e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,302,isclass,33,33,6.001000000000001e-06,8.67e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,306,ismethod,16,16,3.2510000000000003e-06,4.501000000000001e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,310,ismethoddescriptor,7,7,1.6430000000000002e-06,3.1050000000000003e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,378,isfunction,3107,3107,0.0009841000000000001,0.001205834
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,391,_has_code_flag,2,2,3.4990000000000003e-06,5.47e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,412,_has_coroutine_mark,2,2,1.5720000000000002e-06,3.0030000000000003e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,427,iscoroutinefunction,2,2,2.617e-06,1.109e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,475,istraceback,16,16,3.1950000000000003e-06,5.527000000000001e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,485,isframe,16,16,2.932e-06,4.0100000000000006e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,499,iscode,12,12,1.8710000000000002e-06,2.5810000000000004e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,524,isbuiltin,7,7,1.1830000000000002e-06,1.658e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,754,unwrap,3090,3090,0.0028853290000000003,0.004410776
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,911,getfile,8,8,2.4065e-05,4.4789e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,951,getsourcefile,8,8,3.76e-05,0.00013187500000000002
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,958,<genexpr>,24,24,5.488000000000001e-06,8.763e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,961,<genexpr>,32,32,7.494000000000001e-06,1.0744e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,988,getmodule,4,4,4.462000000000001e-06,1.0271e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,1070,findsource,4,4,3.3978e-05,0.000664655
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,1187,__init__,4,4,3.328e-06,3.328e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,1196,tokeneater,611,611,6.8964e-05,6.8964e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,1239,getblock,4,4,0.000209282,0.0007277430000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,1258,getsourcelines,4,4,3.0030000000000002e-05,0.0014405840000000002
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,1463,formatannotation,18,18,1.2399000000000001e-05,2.0261e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,1806,_check_class,14,14,1.3019e-05,2.7003000000000002e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,1832,_shadowed_dict,19,19,1.3984e-05,1.3984e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,1845,getattr_static,14,14,1.0902e-05,3.7905000000000004e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,2030,_signature_get_user_defined_method,21,21,1.4121e-05,6.5264e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,2124,_signature_bound_method,7,7,1.6074000000000002e-05,4.0236000000000006e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,2150,_signature_is_builtin,7,7,6.274e-06,1.2125e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,2164,_signature_is_functionlike,7,7,3.5490000000000002e-06,5.7680000000000005e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,2397,_signature_from_function,7,7,4.7233e-05,0.000130071
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,2492,_descriptor_get,7,7,5.6220000000000006e-06,8.402e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,2501,_signature_from_callable,7,21,9.109600000000001e-05,0.000370097
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,2743,__init__,18,18,2.1672000000000002e-05,4.0287e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,2796,name,29,29,2.17e-06,2.17e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,2800,default,11,11,6.410000000000001e-07,6.410000000000001e-07
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,2808,kind,47,47,3.278e-06,3.278e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,2830,__str__,11,11,8.87e-06,2.5871e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,3029,__init__,14,14,2.5776000000000002e-05,3.4803000000000005e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,3076,<genexpr>,25,25,5.473e-06,7.079e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,3081,from_callable,7,7,9.221e-06,0.000379318
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,3089,parameters,14,14,1.1460000000000001e-06,1.1460000000000001e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,3093,return_annotation,14,14,1.034e-06,1.034e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,3097,replace,7,7,6.502000000000001e-06,2.0004e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,3300,__str__,7,7,2.6034000000000002e-05,7.0432e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/inspect.py,3346,signature,7,7,6.246e-06,0.000385564
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/ipaddress.py,28,ip_address,3073,3073,0.0017411870000000002,0.045161541
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/ipaddress.py,394,compressed,3072,3072,0.0014331250000000002,0.008722359
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/ipaddress.py,577,__eq__,1,1,7.88e-07,7.88e-07
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/ipaddress.py,609,__str__,3072,3072,0.0016284460000000002,0.007289234
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/ipaddress.py,612,__hash__,1,1,3.029e-06,3.413e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/ipaddress.py,1187,_ip_int_from_string,8170,8170,0.033802271,0.08817163700000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/ipaddress.py,1213,_parse_octet,32680,32680,0.028233610000000003,0.038700985
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/ipaddress.py,1249,_string_from_ip_int,3072,3072,0.0023555340000000003,0.005660788
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/ipaddress.py,1286,__init__,8170,8170,0.012301212,0.102466682
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/json/__init__.py,183,dumps,18474,18474,0.033261945,0.18641611100000002
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/json/__init__.py,244,detect_encoding,8185,8185,0.011126473000000001,0.018056125000000003
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/json/__init__.py,299,loads,8184,8185,0.014626934000000001,0.11394478200000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/json/decoder.py,333,decode,8184,8185,0.013637312,0.075202379
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/json/decoder.py,344,raw_decode,8185,8185,0.04832141,0.04836971
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/json/encoder.py,105,__init__,15402,15402,0.0071161060000000005,0.0071161060000000005
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/json/encoder.py,183,encode,18474,18474,0.027881681000000002,0.14603806
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/json/encoder.py,205,iterencode,18474,18474,0.10907145400000001,0.10907145400000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/linecache.py,36,getlines,4,4,7.308e-06,0.00015767800000000002
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/linecache.py,52,checkcache,4,4,8.269e-06,2.1102000000000002e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/linecache.py,83,updatecache,2,2,1.1012e-05,0.000150225
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/logging/__init__.py,234,_acquireLock,6153,6153,0.0014253030000000002,0.0023470550000000002
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/logging/__init__.py,243,_releaseLock,6153,6153,0.0012907,0.001990796
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/logging/__init__.py,1369,disable,3,3,6.900000000000001e-07,6.900000000000001e-07
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/logging/__init__.py,1377,getLogger,6150,6150,0.004360533000000001,0.009672697000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/logging/__init__.py,1529,info,5100,5100,0.0023905330000000002,0.0037281410000000004
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/logging/__init__.py,1724,hasHandlers,3075,3075,0.00040089300000000004,0.00040089300000000004
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/logging/__init__.py,1776,getEffectiveLevel,3,3,3.953e-06,3.953e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/logging/__init__.py,1790,isEnabledFor,36713,36713,0.008143033000000001,0.008152909
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/logging/__init__.py,2149,getLogger,6150,6150,0.002452914,0.012572885
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py,358,__init__,48,48,8.606500000000001e-05,0.000124697
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py,387,_parse_path,48,48,0.00018885200000000001,0.000386993
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py,407,_load_parts,48,48,7.8745e-05,0.00047715500000000005
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py,429,_format_parsed_parts,49,49,3.3374e-05,5.3159000000000004e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py,437,__str__,10336,10336,0.001700745,0.0023541020000000003
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py,447,__fspath__,10336,10336,0.0061976900000000005,0.008551792
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py,551,drive,49,49,0.00011041000000000001,0.0005875650000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py,560,root,49,49,6.788e-06,6.788e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py,569,_tail,49,49,5.845e-06,5.845e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py,835,stat,48,48,2.4996000000000003e-05,0.001357376
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py,852,exists,48,48,5.7983000000000004e-05,0.0014717530000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py,1005,open,48,48,4.8626000000000005e-05,0.00269847
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py,1022,read_text,48,48,0.00020249200000000003,0.0018595430000000002
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py,1157,__init__,48,48,8.8972e-05,0.00021366900000000002
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py,1164,__new__,48,48,6.677e-05,8.2321e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/platform.py,891,uname,1,1,4.47e-07,4.47e-07
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/platform.py,980,system,1,1,4.214000000000001e-06,4.661e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/__init__.py,219,finditer,16338,16338,0.012227940000000001,0.060118289000000005
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/__init__.py,226,compile,7,7,6.365e-06,0.000787279
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/__init__.py,280,_compile,16345,16345,0.024963373,0.036554916
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_compiler.py,31,_combine_flags,12,12,2.4450000000000003e-06,2.4450000000000003e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_compiler.py,37,_compile,3,26,9.0202e-05,0.000203023
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_compiler.py,216,_compile_charset,10,10,8.327e-06,1.1394000000000001e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_compiler.py,243,_optimize_charset,10,10,3.2117000000000004e-05,4.9707000000000004e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_compiler.py,391,_mk_bitmap,1,1,6.944000000000001e-06,7.612e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_compiler.py,403,_simple,9,9,4.889e-06,1.2240000000000001e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_compiler.py,412,_generate_overlap_table,1,1,1.644e-06,1.867e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_compiler.py,433,_get_iscased,7,7,1.0670000000000001e-06,1.0670000000000001e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_compiler.py,441,_get_literal_prefix,3,5,9.35e-06,1.1727000000000001e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_compiler.py,472,_get_charset_prefix,2,2,3.0640000000000002e-06,4.0370000000000005e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_compiler.py,516,_compile_info,3,3,1.7665e-05,5.3099e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_compiler.py,575,isstring,6,6,2.087e-06,2.719e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_compiler.py,578,_code,3,3,1.5044e-05,0.000271635
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_compiler.py,745,compile,3,3,1.5419000000000003e-05,0.0006950340000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_parser.py,77,__init__,3,3,8.97e-07,8.97e-07
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_parser.py,83,groups,25,25,5.335000000000001e-06,7.355000000000001e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_parser.py,86,opengroup,9,9,7.928000000000001e-06,1.4631000000000001e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_parser.py,98,closegroup,9,9,6.322000000000001e-06,3.748e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_parser.py,113,__init__,28,28,3.7460000000000002e-06,3.7460000000000002e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_parser.py,164,__len__,52,52,9.173e-06,1.3047e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_parser.py,168,__getitem__,170,170,3.6346e-05,5.1181000000000003e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_parser.py,172,__setitem__,9,9,1.491e-06,1.491e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_parser.py,176,append,49,49,1.4429e-05,2.025e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_parser.py,178,getwidth,13,35,3.4168e-05,4.6782e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_parser.py,231,__init__,3,3,3.227e-06,4.891e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_parser.py,240,__next,85,85,1.4601000000000001e-05,1.4601000000000001e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_parser.py,256,match,62,62,9.411e-06,1.3986000000000001e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_parser.py,261,get,65,65,1.3233e-05,2.179e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_parser.py,293,tell,34,34,7.635e-06,1.0492e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_parser.py,372,_escape,8,8,2.2190000000000003e-06,3.6560000000000002e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_parser.py,449,_uniq,3,3,4.137e-06,6.424000000000001e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_parser.py,452,_parse_sub,3,13,5.2223000000000005e-05,0.000375565
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_parser.py,512,_parse,6,17,0.000136858,0.00033787000000000004
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_parser.py,953,fix_flags,3,3,1.8630000000000002e-06,2.098e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/_parser.py,969,parse,3,3,1.62e-05,0.000399651
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/reprlib.py,15,wrapper,3072,3072,0.004133881,0.059926009
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/selectors.py,21,_fileobj_to_fd,58399,58399,0.014108771,0.018964733
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/selectors.py,69,__getitem__,33789,33789,0.028836411000000003,0.059949243000000006
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/selectors.py,180,get_key,33789,33789,0.025066851,0.09529541200000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/selectors.py,215,_fileobj_lookup,58399,58399,0.014431701000000002,0.033396434
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/selectors.py,234,register,12305,12305,0.012862768,0.025843223000000002
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/selectors.py,247,unregister,12305,12305,0.006030000000000001,0.014981580000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/selectors.py,272,get_map,33789,33789,0.0033078350000000003,0.0033078350000000003
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/selectors.py,275,_key_from_fd,15564,15564,0.002474093,0.002474093
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/selectors.py,351,register,12305,12305,0.013382454,0.631072721
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/selectors.py,365,unregister,12305,12305,0.010595273,0.05044081
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/selectors.py,451,select,861,861,0.009839092,0.483302779
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/socket.py,100,_intenum_converter,34003,34003,0.014047468,0.034490355
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/socket.py,221,__init__,6148,6151,0.04197998,0.041986937
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/socket.py,288,accept,3138,3138,0.00536919,0.6137574840000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/socket.py,497,_real_close,6129,6129,0.0033756420000000003,1.587270978
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/socket.py,501,close,6129,6129,0.00321696,1.593699259
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/socket.py,517,family,21700,21700,0.011271015,0.036766121
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/socket.py,523,type,12295,12295,0.004134528,0.013110474
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/socket.py,823,create_connection,2,4,1.9036000000000002e-05,1.9341e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/socket.py,961,getaddrinfo,2,4,1.7422e-05,0.0016642660000000002
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/stringprep.py,1,<module>,1,1,8.3732e-05,8.3732e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/threading.py,124,RLock,3072,3072,0.0018483590000000002,0.0018483590000000002
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/threading.py,277,__init__,5102,5103,0.014120343,0.018774752000000002
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/threading.py,299,__enter__,25731,25731,0.011044452000000001,0.017684546000000002
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/threading.py,302,__exit__,25731,25731,0.008049394,0.011567870000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/threading.py,308,_release_save,2518,2518,0.000702172,0.00110301
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/threading.py,311,_acquire_restore,2518,2518,0.000550917,0.000861002
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/threading.py,314,_is_owned,5111,5111,0.001709229,0.003485564
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/threading.py,323,wait,2518,2518,0.005294022000000001,0.011531744
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/threading.py,394,notify,5665,5665,0.003270938,0.005937784000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/threading.py,424,notify_all,5103,5103,0.003294663,0.009208589000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/threading.py,468,acquire,3072,3072,0.006570452,0.022519762000000002
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/threading.py,515,release,562,562,0.00097484,0.002757135
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/threading.py,588,__init__,2031,2031,0.0040388690000000005,0.010566348000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/threading.py,601,is_set,4,4,5.2e-07,5.2e-07
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/threading.py,616,set,2031,2031,0.0026403190000000003,0.009905379
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/threading.py,637,wait,4,4,1.5071e-05,0.000120799
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/threading.py,857,_maintain_shutdown_locks,4,4,1.2545000000000001e-05,1.7255e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/threading.py,884,__init__,4,4,2.2869e-05,4.6407000000000005e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/threading.py,975,start,4,4,1.792e-05,0.000157137
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/threading.py,1038,_set_ident,4,4,4.436e-06,6.401e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/threading.py,1042,_set_native_id,4,4,2.826e-06,5.0410000000000005e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/threading.py,1045,_set_tstate_lock,4,4,1.8182e-05,4.7426e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/threading.py,1236,daemon,8,8,4.231000000000001e-06,4.231000000000001e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/threading.py,1356,_make_invoke_excepthook,4,4,2.9970000000000003e-06,2.9970000000000003e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/threading.py,1485,current_thread,4,4,2.7330000000000003e-06,3.394e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/tokenize.py,360,detect_encoding,2,2,8.963e-06,2.3536000000000003e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/tokenize.py,384,read_or_stop,2,2,1.357e-06,9.717e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/tokenize.py,390,find_cookie,2,2,1.7580000000000002e-06,3.1620000000000004e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/tokenize.py,453,open,2,2,2.3389000000000003e-05,6.9347e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/tokenize.py,496,generate_tokens,4,4,3.633e-06,3.633e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/tokenize.py,577,_generate_tokens_from_c_tokenizer,615,615,0.000248815,0.000446187
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,166,_type_convert,29,29,1.1575e-05,4.372e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,175,_type_check,13,13,2.1142000000000002e-05,7.2184e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,317,_deduplicate,5,5,2.9410000000000003e-06,5.318000000000001e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,345,_remove_dups_flatten,3,3,5.731000000000001e-06,1.0327000000000001e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,361,_flatten_literal_params,2,2,2.3550000000000003e-06,4.442e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,392,inner,41192,41192,0.016797410000000002,0.017280959000000002
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,515,__getitem__,3,3,2.5740000000000003e-06,9.2081e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,521,__getitem__,2,2,2.019e-06,7.5999e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,694,Union,3,3,1.2447000000000001e-05,8.950700000000001e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,730,<genexpr>,10,10,4.419e-06,1.6753e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,738,_make_union,1,1,6.54e-07,2.8828000000000002e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,753,Literal,2,2,2.1375e-05,7.070500000000001e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,781,<genexpr>,7,7,1.285e-06,1.285e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,892,__init__,6,6,4.262e-06,2.9724000000000002e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,962,__eq__,48,48,6.125000000000001e-06,1.0481e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,993,_is_typevar_like,5,5,1.463e-06,1.892e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,1074,_generic_class_getitem,16,16,6.484600000000001e-05,0.000320763
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,1088,<genexpr>,32,32,8.826e-06,1.4542e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,1097,<genexpr>,10,10,2.589e-06,4.481e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,1123,_generic_init_subclass,19,19,8.3576e-05,0.000198237
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,1161,_is_dunder,163,163,4.477e-05,8.029100000000001e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,1174,__init__,21,21,1.8701000000000003e-05,0.00010443
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,1205,__getattr__,17,17,1.6493e-05,2.5911000000000003e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,1215,__setattr__,146,146,6.9059e-05,0.000139932
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,1221,__instancecheck__,50970,50970,0.019956046,0.10821301400000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,1269,__init__,21,21,5.4409e-05,0.000305436
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,1273,<genexpr>,49,49,5.781e-06,5.781e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,1279,__eq__,31,31,6.826e-06,1.0213e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,1442,__mro_entries__,17,17,1.4085000000000002e-05,2.3175e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,1492,__subclasscheck__,50970,50970,0.025696707000000003,0.088256968
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,1629,_value_and_type_iter,2,2,9.600000000000001e-07,9.600000000000001e-07
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,1630,<genexpr>,7,7,1.3750000000000002e-06,1.3750000000000002e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,1855,__new__,1,1,1.176e-06,3.5201000000000004e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,1874,__init__,1,1,8.12e-07,9.5e-07
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,1999,__init_subclass__,1,1,4.598000000000001e-06,1.9347e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,2004,<genexpr>,2,2,3.7200000000000005e-07,3.7200000000000005e-07
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,2187,cast,150070,150070,0.013966364,0.013966364
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,2344,get_origin,24,24,1.0667000000000001e-05,1.5477e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,2510,overload,7,7,9.243000000000001e-06,1.0312e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,2795,_make_nmtuple,1,1,1.147e-05,0.000152613
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,2814,__new__,1,1,7.1461e-05,0.00022675100000000003
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,2820,<genexpr>,2,2,3.5000000000000004e-07,3.5000000000000004e-07
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,2880,_namedtuple_mro_entries,1,1,3.0900000000000003e-07,3.0900000000000003e-07
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/typing.py,3462,override,3,3,9.070000000000001e-07,9.070000000000001e-07
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/urllib/parse.py,108,_noop,5099,5099,0.000527337,0.000527337
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/urllib/parse.py,119,_coerce_args,5099,5099,0.004581041,0.005027167
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/urllib/parse.py,374,urlparse,5097,5097,0.01705682,0.027394209000000003
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/urllib/parse.py,413,_splitnetloc,2,2,4.488e-06,7.42e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/urllib/parse.py,421,_checknetloc,2,2,1.247e-06,1.56e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/urllib/parse.py,469,urlsplit,2,2,3.5949000000000004e-05,5.5328e-05
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/urllib/parse.py,692,unquote,18428,18428,0.008477668,0.010525501000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/urllib/parse.py,757,parse_qsl,3137,3137,0.004038535,0.004824369
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/urllib/parse.py,1078,unwrap,5097,5097,0.005560497,0.006712412
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/urllib/parse.py,1099,_splittype,5097,5097,0.0052299980000000005,0.012018783
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/urllib/parse.py,1120,_splithost,5097,5097,0.004129562000000001,0.008510995
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/urllib/parse.py,1230,_splittag,5097,5097,0.0024017400000000003,0.0038348550000000003
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/urllib/request.py,297,request_host,5097,5097,0.008490787000000001,0.043448404
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/urllib/request.py,315,__init__,5097,5097,0.019898885,0.13813228700000002
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/urllib/request.py,333,full_url,5097,5097,0.00078629,0.00078629
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/urllib/request.py,339,full_url,5097,5097,0.006906652,0.048631879
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/urllib/request.py,356,data,5097,5097,0.00141789,0.00141789
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/urllib/request.py,370,_parse,5097,5097,0.007216945000000001,0.03117796
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/urllib/request.py,397,add_header,47967,47967,0.013726202000000002,0.023767530000000002
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/uuid.py,139,__init__,3072,3072,0.005991898000000001,0.007753268000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/uuid.py,334,hex,3072,3072,0.001254445,0.001254445
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/uuid.py,723,uuid4,3072,3072,0.002808201,0.014827355
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/weakref.py,105,remove,4815,4815,0.0022294650000000004,0.00342777
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/weakref.py,133,__getitem__,12291,12291,0.004996184000000001,0.004996184000000001
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/weakref.py,164,__setitem__,6147,6147,0.005039998,0.014825751000000002
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/weakref.py,347,__new__,6147,6147,0.003191658,0.004739278
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/weakref.py,352,__init__,6147,6147,0.005037918000000001,0.005046475
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/weakref.py,367,__init__,1,1,1.381e-06,1.381e-06
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/weakref.py,369,remove,3072,3072,0.002017786,0.002017786
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/weakref.py,410,__delitem__,3072,3072,0.001232982,0.001232982
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/weakref.py,414,__getitem__,55296,55296,0.026561103000000003,0.026581987
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/weakref.py,427,__setitem__,6148,6148,0.003049579,0.003049579
+/home/alexsky2/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/weakref.py,451,get,43008,43008,0.024680115000000002,0.037799120000000005
+/home/alexsky2/Company/experiments/src/atfm_experiments/load/metrics.py,13,distribution,188,188,0.0021841350000000002,0.029149545000000002
+/home/alexsky2/Company/experiments/src/atfm_experiments/load/metrics.py,26,<lambda>,3,3,6.674000000000001e-06,6.674000000000001e-06
+/home/alexsky2/Company/experiments/src/atfm_experiments/load/metrics.py,31,snapshot,48,48,0.0008662260000000001,0.033228011
+/home/alexsky2/Company/experiments/src/atfm_experiments/load/metrics.py,49,__call__,28133,28134,0.027464371,18.30843647
+/home/alexsky2/Company/experiments/src/atfm_experiments/load/metrics.py,56,measured_send,6178,6178,0.004575259,0.9042133050000001
+/home/alexsky2/Company/experiments/src/atfm_experiments/load/profiling.py,11,profile_event_loop,1,1,3.849e-06,4.7485000000000004e-05
+/home/alexsky2/Company/experiments/src/atfm_experiments/load/server.py,115,heartbeat,147,147,0.000509643,0.003177594
+/home/alexsky2/Company/experiments/src/atfm_experiments/load/server.py,121,lifespan,1,1,7.140000000000001e-07,4.9741000000000004e-05
+/home/alexsky2/Company/experiments/src/atfm_experiments/load/server.py,139,metrics,48,48,0.00032697900000000003,0.040910752
+/home/alexsky2/Company/src/atfm/bus/jsonl.py,23,publish,10240,10240,0.036368404,2.160473363
+/home/alexsky2/Company/src/atfm/proxy/app.py,31,_meta_from,3072,3072,0.012497205,0.042142556000000005
+/home/alexsky2/Company/src/atfm/proxy/app.py,70,predict,6144,6144,0.015868362,0.158220734
+/home/alexsky2/Company/src/atfm/proxy/app.py,76,_call,117,2025,0.005532838,3.42176224
+/home/alexsky2/Company/src/atfm/proxy/app.py,104,emit,10240,10240,0.016902403,2.193000569
+/home/alexsky2/Company/src/atfm/proxy/app.py,110,finish,3072,3072,0.024658166000000002,1.258488823
+/home/alexsky2/Company/src/atfm/proxy/app.py,125,healthz,1,1,2.67e-07,2.67e-07
+/home/alexsky2/Company/src/atfm/proxy/app.py,133,apply_holds,16,16,0.0020536730000000002,0.004176263
+/home/alexsky2/Company/src/atfm/proxy/app.py,151,directive_batch,16,16,2.4246e-05,0.004200509
+/home/alexsky2/Company/src/atfm/proxy/app.py,194,chat,30690,30690,0.049596083000000006,11.55663082
+/home/alexsky2/Company/src/atfm/proxy/app.py,227,_forward,27617,27617,0.09038117200000001,10.708260664
+/home/alexsky2/Company/src/atfm/proxy/board_client.py,16,_predict,117,2025,0.006020058,3.205505403
+/home/alexsky2/Company/src/atfm/proxy/board_client.py,23,expected_times,117,2025,0.00707445,3.25570336
+/home/alexsky2/Company/src/atfm/proxy/index.py,23,estimate_isl,3072,3072,0.003879987,0.006361157
+/home/alexsky2/Company/src/atfm/proxy/index.py,35,service_time,3072,3072,0.001487355,0.001487355
+/home/alexsky2/Company/src/atfm/proxy/index.py,39,weight,3072,3072,0.000498141,0.000498141
+/home/alexsky2/Company/src/atfm/proxy/index.py,43,compute_index,3072,3072,0.002324823,0.0035097910000000004
+/home/alexsky2/Company/src/atfm/proxy/index.py,48,tier,3072,3072,0.00040191,0.00040191
+/home/alexsky2/Company/src/atfm/proxy/index.py,57,priority_bucket,3072,3072,0.029354076000000003,0.139557403
+/home/alexsky2/Company/src/atfm/proxy/index.py,65,promote_at,3072,3072,0.00035697500000000004,0.00035697500000000004
+/home/alexsky2/Company/src/atfm/proxy/queue.py,72,queued,6201,6201,0.0016048030000000001,0.002384441
+/home/alexsky2/Company/src/atfm/proxy/queue.py,76,_ready_key,3542,3542,0.0006324880000000001,0.0006324880000000001
+/home/alexsky2/Company/src/atfm/proxy/queue.py,80,_make_ready,3072,3072,0.002071485,0.004513316
+/home/alexsky2/Company/src/atfm/proxy/queue.py,85,_index,3072,3072,0.001316921,0.005830237
+/home/alexsky2/Company/src/atfm/proxy/queue.py,94,_rebuild,3,3,0.0005402590000000001,0.000694465
+/home/alexsky2/Company/src/atfm/proxy/queue.py,109,_advance,6153,6153,0.001337972,0.001337972
+/home/alexsky2/Company/src/atfm/proxy/queue.py,124,_pop_ready,3210,3210,0.006956808,0.014569373
+/home/alexsky2/Company/src/atfm/proxy/queue.py,139,set_directive,6561,6561,0.001702397,0.001702397
+/home/alexsky2/Company/src/atfm/proxy/queue.py,142,directive_for,3072,3072,0.00147788,0.003680623
+/home/alexsky2/Company/src/atfm/proxy/queue.py,151,submit,3072,3072,0.007940547000000001,0.028085969000000002
+/home/alexsky2/Company/src/atfm/proxy/queue.py,180,complete,3072,3072,0.004166403,0.053169429000000004
+/home/alexsky2/Company/src/atfm/proxy/queue.py,198,tick,6153,6153,0.017219896000000002,0.056024398
+/home/alexsky2/Company/src/atfm/proxy/queue.py,215,_arm_timer,6153,6153,0.0033184760000000003,0.0033184760000000003
+/home/alexsky2/Company/src/atfm/proxy/queue.py,232,stats,48,48,0.000166164,0.007308267
+/home/alexsky2/Company/src/atfm/proxy/queue.py,235,<genexpr>,23882,23882,0.004261726,0.004261726
+/home/alexsky2/Company/src/atfm/proxy/queue.py,238,tier_indices,3072,3072,0.18476494400000001,0.38511825200000005
+/home/alexsky2/Company/src/atfm/proxy/queue.py,239,<genexpr>,1636065,1636065,0.199691414,0.199691414
+/home/alexsky2/Company/src/atfm/schema/events.py,111,event_to_dict,10240,10240,0.009909491000000001,0.058232171000000006
+/tmp/atfm-load-check/lib/python3.12/site-packages/_virtualenv.py,50,find_spec,18448,18448,0.0051716290000000005,0.0051716290000000005
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/__init__.py,1,<module>,1,1,1.11e-07,1.11e-07
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1,<module>,1,1,9.5227e-05,0.007395698
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,365,is_anyio_cancellation,6144,6144,0.003984227,0.006065645000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,384,CancelScope,1,1,5.8070000000000005e-06,6.506e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,401,__new__,43008,43008,0.014604663,0.022518713000000003
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,404,__init__,55296,55296,0.040295278000000004,0.040344312
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,422,__enter__,43008,43008,0.15808935200000002,0.293218232
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,453,__exit__,43008,43008,0.07906589800000001,0.176953873
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,551,_effectively_cancelled,3175,3175,0.001035213,0.001355475
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,565,_parent_cancellation_is_visible_to_us,3175,3175,0.0019439110000000002,0.003676823
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,573,_timeout,43111,43111,0.019439197000000002,0.090523271
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,581,_deliver_cancellation,9480,18618,0.026883986000000002,0.11257359900000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,631,_restart_cancellation_in_parent,43008,43008,0.006958130000000001,0.007288370000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,670,cancel,9261,9261,0.008236571,0.10159926400000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,701,cancel_called,12230,12230,0.0013983880000000002,0.0013983880000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,705,cancelled_caught,12288,12288,0.001404007,0.001404007
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,709,shield,9435,9435,0.001043158,0.001043158
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,713,shield,3072,3072,0.000896135,0.000896135
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,726,TaskState,1,1,3.9800000000000004e-07,3.9800000000000004e-07
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,734,__init__,6144,6144,0.0011643760000000002,0.0011643760000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,747,_AsyncioTaskStatus,1,1,5.05e-07,5.05e-07
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,783,TaskGroup,1,1,1.257e-06,1.257e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,784,__init__,3072,3072,0.0028002870000000003,0.005275921
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,791,__aenter__,3072,3072,0.008025859,0.018687795
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,800,__aexit__,6202,6202,0.018799974,0.06943713700000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,862,_spawn,3072,3072,0.019019907000000003,0.08777607700000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,870,task_done,3072,3072,0.0062082000000000005,0.010858040000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,964,create_task,3072,3072,0.003607397,0.093905732
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1044,WorkerThread,1,1,1.165e-06,1.165e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1140,StreamReaderWrapper,1,1,5.08e-07,5.08e-07
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1159,StreamWriterWrapper,1,1,1.3780000000000002e-06,2.477e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1190,Process,1,1,2.928e-06,2.928e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1312,StreamProtocol,1,1,2.875e-06,2.875e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1319,connection_made,3072,3072,0.00539826,0.014376466000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1326,connection_lost,3052,3052,0.0024948270000000002,0.0044404430000000005
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1333,data_received,3072,3072,0.002889247,0.012803287
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1350,DatagramProtocol,1,1,1.3010000000000001e-06,1.3010000000000001e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1384,SocketStream,1,1,1.2980000000000001e-06,1.2980000000000001e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1385,__init__,3072,3072,0.002639392,0.003405672
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1392,_raw_socket,15930,15930,0.0059146450000000005,0.013740776000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1396,receive,6144,6144,0.016259539,0.127976531
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1434,send,12288,12288,0.020451441,0.122798712
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1459,aclose,6104,6104,0.007796063000000001,0.09278048600000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1472,_RawSocketMixin,1,1,1.494e-06,1.494e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1518,UNIXSocketStream,1,1,2.1010000000000003e-06,2.1010000000000003e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1637,TCPSocketListener,1,1,1.007e-06,1.007e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1697,UNIXSocketListener,1,1,1.215e-06,1.215e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1734,UDPSocket,1,1,1.1410000000000002e-06,1.1410000000000002e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1784,ConnectedUDPSocket,1,1,7.67e-07,7.67e-07
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1836,UNIXDatagramSocket,1,1,6.54e-07,6.54e-07
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1872,ConnectedUNIXDatagramSocket,1,1,4.4e-07,4.4e-07
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1917,Event,1,1,9.480000000000001e-07,9.480000000000001e-07
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1920,__new__,9216,9216,0.0024121190000000003,0.003935944
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1923,__init__,18432,18432,0.00917389,0.029009567000000003
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1926,set,9216,9216,0.003463161,0.008467740000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1929,is_set,3072,3072,0.000916122,0.0012204050000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1932,wait,6144,6144,0.003105294,0.015412469000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1942,Lock,1,1,1.419e-06,1.419e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1945,__new__,6144,6144,0.0018105850000000002,0.0030453240000000003
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1948,__init__,12288,12288,0.005545993,0.005545993
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,1953,acquire,18432,18432,0.019077086,0.12965204500000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,2003,release,9216,9216,0.004534786,0.0057341250000000005
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,2026,Semaphore,1,1,1.458e-06,1.458e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,2114,CapacityLimiter,1,1,4.1220000000000005e-06,4.624e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,2243,_SignalReceiver,1,1,6.520000000000001e-07,6.520000000000001e-07
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,2289,AsyncIOTaskInfo,1,1,4.970000000000001e-07,4.970000000000001e-07
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,2320,TestRunner,1,1,2.4400000000000004e-06,2.4400000000000004e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,2497,_ProcessStreamProtocol,1,1,8.990000000000001e-07,8.990000000000001e-07
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,2515,AsyncIOBackend,1,1,2.5436000000000002e-05,2.5436000000000002e-05
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,2554,current_time,15360,15360,0.010152761000000001,0.017912087
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,2562,checkpoint,12288,12288,0.0049778290000000005,0.012219229000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,2566,checkpoint_if_cancelled,9216,9216,0.00683624,0.012569798
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,2585,cancel_shielded_checkpoint,18432,18432,0.025450742000000002,0.09555572700000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,2594,create_cancel_scope,27648,27648,0.028740929000000002,0.06702327000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,2623,create_task_group,3072,3072,0.0016087120000000002,0.006884633
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,2627,create_event,9216,9216,0.00627249,0.026039871000000003
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,2631,create_lock,6144,6144,0.006687239,0.012173457
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_backends/_asyncio.py,2842,connect_tcp,9216,9216,0.013510451000000001,1.507344099
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_core/_eventloop.py,191,get_async_backend,76800,76800,0.029617974000000002,0.086789184
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_core/_eventloop.py,211,current_async_library,76800,76800,0.028598488000000002,0.03701198
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_core/_resources.py,1,<module>,1,1,3.513e-06,1.4512000000000001e-05
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_core/_sockets.py,1,<module>,1,1,4.5488e-05,0.0032291750000000004
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_core/_sockets.py,145,connect_tcp,9216,9216,0.031228075,0.34250289100000003
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_core/_sockets.py,196,try_connect,9216,9216,0.008676916,1.644274567
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_core/_sockets.py,825,convert_ipv6_sockaddr,6334,6334,0.0032024260000000004,0.004735054000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_core/_sockets.py,910,TCPConnectable,1,1,1.069e-06,1.316e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_core/_sockets.py,936,UNIXConnectable,1,1,1.0110000000000001e-06,1.2280000000000001e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_core/_streams.py,1,<module>,1,1,9.537e-06,0.001689582
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_core/_streams.py,16,create_memory_object_stream,1,1,5.09e-07,5.09e-07
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_core/_synchronization.py,91,__new__,9216,9216,0.006693107,0.061519139
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_core/_synchronization.py,164,__new__,6144,6144,0.0056121700000000005,0.024397098000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_core/_synchronization.py,762,__init__,6144,6144,0.00076628,0.00076628
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_core/_synchronization.py,766,__enter__,9216,9216,0.001375895,0.001375895
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_core/_synchronization.py,772,__exit__,9216,9216,0.0013366480000000002,0.0013366480000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_core/_tasks.py,55,__new__,12288,12288,0.011198491000000001,0.055728057000000004
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_core/_tasks.py,127,fail_at,24576,24576,0.025763201000000003,0.31198862600000005
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_core/_tasks.py,158,fail_after,24576,24576,0.024909037000000002,0.413826727
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_core/_tasks.py,201,move_on_after,3072,3072,0.0031362490000000002,0.016935407
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_core/_tasks.py,238,create_task_group,3072,3072,0.0018213290000000002,0.010698645000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_core/_tasks.py,302,__init__,3072,3072,0.009598780000000001,0.046009970000000004
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_core/_tasks.py,322,_run_coro,9216,9216,0.011531687,1.679719089
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_core/_tasks.py,384,name,3072,3072,0.000361293,0.000361293
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_core/_typedattr.py,17,typed_attribute,16,16,2.779e-06,2.779e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_core/_typedattr.py,29,__init_subclass__,2,2,1.2187e-05,3.3759e-05
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_core/_typedattr.py,62,extra,6334,6334,0.009271251000000001,0.10144179
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/_lazyimport.py,33,__getattr__,39,40,6.948700000000001e-05,0.001451547
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/abc/_eventloop.py,1,<module>,1,1,1.2882000000000001e-05,0.00011710500000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/abc/_eventloop.py,59,AsyncBackend,1,1,7.5437e-05,8.4184e-05
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/abc/_sockets.py,1,<module>,1,1,2.3426000000000002e-05,0.00034349
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/abc/_sockets.py,101,SocketAttribute,1,1,2.505e-06,3.939e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/abc/_sockets.py,142,_SocketProvider,1,1,1.6990000000000002e-06,2.007e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/abc/_sockets.py,143,extra_attributes,6334,6334,0.031020933,0.089104263
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/abc/_sockets.py,152,<lambda>,3262,3262,0.0009036410000000001,0.002994609
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/abc/_sockets.py,180,SocketStream,1,1,2.4570000000000004e-06,2.4570000000000004e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/abc/_sockets.py,203,UNIXSocketStream,1,1,1.343e-06,1.562e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/abc/_sockets.py,242,SocketListener,1,1,1.415e-06,1.5330000000000002e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/abc/_sockets.py,286,UDPSocket,1,1,9.18e-07,9.18e-07
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/abc/_sockets.py,316,ConnectedUDPSocket,1,1,6.450000000000001e-07,6.450000000000001e-07
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/abc/_sockets.py,343,UNIXDatagramSocket,1,1,8.450000000000001e-07,8.450000000000001e-07
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/abc/_sockets.py,375,ConnectedUNIXDatagramSocket,1,1,5.33e-07,5.33e-07
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/abc/_subprocesses.py,1,<module>,1,1,4.264e-06,2.7046e-05
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/abc/_subprocesses.py,13,Process,1,1,4.12e-06,4.731e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/abc/_tasks.py,28,get_coro_name,3072,3072,0.000582019,0.000582019
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/abc/_tasks.py,42,get_callable_name,3072,3072,0.002974996,0.004564319000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/abc/_tasks.py,51,call_for_coroutine,3072,3072,0.001638073,0.004855565
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/abc/_tasks.py,137,start_soon,3072,3072,0.0036925900000000004,0.107018206
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/abc/_testing.py,1,<module>,1,1,4.1490000000000004e-06,1.9875000000000002e-05
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/abc/_testing.py,17,TestRunner,1,1,1.794e-06,2.3610000000000003e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/lowlevel.py,145,__init__,6,6,2.047e-06,2.047e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/streams/__init__.py,1,<module>,1,1,1.2000000000000002e-07,1.2000000000000002e-07
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/streams/memory.py,1,<module>,1,1,2.9958000000000004e-05,0.0014897180000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/streams/memory.py,31,MemoryObjectStreamStatistics,1,1,8.620000000000001e-07,8.620000000000001e-07
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/streams/memory.py,43,_MemoryObjectItemReceiver,1,1,2.0100000000000002e-06,5.3230000000000005e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/streams/memory.py,55,_MemoryObjectStreamState,1,1,3.125e-06,6.545e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/streams/memory.py,79,MemoryObjectReceiveStream,1,1,2.5300000000000003e-06,3.4250000000000002e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/streams/memory.py,198,MemoryObjectSendStream,1,1,3.3370000000000004e-06,4.393e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/streams/stapled.py,1,<module>,1,1,1.8152000000000002e-05,0.000818688
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/streams/stapled.py,28,StapledByteStream,1,1,1.537e-06,1.537e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/streams/stapled.py,67,StapledObjectStream,1,1,1.5920000000000002e-06,1.5920000000000002e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/streams/stapled.py,113,MultiListener,1,1,1.3320000000000001e-06,1.3320000000000001e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/streams/tls.py,1,<module>,1,1,2.3367000000000002e-05,0.000809741
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/streams/tls.py,53,TLSAttribute,1,1,3.368e-06,4.7130000000000004e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/streams/tls.py,81,TLSStream,1,1,4.497e-06,4.497e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/streams/tls.py,303,TLSListener,1,1,2.9070000000000003e-06,2.9070000000000003e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/anyio/streams/tls.py,392,TLSConnectable,1,1,1.463e-06,1.906e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/fastapi/_compat/shared.py,47,lenient_issubclass,16,16,1.3670000000000001e-05,4.1083e-05
+/tmp/atfm-load-check/lib/python3.12/site-packages/fastapi/_compat/v2.py,173,validate,16,16,3.2764e-05,0.011788742000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/fastapi/applications.py,1160,__call__,28133,28134,0.013962738,20.215669022
+/tmp/atfm-load-check/lib/python3.12/site-packages/fastapi/dependencies/models.py,61,__init__,6274,6274,0.000786006,0.000786006
+/tmp/atfm-load-check/lib/python3.12/site-packages/fastapi/dependencies/models.py,64,__hash__,6274,6274,0.001342251,0.002002999
+/tmp/atfm-load-check/lib/python3.12/site-packages/fastapi/dependencies/models.py,67,__eq__,6274,6274,0.001545279,0.0020244390000000003
+/tmp/atfm-load-check/lib/python3.12/site-packages/fastapi/dependencies/models.py,161,_is_gen_callable,3137,3137,0.0026008520000000003,0.00466046
+/tmp/atfm-load-check/lib/python3.12/site-packages/fastapi/dependencies/models.py,191,_is_async_gen_callable,3137,3137,0.004491409,0.007245245000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/fastapi/dependencies/utils.py,586,solve_dependencies,3137,3137,0.023378608000000002,0.1032146
+/tmp/atfm-load-check/lib/python3.12/site-packages/fastapi/dependencies/utils.py,734,_validate_value_with_model_field,16,16,2.3953000000000003e-05,0.011812695000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/fastapi/dependencies/utils.py,780,request_params_to_args,12548,12548,0.0017219400000000001,0.0017219400000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/fastapi/dependencies/utils.py,951,request_body_to_args,16,16,8.3491e-05,0.011999444000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/fastapi/encoders.py,129,jsonable_encoder,65,5371,0.006666245,0.011777165000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py,15,__call__,28133,28134,0.081420983,17.739396966
+/tmp/atfm-load-check/lib/python3.12/site-packages/fastapi/routing.py,134,app,28132,28133,0.014926076000000002,15.734470600000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/fastapi/routing.py,137,app,28132,28133,0.036970294,13.941122056000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/fastapi/routing.py,278,_extract_endpoint_context,3137,3137,0.0017872390000000001,0.0038674950000000003
+/tmp/atfm-load-check/lib/python3.12/site-packages/fastapi/routing.py,301,serialize_response,65,65,0.00010256800000000001,0.011879733
+/tmp/atfm-load-check/lib/python3.12/site-packages/fastapi/routing.py,344,run_endpoint_function,28132,28132,0.023459531000000002,12.063258885000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/fastapi/routing.py,357,_build_response_args,65,65,3.3415000000000004e-05,3.3415000000000004e-05
+/tmp/atfm-load-check/lib/python3.12/site-packages/fastapi/routing.py,406,app,28132,28133,0.036657342,12.280983643
+/tmp/atfm-load-check/lib/python3.12/site-packages/fastapi/routing.py,891,_get_scope_effective_route_context,28210,28210,0.008521045000000001,0.013565313
+/tmp/atfm-load-check/lib/python3.12/site-packages/fastapi/routing.py,1251,matches,25073,25073,0.015140773000000001,0.063849878
+/tmp/atfm-load-check/lib/python3.12/site-packages/fastapi/routing.py,1261,handle,28132,28133,0.013238299,15.807532359000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/fastapi/routing.py,2719,app,28133,28134,0.024432849000000003,15.936316159
+/tmp/atfm-load-check/lib/python3.12/site-packages/fastapi/utils.py,26,is_body_allowed_for_status_code,65,65,0.00010802600000000001,0.00010802600000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_connection.py,84,_keep_alive,16468,16468,0.013681364000000001,0.036641336000000004
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_connection.py,93,_body_framing,19605,19605,0.027039395,0.066294352
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_connection.py,167,__init__,6151,6151,0.010492673000000001,0.022073149
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_connection.py,217,our_state,109112,109112,0.020553790000000002,0.020553790000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_connection.py,224,their_state,144157,144157,0.017436819000000003,0.017436819000000003
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_connection.py,231,they_are_waiting_for_100_continue,3137,3137,0.0005380770000000001,0.0005380770000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_connection.py,235,start_next_cycle,8234,8234,0.008338274,0.035040038
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_connection.py,260,_server_switch_event,27777,27777,0.009186885,0.009186885
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_connection.py,272,_process_event,52419,52430,0.13609616000000002,0.529255055
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_connection.py,320,_get_io_object,76090,76090,0.054242821000000004,0.130670707
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_connection.py,342,_respond_to_state_changes,60664,60664,0.052285584,0.19022233300000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_connection.py,353,trailing_data,5097,5097,0.003694558,0.005609392
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_connection.py,364,receive_data,8271,8271,0.006358238,0.011030352
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_connection.py,410,_extract_next_receive_event,36061,36061,0.034635581000000006,0.5707325980000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_connection.py,438,next_event,36053,36061,0.053831066000000004,0.8974496430000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_connection.py,517,send,27777,27777,0.018717538000000002,0.447829105
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_connection.py,544,send_with_data_passthrough,27777,27777,0.042402215,0.42197771900000003
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_connection.py,602,_clean_up_response_headers_for_sending,3137,3137,0.0075678030000000006,0.028314789000000003
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_events.py,82,__init__,8234,8234,0.042515706,0.341141852
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_events.py,137,__init__,11371,11371,0.039575030000000004,0.18307937200000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_events.py,247,__post_init__,11371,11371,0.0025914980000000002,0.0025914980000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_events.py,299,__init__,16419,16419,0.015349786,0.015349786
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_events.py,337,__init__,16468,16468,0.026336821000000003,0.028517761000000003
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_headers.py,104,__init__,32936,32936,0.004394516,0.004394516
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_headers.py,107,__bool__,8234,8234,0.0023298430000000003,0.0023298430000000003
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_headers.py,119,__getitem__,121492,121492,0.014056260000000001,0.014056260000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_headers.py,123,raw_items,5097,5097,0.0024932630000000003,0.0024932630000000003
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_headers.py,152,normalize_and_validate,16468,16468,0.17275500700000002,0.368841566
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_headers.py,209,get_comma_header,72146,72146,0.0509751,0.067639298
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_headers.py,275,has_expect_100_continue,8234,8234,0.0032535880000000004,0.006119768
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_readers.py,43,_obsolete_line_fold,59699,59699,0.018805442000000002,0.033334014
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_readers.py,64,_decode_header_lines,59699,59699,0.032090506000000005,0.133504749
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_readers.py,75,maybe_read_from_IDLE_client,6274,6274,0.014648089000000001,0.19179416100000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_readers.py,94,maybe_read_from_SEND_RESPONSE_server,10194,10194,0.033742517,0.277208031
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_readers.py,123,__init__,8234,8234,0.0013777070000000002,0.0013777070000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_readers.py,127,__call__,16456,16456,0.017367487,0.046668994000000005
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_readers.py,224,expect_nothing,3137,3137,0.000828873,0.0030655910000000003
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_receivebuffer.py,48,__init__,6151,6151,0.0018322050000000002,0.0018322050000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_receivebuffer.py,53,__iadd__,8271,8271,0.004672114000000001,0.004672114000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_receivebuffer.py,57,__bool__,17682,17682,0.005554432000000001,0.016108353000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_receivebuffer.py,60,__len__,29090,29090,0.0058787480000000005,0.008505371000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_receivebuffer.py,64,__bytes__,5097,5097,0.001914834,0.001914834
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_receivebuffer.py,67,_extract,16419,16419,0.008422454000000001,0.008422454000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_receivebuffer.py,77,maybe_extract_at_most,8222,8222,0.005224737,0.009545922
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_receivebuffer.py,104,maybe_extract_lines,16468,16468,0.054649362,0.102278543
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_receivebuffer.py,147,is_next_line_obviously_invalid_request_line,8234,8234,0.007975281,0.007975281
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_state.py,250,__init__,6151,6151,0.00364939,0.00364939
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_state.py,275,process_event,52419,52430,0.045336473,0.15053524000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_state.py,299,_fire_event_triggered_transitions,60664,60664,0.019006225,0.019006225
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_state.py,316,_fire_state_triggered_transitions,52419,52430,0.062901002,0.08620086
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_state.py,356,start_next_cycle,8234,8234,0.007034131000000001,0.007034131000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_util.py,84,validate,213616,213616,0.08117291600000001,0.22263707600000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_util.py,127,bytesify,148869,148869,0.018241922,0.018241922
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_writers.py,22,write_headers,8234,8234,0.019525628,0.02496839
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_writers.py,36,write_request,5097,5097,0.006361975000000001,0.025334569
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_writers.py,44,write_any_response,3137,3137,0.006186260000000001,0.01399759
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_writers.py,63,__call__,16468,16468,0.008986712,0.023376718
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_writers.py,85,__init__,8234,8234,0.0012788200000000002,0.0012788200000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_writers.py,88,send_data,8234,8234,0.004965836,0.007192942000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/h11/_writers.py,94,send_eom,8234,8234,0.004867221000000001,0.007197064
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/connection.py,39,__init__,3072,3072,0.0022058250000000002,0.003618169
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/connection.py,69,handle_async_request,21504,21504,0.024560601,2.757850768
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/connection.py,105,_connect,6144,6144,0.015911203000000002,0.492438796
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/connection.py,167,can_handle_request,177695,177695,0.032774608000000004,0.08835870800000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/connection.py,170,aclose,6104,6104,0.009430012,0.11675350400000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/connection.py,175,is_available,174623,174623,0.020698732,0.027459956
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/connection.py,187,has_expired,352508,352508,0.038769054000000004,0.165486359
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/connection.py,192,is_idle,708816,708816,0.073636794,0.09941393800000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/connection.py,197,is_closed,352508,352508,0.045403813,0.060131966
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/connection_pool.py,18,__init__,3072,3072,0.002157538,0.004454522000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/connection_pool.py,23,assign_to_connection,3072,3072,0.001390612,0.472718878
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/connection_pool.py,31,wait_for_connection,3072,3072,0.000450876,0.000450876
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/connection_pool.py,39,is_queued,352318,352318,0.023547328000000003,0.023547328000000003
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/connection_pool.py,128,create_connection,3072,3072,0.006703629,0.010321798
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/connection_pool.py,199,handle_async_request,18490,18490,0.031759452,3.6149383250000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/connection_pool.py,270,_assign_requests_to_connections,6144,6144,0.269818016,1.2264824380000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/connection_pool.py,341,_close_connections,9196,9196,0.01469022,0.8215431190000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/connection_pool.py,390,__init__,3072,3072,0.000558977,0.000558977
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/connection_pool.py,401,__aiter__,6144,6144,0.005949554,0.150303647
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/connection_pool.py,409,aclose,9196,9196,0.017151545,1.464180918
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/http11.py,47,__init__,3072,3072,0.004760981,0.016655525
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/http11.py,65,handle_async_request,15360,15360,0.051421517,1.8225796420000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/http11.py,140,_send_request_headers,6144,6144,0.011833151,0.460473911
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/http11.py,152,_send_request_body,6144,6144,0.019742922,0.28918323900000004
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/http11.py,163,_send_event,15360,15360,0.012923691000000001,0.51731209
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/http11.py,170,_receive_response_headers,6144,6144,0.009063688,0.529259692
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/http11.py,196,_receive_response_body,6144,6144,0.008365932000000001,0.11358801900000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/http11.py,209,_receive_event,12288,12288,0.026103443,0.612814206
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/http11.py,238,_response_closed,6144,6144,0.009755521000000001,0.08207304700000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/http11.py,254,aclose,6104,6104,0.0031975610000000002,0.10050014800000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/http11.py,264,can_handle_request,3072,3072,0.001224892,0.0029464120000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/http11.py,267,is_available,88210,88210,0.006761224000000001,0.006761224000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/http11.py,274,has_expired,174803,174803,0.036811918,0.126681532
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/http11.py,288,is_idle,353406,353406,0.025777144000000002,0.025777144000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/http11.py,291,is_closed,174803,174803,0.014718888000000001,0.014718888000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/http11.py,325,__init__,3072,3072,0.0005820230000000001,0.0005820230000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/http11.py,330,__aiter__,6144,6144,0.014973706000000002,0.14080683700000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_async/http11.py,344,aclose,6144,6144,0.008796373,0.098103942
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_backends/anyio.py,22,__init__,3072,3072,0.00038629900000000005,0.00038629900000000005
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_backends/anyio.py,25,read,6144,6144,0.012162796,0.242380852
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_backends/anyio.py,39,write,15360,15360,0.021716889,0.345776668
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_backends/anyio.py,52,aclose,6104,6104,0.00253578,0.095838697
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_backends/anyio.py,82,get_extra_info,6334,6334,0.008075323,0.123658052
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_backends/anyio.py,98,connect_tcp,6144,6144,0.014764241,0.49667045200000004
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_backends/auto.py,10,_init_backend,3072,3072,0.00103509,0.0017713730000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_backends/auto.py,22,connect_tcp,6144,6144,0.004349260000000001,0.46914565300000005
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_backends/sync.py,121,__init__,4,4,2.46e-06,2.46e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_backends/sync.py,124,read,806,2061,0.086288421,0.5141477520000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_backends/sync.py,130,write,1603,6075,0.161547945,0.40459230300000004
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_backends/sync.py,173,get_extra_info,7238,7238,0.005829773000000001,0.049696642000000006
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_backends/sync.py,188,connect_tcp,2,4,4.6797000000000006e-05,0.00011576
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_exceptions.py,7,map_exceptions,87848,87848,0.00989953,0.00989953
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_models.py,19,enforce_bytes,197874,197874,0.046233343,0.072438499
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_models.py,40,enforce_url,5097,5097,0.0022801370000000002,0.003793217
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_models.py,53,enforce_headers,15291,15291,0.046656999000000005,0.18183521900000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_models.py,85,enforce_stream,15291,15291,0.0034776480000000003,0.005423729
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_models.py,162,__init__,15297,15297,0.005738460000000001,0.0057571210000000005
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_models.py,167,__eq__,192919,192919,0.051429999000000004,0.06277126100000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_models.py,249,__init__,5097,5097,0.006814968,0.014911826000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_models.py,281,origin,15297,15297,0.023354193000000002,0.029111314000000003
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_models.py,321,__init__,5097,5097,0.00909485,0.10272929
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_models.py,371,__init__,10194,10194,0.008332475,0.10918010500000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/connection.py,39,__init__,4,4,1.0579e-05,1.4468000000000001e-05
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/connection.py,69,handle_request,131,2027,0.008225186,1.125099988
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/connection.py,105,_connect,2,4,2.6023e-05,0.00014458
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/connection.py,167,can_handle_request,10125,10125,0.0034591530000000004,0.008228827000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/connection.py,175,is_available,8098,8098,0.002190526,0.003114682
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/connection.py,187,has_expired,16198,16198,0.005133061,0.07309602600000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/connection.py,192,is_idle,53232,53232,0.012974463,0.018893343
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/connection.py,197,is_closed,16198,16198,0.004762665,0.0075541770000000005
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/connection_pool.py,18,__init__,2025,2025,0.0013231130000000001,0.013660034000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/connection_pool.py,23,assign_to_connection,2027,2027,0.000771953,0.011578114
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/connection_pool.py,27,clear_connection,2,2,4.31e-06,1.1234000000000001e-05
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/connection_pool.py,31,wait_for_connection,2027,2027,0.000288765,0.000288765
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/connection_pool.py,39,is_queued,11043,11043,0.0011806780000000001,0.0011806780000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/connection_pool.py,128,create_connection,4,4,1.6834000000000002e-05,3.1302e-05
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/connection_pool.py,199,handle_request,122,2025,0.013955645000000001,2.0859858190000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/connection_pool.py,270,_assign_requests_to_connections,4052,4052,0.03370422,0.17287696000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/connection_pool.py,341,_close_connections,4052,4052,0.004075169,0.004807887
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/connection_pool.py,390,__init__,2025,2025,0.000385422,0.000385422
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/connection_pool.py,401,__iter__,4012,4050,0.002678339,0.12692371800000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/connection_pool.py,409,close,2011,2025,0.008255417000000001,0.09964088800000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/http11.py,47,__init__,4,4,2.2786000000000002e-05,5.5927e-05
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/http11.py,65,handle_request,131,2027,0.022107518000000003,1.046663243
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/http11.py,140,_send_request_headers,1070,2025,0.007689166000000001,0.37338085000000004
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/http11.py,152,_send_request_body,1053,2025,0.013785886,0.26479874400000003
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/http11.py,163,_send_event,1603,6075,0.012296171000000002,0.43968838400000004
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/http11.py,170,_receive_response_headers,800,2025,0.011157996,1.221650987
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/http11.py,196,_receive_response_body,4012,4050,0.005622285,0.10735921100000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/http11.py,209,_receive_event,2378,6075,0.021543175,1.025992583
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/http11.py,238,_response_closed,2025,2025,0.005445593,0.018089971
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/http11.py,264,can_handle_request,2027,2027,0.000547839,0.001250805
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/http11.py,267,is_available,8095,8095,0.0009241560000000001,0.0009241560000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/http11.py,274,has_expired,16195,16195,0.009879056,0.062969465
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/http11.py,288,is_idle,53226,53226,0.0059188800000000005,0.0059188800000000005
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/http11.py,291,is_closed,16195,16195,0.0027915120000000003,0.0027915120000000003
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/http11.py,325,__init__,2025,2025,0.00038637800000000005,0.00038637800000000005
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/http11.py,330,__iter__,4012,4050,0.007676993000000001,0.12271135500000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_sync/http11.py,344,close,2025,2025,0.003974502,0.026744418000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_synchronization.py,22,current_async_library,18433,18433,0.035423365000000005,2.1178257790000004
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_synchronization.py,56,__init__,6144,6144,0.001784004,0.0017938720000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_synchronization.py,59,setup,6144,6144,0.008500113,0.6494522490000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_synchronization.py,70,__aenter__,18432,18432,0.012156759000000001,0.7916687760000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_synchronization.py,81,__aexit__,9216,9216,0.0046791540000000005,0.010413279000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_synchronization.py,101,__enter__,9216,9216,0.004581602000000001,0.004614551000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_synchronization.py,104,__exit__,9216,9216,0.0008726760000000001,0.0008726760000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_synchronization.py,114,__init__,3072,3072,0.002287625,0.002296984
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_synchronization.py,117,setup,3072,3072,0.005772288,0.464892585
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_synchronization.py,128,set,3072,3072,0.002469359,0.470685509
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_synchronization.py,198,__init__,9216,9216,0.016978105,1.1640290400000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_synchronization.py,210,__enter__,9216,9216,0.004581176,0.040471592
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_synchronization.py,217,__exit__,9216,9216,0.0050156210000000005,0.031829876
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_synchronization.py,240,__init__,8,8,5.0680000000000004e-06,9.079e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_synchronization.py,243,__enter__,6079,6079,0.00221292,0.003898766
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_synchronization.py,247,__exit__,6079,6079,0.001731937,0.002717426
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_synchronization.py,267,__enter__,5965,6077,0.002729083,0.006330935
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_synchronization.py,271,__exit__,6077,6077,0.0019087070000000002,0.003178109
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_synchronization.py,281,__init__,2027,2027,0.001788473,0.012343845
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_synchronization.py,284,set,2027,2027,0.0009493110000000001,0.010806161
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_synchronization.py,309,__enter__,6077,6077,0.0005838750000000001,0.0005838750000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_synchronization.py,312,__exit__,6077,6077,0.000563276,0.000563276
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_trace.py,12,__init__,31613,31613,0.045842749,0.071438502
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_trace.py,49,__enter__,10129,10129,0.002480903,0.002480903
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_trace.py,55,__exit__,10129,10129,0.0016542680000000002,0.0016542680000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_trace.py,89,__aenter__,21484,21484,0.0029162090000000003,0.0029162090000000003
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_trace.py,95,__aexit__,21484,21484,0.003275866,0.003275866
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpcore/_utils.py,8,is_socket_readable,10496,10496,0.021582712,0.057150419
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_auth.py,38,auth_flow,10194,10194,0.0015243020000000002,0.0015243020000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_auth.py,62,sync_auth_flow,4050,4050,0.003242782,0.0056120760000000006
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_auth.py,87,async_auth_flow,6144,6144,0.0051479360000000005,0.009521950000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,145,__init__,2025,2025,0.00033403,0.00033403
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,152,__iter__,4012,4050,0.0019450180000000002,0.215074753
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,156,close,2011,2025,0.007798537,0.11497207300000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,168,__init__,3072,3072,0.0005027860000000001,0.0005027860000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,175,__aiter__,6144,6144,0.0049157210000000005,0.17987519600000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,179,aclose,9196,9196,0.01149638,1.4841427500000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,253,timeout,5097,5097,0.000821076,0.000821076
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,287,base_url,6144,6144,0.000770182,0.000770182
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,298,headers,5097,5097,0.0008703210000000001,0.0008703210000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,318,cookies,10194,10194,0.0016795260000000002,0.0016795260000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,329,params,5097,5097,0.00068734,0.00068734
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,340,build_request,5097,5097,0.031044147,1.142928776
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,391,_merge_url,5097,5097,0.013746936000000001,0.5425239470000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,413,_merge_cookies,5097,5097,0.005494952,0.018053325000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,424,_merge_headers,5097,5097,0.008648391,0.128818435
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,433,_merge_queryparams,5097,5097,0.0037895430000000003,0.006049465
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,457,_build_request_auth,5097,5097,0.0063586730000000004,0.021811993000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,584,_set_timeout,5097,5097,0.001246175,0.001246175
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,760,_transport_for_url,2025,2025,0.0022482960000000003,0.007465050000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,771,request,117,2025,0.004989372000000001,2.9221348390000004
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,879,send,117,2025,0.007495382,2.918070069
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,930,_send_handling_auth,122,2025,0.005600889,2.905354414
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,964,_send_handling_redirects,122,2025,0.005702729,2.904535954
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,1001,_send_single_request,122,2025,0.020596272000000002,2.747058249
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,1123,post,117,2025,0.004122576,2.9879610260000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,1474,_transport_for_url,3072,3072,0.0032129320000000004,0.011028439000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,1485,request,24614,24614,0.015834639,7.572952271
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,1594,send,24614,24614,0.020436027000000002,6.7557678
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,1645,_send_handling_auth,18490,18490,0.01955101,4.809270685
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,1679,_send_handling_redirects,18490,18490,0.012614324000000001,4.728429735000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,1717,_send_single_request,18490,18490,0.030864258000000002,4.474255111000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_client.py,1838,post,24614,24614,0.012102263,7.680111066
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_config.py,132,as_dict,5097,5097,0.002281237,0.002281237
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_content.py,32,__init__,5097,5097,0.000729723,0.000729723
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_content.py,35,__iter__,14244,14244,0.001936531,0.001936531
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_content.py,38,__aiter__,6144,6144,0.0015916440000000001,0.0015916440000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_content.py,176,encode_json,5097,5097,0.013121114000000001,0.07721085500000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_content.py,186,encode_request,5097,5097,0.0036617180000000004,0.080872573
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_decoders.py,49,decode,5097,5097,0.000544573,0.000544573
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_decoders.py,52,flush,5097,5097,0.0006561760000000001,0.0006561760000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_decoders.py,233,__init__,10194,10194,0.003969602,0.003969602
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_decoders.py,237,decode,15291,15291,0.0034693360000000004,0.0034693360000000004
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_decoders.py,260,flush,10194,10194,0.009916871,0.0165438
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_exceptions.py,366,request_context,40776,40776,0.004590755,0.004590755
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,67,_normalize_header_key,83715,83715,0.017347089,0.025321302
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,74,_normalize_header_value,83715,83715,0.017447463,0.026047015000000003
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,144,__init__,25485,25485,0.089038449,0.194684868
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,166,encoding,302115,302115,0.06957506000000001,0.11917221100000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,195,raw,31629,31629,0.024869856000000003,0.024896067
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,202,keys,10194,10194,0.029683338000000004,0.09016657700000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,231,multi_items,10194,10194,0.020610921,0.050516365
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,242,get,8169,8169,0.005040134,0.056817629
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,252,get_list,5097,5097,0.007985549,0.012653073
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,274,update,5097,5097,0.011535502000000001,0.114428548
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,284,__getitem__,66330,66330,0.089001855,0.159272357
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,304,__setitem__,7122,7122,0.031209637000000002,0.035944097
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,346,__contains__,25554,25554,0.021350409,0.038001315
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,383,__init__,5097,5097,0.026583859,0.412826314
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,441,_prepare,5097,5097,0.026943466000000003,0.21349267100000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,468,read,5097,5097,0.0054444590000000005,0.029819755000000003
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,516,__init__,5097,5097,0.006647674,0.050902511000000004
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,591,elapsed,5097,5097,0.0007069450000000001,0.0007069450000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,595,request,5097,5097,0.000702586,0.000702586
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,606,request,5097,5097,0.0007793170000000001,0.0007793170000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,610,http_version,5097,5097,0.002247297,0.003948513
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,619,reason_phrase,5097,5097,0.001409875,0.002227214
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,635,content,8169,8169,0.002781505,0.004325634
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,699,_get_content_decoder,5097,5097,0.009062830000000001,0.023861349
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,771,has_redirect_location,5097,5097,0.004101605,0.004101605
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,831,json,5097,5097,0.006943232000000001,0.07604580600000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,876,read,1991,2025,0.002231696,0.730392208
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,884,iter_bytes,3983,4050,0.013298261,0.58416071
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,935,iter_raw,3983,4050,0.010210858000000001,0.36057943800000003
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,961,close,2011,2025,0.003964606,0.127598234
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,974,aread,9196,9196,0.013117278000000001,1.9074267120000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,982,aiter_bytes,12268,12268,0.028343566,1.8886297090000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,1037,aiter_raw,12268,12268,0.019335664000000002,1.8189386740000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,1065,aclose,9196,9196,0.008571476,1.503643496
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,1101,extract_cookies,5097,5097,0.010975795,0.5157092630000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,1228,__bool__,5097,5097,0.004499409,0.01181306
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,1249,__init__,5097,5097,0.031407917,0.34621195000000005
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,1267,__init__,5097,5097,0.000637401,0.000637401
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_models.py,1270,info,10194,10194,0.021185349000000003,0.111426091
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_multipart.py,56,get_multipart_boundary_from_content_type,5097,5097,0.003294529,0.0043211180000000005
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_transports/default.py,74,_load_httpcore_exceptions,1,1,6.155e-06,6.155e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_transports/default.py,95,map_httpcore_exceptions,20388,20388,0.004372923,0.00596957
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_transports/default.py,122,__init__,2025,2025,0.000314486,0.000314486
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_transports/default.py,125,__iter__,4012,4050,0.00401887,0.14664370200000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_transports/default.py,130,close,2011,2025,0.00164564,0.10298213
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_transports/default.py,230,handle_request,122,2025,0.020430914,2.5484855040000003
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_transports/default.py,266,__init__,3072,3072,0.000485722,0.000485722
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_transports/default.py,269,__aiter__,6144,6144,0.007930722000000001,0.171493624
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_transports/default.py,274,aclose,9196,9196,0.005155146,1.470293928
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_transports/default.py,374,handle_async_request,18490,18490,0.037591522,3.7920451710000003
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_urlparse.py,167,authority,8169,8169,0.011819179,0.014594830000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_urlparse.py,177,netloc,5097,5097,0.004960555,0.0062080220000000005
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_urlparse.py,186,copy_with,8169,8169,0.009731131,0.21432936800000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_urlparse.py,200,__str__,5097,5097,0.0069461440000000004,0.018180022
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_urlparse.py,213,urlparse,8169,8169,0.085192005,0.47298416200000004
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_urlparse.py,223,<genexpr>,130359,130359,0.038723383,0.06013133700000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_urlparse.py,273,<genexpr>,129024,129024,0.029319847000000003,0.045618347000000004
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_urlparse.py,348,encode_host,8169,8169,0.008411569,0.07160121
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_urlparse.py,395,normalize_port,8169,8169,0.007139541,0.008340941000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_urlparse.py,422,validate_path,8169,8169,0.004190963000000001,0.007121993
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_urlparse.py,447,normalize_path,5097,5097,0.001038595,0.001038595
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_urlparse.py,482,percent_encoded,8169,8169,0.004063413,0.008874198
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_urlparse.py,497,quote,16338,16338,0.028229899000000003,0.10404505100000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_urls.py,77,__init__,13266,13266,0.026863601,0.5222167710000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_urls.py,134,raw_scheme,5097,5097,0.001841963,0.0027767010000000003
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_urls.py,150,username,5097,5097,0.005030134,0.009810996
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_urls.py,159,password,5097,5097,0.0028494320000000003,0.005309112
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_urls.py,168,host,10194,10194,0.004592459,0.007025479
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_urls.py,195,raw_host,5097,5097,0.001492732,0.002175331
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_urls.py,217,port,5097,5097,0.0007723750000000001,0.0007723750000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_urls.py,233,netloc,5097,5097,0.00260006,0.009413135000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_urls.py,282,raw_path,11241,11241,0.005001787000000001,0.007147999
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_urls.py,307,is_absolute_url,5097,5097,0.002968809,0.002968809
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_urls.py,319,is_relative_url,5097,5097,0.002002037,0.004970846
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_urls.py,327,copy_with,3072,3072,0.003929249,0.23314483900000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_urls.py,374,__str__,5097,5097,0.003940509,0.022120531000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_urls.py,612,__bool__,5097,5097,0.001572582,0.001572582
+/tmp/atfm-load-check/lib/python3.12/site-packages/httpx/_utils.py,192,matches,5097,5097,0.005055742,0.01209864
+/tmp/atfm-load-check/lib/python3.12/site-packages/numpy/_core/_methods.py,55,_any,748,748,0.000211992,0.0007902990000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/numpy/_core/_methods.py,73,_count_reduce_items,2965,2965,0.013201631,0.014435807
+/tmp/atfm-load-check/lib/python3.12/site-packages/numpy/_core/_methods.py,115,_mean,2965,2965,0.019391902000000003,0.062066518
+/tmp/atfm-load-check/lib/python3.12/site-packages/numpy/_core/fromnumeric.py,86,_wrapreduction_any_all,187,187,0.00032210800000000004,0.000881666
+/tmp/atfm-load-check/lib/python3.12/site-packages/numpy/_core/fromnumeric.py,2469,_any_dispatcher,187,187,2.4225000000000003e-05,2.4225000000000003e-05
+/tmp/atfm-load-check/lib/python3.12/site-packages/numpy/_core/fromnumeric.py,2474,any,187,187,0.00020913500000000002,0.001090801
+/tmp/atfm-load-check/lib/python3.12/site-packages/numpy/_core/fromnumeric.py,3732,_mean_dispatcher,2965,2965,0.000552304,0.000552304
+/tmp/atfm-load-check/lib/python3.12/site-packages/numpy/_core/fromnumeric.py,3737,mean,2965,2965,0.007775719,0.069842237
+/tmp/atfm-load-check/lib/python3.12/site-packages/numpy/_core/multiarray.py,197,concatenate,187,187,3.0436e-05,3.0436e-05
+/tmp/atfm-load-check/lib/python3.12/site-packages/numpy/_core/numerictypes.py,230,issubclass_,1122,1122,0.00034379900000000005,0.000640179
+/tmp/atfm-load-check/lib/python3.12/site-packages/numpy/_core/numerictypes.py,418,issubdtype,561,561,0.000502976,0.001191764
+/tmp/atfm-load-check/lib/python3.12/site-packages/numpy/lib/_arraysetops_impl.py,131,_unpack_tuple,187,187,6.3518e-05,8.226900000000001e-05
+/tmp/atfm-load-check/lib/python3.12/site-packages/numpy/lib/_arraysetops_impl.py,139,_unique_dispatcher,187,187,2.4691e-05,2.4691e-05
+/tmp/atfm-load-check/lib/python3.12/site-packages/numpy/lib/_arraysetops_impl.py,145,unique,187,187,0.000322182,0.002622788
+/tmp/atfm-load-check/lib/python3.12/site-packages/numpy/lib/_arraysetops_impl.py,350,_unique1d,187,187,0.0007141210000000001,0.0021952530000000003
+/tmp/atfm-load-check/lib/python3.12/site-packages/numpy/lib/_function_base_impl.py,133,<lambda>,187,187,0.000352889,0.000352889
+/tmp/atfm-load-check/lib/python3.12/site-packages/numpy/lib/_function_base_impl.py,134,<lambda>,187,187,1.9346e-05,1.9346e-05
+/tmp/atfm-load-check/lib/python3.12/site-packages/numpy/lib/_function_base_impl.py,3827,_ureduce,187,187,0.00042491500000000005,0.014665651000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/numpy/lib/_function_base_impl.py,4059,_percentile_dispatcher,187,187,2.9330000000000002e-05,2.9330000000000002e-05
+/tmp/atfm-load-check/lib/python3.12/site-packages/numpy/lib/_function_base_impl.py,4064,percentile,187,187,0.0013169120000000002,0.022245645
+/tmp/atfm-load-check/lib/python3.12/site-packages/numpy/lib/_function_base_impl.py,4512,_quantile_unchecked,187,187,0.000291233,0.015659148
+/tmp/atfm-load-check/lib/python3.12/site-packages/numpy/lib/_function_base_impl.py,4534,_quantile_is_valid,187,187,0.00044146800000000004,0.00044146800000000004
+/tmp/atfm-load-check/lib/python3.12/site-packages/numpy/lib/_function_base_impl.py,4570,_get_gamma,187,187,0.000405532,0.00050611
+/tmp/atfm-load-check/lib/python3.12/site-packages/numpy/lib/_function_base_impl.py,4594,_lerp,187,187,0.0014548270000000001,0.0014548270000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/numpy/lib/_function_base_impl.py,4651,_quantile_ureduce_func,187,187,0.000346097,0.014123446000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/numpy/lib/_function_base_impl.py,4691,_get_indexes,187,187,0.0016196000000000001,0.003017028
+/tmp/atfm-load-check/lib/python3.12/site-packages/numpy/lib/_function_base_impl.py,4726,_quantile,187,187,0.0026514200000000003,0.013536549
+/tmp/atfm-load-check/lib/python3.12/site-packages/numpy/ma/core.py,1411,getmask,187,187,7.746700000000001e-05,0.000111218
+/tmp/atfm-load-check/lib/python3.12/site-packages/numpy/ma/core.py,6884,is_masked,187,187,0.000119184,0.00023040200000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/pydantic/main.py,253,__init__,10240,10240,0.006823709000000001,0.051060944000000004
+/tmp/atfm-load-check/lib/python3.12/site-packages/pydantic/main.py,427,model_dump,10240,10240,0.006460737,0.04832268
+/tmp/atfm-load-check/lib/python3.12/site-packages/pydantic/type_adapter.py,398,validate_python,16,16,0.0056398690000000005,0.011755978
+/tmp/atfm-load-check/lib/python3.12/site-packages/six.py,194,find_spec,18433,18433,0.0044675240000000005,0.0044675240000000005
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/_exception_handler.py,23,wrap_app_handling_exceptions,6274,6274,0.00587545,0.00587545
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/_exception_handler.py,31,wrapped_app,28132,56266,0.035966245,18.046495370000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/_exception_handler.py,34,sender,6274,12548,0.008042382,1.351629255
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/_utils.py,96,get_route_path,37621,37621,0.008386910000000001,0.011864900000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/applications.py,92,__call__,28133,28134,0.013922044000000001,20.170391473000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/datastructures.py,256,__init__,3137,3137,0.003214216,0.0035042130000000004
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/datastructures.py,383,__init__,3137,3137,0.009752782,0.020608210000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/datastructures.py,505,__init__,6339,6339,0.003553862,0.003553862
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/datastructures.py,534,items,3072,3072,0.015152046,0.025188587000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/datastructures.py,537,getlist,3137,3137,0.003179377,0.004274435
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/datastructures.py,544,__getitem__,21520,21520,0.018415206,0.027014535000000003
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/datastructures.py,600,__delitem__,3137,3137,0.006369458000000001,0.008018598
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/datastructures.py,627,raw,130,130,1.7574e-05,1.7574e-05
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/datastructures.py,681,__getattr__,81395,81395,0.010145251000000001,0.010145251000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/middleware/errors.py,149,__call__,28133,28134,0.017025032000000002,18.611458465000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/middleware/errors.py,156,_send,6274,6274,0.007061896000000001,0.9085464120000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/middleware/exceptions.py,47,__call__,28133,28134,0.017308116000000002,18.089031366
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/requests.py,86,__init__,6274,6274,0.001929965,0.00195132
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/requests.py,132,headers,18578,18578,0.006414560000000001,0.011995685
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/requests.py,138,query_params,3137,3137,0.002875378,0.023863015
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/requests.py,144,path_params,3137,3137,0.001037339,0.001437494
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/requests.py,149,cookies,3137,3137,0.002499493,0.008093844000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/requests.py,217,__init__,6274,6274,0.006464991000000001,0.008432344000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/requests.py,226,method,3137,3137,0.0012932450000000002,0.001561574
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/requests.py,234,stream,9265,9265,0.0055487340000000005,0.017840096
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/requests.py,254,body,3105,3105,0.011459888000000001,0.038463606000000004
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/requests.py,262,json,3089,3089,0.0043139680000000005,0.089300628
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/responses.py,33,__init__,6274,6274,0.006569671,0.031720127
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/responses.py,48,render,6209,6209,0.002528395,0.003040886
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/responses.py,55,init_headers,6274,6274,0.013460372000000002,0.020388758
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/responses.py,83,headers,3267,3267,0.0035469230000000004,0.0053178010000000005
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/responses.py,163,__call__,3137,3137,0.006508996,1.2151695180000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/responses.py,184,__init__,65,65,0.000102619,0.002279179
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/responses.py,194,render,65,65,0.000137331,0.0017208120000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/routing.py,242,matches,37621,37621,0.032101213,0.055247632000000005
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/routing.py,271,handle,28132,28133,0.020071910000000002,15.765462869
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/routing.py,639,lifespan,1,1,4.42e-06,7.0688e-05
+/tmp/atfm-load-check/lib/python3.12/site-packages/starlette/routing.py,666,__call__,28133,28134,0.013654956000000001,16.294598925000003
+/tmp/atfm-load-check/lib/python3.12/site-packages/typing_extensions.py,1753,<lambda>,1,1,1.27e-07,1.27e-07
+/tmp/atfm-load-check/lib/python3.12/site-packages/typing_extensions.py,1804,_tvar_prepare_subst,1,1,1.7810000000000002e-06,2.2640000000000003e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/typing_extensions.py,3062,__init__,2,2,6.22e-07,7.49e-07
+/tmp/atfm-load-check/lib/python3.12/site-packages/typing_extensions.py,3079,__call__,2,2,8.038e-06,2.7674000000000003e-05
+/tmp/atfm-load-check/lib/python3.12/site-packages/typing_extensions.py,3243,_check_generic,11,11,3.5830000000000003e-06,4.539e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/typing_extensions.py,3281,_has_generic_or_protocol_as_origin,34,34,4.5412000000000005e-05,5.936e-05
+/tmp/atfm-load-check/lib/python3.12/site-packages/typing_extensions.py,3303,_is_unpacked_typevartuple,24,24,8.208e-06,2.3685e-05
+/tmp/atfm-load-check/lib/python3.12/site-packages/typing_extensions.py,3366,_collect_parameters,34,34,5.2544000000000004e-05,0.000190914
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/config.py,370,asgi_version,3075,3075,0.0008718210000000001,0.0008718210000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/lifespan/on.py,47,startup,1,1,1.5750000000000002e-06,5.025e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/lifespan/on.py,64,shutdown,1,1,6.217000000000001e-06,3.2992000000000005e-05
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/lifespan/on.py,78,main,1,1,1.2820000000000002e-06,8.1078e-05
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/lifespan/on.py,102,send,1,1,1.887e-06,1.3364000000000001e-05
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/lifespan/on.py,136,receive,2,2,2.182e-06,1.6343000000000003e-05
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py,28,__call__,28133,28134,0.026804408000000002,20.255315994
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py,149,__contains__,3137,3137,0.002226538,0.002643583
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py,162,_compute_trust,1,1,3.299e-06,2.2087e-05
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/protocols/http/flow_control.py,11,__init__,3075,3075,0.0018721540000000002,0.0036519210000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/protocols/http/flow_control.py,21,pause_reading,13,13,1.4891e-05,0.00027942900000000004
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/protocols/http/flow_control.py,26,resume_reading,6225,6225,0.0010166300000000001,0.0016935440000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/protocols/http/flow_control.py,36,resume_writing,3075,3075,0.000555113,0.000555113
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/protocols/http/h11_impl.py,42,__init__,3075,3075,0.005686742000000001,0.030417450000000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/protocols/http/h11_impl.py,92,connection_made,3075,3075,0.0044798170000000005,0.025505096
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/protocols/http/h11_impl.py,107,connection_lost,3075,3075,0.009957123,0.048943392
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/protocols/http/h11_impl.py,132,eof_received,3075,3075,0.000361577,0.000361577
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/protocols/http/h11_impl.py,135,_unset_keepalive_if_required,12487,12487,0.002962816,0.007739360000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/protocols/http/h11_impl.py,140,_get_upgrade,3137,3137,0.003934195000000001,0.005160168000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/protocols/http/h11_impl.py,164,_should_upgrade,3137,3137,0.001402828,0.006562996000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/protocols/http/h11_impl.py,172,data_received,3138,3138,0.0027748760000000003,0.43418617000000004
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/protocols/http/h11_impl.py,178,handle_events,6275,6275,0.048090907,0.45683417600000004
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/protocols/http/h11_impl.py,317,on_response_complete,3137,3137,0.010707023000000001,0.07889449000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/protocols/http/h11_impl.py,371,__init__,3137,3137,0.002943226,0.00349073
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/protocols/http/h11_impl.py,409,run_asgi,28132,28133,0.018777801,20.296379606000002
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/protocols/http/h11_impl.py,455,send,6274,6274,0.035981992000000004,0.8987572650000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/protocols/http/h11_impl.py,522,receive,3089,3089,0.00859037,0.010999992
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/protocols/utils.py,13,get_remote_addr,3075,3075,0.0021042960000000003,0.006009214000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/protocols/utils.py,30,get_local_addr,3075,3075,0.0022979610000000003,0.008905867000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/protocols/utils.py,47,is_ssl,3075,3075,0.0009223600000000001,0.0018028690000000001
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/server.py,79,limit_max_requests,1,1,2.67e-07,2.67e-07
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/server.py,88,serve,96,96,7.909900000000001e-05,0.002581429
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/server.py,92,_serve,96,96,0.00010248100000000001,0.00250233
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/server.py,115,startup,2,2,1.1959e-05,8.8886e-05
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/server.py,122,create_protocol,3075,3075,0.0025523620000000003,0.032969812
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/server.py,242,main_loop,94,94,0.000347044,0.0021686960000000003
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/server.py,251,on_tick,94,94,0.00018624400000000001,0.00039292300000000005
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/server.py,281,shutdown,2,2,2.7047e-05,0.000142267
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/server.py,313,_wait_tasks_to_complete,1,1,4.889e-06,5.513e-06
+/tmp/atfm-load-check/lib/python3.12/site-packages/uvicorn/server.py,351,handle_exit,1,1,3.94e-06,4.507e-06
+<frozen _collections_abc>,104,_check_methods,6,6,8.722e-06,8.722e-06
+<frozen _collections_abc>,200,__subclasshook__,3,3,2.752e-06,6.793e-06
+<frozen _collections_abc>,288,__subclasshook__,3,3,3.914e-06,8.595e-06
+<frozen _collections_abc>,341,__subclasshook__,4,4,6.92e-07,6.92e-07
+<frozen _collections_abc>,435,__subclasshook__,36,36,4.367e-06,4.367e-06
+<frozen _collections_abc>,804,get,21520,21520,0.009498555,0.036526590000000005
+<frozen _collections_abc>,992,setdefault,10194,10194,0.009791815,0.064403575
+<frozen _collections_abc>,1022,__iter__,121492,121492,0.028955703000000003,0.043011963
+<frozen abc>,7,abstractmethod,61,61,5.907e-06,5.907e-06
+<frozen abc>,105,__new__,35,35,2.7803e-05,0.0007313990000000001
+<frozen abc>,117,__instancecheck__,67685,67685,0.017690622,0.039705353000000006
+<frozen abc>,121,__subclasscheck__,50977,51013,0.018674609000000002,0.034107849
+<frozen abc>,146,update_abstractmethods,14,14,4.5399000000000004e-05,7.531700000000001e-05
+<frozen codecs>,94,__new__,2,2,5.523e-06,6.615e-06
+<frozen codecs>,186,__init__,10240,10240,0.0025200500000000002,0.0025200500000000002
+<frozen codecs>,214,setstate,10239,10239,0.0017857110000000002,0.0017857110000000002
+<frozen codecs>,260,__init__,50,50,1.08e-05,1.08e-05
+<frozen codecs>,309,__init__,50,50,6.8737e-05,7.953700000000001e-05
+<frozen codecs>,319,decode,55,55,6.110100000000001e-05,0.000108503
+<frozen genericpath>,16,exists,4,4,3.7540000000000004e-06,1.838e-05
+<frozen importlib._bootstrap>,48,_new_module,15,15,9.949e-06,9.949e-06
+<frozen importlib._bootstrap>,74,__new__,18449,18449,0.013250025,0.018029349
+<frozen importlib._bootstrap>,79,__init__,18449,18449,0.010100153,0.010100153
+<frozen importlib._bootstrap>,82,remove,18449,18449,0.008613673,0.012238828
+<frozen importlib._bootstrap>,111,get,1,1,1.6570000000000002e-06,1.6570000000000002e-06
+<frozen importlib._bootstrap>,124,setdefault,18449,18449,0.040184618000000005,0.068402275
+<frozen importlib._bootstrap>,158,__init__,18449,18449,0.002392496,0.002392496
+<frozen importlib._bootstrap>,162,__enter__,18449,18449,0.024195019,0.09603556
+<frozen importlib._bootstrap>,173,__exit__,18449,18449,0.0054331380000000006,0.00902287
+<frozen importlib._bootstrap>,183,_has_deadlocked,1,1,2.3090000000000003e-06,3.966000000000001e-06
+<frozen importlib._bootstrap>,232,__init__,18448,18448,0.011241648,0.015094957
+<frozen importlib._bootstrap>,288,has_deadlock,1,1,4.317e-06,8.548e-06
+<frozen importlib._bootstrap>,304,acquire,18449,18449,0.050952342000000005,0.179715601
+<frozen importlib._bootstrap>,372,release,18449,18449,0.030237729,0.045814475
+<frozen importlib._bootstrap>,412,__init__,18448,18448,0.0035886010000000003,0.0035886010000000003
+<frozen importlib._bootstrap>,416,__enter__,18448,18448,0.013530899,0.25343518800000003
+<frozen importlib._bootstrap>,420,__exit__,18448,18448,0.007521393,0.053330987
+<frozen importlib._bootstrap>,426,_get_module_lock,18449,18449,0.039455863,0.060234882000000003
+<frozen importlib._bootstrap>,445,cb,18448,18448,0.012560079,0.01953688
+<frozen importlib._bootstrap>,463,_lock_unlock_module,1,1,2.064e-06,4.5002e-05
+<frozen importlib._bootstrap>,480,_call_with_frames_removed,18438,18465,0.005373621,0.021421546
+<frozen importlib._bootstrap>,491,_verbose_message,553092,553092,0.051240285,0.051240285
+<frozen importlib._bootstrap>,599,__init__,18448,18448,0.004301758,0.004301758
+<frozen importlib._bootstrap>,632,cached,30,30,9.724e-06,0.000138488
+<frozen importlib._bootstrap>,645,parent,9461,9461,0.006864895,0.009637396000000001
+<frozen importlib._bootstrap>,653,has_location,15,15,1.4000000000000001e-06,1.4000000000000001e-06
+<frozen importlib._bootstrap>,733,_init_module_attrs,15,15,3.7123000000000004e-05,0.000197559
+<frozen importlib._bootstrap>,806,module_from_spec,15,15,1.9918e-05,0.00023094900000000001
+<frozen importlib._bootstrap>,911,_load_unlocked,3,15,3.4371e-05,0.008953230000000001
+<frozen importlib._bootstrap>,982,find_spec,18448,18448,0.005493945,0.019512714
+<frozen importlib._bootstrap>,1128,find_spec,18448,18448,0.008243190000000001,0.021455622
+<frozen importlib._bootstrap>,1222,__enter__,92225,92225,0.017174228,0.026359224
+<frozen importlib._bootstrap>,1226,__exit__,92225,92225,0.017840615,0.027408103000000003
+<frozen importlib._bootstrap>,1231,_resolve_name,40,40,2.2357000000000003e-05,3.3407e-05
+<frozen importlib._bootstrap>,1240,_find_spec,18448,18448,0.097327439,1.3971155860000002
+<frozen importlib._bootstrap>,1285,_sanity_check,42,42,1.5131000000000001e-05,2e-05
+<frozen importlib._bootstrap>,1304,_find_and_load_unlocked,18435,18448,0.037524502,1.6111085440000001
+<frozen importlib._bootstrap>,1349,_find_and_load,18442,18483,0.059663325,2.089463423
+<frozen importlib._bootstrap>,1375,_gcd_import,8,42,4.3198e-05,0.020000519
+<frozen importlib._bootstrap>,1390,_handle_fromlist,13,14,1.5139e-05,0.001101378
+<frozen importlib._bootstrap_external>,71,_relax_case,110614,110614,0.008377702,0.008377702
+<frozen importlib._bootstrap_external>,84,_unpack_uint32,45,45,1.9543000000000002e-05,3.0191000000000003e-05
+<frozen importlib._bootstrap_external>,126,_path_join,553087,553087,0.24678047300000003,0.41138333200000005
+<frozen importlib._bootstrap_external>,132,_path_split,30,30,2.4939000000000003e-05,6.3571e-05
+<frozen importlib._bootstrap_external>,134,<genexpr>,60,60,1.3101e-05,2.0665000000000003e-05
+<frozen importlib._bootstrap_external>,140,_path_stat,110654,110654,0.025403933,0.214724775
+<frozen importlib._bootstrap_external>,150,_path_is_mode_type,23,23,1.4049e-05,9.5432e-05
+<frozen importlib._bootstrap_external>,159,_path_isfile,21,21,1.3504000000000001e-05,0.00010600400000000001
+<frozen importlib._bootstrap_external>,164,_path_isdir,2,2,1.1e-06,4.0320000000000005e-06
+<frozen importlib._bootstrap_external>,180,_path_isabs,17,17,5.191e-06,9.148000000000001e-06
+<frozen importlib._bootstrap_external>,185,_path_abspath,17,17,5.343e-06,1.4491e-05
+<frozen importlib._bootstrap_external>,486,cache_from_source,30,30,5.992e-05,0.00017425600000000002
+<frozen importlib._bootstrap_external>,615,_get_cached,15,15,1.6526e-05,0.00012876400000000002
+<frozen importlib._bootstrap_external>,647,_check_name_wrapper,15,15,1.0975e-05,1.2544e-05
+<frozen importlib._bootstrap_external>,670,_classify_pyc,15,15,1.6060000000000002e-05,3.2590000000000005e-05
+<frozen importlib._bootstrap_external>,703,_validate_timestamp_pyc,15,15,1.3812000000000001e-05,2.9739e-05
+<frozen importlib._bootstrap_external>,755,_compile_bytecode,15,15,0.00022488300000000002,0.001419237
+<frozen importlib._bootstrap_external>,806,spec_from_file_location,15,15,3.0411e-05,4.9439000000000006e-05
+<frozen importlib._bootstrap_external>,990,create_module,15,15,1.4080000000000001e-06,1.4080000000000001e-06
+<frozen importlib._bootstrap_external>,993,exec_module,3,15,2.9669000000000003e-05,0.008893446000000001
+<frozen importlib._bootstrap_external>,1066,get_code,15,15,6.977900000000001e-05,0.002072557
+<frozen importlib._bootstrap_external>,1157,__init__,15,15,2.2530000000000003e-06,2.2530000000000003e-06
+<frozen importlib._bootstrap_external>,1182,get_filename,15,15,1.5690000000000001e-06,1.5690000000000001e-06
+<frozen importlib._bootstrap_external>,1187,get_data,15,15,3.7479000000000005e-05,0.00044128
+<frozen importlib._bootstrap_external>,1206,path_stats,15,15,1.3085000000000001e-05,0.00011371200000000001
+<frozen importlib._bootstrap_external>,1460,_path_hooks,2,2,6.973000000000001e-06,3.6415e-05
+<frozen importlib._bootstrap_external>,1473,_path_importer_cache,129048,129048,0.021928673000000003,0.021965088
+<frozen importlib._bootstrap_external>,1495,_get_spec,18448,18448,0.08680631500000001,1.1664149910000001
+<frozen importlib._bootstrap_external>,1524,find_spec,18448,18448,0.01166809,1.1954553730000002
+<frozen importlib._bootstrap_external>,1571,__init__,2,2,4.491e-06,1.2533e-05
+<frozen importlib._bootstrap_external>,1577,<genexpr>,16,16,1.683e-06,1.683e-06
+<frozen importlib._bootstrap_external>,1592,_get_spec,15,15,1.8736e-05,7.042800000000001e-05
+<frozen importlib._bootstrap_external>,1597,find_spec,110614,110614,0.35231204200000005,1.054036186
+<frozen importlib._bootstrap_external>,1648,_fill_cache,2,2,6.104e-06,3.1954e-05
+<frozen importlib._bootstrap_external>,1689,path_hook_for_FileFinder,2,2,4.620000000000001e-06,2.1185e-05
+<frozen posixpath>,138,splitroot,48,48,5.3087e-05,6.4866e-05
+<frozen zipimport>,64,__init__,2,2,4.574000000000001e-06,8.257e-06
+<string>,1,<lambda>,12305,12305,0.0038031220000000004,0.0068986460000000005
+<string>,1,<module>,1,1,2.3500000000000003e-07,2.3500000000000003e-07
+<string>,1,__create_fn__,1,1,2.67e-07,2.67e-07
+<string>,2,__eq__,16468,16468,0.0021849960000000002,0.0021849960000000002
+<string>,2,__init__,3137,3137,0.000754944,0.000754944
+~,0,<built-in method __new__ of type object at 0x140e4b0>,109233,109233,0.026068725,0.026253686000000002
+~,0,<built-in method _abc._abc_init>,35,35,0.000104376,0.000104376
+~,0,<built-in method _abc._abc_instancecheck>,67685,67685,0.021909770000000002,0.022014731000000003
+~,0,<built-in method _abc._abc_subclasscheck>,50977,51013,0.015369114000000001,0.015395788
+~,0,<built-in method _asyncio._get_running_loop>,9150,9150,0.0011267150000000001,0.0011267150000000001
+~,0,<built-in method _asyncio.current_task>,138530,138530,0.019974116,0.019974116
+~,0,<built-in method _asyncio.get_event_loop>,6147,6147,0.000951798,0.000951798
+~,0,<built-in method _asyncio.get_running_loop>,129474,129474,0.013933698000000001,0.013933698000000001
+~,0,<built-in method _codecs.utf_8_decode>,55,55,4.7402000000000005e-05,4.7402000000000005e-05
+~,0,<built-in method _contextvars.copy_context>,68003,68003,0.011178954000000001,0.011178954000000001
+~,0,<built-in method _heapq.heapify>,195,195,0.002551246,0.007827597
+~,0,<built-in method _heapq.heappop>,6683,6683,0.009595125000000001,0.014765486000000001
+~,0,<built-in method _heapq.heappush>,27955,27955,0.014218060000000001,0.026835529
+~,0,<built-in method _imp._fix_co_filename>,15,15,3.919e-06,3.919e-06
+~,0,<built-in method _imp.acquire_lock>,129122,129122,0.014313193,0.014313193
+~,0,<built-in method _imp.find_frozen>,18448,18448,0.007847390000000001,0.007847390000000001
+~,0,<built-in method _imp.is_builtin>,18448,18448,0.014018769,0.014018769
+~,0,<built-in method _imp.release_lock>,129122,129122,0.014171744000000002,0.014171744000000002
+~,0,<built-in method _io.open>,10290,10290,0.14494787,0.15621795100000002
+~,0,<built-in method _io.open_code>,15,15,0.00011671500000000001,0.00011739000000000001
+~,0,<built-in method _io.text_encoding>,96,96,1.8725e-05,1.8725e-05
+~,0,<built-in method _socket.getaddrinfo>,2,4,4.5310000000000005e-05,0.001649075
+~,0,<built-in method _socket.getdefaulttimeout>,3075,3075,0.000306121,0.000306121
+~,0,<built-in method _socket.inet_pton>,6144,6144,0.0022492930000000003,0.0022492930000000003
+~,0,<built-in method _sre.compile>,3,3,4.659000000000001e-06,4.659000000000001e-06
+~,0,<built-in method _thread._set_sentinel>,4,4,3.721e-06,3.721e-06
+~,0,<built-in method _thread.allocate_lock>,23005,23005,0.0059287310000000005,0.0059287310000000005
+~,0,<built-in method _thread.get_ident>,39979,39979,0.005846471000000001,0.005846471000000001
+~,0,<built-in method _thread.get_native_id>,4,4,2.215e-06,2.215e-06
+~,0,<built-in method _thread.start_new_thread>,4,4,0.000165667,0.000165667
+~,0,<built-in method _weakref._remove_dead_weakref>,23264,23264,0.00482346,0.00482346
+~,0,<built-in method builtins.__build_class__>,60,60,0.000364069,0.0016259380000000002
+~,0,<built-in method builtins.__import__>,2,3,6.785e-06,0.000162263
+~,0,<built-in method builtins.all>,5,5,2.5340000000000002e-06,7.015000000000001e-06
+~,0,<built-in method builtins.anext>,1,1,1.316e-06,1.316e-06
+~,0,<built-in method builtins.any>,17402,17402,0.027662716,0.13343227900000001
+~,0,<built-in method builtins.callable>,37,37,3.5100000000000003e-06,3.5100000000000003e-06
+~,0,<built-in method builtins.compile>,6,6,2.4272e-05,2.4272e-05
+~,0,<built-in method builtins.delattr>,6,6,7.900000000000001e-07,7.900000000000001e-07
+~,0,<built-in method builtins.dir>,2,2,1.4159000000000001e-05,1.4159000000000001e-05
+~,0,<built-in method builtins.eval>,1,1,3.7471e-05,3.7728e-05
+~,0,<built-in method builtins.exec>,3,45,0.00138695,0.008044859
+~,0,<built-in method builtins.getattr>,141838,141838,0.023805315,0.023805315
+~,0,<built-in method builtins.hasattr>,146046,146060,0.024731609,0.025807095000000002
+~,0,<built-in method builtins.hash>,1,1,1.8100000000000002e-07,1.8100000000000002e-07
+~,0,<built-in method builtins.hex>,1,1,2.03e-07,2.03e-07
+~,0,<built-in method builtins.id>,31036,31036,0.004217085000000001,0.004217085000000001
+~,0,<built-in method builtins.isinstance>,1878672,1980612,0.204031697,0.341576625
+~,0,<built-in method builtins.issubclass>,55634,55634,0.019613996,0.053616884000000004
+~,0,<built-in method builtins.iter>,8238,8238,0.0014329050000000002,0.0014329050000000002
+~,0,<built-in method builtins.len>,340683,369802,0.050833559,0.05671737
+~,0,<built-in method builtins.max>,18702,18702,0.007973375000000001,0.00799404
+~,0,<built-in method builtins.min>,3047,3047,0.001421455,0.001421455
+~,0,<built-in method builtins.next>,178686,205287,0.09256626100000001,0.516534468
+~,0,<built-in method builtins.ord>,27,27,3.3640000000000003e-06,3.3640000000000003e-06
+~,0,<built-in method builtins.repr>,18,18,3.627e-06,3.627e-06
+~,0,<built-in method builtins.setattr>,188,188,5.0385000000000006e-05,5.0385000000000006e-05
+~,0,<built-in method builtins.sum>,9273,9273,0.003096384,0.010139624
+~,0,<built-in method builtins.vars>,14,14,4.329e-06,4.329e-06
+~,0,<built-in method from_bytes>,11287,11287,0.012039489,0.050740474
+~,0,<built-in method fromkeys>,8,8,4.664000000000001e-06,4.664000000000001e-06
+~,0,<built-in method fromtimestamp>,10,10,4.2863e-05,4.2863e-05
+~,0,<built-in method marshal.loads>,15,15,0.0011863960000000002,0.0011863960000000002
+~,0,<built-in method math.ceil>,24,24,1.2618e-05,1.2618e-05
+~,0,<built-in method math.isfinite>,4010,4010,0.000586563,0.000586563
+~,0,<built-in method numpy._core._multiarray_umath._unique_hash>,187,187,0.000516694,0.000516694
+~,0,<built-in method numpy.asanyarray>,4461,4461,0.0033060460000000004,0.0033060460000000004
+~,0,<built-in method numpy.asarray>,2965,2965,0.038410589,0.038410589
+~,0,<built-in method numpy.lib.array_utils.normalize_axis_index>,2965,2965,0.001234176,0.001234176
+~,0,<built-in method posix.fspath>,141,141,2.9185000000000003e-05,2.9185000000000003e-05
+~,0,<built-in method posix.listdir>,2,2,2.4962000000000003e-05,2.4962000000000003e-05
+~,0,<built-in method posix.stat>,110710,110710,0.17033868200000002,0.171234256
+~,0,<built-in method posix.sysconf>,48,48,8.5684e-05,8.5684e-05
+~,0,<built-in method posix.urandom>,3072,3072,0.0035502290000000002,0.0035502290000000002
+~,0,<built-in method resource.getrusage>,48,48,0.00017436100000000002,0.00017436100000000002
+~,0,<built-in method select.poll>,10496,10496,0.002266736,0.002266736
+~,0,<built-in method sys._getframe>,34,34,6.095e-06,6.095e-06
+~,0,<built-in method sys.exc_info>,9411,9411,0.0032570890000000003,0.0032570890000000003
+~,0,<built-in method sys.getrecursionlimit>,3090,3090,0.000508041,0.000508041
+~,0,<built-in method sys.intern>,151,151,0.00011368000000000001,0.00011368000000000001
+~,0,<built-in method time.monotonic>,242355,242355,0.027121457,0.027121457
+~,0,<built-in method time.perf_counter>,16713,16713,0.0030838840000000003,0.0030838840000000003
+~,0,<built-in method time.process_time>,48,48,0.000394924,0.000394924
+~,0,<built-in method time.time>,28126,28126,0.004994867,0.004994867
+~,0,<function socket.close at 0x7604c640e2a0>,6129,6129,0.064059505,0.064059505
+~,0,<method '__contains__' of 'frozenset' objects>,25,25,3.676e-06,3.676e-06
+~,0,<method '__enter__' of '_thread.RLock' objects>,20062,20062,0.0052499700000000005,0.0052499700000000005
+~,0,<method '__enter__' of '_thread.lock' objects>,5669,5669,0.0013901240000000002,0.0013901240000000002
+~,0,<method '__exit__' of '_io._IOBase' objects>,10304,10305,0.06950761600000001,0.070222165
+~,0,<method '__exit__' of '_thread.RLock' objects>,56969,56969,0.009881031,0.009881031
+~,0,<method '__exit__' of '_thread.lock' objects>,31207,31207,0.005423373,0.005423373
+~,0,<method '__init_subclass__' of 'object' objects>,1,1,1.508e-06,1.291e-05
+~,0,<method '_accept' of '_socket.socket' objects>,3138,3138,0.076813238,0.076813238
+~,0,<method '_is_owned' of '_thread.RLock' objects>,3072,3072,0.0006380110000000001,0.0006380110000000001
+~,0,<method 'aclose' of 'async_generator' objects>,3072,3072,0.000635728,0.000635728
+~,0,<method 'acquire' of '_thread.RLock' objects>,11250,11250,0.0033666570000000003,0.0033666570000000003
+~,0,<method 'acquire' of '_thread.lock' objects>,23730,24827,0.007194879,0.00637216
+~,0,<method 'add' of 'set' objects>,130218,130218,0.02419572,0.02419572
+~,0,<method 'add_done_callback' of '_asyncio.Future' objects>,6144,6144,0.001875556,0.001875556
+~,0,<method 'add_done_callback' of '_asyncio.Task' objects>,6209,6209,0.0017710710000000001,0.0017710710000000001
+~,0,<method 'any' of 'numpy.generic' objects>,187,187,0.000273209,0.000460017
+~,0,<method 'any' of 'numpy.ndarray' objects>,561,561,0.00022850000000000002,0.000831991
+~,0,<method 'append' of 'collections.deque' objects>,138711,138711,0.017928014000000003,0.017928014000000003
+~,0,<method 'append' of 'list' objects>,481009,481009,0.058953240000000004,0.058953240000000004
+~,0,<method 'asend' of 'async_generator' objects>,3072,3072,0.00061499,0.00061499
+~,0,<method 'astype' of 'numpy.ndarray' objects>,374,374,0.00026614900000000003,0.00026614900000000003
+~,0,<method 'cancel' of '_asyncio.Task' objects>,8767,8767,0.006093317,0.072408449
+~,0,<method 'cancelled' of '_asyncio.Future' objects>,15603,15603,0.0021586910000000003,0.0021586910000000003
+~,0,<method 'cancelling' of '_asyncio.Task' objects>,6145,6145,0.000982278,0.000982278
+~,0,<method 'capitalize' of 'str' objects>,47967,47967,0.010041328,0.010041328
+~,0,<method 'clear' of 'list' objects>,3076,3076,0.000540681,0.000540681
+~,0,<method 'close' of 'generator' objects>,2025,2025,0.000424431,0.000424431
+~,0,<method 'connect' of '_socket.socket' objects>,3075,3076,0.064361046,0.06434896400000001
+~,0,<method 'copy' of 'dict' objects>,3137,3137,0.000466539,0.000466539
+~,0,<method 'count' of 'list' objects>,3072,3072,0.000570015,0.000570015
+~,0,<method 'count' of 'str' objects>,32,32,1.5234e-05,1.5234e-05
+~,0,<method 'decode' of 'bytes' objects>,581482,581482,0.07789560300000001,0.07789560300000001
+~,0,<method 'difference_update' of 'set' objects>,4,4,2.8330000000000002e-06,2.8330000000000002e-06
+~,0,<method 'disable' of '_lsprof.Profiler' objects>,1,1,4.3636e-05,4.3636e-05
+~,0,<method 'discard' of 'set' objects>,61527,61527,0.011962328000000001,0.011962328000000001
+~,0,<method 'done' of '_asyncio.Future' objects>,19896,19896,0.002830688,0.002830688
+~,0,<method 'done' of '_asyncio.Task' objects>,12371,12371,0.0016185680000000001,0.0016185680000000001
+~,0,<method 'encode' of 'str' objects>,225333,225333,0.036575625,0.036575625
+~,0,<method 'end' of 're.Match' objects>,16370,16370,0.002782807,0.002782807
+~,0,<method 'endswith' of 'bytearray' objects>,76167,76167,0.013020680000000001,0.013020680000000001
+~,0,<method 'endswith' of 'str' objects>,178,178,2.6024e-05,2.6024e-05
+~,0,<method 'exception' of '_asyncio.Task' objects>,3072,3072,0.0005098020000000001,0.0005098020000000001
+~,0,<method 'extend' of 'list' objects>,5190,5190,0.001227072,0.001228755
+~,0,<method 'fileno' of '_socket.socket' objects>,25864,25864,0.004422206000000001,0.004422206000000001
+~,0,<method 'find' of 'bytearray' objects>,20,20,5.419e-06,5.419e-06
+~,0,<method 'find' of 'str' objects>,8,8,2.666e-06,2.666e-06
+~,0,<method 'finditer' of 're.Pattern' objects>,16338,16338,0.012116347000000001,0.012116347000000001
+~,0,<method 'flatten' of 'numpy.ndarray' objects>,374,374,0.00028369100000000003,0.00028369100000000003
+~,0,<method 'flush' of '_io.TextIOWrapper' objects>,3072,3072,0.008592792,0.008592792
+~,0,<method 'format' of 'str' objects>,46065,46065,0.018336321000000003,0.018336321000000003
+~,0,<method 'fullmatch' of 're.Pattern' objects>,222832,222832,0.11439184100000001,0.11439184100000001
+~,0,<method 'get' of '_queue.SimpleQueue' objects>,70,558,0.010016697000000001,0.001316564
+~,0,<method 'get' of 'dict' objects>,566155,566155,0.10114788200000001,0.10114788200000001
+~,0,<method 'get' of 'mappingproxy' objects>,29,29,6.051e-06,6.051e-06
+~,0,<method 'get_loop' of '_asyncio.Future' objects>,3072,3072,0.0005264520000000001,0.0005264520000000001
+~,0,<method 'get_name' of '_asyncio.Task' objects>,3072,3072,0.000564563,0.000564563
+~,0,<method 'get_nowait' of '_queue.SimpleQueue' objects>,3076,3076,0.0016301120000000002,0.0016301120000000002
+~,0,<method 'getpeername' of '_socket.socket' objects>,12481,12481,0.018610511,0.018610511
+~,0,<method 'getsockname' of '_socket.socket' objects>,9222,9222,0.011761329000000001,0.011761329000000001
+~,0,<method 'getsockopt' of '_socket.socket' objects>,3072,3072,0.0032825840000000003,0.0032825840000000003
+~,0,<method 'gettimeout' of '_socket.socket' objects>,3075,3075,0.000399756,0.000399756
+~,0,<method 'getvalue' of '_io.BytesIO' objects>,10194,10194,0.002400624,0.002400624
+~,0,<method 'group' of 're.Match' objects>,201,201,2.4102e-05,2.4102e-05
+~,0,<method 'groupdict' of 're.Match' objects>,233091,233091,0.043268431,0.043268431
+~,0,<method 'groups' of 're.Match' objects>,10194,10194,0.002759193,0.002759193
+~,0,<method 'index' of 'tuple' objects>,7,7,2.0500000000000003e-06,3.881000000000001e-06
+~,0,<method 'insert' of 'list' objects>,6146,6146,0.001147054,0.001147054
+~,0,<method 'isalnum' of 'str' objects>,8,8,1.5020000000000002e-06,1.5020000000000002e-06
+~,0,<method 'isalpha' of 'str' objects>,2,2,6.800000000000001e-07,6.800000000000001e-07
+~,0,<method 'isascii' of 'str' objects>,274690,274690,0.022113001,0.022113001
+~,0,<method 'isdigit' of 'str' objects>,32680,32680,0.004151857,0.004151857
+~,0,<method 'isidentifier' of 'str' objects>,25,25,3.5900000000000004e-06,3.5900000000000004e-06
+~,0,<method 'isprintable' of 'str' objects>,241998,241998,0.019141638000000002,0.019141638000000002
+~,0,<method 'items' of 'dict' objects>,36671,36671,0.006704366000000001,0.006704366000000001
+~,0,<method 'items' of 'mappingproxy' objects>,26,26,4.847e-06,4.847e-06
+~,0,<method 'join' of 'bytes' objects>,37671,37984,0.017597922000000002,0.605857502
+~,0,<method 'join' of 'str' objects>,675935,675935,0.094205443,0.094219589
+~,0,<method 'keys' of 'dict' objects>,10761,10761,0.0021702730000000003,0.0021702730000000003
+~,0,<method 'listen' of '_socket.socket' objects>,1,1,4.308e-06,4.308e-06
+~,0,<method 'locked' of '_thread.lock' objects>,10,10,1.8770000000000002e-06,1.8770000000000002e-06
+~,0,<method 'lower' of 'bytes' objects>,285209,285209,0.041558381000000005,0.041558381000000005
+~,0,<method 'lower' of 'str' objects>,238192,238192,0.033896836,0.033896836
+~,0,<method 'lstrip' of 'bytes' objects>,3072,3072,0.0013322800000000001,0.0013322800000000001
+~,0,<method 'lstrip' of 'str' objects>,2,2,8.02e-07,8.02e-07
+~,0,<method 'match' of 're.Pattern' objects>,142304,142304,0.072139694,0.072139694
+~,0,<method 'move_to_end' of 'collections.OrderedDict' objects>,3072,3072,0.0007531590000000001,0.0007531590000000001
+~,0,<method 'partition' of 'bytes' objects>,3137,3137,0.000696125,0.000696125
+~,0,<method 'partition' of 'numpy.ndarray' objects>,187,187,0.0007303920000000001,0.0007303920000000001
+~,0,<method 'partition' of 'str' objects>,13298,13298,0.002846934,0.002846934
+~,0,<method 'poll' of 'select.epoll' objects>,861,861,0.468152597,0.46815710400000005
+~,0,<method 'poll' of 'select.poll' objects>,10496,10496,0.023985852000000002,0.023997294000000002
+~,0,<method 'pop' of 'dict' objects>,31733,31733,0.007669027,0.007669027
+~,0,<method 'pop' of 'list' objects>,18464,18464,0.003041544,0.003041544
+~,0,<method 'pop' of 'set' objects>,16419,16419,0.0031445870000000003,0.0031445870000000003
+~,0,<method 'popleft' of 'collections.deque' objects>,120738,120738,0.018277150000000002,0.018277150000000002
+~,0,<method 'put' of '_queue.SimpleQueue' objects>,3072,3072,0.001575748,0.001575748
+~,0,<method 'ravel' of 'numpy.ndarray' objects>,374,374,9.4429e-05,9.4429e-05
+~,0,<method 'read' of '_io.BufferedReader' objects>,15,15,0.000113431,0.000113431
+~,0,<method 'read' of '_io.TextIOWrapper' objects>,48,48,0.00044509700000000004,0.000542067
+~,0,<method 'readline' of '_io.BufferedReader' objects>,2,2,8.360000000000001e-06,8.360000000000001e-06
+~,0,<method 'readlines' of '_io._IOBase' objects>,2,2,4.9263000000000006e-05,6.0796000000000005e-05
+~,0,<method 'recv' of '_socket.socket' objects>,8300,11497,0.047035149000000005,0.026505733
+~,0,<method 'reduce' of 'numpy.ufunc' objects>,3713,3713,0.024395984000000003,0.024395984000000003
+~,0,<method 'register' of 'select.epoll' objects>,12305,12305,0.020253322,0.020253322
+~,0,<method 'register' of 'select.poll' objects>,10496,10496,0.0033814670000000004,0.0033814670000000004
+~,0,<method 'release' of '_thread.RLock' objects>,11250,11250,0.002205808,0.002205808
+~,0,<method 'release' of '_thread.lock' objects>,14680,14680,0.00266583,0.00266583
+~,0,<method 'remove' of 'collections.deque' objects>,11667,11667,0.00376077,0.00376077
+~,0,<method 'remove' of 'list' objects>,26598,26598,0.0058176090000000005,0.0058176090000000005
+~,0,<method 'remove' of 'set' objects>,64512,64512,0.010493619000000001,0.010493619000000001
+~,0,<method 'replace' of 'str' objects>,21,21,6.148e-06,6.148e-06
+~,0,<method 'reshape' of 'numpy.ndarray' objects>,187,187,0.000169743,0.000169743
+~,0,<method 'rfind' of 'str' objects>,30,30,7.564000000000001e-06,7.564000000000001e-06
+~,0,<method 'rpartition' of 'str' objects>,143662,143662,0.020927807,0.020927807
+~,0,<method 'rsplit' of 'str' objects>,40,40,7.739e-06,7.739e-06
+~,0,<method 'rstrip' of 'str' objects>,1117510,1117510,0.099008303,0.099008303
+~,0,<method 'run' of '_contextvars.Context' objects>,114207,114208,0.169701137,26.949656855
+~,0,<method 'search' of 're.Pattern' objects>,16468,16468,0.015027717000000001,0.015027717000000001
+~,0,<method 'seek' of '_io.BufferedReader' objects>,2,2,1.464e-06,1.464e-06
+~,0,<method 'seek' of '_io.BytesIO' objects>,10194,10194,0.002217251,0.002217251
+~,0,<method 'send' of '_socket.socket' objects>,14257,19540,0.20286405000000002,0.15254192800000002
+~,0,<method 'send' of 'generator' objects>,5097,7122,0.0049912920000000005,0.007639619
+~,0,<method 'set_result' of '_asyncio.Future' objects>,20172,20172,0.013029798,0.0464445
+~,0,<method 'setblocking' of '_socket.socket' objects>,9220,9220,0.005003909,0.005003909
+~,0,<method 'setsockopt' of '_socket.socket' objects>,6151,6151,0.0038981550000000004,0.0038981550000000004
+~,0,<method 'setter' of 'property' objects>,3,3,1.201e-06,1.201e-06
+~,0,<method 'settimeout' of '_socket.socket' objects>,6090,6115,0.014937561,0.014894996
+~,0,<method 'shutdown' of '_socket.socket' objects>,3052,3052,0.030475268000000003,0.030475268000000003
+~,0,<method 'sort' of 'numpy.ndarray' objects>,187,187,0.00042942400000000003,0.00042942400000000003
+~,0,<method 'span' of 're.Match' objects>,8234,8234,0.0025418050000000003,0.0025418050000000003
+~,0,<method 'split' of 'bytearray' objects>,8234,8234,0.007480776000000001,0.007480776000000001
+~,0,<method 'split' of 'bytes' objects>,47350,47350,0.009634408,0.009634408
+~,0,<method 'split' of 'str' objects>,39911,39911,0.015204158,0.015204158
+~,0,<method 'startswith' of 'bytes' objects>,27629,27629,0.006897689,0.006897689
+~,0,<method 'startswith' of 'str' objects>,67577,67577,0.014465308000000001,0.014465308000000001
+~,0,<method 'strip' of 'bytes' objects>,47346,47346,0.007701829,0.007701829
+~,0,<method 'strip' of 'str' objects>,5131,5131,0.0011599470000000001,0.0011599470000000001
+~,0,<method 'sub' of 're.Pattern' objects>,5097,5097,0.006044267000000001,0.006044267000000001
+~,0,<method 'timetuple' of 'datetime.datetime' objects>,10,10,5.3699e-05,5.3699e-05
+~,0,<method 'to_bytes' of 'int' objects>,3072,3072,0.000788918,0.000788918
+~,0,<method 'to_python' of 'pydantic_core._pydantic_core.SchemaSerializer' objects>,10240,10240,0.041861943000000006,0.041861943000000006
+~,0,<method 'translate' of 'bytearray' objects>,1,1,5.32e-07,5.32e-07
+~,0,<method 'truncate' of '_io.BytesIO' objects>,10194,10194,0.002009054,0.002009054
+~,0,<method 'uncancel' of '_asyncio.Task' objects>,8767,8767,0.0014001710000000002,0.0014001710000000002
+~,0,<method 'unregister' of 'select.epoll' objects>,12305,12305,0.022900724,0.022900724
+~,0,<method 'update' of 'dict' objects>,80517,80517,0.017788364,0.017788364
+~,0,<method 'upper' of 'str' objects>,5097,5097,0.001303469,0.001303469
+~,0,<method 'validate_python' of 'pydantic_core._pydantic_core.SchemaValidator' objects>,10256,10256,0.050330851,0.050330851
+~,0,<method 'values' of 'dict' objects>,8245,8245,0.0016531800000000002,0.0016531800000000002
+~,0,<method 'values' of 'mappingproxy' objects>,14,14,3.249e-06,3.249e-06
+~,0,<method 'wrap' of 'numpy._core._multiarray_umath._array_converter' objects>,187,187,5.9421000000000006e-05,5.9421000000000006e-05
+~,0,<method 'write' of '_io.TextIOWrapper' objects>,13312,13312,0.0031835020000000004,0.0031835020000000004

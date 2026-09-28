@@ -219,3 +219,9 @@ adds caller prediction outcomes, control-on/off pairs, and a 1,024-session
 workload. It distinguishes worker capacity, operating-system descriptor limits,
 and interference with prediction handling. These are operational measurements;
 control-off also removes refreshed board state and policy actuation.
+
+[Proxy CPU profiling](../research/2026-09-27-proxy-profiling.md) subsequently found
+repeated failed optional imports in HTTPcore. Supplying `sniffio` through the
+serving extra removes that overhead; paired trials show lower CPU and latency
+but more prediction fallbacks. Queue ranking and deadline handling remain open
+optimization targets; this dependency change does not improve their asymptotic bounds.

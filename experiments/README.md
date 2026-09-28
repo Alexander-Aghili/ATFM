@@ -113,3 +113,6 @@ integrated CPU/HTTP tests, not measurements of model-worker hardware capacity.
 
 For repeated control-on/off pairs and inherited descriptor limits, see the
 [attribution workflow](../docs/development/load-testing.md#repeated-control-attribution).
+
+Opt-in [proxy CPU profiling](../docs/development/load-testing.md#profiling-the-proxy)
+uses the experiments-only `profiling` extra and retains per-thread results.
