@@ -8,6 +8,7 @@ predate today's launchers. Use the [project README](../../README.md) and
 
 | Note | Role |
 | --- | --- |
+| [Agent observability infrastructure](2026-09-27-agent-observability.md) | Existing tool tracing/evaluation systems and proposed ATFM signal boundaries. |
 | [Large-session control paths](2026-09-27-large-control-paths.md) | Exact GDP threshold reuse, admission batching, and 8,192-session trials. |
 | [CPU scaling and Python/Rust](2026-09-27-cpu-scaling.md) | Measured CPU optimizations, asymptotic bounds, and language decision. |
 | [Demonstration ladder](2026-09-22-demonstration-ladder.md) | Evaluation stages and the claims each can support. |
