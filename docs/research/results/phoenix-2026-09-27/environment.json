@@ -1,0 +1,14 @@
+{
+  "description": "Synthetic sidecar tools, OTLP/HTTP to isolated Phoenix, read-back assertions and code annotations",
+  "phoenix_server": "20.16.0",
+  "phoenix_client": "3.5.0",
+  "opentelemetry_sdk": "1.45.0",
+  "python": "3.12.13",
+  "server_lifetime": "Stopped after this run; summary URL is historical",
+  "source_sha256": {
+    "experiments/src/atfm_experiments/tool_traces.py": "24687b724af74e13f7f2ad8341d62a590fa3b4b20dd62e5bb0f7e686de04567d",
+    "experiments/src/atfm_experiments/phoenix_smoke.py": "00cc6195f006a958225d00cca99c7b48687193165c7aa453bef8d96c9b307c5e",
+    "experiments/observability/server/uv.lock": "85f049d4b8ece91e08ccf351694156842665e58a992e3e49c8c485dc5859b18e",
+    "uv.lock": "6c734248b34ff749da2a0d825dcc152962c6e90a33bd6b9017093d739eeb6944"
+  }
+}

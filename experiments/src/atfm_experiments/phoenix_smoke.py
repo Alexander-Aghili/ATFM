@@ -110,15 +110,24 @@ def smoke(endpoint: str, out: Path) -> dict:
         for tool in tools:
             assert tool["parent_id"] == root["context"]["span_id"]
             assert tool["context"]["trace_id"] == root["context"]["trace_id"]
-            assert len(tool.get("events", [])) == 3
+            progress = tool.get("events", [])
+            assert [e["attributes"]["completed"] for e in progress] == [0.0, 1.0, 2.0]
+            assert all(e["name"] == "tool.progress" and e["attributes"]["total"] == 2.0 for e in progress)
+            original = [e for e in events if e.call_id == tool["attributes"]["tool.id"]]
+            assert abs(datetime.fromisoformat(tool["start_time"]).timestamp() - original[0].t) < 2e-6
+            assert abs(datetime.fromisoformat(tool["end_time"]).timestamp() - original[-1].t) < 2e-6
+            assert tool["attributes"]["atfm.exit_status"] == original[-1].exit_status
             assert datetime.fromisoformat(tool["end_time"]) >= datetime.fromisoformat(tool["start_time"])
             client.spans.add_span_annotation(span_id=tool["context"]["span_id"], annotation_name="fixture_contract",
                                              annotator_kind="CODE", label="pass", score=1.0, sync=True)
         annotations = client.spans.get_span_annotations(spans=tools, project_identifier=project)
         assert len(annotations) == 2
+        assert all(a["name"] == "fixture_contract" and a["annotator_kind"] == "CODE"
+                   and a["result"]["score"] == 1.0 and a["result"]["label"] == "pass" for a in annotations)
         summary = dict(project=project, **counts, persisted_spans=len(spans), verified_annotations=len(annotations),
                        ui_url=endpoint, checks="parentage, status, progress count, timestamps, annotation persistence")
         (out / "spans.json").write_text(json.dumps(spans, indent=2))
+        (out / "annotations.json").write_text(json.dumps(annotations, indent=2))
         (out / "summary.json").write_text(json.dumps(summary, indent=2))
         return summary
 

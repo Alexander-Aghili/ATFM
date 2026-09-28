@@ -7,6 +7,7 @@
 | Understand ATFM and run a CPU example | [Project README](../README.md) |
 | Distinguish implemented features from validated outcomes | [Implementation status](status.md) |
 | Start the proxy, board, and controller | [Local operations](operations.md) |
+| Inspect tool-call test traces and evaluations | [Phoenix test workflow](development/observability-tests.md) |
 | Change core code safely | [Core developer guide](development/core.md) |
 | Understand experiment packaging | [Experiment workspace](../experiments/README.md) |
 | Assess Python/Rust and scaling risks | [Performance assessment](development/performance.md) |

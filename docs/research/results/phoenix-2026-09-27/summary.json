@@ -1,0 +1,12 @@
+{
+  "project": "atfm-tools-edb399ad9d474eaaae653a21a717b4ad",
+  "sessions": 1,
+  "tools": 2,
+  "failures": 1,
+  "progress_events": 6,
+  "data_events": 0,
+  "persisted_spans": 3,
+  "verified_annotations": 2,
+  "ui_url": "http://127.0.0.1:53379",
+  "checks": "parentage, status, progress count, timestamps, annotation persistence"
+}

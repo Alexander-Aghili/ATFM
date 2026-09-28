@@ -1,0 +1,125 @@
+[
+  {
+    "id": "U3Bhbjoz",
+    "name": "atfm.tool_test",
+    "context": {
+      "trace_id": "ebe62d70017066f902e78132c4229828",
+      "span_id": "aa15722b351f1307"
+    },
+    "span_kind": "CHAIN",
+    "parent_id": null,
+    "start_time": "2026-09-28T00:31:08.145812+00:00",
+    "end_time": "2026-09-28T00:31:08.166295+00:00",
+    "status_code": "ERROR",
+    "status_message": "",
+    "attributes": {
+      "session.id": "smoke-session",
+      "atfm.trace_scope": "completed_tool_events"
+    },
+    "events": []
+  },
+  {
+    "id": "U3Bhbjoy",
+    "name": "fixture-1",
+    "context": {
+      "trace_id": "ebe62d70017066f902e78132c4229828",
+      "span_id": "e4b5dddf25a0b7f0"
+    },
+    "span_kind": "TOOL",
+    "parent_id": "aa15722b351f1307",
+    "start_time": "2026-09-28T00:31:08.157836+00:00",
+    "end_time": "2026-09-28T00:31:08.166295+00:00",
+    "status_code": "ERROR",
+    "status_message": "",
+    "attributes": {
+      "session.id": "smoke-session",
+      "tool.id": "162aca75b9194cbc",
+      "tool.name": "fixture-1",
+      "atfm.backend_id": "local",
+      "atfm.output_chars": 48,
+      "atfm.turn_index": 1,
+      "atfm.exit_status": 7
+    },
+    "events": [
+      {
+        "name": "tool.progress",
+        "timestamp": "2026-09-28T00:31:08.165106+00:00",
+        "attributes": {
+          "completed": 0.0,
+          "total": 2.0,
+          "phase": "collect"
+        }
+      },
+      {
+        "name": "tool.progress",
+        "timestamp": "2026-09-28T00:31:08.165136+00:00",
+        "attributes": {
+          "completed": 1.0,
+          "total": 2.0,
+          "phase": "run"
+        }
+      },
+      {
+        "name": "tool.progress",
+        "timestamp": "2026-09-28T00:31:08.165148+00:00",
+        "attributes": {
+          "completed": 2.0,
+          "total": 2.0,
+          "phase": "run"
+        }
+      }
+    ]
+  },
+  {
+    "id": "U3Bhbjox",
+    "name": "fixture-0",
+    "context": {
+      "trace_id": "ebe62d70017066f902e78132c4229828",
+      "span_id": "5d300fa3961912de"
+    },
+    "span_kind": "TOOL",
+    "parent_id": "aa15722b351f1307",
+    "start_time": "2026-09-28T00:31:08.145812+00:00",
+    "end_time": "2026-09-28T00:31:08.157784+00:00",
+    "status_code": "OK",
+    "status_message": "",
+    "attributes": {
+      "session.id": "smoke-session",
+      "tool.id": "400567d0e9db44a8",
+      "tool.name": "fixture-0",
+      "atfm.backend_id": "local",
+      "atfm.output_chars": 48,
+      "atfm.turn_index": 0,
+      "atfm.exit_status": 0
+    },
+    "events": [
+      {
+        "name": "tool.progress",
+        "timestamp": "2026-09-28T00:31:08.155505+00:00",
+        "attributes": {
+          "completed": 0.0,
+          "total": 2.0,
+          "phase": "collect"
+        }
+      },
+      {
+        "name": "tool.progress",
+        "timestamp": "2026-09-28T00:31:08.155548+00:00",
+        "attributes": {
+          "completed": 1.0,
+          "total": 2.0,
+          "phase": "run"
+        }
+      },
+      {
+        "name": "tool.progress",
+        "timestamp": "2026-09-28T00:31:08.155560+00:00",
+        "attributes": {
+          "completed": 2.0,
+          "total": 2.0,
+          "phase": "run"
+        }
+      }
+    ]
+  }
+]

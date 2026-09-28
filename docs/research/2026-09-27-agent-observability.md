@@ -5,6 +5,10 @@ integration assessment, not a measured product comparison or a claim of feature
 parity. No vendor SDK, hosted service, or telemetry export was enabled by this
 review.
 
+A subsequent [comparison and test integration](../development/observability-tests.md)
+selected Phoenix/OpenInference for optional local tool-call tests. The original
+assessment below remains a record of the broader live-signal integration options.
+
 ## Existing layers
 
 | Layer | Examples and documented capabilities | Potential role for ATFM |

@@ -1,0 +1,36 @@
+[
+  {
+    "id": "U3BhbkFubm90YXRpb246Mg==",
+    "created_at": "2026-09-28T00:31:08+00:00",
+    "updated_at": "2026-09-28T00:31:08+00:00",
+    "source": "API",
+    "user_id": null,
+    "name": "fixture_contract",
+    "annotator_kind": "CODE",
+    "result": {
+      "label": "pass",
+      "score": 1.0,
+      "explanation": null
+    },
+    "metadata": {},
+    "identifier": "",
+    "span_id": "5d300fa3961912de"
+  },
+  {
+    "id": "U3BhbkFubm90YXRpb246MQ==",
+    "created_at": "2026-09-28T00:31:08+00:00",
+    "updated_at": "2026-09-28T00:31:08+00:00",
+    "source": "API",
+    "user_id": null,
+    "name": "fixture_contract",
+    "annotator_kind": "CODE",
+    "result": {
+      "label": "pass",
+      "score": 1.0,
+      "explanation": null
+    },
+    "metadata": {},
+    "identifier": "",
+    "span_id": "e4b5dddf25a0b7f0"
+  }
+]

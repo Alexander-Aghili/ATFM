@@ -85,3 +85,11 @@ The [GDP stress study](../docs/research/2026-09-27-gdp-stress.md) supplies large
 100,000- and one-million-session commands. Use `--regimes mixed` for varied
 ETAs, resource demands, and tenants. GDP results now include process CPU time
 and peak RSS; use one case per process to attribute the memory high-water mark.
+
+## Optional tool-call observability
+
+[Phoenix test integration](../docs/development/observability-tests.md) compares
+the alternatives and gives reproducible local tracing/evaluation commands.
+The client extra is `observability`; the Phoenix server has a separate locked
+project under `observability/server/` to avoid changing the core's SDK versions.
+Default tests require neither the server nor its optional packages.
