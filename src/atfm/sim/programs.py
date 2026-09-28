@@ -102,8 +102,7 @@ def programs_from_table(table: TraceTable, rate_per_hour: float | None, duration
     progs: dict[str, Program] = {}
     children: dict[str, list[Program]] = {}
     t0 = float(table.df["t_request"].min()) if len(table.df) else 0.0   # rebase: replayed time starts at zero
-    for sid, g in table.sessions():
-        rows = g.to_dict("records")
+    for sid, rows in table.session_records():
         turns: list[Turn] = []
         prev_ctx = 0
         for i, r in enumerate(rows):

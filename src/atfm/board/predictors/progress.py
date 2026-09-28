@@ -51,8 +51,8 @@ class ProgressCurve:
     def fit(self, train: TraceTable) -> "ProgressCurve":
         pairs: dict[str, list[tuple[float, float]]] = defaultdict(list)
         phases: dict[str, int] = defaultdict(int)
-        for _, g in train.sessions():
-            for r in g.to_dict("records"):
+        for _, rows in train.session_records():
+            for r in rows:
                 ev = r["progress_events"] or []
                 ts, te = r["t_tool_start"], r["t_tool_end"]
                 if r["tool_name"] is None or not ev or ts is None or te is None or (isinstance(te, float) and math.isnan(te)):
@@ -130,8 +130,8 @@ class ProgressPredictor(SurvivalPredictor):
         super().fit(train)
         self.curve.fit(train)
         res = defaultdict(list)
-        for _, g in train.sessions():
-            for r in g.to_dict("records"):
+        for _, rows in train.session_records():
+            for r in rows:
                 ev = r["progress_events"] or []
                 t_end = r["t_tool_end"]
                 if r["tool_name"] is None or not ev or t_end is None or (isinstance(t_end, float) and math.isnan(t_end)):

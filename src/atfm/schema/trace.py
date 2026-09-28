@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from itertools import groupby
 from pathlib import Path
 from typing import Iterator, Literal
 
@@ -98,7 +99,25 @@ class TraceTable:
 
     def sessions(self) -> Iterator[tuple[str, pd.DataFrame]]:
         for sid, g in self.df.groupby("session_id", sort=False):
-            yield sid, g.sort_values("t_request")
+            yield sid, g
+
+    def session_records(self, batch_size: int = 4096) -> Iterator[tuple[str, list[dict]]]:
+        """Yield session records in canonical stable order without per-session DataFrames.
+
+        Conversion is batched to bound temporary memory by a batch plus the
+        largest session. Nested event containers are shared with the table;
+        consumers must not mutate them. The table must retain its canonical
+        session/time ordering, established by construction.
+        """
+        if batch_size < 1:
+            raise ValueError("batch_size must be positive")
+        records = (
+            row
+            for start in range(0, len(self.df), batch_size)
+            for row in self.df.iloc[start:start + batch_size].to_dict("records")
+        )
+        for sid, rows in groupby(records, key=lambda row: row["session_id"]):
+            yield sid, list(rows)
 
     def time_range(self) -> tuple[float, float]:
         return float(self.df["t_request"].min()), float(self.df["t_request"].max())

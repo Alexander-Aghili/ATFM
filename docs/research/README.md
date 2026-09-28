@@ -8,6 +8,7 @@ predate today's launchers. Use the [project README](../../README.md) and
 
 | Note | Role |
 | --- | --- |
+| [CPU scaling and Python/Rust](2026-09-27-cpu-scaling.md) | Measured CPU optimizations, asymptotic bounds, and language decision. |
 | [Demonstration ladder](2026-09-22-demonstration-ladder.md) | Evaluation stages and the claims each can support. |
 | [Evaluation benchmarks](2026-09-22-evaluation-benchmarks.md) | Benchmark and dataset survey. |
 | [Platform acquisition](2026-09-22-platform-acquisition.md) | Infrastructure planning at the time of the survey. |

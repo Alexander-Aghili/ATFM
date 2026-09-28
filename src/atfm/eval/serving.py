@@ -1,6 +1,9 @@
 """Serving metrics from the simulator's lifecycle log (spec section 12) and paired bootstrap across arms."""
 from __future__ import annotations
 
+from collections.abc import Callable
+from dataclasses import dataclass
+
 import numpy as np
 import pandas as pd
 
@@ -40,16 +43,48 @@ def serving_metrics(log: pd.DataFrame, sessions: list[dict], slo_ttft_s: float, 
     }
 
 
+@dataclass(frozen=True)
+class MeanMetric:
+    """A row-wise mean that can be prepared once before session resampling.
+
+    ``values`` returns one numeric value per input row, using NaN to exclude a
+    row. The statistic is ``offset + scale * mean(nonmissing values)``; an
+    empty selection yields NaN. Arbitrary DataFrame metrics remain supported
+    by the bootstrap functions without this optimization.
+    """
+
+    values: Callable[[pd.DataFrame], pd.Series | np.ndarray]
+    offset: float = 0.0
+    scale: float = 1.0
+
+    def __call__(self, frame: pd.DataFrame) -> float:
+        return float(self.offset + self.scale * pd.Series(self.values(frame)).mean())
+
+
 def _paired_draws(per_session: dict, metric_fn, n_boot: int, rng) -> tuple[dict, dict]:
-    """Bootstrap draws of `metric_fn` over the same resampled session ids for every arm."""
+    """Bootstrap identical session selections across arms without repeated label lookup."""
     arms = list(per_session)
     ids = sorted(set.intersection(*[set(df["session_id"]) for df in per_session.values()]))
     idx = {a: per_session[a].set_index("session_id").loc[ids] for a in arms}
+    unique = all(frame.index.is_unique for frame in idx.values())
+    values = None
+    if isinstance(metric_fn, MeanMetric) and unique:
+        values = {a: np.asarray(metric_fn.values(idx[a].reset_index()), dtype=float) for a in arms}
+        if any(array.shape != (len(ids),) for array in values.values()):
+            raise ValueError("MeanMetric must produce one value per session row")
     draws = {a: [] for a in arms}
+    labels = np.asarray(ids)
     for _ in range(n_boot):
-        sample = rng.choice(ids, size=len(ids), replace=True)
+        positions = rng.choice(len(ids), size=len(ids), replace=True)
         for a in arms:
-            draws[a].append(metric_fn(idx[a].loc[sample].reset_index()))
+            if values is not None:
+                sample = values[a][positions]
+                sample = sample[~np.isnan(sample)]
+                mean = float(sample.mean()) if len(sample) else float("nan")
+                draws[a].append(metric_fn.offset + metric_fn.scale * mean)
+            else:
+                frame = idx[a].take(positions) if unique else idx[a].loc[labels[positions]]
+                draws[a].append(metric_fn(frame.reset_index()))
     return draws, idx
 
 

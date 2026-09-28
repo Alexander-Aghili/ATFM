@@ -4,7 +4,9 @@
 
 Keep the core in Python until measurements identify a runtime limit that
 algorithmic or architectural changes cannot meet economically. This is an
-engineering recommendation, not a measured capacity claim. The architecture's
+engineering recommendation, not a measured production capacity claim.
+[CPU scaling trials](../research/2026-09-27-cpu-scaling.md) now quantify selected
+CPU workloads and document verified optimizations. The architecture's
 original D7 decision selected Python for research iteration and access to the
 numerical and serving ecosystem.
 
@@ -54,6 +56,20 @@ Compare a direct-to-upstream baseline, proxy without the board, and proxy with
 the board. The current 50 ms prediction budget is a fallback deadline, not a
 latency target. The default five-second control interval is a scheduling
 interval, not evidence that a tick finishes within it.
+
+## Optimizations measured in the CPU study
+
+Cache eviction now computes free space once per batch and walks candidate
+victims once. Full workers defer queue sorting until admission is possible.
+Training/replay consume batched session records instead of constructing and
+converting a DataFrame per session. Conditional LLM-duration draws cache their
+sorted empirical distribution, invalidated on refit. Paired bootstrap uses
+positional selection, and explicit `MeanMetric` statistics prepare their values
+once instead of rebuilding filtered DataFrames in every resample.
+
+See the [results and complexity table](../research/2026-09-27-cpu-scaling.md)
+for speedups and bounds. The live HTTP/JSONL concerns above remain separate,
+unfixed findings; CPU benchmark success is not a live-service load test.
 
 ## A targeted Rust path
 

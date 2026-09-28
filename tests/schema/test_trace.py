@@ -44,3 +44,24 @@ def test_snapshot_quantiles():
                          endogenous_fraction={"interactive": np.array([1.0, 0.5])})
     q = s.quantiles("kv_blocks", "interactive", 0.5)
     assert q.shape == (2,) and q[0] == 2.5
+
+
+def test_session_records_match_frames_across_batch_boundaries():
+    table = TraceTable.from_rows([
+        _row(session_id=sid, turn_index=i, t_request=float(i), tool_name="pytest" if i % 2 else None,
+             progress_events=[ProgressEvent(t=float(i), completed=i, total=10)])
+        for sid in ("b", "a") for i in reversed(range(7))
+    ])
+    for batch_size in (1, 3, 7, 100):
+        records = list(table.session_records(batch_size=batch_size))
+        assert [sid for sid, _ in records] == ["a", "b"]
+        for (sid, rows), (expected_sid, frame) in zip(records, table.sessions()):
+            assert sid == expected_sid
+            pd.testing.assert_frame_equal(pd.DataFrame(rows), pd.DataFrame(frame.to_dict("records")))
+
+
+def test_session_records_preserve_equal_timestamp_order_and_empty_input():
+    table = TraceTable.from_rows([_row(turn_index=i, t_request=100.0) for i in range(40)])
+    assert [row["turn_index"] for _, rows in table.session_records(3) for row in rows] == list(range(40))
+    assert next(table.sessions())[1].turn_index.tolist() == list(range(40))
+    assert list(TraceTable.from_rows([]).session_records()) == []

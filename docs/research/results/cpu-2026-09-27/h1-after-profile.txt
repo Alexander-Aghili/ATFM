@@ -1,0 +1,43 @@
+         977943 function calls (967474 primitive calls) in 0.516 seconds
+
+   Ordered by: cumulative time
+   List reduced from 1161 to 35 due to restriction <35>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.002    0.002    0.516    0.516 benchmark_cpu.py:77(<lambda>)
+        1    0.001    0.001    0.515    0.515 h1.py:157(run_h1)
+      204    0.001    0.000    0.248    0.001 forecast.py:92(score_tick)
+      204    0.001    0.000    0.148    0.001 frame.py:702(__init__)
+      204    0.002    0.000    0.147    0.001 construction.py:375(dict_to_mgr)
+       34    0.008    0.000    0.135    0.004 forecaster.py:78(forecast)
+      206    0.001    0.000    0.116    0.001 construction.py:96(arrays_to_mgr)
+      136    0.041    0.000    0.094    0.001 forecaster.py:52(draw)
+     1278    0.002    0.000    0.086    0.000 _function_base_impl.py:4267(quantile)
+     2765    0.010    0.000    0.084    0.000 construction.py:531(sanitize_array)
+     1278    0.001    0.000    0.080    0.000 _function_base_impl.py:4512(_quantile_unchecked)
+     1320    0.003    0.000    0.080    0.000 _function_base_impl.py:3827(_ureduce)
+      206    0.003    0.000    0.076    0.000 construction.py:553(_homogenize)
+     1278    0.002    0.000    0.072    0.000 _function_base_impl.py:4651(_quantile_ureduce_func)
+     1278    0.014    0.000    0.069    0.000 _function_base_impl.py:4726(_quantile)
+      408    0.003    0.000    0.053    0.000 forecast.py:30(coverage)
+    20791    0.009    0.000    0.048    0.000 fromnumeric.py:3325(prod)
+     1020    0.002    0.000    0.045    0.000 cast.py:1392(construct_1d_arraylike_from_scalar)
+        1    0.000    0.000    0.041    0.041 h1.py:75(_build)
+    20791    0.015    0.000    0.040    0.000 fromnumeric.py:66(_wrapreduction)
+      653    0.001    0.000    0.037    0.000 trace.py:104(session_records)
+     2426    0.000    0.000    0.036    0.000 trace.py:114(<genexpr>)
+      408    0.004    0.000    0.036    0.000 forecast.py:22(pinball)
+        5    0.000    0.000    0.035    0.007 frame.py:2125(to_dict)
+        5    0.010    0.002    0.035    0.007 to_dict.py:97(to_dict)
+      206    0.001    0.000    0.034    0.000 managers.py:2332(create_block_manager_from_column_arrays)
+        1    0.000    0.000    0.033    0.033 h1.py:45(_tables)
+        2    0.001    0.000    0.033    0.016 synthetic.py:132(generate)
+        2    0.000    0.000    0.032    0.016 synthetic.py:124(run)
+        1    0.000    0.000    0.030    0.030 h1.py:84(<lambda>)
+        1    0.001    0.001    0.028    0.028 progress.py:129(fit)
+      612    0.001    0.000    0.028    0.000 base.py:1796(repeat)
+        1    0.000    0.000    0.025    0.025 forecast.py:104(aggregate_scores)
+142467/141947    0.015    0.000    0.025    0.000 {built-in method builtins.isinstance}
+    48437    0.024    0.000    0.024    0.000 {method 'reduce' of 'numpy.ufunc' objects}
+
+

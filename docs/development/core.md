@@ -65,6 +65,12 @@ iteration order and the number of random draws during a refactor: an extra draw
 can change every subsequent event in a seeded experiment. Never construct a new
 generator inside a sampling helper.
 
+For row-oriented fitting and replay, use `TraceTable.session_records()`.
+It converts fixed-size batches and retains canonical stable session/time order;
+its temporary memory is bounded by a batch plus the largest session. Nested
+event containers are shared and should be treated as read-only. Avoid reordering
+`TraceTable.df` in place; construct a new table after changing its ordering.
+
 ## Forecast and placement contracts
 
 A `ForecastSnapshot.samples[target][class]` array has shape

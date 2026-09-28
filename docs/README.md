@@ -25,6 +25,8 @@ contracts, use the developer guide and the source code together.
 
 ## Evaluation and evidence
 
+- [CPU scaling trials](research/2026-09-27-cpu-scaling.md): measured optimizations, complexity bounds, and Python/Rust assessment.
+
 - [Demonstration ladder](research/2026-09-22-demonstration-ladder.md): the roles of offline, simulated, and serving evaluations.
 - [Evaluation benchmarks](research/2026-09-22-evaluation-benchmarks.md): datasets, splits, and metrics.
 - [H1 first results](research/2026-09-22-h1-first-results.md): initial forecast evaluation.

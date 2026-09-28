@@ -29,12 +29,12 @@ class DurationModel:
         self._isl_delta: dict[str, np.ndarray] = {}
         self._spawn_rate: dict[str, float] = {}
         self._llm: dict[str, np.ndarray] = {}  # per-class LLM call durations (t_last_token - t_request)
+        self._sorted_llm: dict[str | None, np.ndarray] = {}
         self._gaps: dict[str, np.ndarray] = {}  # per-tool pending gap: next t_request - t_tool_end
 
     def fit(self, train: TraceTable) -> "DurationModel":
         durs, last, gaps, deltas, spawns, llm = (defaultdict(list) for _ in range(6))
-        for _, g in train.sessions():
-            rows = g.to_dict("records")
+        for _, rows in train.session_records():
             for i, r in enumerate(rows):
                 if not _isnan(r["t_last_token"]):
                     llm[r["class"]].append(max(float(r["t_last_token"] - r["t_request"]), 1e-3))
@@ -65,6 +65,7 @@ class DurationModel:
             self._isl_delta[tool] = np.asarray(deltas[tool] or [0], int)
             self._spawn_rate[tool] = float(np.mean(spawns[tool]))
         self._llm = {c: np.asarray(v) for c, v in llm.items()}
+        self._sorted_llm.clear()
         if POOLED not in self.durations:
             self.durations[POOLED] = np.array([1.0])
             self.lognorm[POOLED] = (0.0, 0.5)
@@ -120,10 +121,13 @@ class DurationModel:
         return self._conditional(self._gaps[self._key(tool)], elapsed, n, rng, self.min_conditional)
 
     def llm_duration_conditional(self, cls: str, elapsed: float, n: int, rng: np.random.Generator) -> np.ndarray:
-        arr = self._llm.get(cls)
-        if arr is None or len(arr) == 0:
-            arr = np.concatenate(list(self._llm.values())) if self._llm else np.array([1.0])
-        return self._conditional(np.sort(arr), elapsed, n, rng, self.min_conditional)
+        key = cls if cls in self._llm and len(self._llm[cls]) else None
+        if key not in self._sorted_llm:
+            arr = self._llm[key] if key is not None else (
+                np.concatenate(list(self._llm.values())) if self._llm else np.array([1.0])
+            )
+            self._sorted_llm[key] = np.sort(arr)
+        return self._conditional(self._sorted_llm[key], elapsed, n, rng, self.min_conditional)
 
     def llm_duration(self, cls: str, n: int, rng: np.random.Generator) -> np.ndarray:
         arr = self._llm.get(cls)

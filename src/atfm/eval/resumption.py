@@ -23,8 +23,7 @@ from atfm.schema.trace import TraceTable
 def resumption_records(table: TraceTable, offsets_s: list[float], min_duration_s: float = 0.0) -> list[dict]:
     """One record per (tool phase, offset) with the session state as the board would see it then."""
     recs = []
-    for sid, g in table.sessions():
-        rows = g.to_dict("records")
+    for sid, rows in table.session_records():
         history: list[tuple[str, float]] = []
         for r in rows:
             ts, te = r["t_tool_start"], r["t_tool_end"]

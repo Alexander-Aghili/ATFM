@@ -94,27 +94,25 @@ class Worker:
         victims: list[str] = []
         running = self._running_sessions()
         protected = running | set(self.pins)
-        order = None
-        if self.victim_policy is not None:
-            candidates = [s for s in self.resident if s not in protected and s != keep]
-            order = iter(list(self.victim_policy(candidates)))
-        while self.free_blocks() < needed:
-            if order is not None:
-                victim = next((s for s in order if s in self.resident), None)
-            else:
-                victim = next((s for s in self.resident if s not in protected and s != keep), None)
+        candidates = [sid for sid in self.resident if sid not in protected and sid != keep]
+        order = iter(candidates if self.victim_policy is None else list(self.victim_policy(candidates)))
+        free = self.free_blocks()
+        while free < needed:
+            victim = next((sid for sid in order if sid in self.resident), None)
             if victim is None:
                 return None
-            del self.resident[victim]
+            free += self.resident.pop(victim)
             victims.append(victim)
         return victims
 
     def schedule(self, now: float) -> list[tuple]:
+        self.last_evictions = []
+        if len(self.running) >= self.cfg.max_batch:
+            return []
         bs = self.cfg.block_size
         if self.cfg.priority:
             self.queue.sort(key=lambda r: (-r.tier, -r.index, r.t_queued))
         admitted, remaining = [], []
-        self.last_evictions = []
         blocked = False
         for req in self.queue:
             if blocked or len(self.running) >= self.cfg.max_batch:

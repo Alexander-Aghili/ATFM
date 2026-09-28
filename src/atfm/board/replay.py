@@ -3,7 +3,6 @@ from __future__ import annotations
 import math
 
 import numpy as np
-import pandas as pd
 
 from atfm.schema.trace import TraceTable
 
@@ -24,13 +23,13 @@ def _last_llm_time(row: dict) -> float:
 class _Session:
     __slots__ = ("sid", "cls", "tenant", "parent", "rows", "t_start", "t_end")
 
-    def __init__(self, sid: str, g: pd.DataFrame):
+    def __init__(self, sid: str, rows: list[dict]):
         self.sid = sid
-        self.cls = g["class"].iloc[0]
-        self.tenant = g["tenant"].iloc[0]
-        parent = g["parent_session_id"].iloc[0]
+        self.cls = rows[0]["class"]
+        self.tenant = rows[0]["tenant"]
+        parent = rows[0]["parent_session_id"]
         self.parent = None if _isnan(parent) else parent
-        self.rows = g.to_dict("records")
+        self.rows = rows
         self.t_start = float(self.rows[0]["t_request"])
         last = self.rows[-1]
         if last["tool_name"] is None or _isnan(last["t_tool_end"]):
@@ -44,7 +43,7 @@ class FleetReplayer:
 
     def __init__(self, table: TraceTable):
         self.table = table
-        self.sessions = [_Session(sid, g) for sid, g in table.sessions()]
+        self.sessions = [_Session(sid, rows) for sid, rows in table.session_records()]
         df = table.df
         t_req = df["t_request"].to_numpy(float)
         order = np.argsort(t_req, kind="stable")

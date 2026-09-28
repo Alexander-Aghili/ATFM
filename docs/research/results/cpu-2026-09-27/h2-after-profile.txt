@@ -1,0 +1,43 @@
+         3871897 function calls (3867750 primitive calls) in 2.873 seconds
+
+   Ordered by: cumulative time
+   List reduced from 1400 to 35 due to restriction <35>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    2.971    2.971 benchmark_cpu.py:84(<lambda>)
+        1    0.003    0.003    2.971    2.971 h2sim.py:199(run_h2sim)
+        4    0.016    0.004    2.710    0.677 core.py:318(run)
+      139    0.016    0.000    2.203    0.016 kv_placement.py:122(on_tick)
+      139    0.000    0.000    1.419    0.010 forecast_arm.py:117(on_tick)
+      139    0.000    0.000    1.407    0.010 live.py:108(step)
+      139    0.071    0.001    1.405    0.010 forecaster.py:78(forecast)
+    11850    0.013    0.000    1.247    0.000 progress.py:185(resumption)
+     8720    0.018    0.000    1.124    0.000 duration.py:169(_off_tool)
+    11338    0.877    0.000    1.100    0.000 duration.py:79(_conditional)
+     6810    0.006    0.000    1.036    0.000 duration.py:120(gap_conditional)
+      834    0.268    0.000    0.608    0.001 forecaster.py:52(draw)
+   142865    0.065    0.000    0.351    0.000 fromnumeric.py:3325(prod)
+     4011    0.029    0.000    0.301    0.000 core.py:248(_worker_done)
+   142889    0.112    0.000    0.286    0.000 fromnumeric.py:66(_wrapreduction)
+     4568    0.012    0.000    0.180    0.000 core.py:177(_drain_proxy)
+   290601    0.158    0.000    0.158    0.000 {method 'reduce' of 'numpy.ufunc' objects}
+        3    0.000    0.000    0.156    0.052 h2sim.py:102(_arm)
+        1    0.002    0.002    0.154    0.154 forecast_arm.py:228(fit_predictor_on_programs)
+     5967    0.004    0.000    0.140    0.000 _function_base_impl.py:3914(median)
+6063/6015    0.009    0.000    0.139    0.000 _function_base_impl.py:3827(_ureduce)
+     8527    0.009    0.000    0.137    0.000 core.py:227(_schedule_worker)
+     4011    0.017    0.000    0.134    0.000 core.py:160(_arrive)
+     4011    0.016    0.000    0.127    0.000 core.py:206(_release)
+     5967    0.025    0.000    0.125    0.000 _function_base_impl.py:4003(_median)
+     8527    0.040    0.000    0.123    0.000 engine.py:108(schedule)
+   105036    0.049    0.000    0.110    0.000 {method 'prod' of 'numpy.generic' objects}
+     6734    0.003    0.000    0.095    0.000 {method 'std' of 'numpy.ndarray' objects}
+     6735    0.010    0.000    0.092    0.000 _methods.py:217(_std)
+   105795    0.023    0.000    0.083    0.000 {method 'sum' of 'numpy.ndarray' objects}
+     6735    0.054    0.000    0.081    0.000 _methods.py:148(_var)
+    15690    0.032    0.000    0.077    0.000 _methods.py:115(_mean)
+     5925    0.009    0.000    0.076    0.000 duration.py:199(next_call_isl)
+     5925    0.028    0.000    0.064    0.000 duration.py:147(isl_delta)
+     2124    0.007    0.000    0.063    0.000 {method 'remove' of 'list' objects}
+
+

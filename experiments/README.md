@@ -32,6 +32,7 @@ For a core-only service environment, exclude development groups:
 uv sync --no-dev --extra serve
 ```
 
+Keep `--no-dev` on subsequent `uv run` commands in this environment.
 This omits the experiment package and is not an environment for running the full
 repository test suite. Restore `uv sync --extra dev` for development. Building
 the core wheel includes only `atfm`; the experiment package has its own wheel:
@@ -44,3 +45,32 @@ uv build --package atfm-experiments
 See the [experiment overview](../README.md#experiments),
 [core development guide](../docs/development/core.md), and
 [research index](../docs/research/README.md) for model contracts and evidence.
+
+## CPU scaling trials
+
+The benchmark driver uses fixed seeds, an untimed warmup, repeated wall-clock
+measurements, and optional separate cProfile runs. It writes CSV timings, result
+fingerprints, source hashes, and environment metadata; profiles are not included
+in the timed measurements.
+
+```bash
+uv run python -m atfm_experiments.benchmark_cpu \
+  --cases eviction duration bootstrap --sizes 128 512 2048 8192 \
+  --repeats 3 --profile --out runs/cpu-kernels
+uv run python -m atfm_experiments.benchmark_cpu \
+  --cases h1 h2 --sizes 32 128 --repeats 3 --profile --out runs/cpu-e2e
+uv run python -m atfm_experiments.benchmark_cpu \
+  --cases queue forecast --sizes 128 512 2048 8192 \
+  --repeats 3 --profile --out runs/cpu-scaling
+```
+
+Run before/after trials sequentially on the same otherwise-idle machine. `size`
+means resident contexts for eviction, queued arrivals for queue, active sessions
+for forecast, empirical observations for duration, aligned sessions for
+bootstrap, and expected root sessions for H1/H2. H2's arrival window is fixed;
+raising its session count also increases congestion and the run's completion
+time. These trials are not constant-load fleet capacity estimates.
+
+See the [CPU scaling report](../docs/research/2026-09-27-cpu-scaling.md) for
+results, complexity bounds, and remaining limits. Timing thresholds are not
+asserted in the unit suite; deterministic numerical contracts are.

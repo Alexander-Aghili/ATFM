@@ -1,0 +1,43 @@
+         4838421 function calls (4743029 primitive calls) in 1.953 seconds
+
+   Ordered by: cumulative time
+   List reduced from 1171 to 35 due to restriction <35>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.001    0.001    1.953    1.953 benchmark_cpu.py:52(<lambda>)
+        1    0.002    0.002    1.952    1.952 h1.py:157(run_h1)
+      648    0.001    0.000    1.189    0.002 frame.py:2125(to_dict)
+      648    0.039    0.000    1.188    0.002 to_dict.py:97(to_dict)
+        1    0.000    0.000    1.153    1.153 h1.py:75(_build)
+      648    0.007    0.000    0.988    0.002 frame.py:1591(itertuples)
+     1621    0.003    0.000    0.923    0.001 {method 'extend' of 'list' objects}
+    16200    0.011    0.000    0.920    0.000 frame.py:1660(<genexpr>)
+16072/16068    0.027    0.000    0.916    0.000 indexing.py:1192(__getitem__)
+        1    0.000    0.000    0.855    0.855 h1.py:84(<lambda>)
+        1    0.002    0.002    0.853    0.853 progress.py:129(fit)
+    15552    0.023    0.000    0.758    0.000 indexing.py:1710(_getitem_tuple)
+        2    0.000    0.000    0.581    0.291 duration.py:158(fit)
+        2    0.005    0.003    0.581    0.291 duration.py:34(fit)
+    15556    0.053    0.000    0.548    0.000 indexing.py:1058(_getitem_lowerdim)
+    16064    0.028    0.000    0.433    0.000 indexing.py:1740(_getitem_axis)
+    16739    0.010    0.000    0.343    0.000 frame.py:4292(_ixs)
+        1    0.001    0.001    0.311    0.311 replay.py:45(__init__)
+        1    0.000    0.000    0.298    0.298 h1.py:83(<lambda>)
+        1    0.003    0.003    0.287    0.287 progress.py:51(fit)
+      132    0.001    0.000    0.262    0.002 replay.py:27(__init__)
+      204    0.001    0.000    0.258    0.001 forecast.py:92(score_tick)
+      653    0.003    0.000    0.235    0.000 trace.py:99(sessions)
+    16739    0.020    0.000    0.218    0.000 frame.py:4956(_box_col_values)
+879803/879268    0.113    0.000    0.215    0.000 {built-in method builtins.isinstance}
+    15552    0.019    0.000    0.184    0.000 indexing.py:984(_validate_tuple_indexer)
+    25001    0.074    0.000    0.168    0.000 array.py:778(__getitem__)
+      204    0.001    0.000    0.155    0.001 frame.py:702(__init__)
+      652    0.006    0.000    0.155    0.000 frame.py:8130(sort_values)
+      204    0.002    0.000    0.153    0.001 construction.py:375(dict_to_mgr)
+    31104    0.018    0.000    0.143    0.000 indexing.py:1592(_validate_key)
+       34    0.008    0.000    0.143    0.004 forecaster.py:78(forecast)
+    47169    0.018    0.000    0.135    0.000 common.py:105(is_bool_indexer)
+      206    0.001    0.000    0.122    0.001 construction.py:96(arrays_to_mgr)
+    16739    0.051    0.000    0.114    0.000 managers.py:1226(iget)
+
+

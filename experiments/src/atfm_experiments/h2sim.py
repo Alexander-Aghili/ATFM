@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel, Field
 
-from atfm.eval.serving import paired_bootstrap, paired_contrasts, serving_metrics
+from atfm.eval.serving import MeanMetric, paired_bootstrap, paired_contrasts, serving_metrics
 from atfm.proxy.config import ProxyConfig
 from atfm.sim.core import Simulator
 from atfm.sim.engine import EngineConfig
@@ -233,9 +233,9 @@ def run_h2sim(cfg: H2SimConfig) -> pd.DataFrame:
     df.to_csv(out / "metrics.csv", index=False)
     per = {a: pd.concat(v, ignore_index=True) for a, v in per_arm_sessions.items()}
     metric_fns = {
-        "slo_attainment_sessions": lambda d: float(d["slo"].dropna().mean()) if d["slo"].notna().any() else float("nan"),
-        "bg_jct_mean": lambda d: float((d.loc[d["class"] == "background", "t_end"] - d.loc[d["class"] == "background", "t_start"]).mean()),
-        "deadline_hit_rate": lambda d: float(1.0 - d.loc[d["deadline"].notna(), "missed"].mean()),
+        "slo_attainment_sessions": MeanMetric(lambda d: d["slo"]),
+        "bg_jct_mean": MeanMetric(lambda d: (d["t_end"] - d["t_start"]).where(d["class"] == "background")),
+        "deadline_hit_rate": MeanMetric(lambda d: d["missed"].where(d["deadline"].notna()), offset=1.0, scale=-1.0),
     }
     paired = []
     for metric, fn in metric_fns.items():
