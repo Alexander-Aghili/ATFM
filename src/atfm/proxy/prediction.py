@@ -36,20 +36,20 @@ class PredictionRunner:
         self._count(attempted=1, pending=1)
         try:
             future = self._submit(meta, deadline)
-            return fallback if future is None else await self._wait(future, deadline)
+            if future is None:
+                self._count(pending=-1, rejected=1)
+                return fallback
+            return await self._wait(future, deadline)
         except asyncio.CancelledError:
-            self._count(cancelled=1)
+            self._count(pending=-1, cancelled=1)
             raise
         except Exception as exc:
-            self._count(**{'timeout' if isinstance(exc, TimeoutError) else 'error': 1})
+            self._count(pending=-1, **{'timeout' if isinstance(exc, TimeoutError) else 'error': 1})
             return fallback
-        finally:
-            self._count(pending=-1)
 
     def _submit(self, meta, deadline):
         with self.lock:
             if self.closed or self.counts['outstanding'] >= self.limit:
-                self.counts['rejected'] += 1
                 return None
             future = self.pool.submit(self._invoke, meta, deadline)
             self.counts['accepted'] += 1
@@ -91,7 +91,7 @@ class PredictionRunner:
             result = await asyncio.wait_for(asyncio.wrap_future(future), remaining)
             if time.monotonic() >= deadline:
                 raise TimeoutError('prediction arrived after caller deadline')
-            self._count(used=1)
+            self._count(pending=-1, used=1)
             return result
         finally:
             future.cancel()

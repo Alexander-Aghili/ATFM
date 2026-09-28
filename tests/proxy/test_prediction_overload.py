@@ -194,3 +194,20 @@ def test_legacy_predictor_skips_second_call_after_deadline():
             runner._compute(META, time.monotonic() - 1)
     finally:
         runner.close()
+
+
+@pytest.mark.parametrize('fails', [False, True])
+async def test_caller_outcomes_settle_atomically(fails):
+    predictor = Mock(expected_times=Mock(side_effect=ValueError() if fails else None, return_value=(2., 3.)))
+    runner = PredictionRunner(predictor, limit=1, budget_s=1)
+    original_count = runner._count
+    def checked_count(**changes):
+        original_count(**changes)
+        c = runner.snapshot()
+        assert c['attempted'] == sum(c[k] for k in ('used', 'timeout', 'error', 'cancelled', 'rejected', 'pending'))
+    runner._count = checked_count
+    try:
+        assert await runner.predict(META, FALLBACK) == (FALLBACK if fails else (2., 3.))
+        assert runner.snapshot()['error' if fails else 'used'] == 1
+    finally:
+        runner.close()
