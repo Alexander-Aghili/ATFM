@@ -53,14 +53,14 @@ def main():
                          min_s=min(timings), max_s=max(timings), bytes=path.stat().st_size))
         path.unlink()
         print(rows[-1], flush=True)
-    for size in ((1000, 4000) if "queue" in args.cases else []):
+    for size in ((1000, 4000, 100000) if "queue" in args.cases else []):
         timings = []
         for repeat in range(4):
             queue = HoldQueue(1, clock=lambda: 0.0, release_order_max=size)
             queue.pending = [Entry(str(i), i % 3, float(i % 7), float(-i)) for i in range(size)]
             start = time.perf_counter()
             queue.tick()
-            while queue.pending:
+            while queue.queued:
                 queue.complete()
             elapsed = time.perf_counter() - start
             assert len(queue.release_order) == size

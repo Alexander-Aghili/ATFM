@@ -39,3 +39,17 @@ because expiry renewal and restart synchronization require a separate protocol.
 The per-request board client also retrieves service and next-tool estimates in
 one request, with local fallback on unavailable results. CPU work still shares
 the board event loop; these changes do not establish request-tail isolation.
+
+\paragraph{Indexed admission.}
+The live queue previously scanned its pending list for every individual completion.
+It now maintains priority and FCFS ready heaps, delayed-release and promotion
+heaps, and request-identity dictionaries. Stable insertion sequences resolve ties;
+versioned records invalidate old priorities, and periodic linear-time rebuilds
+bound stale heap storage. Ordinary release costs $O(\log Q)$ amortized, reducing
+individual backlog drainage from $O(Q^2)$ to $O(Q\log Q)$; simultaneous due events
+still require processing each affected request. Overflow transitions retain the
+original hold-dropping and FCFS policy and can cost $O(Q)$. A single wake-up timer
+tracks holds and promotions. Randomized differential tests compare release order
+and state with the former scan implementation. Diagnostic counts and peer-rank
+queries still scan the backlog, so this is not a logarithmic bound on the whole
+HTTP request path. The simulator's worker queue is a separate implementation.

@@ -83,3 +83,49 @@ one round trip rather than claiming to isolate control CPU from the event loop.
 Tests cover payload validation before mutation, bounded chunks, one tick per
 applied batch, expiry, legacy endpoint parity, unchanged waiting requests,
 acknowledgement failures, and one board request per proxy request with fallback.
+
+## 3. Persistent admission indexes
+
+`HoldQueue` owns insertion-sequenced request records (not session IDs, since a
+session can have multiple waiting requests). A ready heap orders by descending
+tier/index then ascending arrival/sequence; a second ready heap provides FCFS in
+overflow mode. Delayed and promotion min-heaps drive eligibility and tier changes.
+A request-identity map makes cancellation a dictionary operation. The original
+scan implementation is retained only as a test oracle.
+
+Completion pops a ready entry rather than scanning the backlog. Promotions bump
+an entry version; stale priority records and cancelled/released entries are
+ignored when popped. Heap storage is rebuilt with linear-time heapify when the
+combined record count exceeds eight times the active backlog plus 64. This bounds
+stale-record memory to O(Q + 1). Rebuilds occasionally cost O(Q), so operation
+bounds are amortized: insertion, scheduling updates, and release O(log Q), and
+individual drainage O(Q log Q), excluding service time and diagnostics. A burst
+of K due timers still costs O(K log Q). Overflow entry drops existing holds and
+rebuilds in O(Q); subsequent FCFS selection uses the arrival heap. Hysteresis and
+priority restoration match the existing policy. Timestamps must be nondecreasing
+and entry scheduling fields are queue-owned after submission.
+
+The wake-up timer covers both hold expiry and tier promotion, including when
+there is no incoming traffic, and is cancelled when no deadline remains. Priority
+ties retain insertion order. Hold directives still govern future submissions;
+there is no unnecessary session-to-waiting-request index because queued requests
+are not retimed by directives. `pending` is an O(Q) diagnostic snapshot, with a
+bulk setter for benchmark fixtures; hot loops use the O(1) `queued` count.
+
+Remaining scans are explicit: `stats()` counts held entries and `tier_indices()`
+collects peer indices for priority-bucket ranking, both O(Q). The HTTP request
+path therefore still has a linear rank query even though admission completion no
+longer scans the queue. An order-statistics tree could address this separately;
+it is not necessary for preserving admission priority semantics.
+
+Randomized differential tests compare 8,000 operations against the previous
+scheduler, including duplicate session IDs, hold caps/expiry, promotions,
+window changes, cancellation, completion, overflow and ties. Separate tests
+exercise heap compaction and actual asyncio timers without external traffic.
+
+The repeated single-slot trial measured 1.63 ms for 1,000, 7.03 ms for 4,000,
+and 356 ms for 100,000 queued requests. The first two pre-change medians were
+103 ms and 1,974 ms. Setup, HTTP, service time, and priority-bucket computation are
+excluded; one warmup and three repetitions use the same local synthetic fixture.
+[Timings/source hashes](../research/results/control-scaling-2026-09-27/admission/)
+are retained. The targeted proxy/control/deployment suite passed 84 tests.

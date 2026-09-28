@@ -60,16 +60,13 @@ def test_batch_release_matches_repeated_selection():
                              not_before=rng.choice([0.0, 20.0]), promote_at=rng.choice([None, 5.0, 15.0]))
                        for i in range(60)]
             queue.pending = entries.copy()
-            for entry in entries:
-                if entry.tier == 1 and entry.promote_at is not None and entry.promote_at <= 10.0:
-                    entry.tier = 2
             remaining, expected = entries.copy(), []
             for _ in range(available):
                 eligible = [e for e in remaining if e.not_before <= 10.0]
                 if not eligible:
                     break
                 best = (min(eligible, key=lambda e: e.t_arrival) if overflow else
-                        max(eligible, key=lambda e: (e.tier, e.index, -e.t_arrival)))
+                        max(eligible, key=lambda e: (2 if e.tier == 1 and e.promote_at is not None and e.promote_at <= 10 else e.tier, e.index, -e.t_arrival)))
                 remaining.remove(best)
                 expected.append(best)
             queue.tick()
