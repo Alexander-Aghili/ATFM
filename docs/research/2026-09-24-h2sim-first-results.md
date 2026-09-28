@@ -477,3 +477,21 @@ Fixed (`core._worker_done` now records the session's tool or end before scheduli
 the non-oracle arms did not move). Every `oracle_kv`, `oracle_touch` and `oracle_pin` result above is
 contaminated by this and is being rerun; the forecast, rules, working-set and random-ablation results are
 unaffected. The claim "forecast placement beats exact return times" is withdrawn until the reruns land.
+
+### Oracle placement rerun after the ordering fix, loaded long_tool (`h2sim_loaded_oracle2`, 3 seeds)
+
+| arm | SLO diff vs native [95% CI] | bg JCT diff (s) |
+|---|---|---|
+| proxy_rules | +0.018 [+0.004, +0.029] | -40 |
+| forecast_M1_kv | +0.031 [+0.015, +0.044] | -26 |
+| forecast_M2_kv | **+0.032 [+0.019, +0.046]** | -25 |
+| oracle_kv (exact return times, fixed) | +0.016 [+0.001, +0.029] | -4 |
+| oracle_kv_cw (x3 background) | +0.011 [-0.004, +0.024] | -9 |
+
+Direct contrast forecast_M2_kv vs oracle_kv: **+0.016 [+0.004, +0.027]**. With the artefact removed the
+exact arm improves (from +0.8 to +1.6 points) but the forecast arms still beat it by a tested margin, and
+class weighting still does not help the exact arm. The diagnostic after the fix shows the exact arm's
+estimates match the truth to the next call start within a second, and it still evicts 2.3x as many
+interactive contexts (732 against 297). So the remaining gap is not an estimation error; the candidate-level
+diagnostic below asks whether those interactive evictions were forced (no background candidate returning
+later) or chosen.

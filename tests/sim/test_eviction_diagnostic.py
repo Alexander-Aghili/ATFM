@@ -21,9 +21,11 @@ def test_eviction_records_have_truth_and_estimate_per_victim():
     df = eviction_records(_progs(), engines, pol, seed=0)
     assert len(df) > 0
     for col in ("t", "victim", "cls", "blocks", "estimated_absence", "true_absence", "returned_within_60", "victim_was_true_latest",
-                "next_call_queue_s", "n_candidates"):
+                "next_call_queue_s", "n_candidates", "n_other_class_candidates", "other_class_max_true_absence", "forced"):
         assert col in df.columns
     assert (df["true_absence"] >= 0).all() and df["cls"].isin(["interactive", "background"]).all()
+    # truth is time to the next call *start* (next use of the KV), so a proxy-queued victim counts as imminent
+    assert df["victim_was_true_latest"].mean() > 0.5                               # exact ranking, exact truth: mostly agree
     err = (df["estimated_absence"] - df["true_absence"]).abs()[np.isfinite(df["estimated_absence"]) & np.isfinite(df["true_absence"])]
     assert err.median() < 1.0                                                            # oracle: exact up to the harness overhead and tick staleness
     s = summarize_evictions(df)

@@ -24,7 +24,8 @@ def eviction_records(programs, engines: list[EngineConfig], policy, seed: int = 
             events.append({"t": now, "victim": v, "worker": w.worker_id, "n_candidates": len(candidates),
                            "blocks": w.resident_blocks(v), "cls": sim.sessions[v].program.cls if v in sim.sessions else "?",
                            "estimated_absence": (eta[v] - now) if (v in eta and np.isfinite(eta[v])) else np.nan,
-                           "candidates": list(candidates)})
+                           "candidates": list(candidates),
+                           "cand_cls": {c: (sim.sessions[c].program.cls if c in sim.sessions else "?") for c in candidates}})
 
     if has_order:
         def kv(sim_, w, cands):
@@ -42,12 +43,14 @@ def eviction_records(programs, engines: list[EngineConfig], policy, seed: int = 
                 return order
             w.victim_policy = lru_policy
     log = sim.run()
-    arrivals = log.groupby("session_id")["t_arrival"].apply(lambda s: np.sort(s.values))
-    queue = log.set_index(["session_id", "t_arrival"])["queue_proxy_s"] if "queue_proxy_s" in log.columns else None
+    # the next *use* of a session's KV is when its next call starts on the worker (a call queued at the proxy
+    # at eviction time has already arrived but has not used the KV yet), so truth is measured on t_start
+    starts = log.groupby("session_id")["t_start"].apply(lambda s: np.sort(s.values))
+    queue = log.set_index(["session_id", "t_start"])["queue_proxy_s"] if "queue_proxy_s" in log.columns else None
     rows = []
     for e in events:
         def next_call(sid):
-            a = arrivals.get(sid)
+            a = starts.get(sid)
             if a is None:
                 return np.inf, None
             n = a[a > e["t"]]
@@ -56,10 +59,14 @@ def eviction_records(programs, engines: list[EngineConfig], policy, seed: int = 
         truths = {c: next_call(c)[0] for c in e["candidates"]}
         latest = max(truths.values()) if truths else np.inf
         q = float(queue.get((e["victim"], t_next), np.nan)) if (queue is not None and t_next is not None) else np.nan
+        other = [truths[c] for c in e["candidates"] if e["cand_cls"].get(c) != e["cls"]]
         rows.append({"arm": getattr(policy, "name", type(policy).__name__), "t": e["t"], "victim": e["victim"], "cls": e["cls"],
                      "blocks": e["blocks"], "n_candidates": e["n_candidates"], "estimated_absence": e["estimated_absence"],
                      "true_absence": true_abs, "victim_was_true_latest": bool(true_abs >= latest - 1e-9),
-                     "returned_within_60": bool(true_abs < returned_within_s), "next_call_queue_s": q})
+                     "returned_within_60": bool(true_abs < returned_within_s), "next_call_queue_s": q,
+                     "n_other_class_candidates": len(other),
+                     "other_class_max_true_absence": (max(other) if other else np.nan),
+                     "forced": bool(not other or max(other) < true_abs)})   # no other-class candidate would have been a later returner
     return pd.DataFrame(rows)
 
 
