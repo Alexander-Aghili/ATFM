@@ -524,3 +524,24 @@ tool-duration tails place background far enough away that the ordering comes out
 The quantity that placement should rank on is the time until the next *KV use*: predicted return plus the
 expected proxy queue wait for the session's class, which the proxy knows from its own recent queue times.
 `*_kv_q` arms (queue-aware ordering) test this for both the forecast and the exact ranking.
+
+### Queue-aware placement, loaded long_tool (`h2sim_loaded_q`, 3 seeds)
+
+| arm | SLO diff vs native [95% CI] | bg JCT diff (s) |
+|---|---|---|
+| proxy_rules | +0.018 [+0.004, +0.029] | -40 |
+| forecast_M2_kv (arrival) | +0.032 [+0.019, +0.046] | -25 |
+| forecast_M2_kv_q (arrival + class queue wait) | +0.024 [+0.009, +0.036] | -29 |
+| forecast_M1_kv_q | +0.028 [+0.014, +0.041] | -30 |
+| oracle_kv (exact arrival) | +0.016 [+0.001, +0.029] | -4 |
+| **oracle_kv_q (exact arrival + class queue wait)** | **+0.038 [+0.025, +0.050]** | **-43** |
+
+**The paradox is resolved.** Ranking on the time to the next KV *use* turns the exact arm from the worst
+placement arm into the best: +3.8 points over native, above the forecast's +3.2, with the lowest
+background cost of any arm. The earlier "forecast beats the truth" was the truth of the wrong quantity.
+The forecast arms do not gain from the queue term (M2 drops from +3.2 to +2.4): their conditional
+tool-duration tails already place background far away, so adding the class wait double-counts. Reading for
+the design: the placement objective is time-to-next-use; the forecast's job is to estimate it, and its
+current estimate reaches about 85% of the exact-quantity upper bound in this regime. The board should
+predict next use directly (arrival plus the proxy's per-class queue estimate, without the tool-tail
+bias), which is a modelling change for the predictor, not the controller.
