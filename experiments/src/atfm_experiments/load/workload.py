@@ -58,7 +58,7 @@ async def exercise(cfg: LoadConfig, endpoints: dict[str, str], directory: Path) 
     stop = asyncio.Event()
     bus = JsonlBus(directory / 'events.jsonl')
     requests, controls, observations, arrivals, tools = [], [], [], [], []
-    client_limits = httpx.Limits(max_connections=cfg.sessions, max_keepalive_connections=min(256, cfg.sessions))
+    client_limits = httpx.Limits(max_connections=cfg.sessions, max_keepalive_connections=min(cfg.client_keepalive_connections, cfg.sessions))
 
     async def pause_until(deadline):
         await asyncio.sleep(max(0., deadline - loop.time()))

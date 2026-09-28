@@ -57,15 +57,15 @@ def require_servers():
         pytest.skip('local harness uses POSIX inherited sockets')
 
 
-@pytest.mark.parametrize('pattern', ['staggered', 'burst'])
-def test_real_http_stack_runs_agent_turns_and_control_and_stops_children(tmp_path, pattern):
+@pytest.mark.parametrize('pattern,keepalive', [('staggered', 0), ('burst', 4)])
+def test_real_http_stack_runs_agent_turns_and_control_and_stops_children(tmp_path, pattern, keepalive):
     require_servers()
     from atfm_experiments.load.__main__ import run_case
     from atfm.bus import read_events
 
     cfg = LoadConfig(sessions=4, turns=2, arrival_window_s=.04, pattern=pattern, worker_slots=1,
                      worker_service_s=.01, tool_mean_s=.08, burst_period_s=.1, draws=4,
-                     control_interval_s=.025, monitor_interval_s=.025, max_hold_s=.01)
+                     control_interval_s=.025, monitor_interval_s=.025, max_hold_s=.01, client_keepalive_connections=keepalive)
     directory = tmp_path / 'case'
     result = run_case(cfg, directory)
     assert result['requests_ok'] == result['requests_attempted'] == 8

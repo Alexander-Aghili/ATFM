@@ -21,6 +21,7 @@ class LoadConfig(BaseModel):
     worker_fail_every: int = Field(default=0, ge=0)
     proxy_window: int = Field(default=16, ge=1)
     prediction_budget_s: float = Field(default=.05, gt=0)
+    client_keepalive_connections: int = Field(default=0, ge=0)
     request_timeout_s: float = Field(default=20, gt=0)
     drain_timeout_s: float = Field(default=30, gt=0)
     control_interval_s: float = Field(default=.5, gt=0)

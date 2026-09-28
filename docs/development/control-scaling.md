@@ -194,11 +194,11 @@ worker or concurrent network capacity conclusion follows from these trials.
 include each fixture. Reproduce sequentially to avoid CPU contention:
 
 ```bash
-uv run python -m atfm_experiments.benchmark_gdp --sessions 100000 \\
+uv run python -m atfm_experiments.benchmark_gdp --sessions 100000 \
   --slots 10000 --draws 1024 --regimes saturated mixed --repeats 3 --out runs/gdp-index
-uv run python -m atfm_experiments.benchmark_gdp --sessions 1000000 \\
+uv run python -m atfm_experiments.benchmark_gdp --sessions 1000000 \
   --slots 300 --draws 128 --regimes saturated --repeats 3 --out runs/gdp-index-million
-uv run python -m atfm_experiments.benchmark_cpu --cases forecast \\
+uv run python -m atfm_experiments.benchmark_cpu --cases forecast \
   --sizes 8192 100000 --repeats 3 --profile --out runs/forecast-sampling
 uv run python -m atfm_experiments.profile_bottlenecks --cases queue --out runs/queue-index
 ```
@@ -209,3 +209,7 @@ that bulk loading and releasing an entire backlog in one call is faster than the
 previous batch-selection implementation. Historical measurements were taken at
 separate times on the same workstation, with uncontrolled affinity and background
 activity. Component times must not be added into an end-to-end cycle estimate.
+
+The [integrated HTTP load harness](load-testing.md) now exercises these components
+concurrently against a fake worker. Its [first baseline](../research/2026-09-27-http-load-baseline.md)
+preserves request/control evidence and separates pre-proxy delays from admission.

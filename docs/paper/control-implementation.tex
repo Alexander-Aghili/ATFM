@@ -109,3 +109,24 @@ Forecast, $10^5$ sessions & 4.120 & 3.785 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\paragraph{Integrated load-test harness.}
+A separate experiment package now runs the real proxy, board, and control loop
+against a bounded-concurrency fake model worker in independent localhost HTTP
+processes. Scheduled new-session arrivals remain independent of earlier sessions;
+each session makes sequential model calls separated by tool progress and completion
+events. A synchronized-completion variant exercises bursts. The harness retains
+client and proxy traces, control-call timings, observed queue depths, snapshot age,
+process CPU/memory, event-loop lag, generator lateness, and incomplete-run outcomes.
+Its initial six cases completed 2,016 synthetic calls without request or control
+errors. Trace alignment exposed substantial pre-proxy delay in one burst case,
+so client transport timestamps were added before attributing that delay to the
+scheduler. An instrumented reuse trial retained one client transport error and
+confirmed delays before sending headers. A fresh-connection trial completed all
+768 calls with much shorter pre-proxy delay. Connection reuse is therefore an
+explicit harness setting; these single-run comparisons do not establish a
+production-client tuning rule. These are finite single-run integration checks, not hardware capacity
+or policy-quality results: the fake worker has fixed service delay and no model
+kernels, cache behavior, transfer cost, or token streaming. Exact configurations,
+source hashes, compressed raw evidence, and limitations are recorded in the
+repository's HTTP load-baseline report.

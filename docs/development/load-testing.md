@@ -47,7 +47,7 @@ one million planned requests are rejected. For example:
 
 Use `python -m atfm_experiments.load --help` and
 [`LoadConfig`](../../experiments/src/atfm_experiments/load/config.py) for all knobs,
-including capacities, prediction/request timeouts, drain deadline, monitoring
+including capacities, client connection reuse, prediction/request timeouts, drain deadline, monitoring
 interval, class mix, seed, and optional worker failure injection.
 
 ## Workload and architecture choices
@@ -65,7 +65,9 @@ that slows its own arrival rate when requests become slow. Within a session,
 agent behavior is naturally sequential: model request, tool execution with a
 midpoint progress event, tool completion, then the next model request. There are
 three model turns per session by default, and one outstanding request per session.
-No tool runs after the final model turn. Failed model calls stop that session;
+No tool runs after the final model turn. Session completion does not invent a
+session-end event absent from the core schema: board entries follow the existing
+inactivity expiry and may outlive the generated turns. Failed model calls stop that session;
 there are no automatic retries to hide errors or inflate offered work.
 
 The staggered scenario uses reproducible per-session tool durations in
@@ -75,6 +77,16 @@ barrier that could hang when a session fails. Class and tool schedules are seede
 OS scheduling, request order, sampled board state, and timings are not deterministic.
 A separate synthetic training trace fits the real progress predictor. Forecast
 accuracy is not evaluated by this fixture.
+
+The load client's `client_keepalive_connections` defaults to zero: each model
+call gets a fresh connection. A shared reuse pool produced multi-second delays
+before request headers were sent during the initial large burst trial, so it
+must not silently throttle the offered load. Set this field to a positive value
+(up to the session count is used) to test connection reuse as its own workload
+choice. Fresh connections have TCP setup overhead and are not a claim about the
+best production-client configuration. Transport timings, source hashes, and the
+config distinguish the two experiments; do not compare their results as a core
+scheduler speedup.
 
 The fake worker limits simultaneous service using an asyncio semaphore. Each
 admitted request sleeps for `worker_service_s` and returns a nonstreaming response
@@ -148,6 +160,10 @@ errors occur. Fault-injection runs can intentionally produce that exit status.
 Repeated trials and longer arrival windows are needed before identifying a stable
 saturation threshold. Compare scenarios by queue growth, latency, generator
 lateness, control duration, and snapshot age; do not add component times together.
+
+The [first six-case baseline](../research/2026-09-27-http-load-baseline.md) includes
+raw evidence and an example of why client latency must be separated from
+proxy scheduling time.
 
 ## Tests
 
