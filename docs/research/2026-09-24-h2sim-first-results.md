@@ -495,3 +495,32 @@ estimates match the truth to the next call start within a second, and it still e
 interactive contexts (732 against 297). So the remaining gap is not an estimation error; the candidate-level
 diagnostic below asks whether those interactive evictions were forced (no background candidate returning
 later) or chosen.
+
+### Oracle placement rerun, interactive long tools (`h2sim_interactive_long_oracle2`, 3 seeds)
+
+| arm | SLO diff vs native [95% CI] |
+|---|---|
+| proxy_rules | +0.022 [+0.007, +0.036] |
+| forecast_M1_kv | +0.025 [+0.011, +0.041] |
+| forecast_M2_kv | **+0.029 [+0.013, +0.043]** |
+| oracle_kv (fixed) | +0.012 [-0.006, +0.028] |
+| oracle_kv_cw | +0.021 [+0.004, +0.035] |
+
+Contrast forecast_M2_kv vs oracle_kv: **+0.017 [+0.004, +0.029]**. Same as the loaded regime.
+
+### Why exact return times lose: they are the wrong quantity
+
+Candidate-level diagnostic on the loaded regime after the fix. When the exact arm evicted an interactive
+context, a background candidate whose next call would *start* later was available 94% of the time, and that
+candidate's true time to next start was 1,500 s at the median against the victim's 14.5 s. The exact arm
+ranks by the time a session's next call *arrives at the proxy*. Under load a background call arrives and
+then waits in the proxy queue for minutes (tier 0; median 580 s, p95 1,700 s in the earlier hold diagnostic),
+so its KV is not touched until far later than its arrival. Interactive calls do not queue. Ranking by
+arrival therefore over-values background contexts that are "about to return" and evicts interactive ones
+that will actually run in seconds. The forecast arms make the same conceptual error but their
+tool-duration tails place background far enough away that the ordering comes out right most of the time
+(their interactive evictions were forced 37% of the time against the exact arm's 6%).
+
+The quantity that placement should rank on is the time until the next *KV use*: predicted return plus the
+expected proxy queue wait for the session's class, which the proxy knows from its own recent queue times.
+`*_kv_q` arms (queue-aware ordering) test this for both the forecast and the exact ranking.
