@@ -175,3 +175,25 @@ def test_oracle_kv_fresh_recomputes_return_times_at_each_eviction():
     sim.prime(); sim.run(until=10.0)
     pol._eta = {}                                                        # stale/empty tick state must not matter
     assert pol.kv_victims(sim, sim.workers[0], ["soon", "late"]) == ["late", "soon"]
+
+
+def test_finished_session_has_a_future_event_before_worker_done_schedules_evictions():
+    """Ordering bug found by the eviction diagnostic: worker_done scheduled the next admission (and its
+    evictions) before pushing the finished session's tool_end, so exact-return-time ranking saw the
+    session that had just returned as 'unknown' and evicted it first."""
+    from atfm.sim.core import Simulator
+    from atfm.sim.kv_placement import OracleKvPolicy, oracle_etas
+    engines = [EngineConfig(kv_blocks=3000, max_batch=4, prefill_tps=20000.0, decode_tps=40.0)]
+    progs = [_prog("a", "background", 0.0, 800, "bash", 5.0)]
+    pol = OracleKvPolicy(window=4, cfg=ProxyConfig(upstream_url="x", beta=0.5))
+    sim = Simulator(progs, engines, pol, rng=np.random.default_rng(0))
+    seen = []
+    orig = sim._schedule_worker
+
+    def spy(w, t):
+        if sim.sessions["a"].ctx > 0 and not sim.sessions["a"].done:     # first call finished, session continues
+            seen.append("a" in oracle_etas(sim, t))
+        return orig(w, t)
+    sim._schedule_worker = spy
+    sim.run()
+    assert seen and all(seen)

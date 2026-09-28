@@ -269,19 +269,21 @@ class Simulator:
             "deadline_missed": bool(s.deadline is not None and t > s.deadline),
             "tool_name": turn.tool_name, "tool_duration": turn.tool_duration,
         })
+        # The session's future (its tool, or its end) is recorded *before* the freed slot is re-filled, so a
+        # placement policy deciding evictions for the next admission can see that this session returns.
+        if turn.tool_name is None or turn.tool_duration is None:
+            self._end_session(s, t)
+        else:
+            call_id = f"{rid}:tool"
+            self._emit(ToolStart(t=t, session_id=s.program.session_id, turn_index=call.turn_index, call_id=call_id,
+                                 tool_name=turn.tool_name, backend_id=turn.backend_id))
+            for off, done, total in turn.progress:
+                if off < turn.tool_duration:
+                    self._push(t + off, "tool_progress", (s.program.session_id, call_id, done, total))
+            self._push(t + turn.tool_duration, "tool_end", (s.program.session_id, call_id, call.turn_index))
         self._schedule_worker(s.worker, t)
         if self._windowed():
             self._drain_proxy(t)
-        if turn.tool_name is None or turn.tool_duration is None:
-            self._end_session(s, t)
-            return
-        call_id = f"{rid}:tool"
-        self._emit(ToolStart(t=t, session_id=s.program.session_id, turn_index=call.turn_index, call_id=call_id,
-                             tool_name=turn.tool_name, backend_id=turn.backend_id))
-        for off, done, total in turn.progress:
-            if off < turn.tool_duration:
-                self._push(t + off, "tool_progress", (s.program.session_id, call_id, done, total))
-        self._push(t + turn.tool_duration, "tool_end", (s.program.session_id, call_id, call.turn_index))
 
     def _tool_end(self, sid: str, call_id: str, turn_index: int, t: float) -> None:
         s = self.sessions[sid]
