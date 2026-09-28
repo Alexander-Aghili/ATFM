@@ -136,26 +136,13 @@ class GdpPlanner:
 
     def _first_slot(self, d: Deferrable, start: int, demand, thresholds, committed, capacity, index=None) -> int | None:
         if thresholds is None:
-            for k in range(start, self.n_slots):
-                if (k - start) * self.slot_s > self.max_hold_s:
-                    break
-                if all(self._feasible(demand[r][k], committed[r][k], getattr(d, r), capacity.get(r, float("inf")))
-                       for r in RESOURCES):
-                    return k
-            return None
+            return self._scan_first_slot(d, start, demand, committed, capacity)
         if start >= self.n_slots or self.max_hold_s < 0:
             return None
         if all(thresholds[r][start] + committed[r][start] + getattr(d, r) <= capacity.get(r, float("inf"))
                for r in RESOURCES):
             return start
-        low, high = start, self.n_slots
-        while low < high:
-            middle = (low + high) // 2
-            if (middle - start) * self.slot_s > self.max_hold_s:
-                high = middle
-            else:
-                low = middle + 1
-        stop = low
+        stop = self._slot_stop(start)
         if index is not None:
             return index.first(start + 1, stop, (d.kv_blocks, d.prefill_tokens),
                                tuple(capacity.get(r, float("inf")) for r in RESOURCES))
@@ -165,6 +152,26 @@ class GdpPlanner:
             eligible &= thresholds[r][slots] + committed[r][slots] + getattr(d, r) <= capacity.get(r, float("inf"))
         feasible = np.flatnonzero(eligible)
         return int(slots[feasible[0]]) if len(feasible) else None
+
+    def _slot_stop(self, start):
+        low, high = start, self.n_slots
+        while low < high:
+            middle = (low + high) // 2
+            if (middle - start) * self.slot_s > self.max_hold_s:
+                high = middle
+            else:
+                low = middle + 1
+        stop = low
+        return stop
+
+    def _scan_first_slot(self, d, start, demand, committed, capacity):
+        for k in range(start, self.n_slots):
+            if (k - start) * self.slot_s > self.max_hold_s:
+                break
+            if all(self._feasible(demand[r][k], committed[r][k], getattr(d, r), capacity.get(r, float("inf")))
+                   for r in RESOURCES):
+                return k
+        return None
 
     def plan(self, now: float, snap: ForecastSnapshot, capacity: dict[str, float], deferrable: list[Deferrable],
              tenant_max_delay: dict[str, float] | None = None) -> list[HoldDirective]:
@@ -178,26 +185,34 @@ class GdpPlanner:
         tenant_max_delay = tenant_max_delay or {}
         out = []
         for d in sorted(deferrable, key=lambda x: (x.eta_s, x.session_id)):
-            start = max(0, int(d.eta_s // self.slot_s))          # the session's own resumption slot
-            if index is not None and not (math.isfinite(d.kv_blocks) and math.isfinite(d.prefill_tokens)):
-                index = None
-            chosen = self._first_slot(d, start, demand, thresholds, committed, capacity, index)
-            if chosen is None:
-                imposed, reason, release = self.max_hold_s, "capped", now + d.eta_s + self.max_hold_s
-            else:
-                imposed, reason, release = (chosen - start) * self.slot_s, "gdp", now + chosen * self.slot_s
-            bound = tenant_max_delay.get(d.tenant)
-            if bound is not None and imposed > bound:
-                imposed, reason = bound, "tenant_cap"
-                chosen = min(start + int(bound // self.slot_s), self.n_slots - 1)
-                release = now + chosen * self.slot_s
-            if chosen is not None:                                  # committed where it is actually released
-                self.last_assignment.setdefault(chosen, []).append(d.session_id)
-                for r in RESOURCES:
-                    committed[r][chosen] += getattr(d, r)
-                if index is not None:
-                    index.update(chosen, thresholds, committed)
-            self.max_imposed_delay[d.tenant] = max(self.max_imposed_delay.get(d.tenant, 0.0), imposed)
-            out.append(HoldDirective(session_id=d.session_id, release_not_before=release, reason=reason,
-                                     tenant=d.tenant, expires_at=now + self.slot_s))
+            index = self._assign_session(d, now, demand, thresholds, committed, capacity, index, tenant_max_delay, out)
         return out
+
+    def _assign_session(self, d, now, demand, thresholds, committed, capacity, index, tenant_max_delay, out):
+        start = max(0, int(d.eta_s // self.slot_s))          # the session's own resumption slot
+        if index is not None and not (math.isfinite(d.kv_blocks) and math.isfinite(d.prefill_tokens)):
+            index = None
+        chosen = self._first_slot(d, start, demand, thresholds, committed, capacity, index)
+        chosen, imposed, reason, release = self._release_time(d, now, chosen, start, tenant_max_delay)
+        if chosen is not None:                                  # committed where it is actually released
+            self.last_assignment.setdefault(chosen, []).append(d.session_id)
+            for r in RESOURCES:
+                committed[r][chosen] += getattr(d, r)
+            if index is not None:
+                index.update(chosen, thresholds, committed)
+        self.max_imposed_delay[d.tenant] = max(self.max_imposed_delay.get(d.tenant, 0.0), imposed)
+        out.append(HoldDirective(session_id=d.session_id, release_not_before=release, reason=reason,
+                                 tenant=d.tenant, expires_at=now + self.slot_s))
+        return index
+
+    def _release_time(self, d, now, chosen, start, tenant_max_delay):
+        if chosen is None:
+            imposed, reason, release = self.max_hold_s, "capped", now + d.eta_s + self.max_hold_s
+        else:
+            imposed, reason, release = (chosen - start) * self.slot_s, "gdp", now + chosen * self.slot_s
+        bound = tenant_max_delay.get(d.tenant)
+        if bound is not None and imposed > bound:
+            imposed, reason = bound, "tenant_cap"
+            chosen = min(start + int(bound // self.slot_s), self.n_slots - 1)
+            release = now + chosen * self.slot_s
+        return chosen, imposed, reason, release

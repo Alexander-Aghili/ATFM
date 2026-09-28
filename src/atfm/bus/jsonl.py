@@ -42,26 +42,33 @@ class JsonlBus:
             except FileNotFoundError:
                 return []
             with stream:
-                stat = os.fstat(stream.fileno())
-                identity = (stat.st_dev, stat.st_ino)
-                offset = self._offset if identity == self._identity and stat.st_size >= self._offset else 0
-                stream.seek(offset)
-                events = []
-                malformed = 0
-                while stream.tell() < stat.st_size:
-                    line = stream.readline(stat.st_size - stream.tell())
-                    if not line.endswith(b"\n"):
-                        break
-                    offset = stream.tell()
-                    if not line.strip():
-                        continue
-                    try:
-                        events.append(parse_event(json.loads(line)))
-                    except (ValueError, UnicodeDecodeError):
-                        malformed += 1
-                self._identity, self._offset = identity, offset
-                self.malformed += malformed
-                return events
+                return self._read_appended(stream)
+
+    def _read_appended(self, stream):
+        stat = os.fstat(stream.fileno())
+        identity = (stat.st_dev, stat.st_ino)
+        offset = self._offset if identity == self._identity and stat.st_size >= self._offset else 0
+        stream.seek(offset)
+        events, malformed, offset = self._complete_lines(stream, stat, offset)
+        self._identity, self._offset = identity, offset
+        self.malformed += malformed
+        return events
+
+    def _complete_lines(self, stream, stat, offset):
+        events = []
+        malformed = 0
+        while stream.tell() < stat.st_size:
+            line = stream.readline(stat.st_size - stream.tell())
+            if not line.endswith(b"\n"):
+                break
+            offset = stream.tell()
+            if not line.strip():
+                continue
+            try:
+                events.append(parse_event(json.loads(line)))
+            except (ValueError, UnicodeDecodeError):
+                malformed += 1
+        return events, malformed, offset
 
 
 def read_events(path: str | Path) -> list[Event]:

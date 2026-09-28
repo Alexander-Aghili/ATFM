@@ -64,6 +64,9 @@ class Simulator:
         self.rng = np.random.default_rng(0) if rng is None else rng
         self.events = bus if bus is not None else InMemoryBus()
         self.block_size = block_size
+        self._initialize_state()
+
+    def _initialize_state(self):
         self.now = 0.0
         self._heap: list = []
         self._seq = itertools.count()
@@ -75,6 +78,9 @@ class Simulator:
         self.session_log: list[dict] = []
         self._pending: dict[str, PendingCall] = {}
         self._held: dict[str, PendingCall] = {}   # session id -> its call while held (hold_reason set, not released)
+        self._initialize_placement()
+
+    def _initialize_placement(self):
         self.touches = self.touch_hits = self.touch_misses = self.touch_fails = 0
         self.touch_prefill_tokens = 0                 # speculative prefill charged by touch misses
         self.touch_slot_s = 0.0                       # batch-slot seconds occupied by touches
@@ -114,6 +120,10 @@ class Simulator:
             self.touches -= 1
             self.touch_fails -= 1
             self._touch_waiting.append((session_id, blocks))    # batch full: wait for a slot, do not drop
+        self._count_touch(kind, blocks, w)
+        return kind
+
+    def _count_touch(self, kind, blocks, w):
         if kind == "hit":
             self.touch_hits += 1
         elif kind == "miss":
@@ -121,7 +131,6 @@ class Simulator:
             self.touch_prefill_tokens += blocks * w.cfg.block_size
         else:
             self.touch_fails += 1
-        return kind
 
     def _retry_touches(self, t: float) -> None:
         """A waiting touch runs as soon as a batch slot frees (called on worker_done and touch_end)."""
@@ -179,23 +188,27 @@ class Simulator:
         if window is None:
             return
         while self.in_flight < window:
-            eligible = []
-            for c in self.proxy_queue:
-                cap = c.t_arrival + self.max_hold_s
-                if c.release_not_before > t and t < cap:
-                    continue
-                if c.hold_reason and t < cap:
-                    # the hold expired: ask the policy again (hold *while* the constraint binds, spec 6.2)
-                    if self._apply_hold(c, self.policy.on_arrival(self, c), t):
-                        self._push(c.release_not_before, "release", None)
-                        continue
-                eligible.append(c)
+            eligible = self._eligible_calls(t)
             if not eligible:
                 break
             best = max(eligible, key=lambda c: (c.tier, c.index, -c.t_arrival))
             self.proxy_queue.remove(best)
             self.in_flight += 1
             self._release(best, t)
+
+    def _eligible_calls(self, t):
+        eligible = []
+        for c in self.proxy_queue:
+            cap = c.t_arrival + self.max_hold_s
+            if c.release_not_before > t and t < cap:
+                continue
+            if c.hold_reason and t < cap:
+                # the hold expired: ask the policy again (hold *while* the constraint binds, spec 6.2)
+                if self._apply_hold(c, self.policy.on_arrival(self, c), t):
+                    self._push(c.release_not_before, "release", None)
+                    continue
+            eligible.append(c)
+        return eligible
 
     def _hold_s(self, call: PendingCall) -> float:
         """Seconds the call spent held by a policy (not ordinary window queueing)."""
@@ -256,6 +269,27 @@ class Simulator:
         turn = s.program.turns[call.turn_index]
         self._emit(LlmDone(t=t, session_id=s.program.session_id, request_id=rid, osl=call.osl, worker_id=wid,
                            prefix_hit_tokens=hit))
+        self._record_call(call, s, ts, tf, te, hit, recomputed, ev, wid, turn, t)
+        self._after_call(call, s, turn, rid, t)
+        self._schedule_worker(s.worker, t)
+        if self._windowed():
+            self._drain_proxy(t)
+
+    def _after_call(self, call, s, turn, rid, t):
+        # The session's future (its tool, or its end) is recorded *before* the freed slot is re-filled, so a
+        # placement policy deciding evictions for the next admission can see that this session returns.
+        if turn.tool_name is None or turn.tool_duration is None:
+            self._end_session(s, t)
+        else:
+            call_id = f"{rid}:tool"
+            self._emit(ToolStart(t=t, session_id=s.program.session_id, turn_index=call.turn_index, call_id=call_id,
+                                 tool_name=turn.tool_name, backend_id=turn.backend_id))
+            for off, done, total in turn.progress:
+                if off < turn.tool_duration:
+                    self._push(t + off, "tool_progress", (s.program.session_id, call_id, done, total))
+            self._push(t + turn.tool_duration, "tool_end", (s.program.session_id, call_id, call.turn_index))
+
+    def _record_call(self, call, s, ts, tf, te, hit, recomputed, ev, wid, turn, t):
         self.rows.append({
             "session_id": s.program.session_id, "class": s.program.cls, "tenant": s.program.tenant,
             "turn_index": call.turn_index, "t_arrival": call.t_arrival, "t_release": call.t_release,
@@ -269,21 +303,6 @@ class Simulator:
             "deadline_missed": bool(s.deadline is not None and t > s.deadline),
             "tool_name": turn.tool_name, "tool_duration": turn.tool_duration,
         })
-        # The session's future (its tool, or its end) is recorded *before* the freed slot is re-filled, so a
-        # placement policy deciding evictions for the next admission can see that this session returns.
-        if turn.tool_name is None or turn.tool_duration is None:
-            self._end_session(s, t)
-        else:
-            call_id = f"{rid}:tool"
-            self._emit(ToolStart(t=t, session_id=s.program.session_id, turn_index=call.turn_index, call_id=call_id,
-                                 tool_name=turn.tool_name, backend_id=turn.backend_id))
-            for off, done, total in turn.progress:
-                if off < turn.tool_duration:
-                    self._push(t + off, "tool_progress", (s.program.session_id, call_id, done, total))
-            self._push(t + turn.tool_duration, "tool_end", (s.program.session_id, call_id, call.turn_index))
-        self._schedule_worker(s.worker, t)
-        if self._windowed():
-            self._drain_proxy(t)
 
     def _tool_end(self, sid: str, call_id: str, turn_index: int, t: float) -> None:
         s = self.sessions[sid]
@@ -327,39 +346,54 @@ class Simulator:
             if until is not None and t > until:
                 break
             self.now = t
-            if kind == "start":
-                self._arrive(self._start_session(payload, t), t)
-            elif kind == "arrive":
-                self._arrive(self.sessions[payload], t)
-            elif kind == "release":
-                self._drain_proxy(t)
-            elif kind == "first_token":
-                self._first_token(payload, t)
-            elif kind == "worker_done":
-                self._retry_touches(t)
-                self._worker_done(payload, t)
-            elif kind == "tool_progress":
-                sid, call_id, done, total = payload
-                self._emit(ToolProgress(t=t, session_id=sid, call_id=call_id, completed=done, total=total, phase="run"))
-            elif kind == "tool_end":
-                sid, call_id, turn_index = payload
-                self._tool_end(sid, call_id, turn_index, t)
-            elif kind == "touch_end":
-                w = next(x for x in self.workers if x.worker_id == payload)
-                if w.expire_touches(t):
-                    self._schedule_worker(w, t)
-                    self._retry_touches(t)
-            elif kind == "tick":
-                for w in self.workers:
-                    if w.pins and w.expire_pins(t):
-                        self._schedule_worker(w, t)
-                self.policy.on_tick(self, t)
-                self._drain_proxy(t)
-                others = [k for _, _, k, _ in self._heap if k != "tick"]
-                pending_work = any(not s.done for s in self.sessions.values()) or "start" in others
-                idle_ticks = idle_ticks + 1 if not others else 0
-                if idle_ticks > max_idle_ticks:
-                    raise RuntimeError(f"simulation stalled: {len(self.proxy_queue)} calls waiting with no other events at t={t:.0f}")
-                if pending_work:
-                    self._push(t + self.tick_s, "tick", None)
+            idle_ticks = self._dispatch(kind, payload, t, idle_ticks, max_idle_ticks)
         return pd.DataFrame(self.rows)
+
+    def _dispatch(self, kind, payload, t, idle_ticks, max_idle_ticks):
+        if kind == "start":
+            self._arrive(self._start_session(payload, t), t)
+        elif kind == "arrive":
+            self._arrive(self.sessions[payload], t)
+        elif kind == "release":
+            self._drain_proxy(t)
+        elif kind == "first_token":
+            self._first_token(payload, t)
+        elif kind == "worker_done":
+            self._retry_touches(t)
+            self._worker_done(payload, t)
+        elif kind == "tick":
+            idle_ticks = self._tick(t, idle_ticks, max_idle_ticks)
+        else:
+            self._tool_event(kind, payload, t)
+        return idle_ticks
+
+    def _tool_event(self, kind, payload, t):
+        if kind == "tool_progress":
+            sid, call_id, done, total = payload
+            self._emit(ToolProgress(t=t, session_id=sid, call_id=call_id, completed=done, total=total, phase="run"))
+        elif kind == "tool_end":
+            sid, call_id, turn_index = payload
+            self._tool_end(sid, call_id, turn_index, t)
+        elif kind == "touch_end":
+            self._touch_end(payload, t)
+
+    def _touch_end(self, payload, t):
+        w = next(x for x in self.workers if x.worker_id == payload)
+        if w.expire_touches(t):
+            self._schedule_worker(w, t)
+            self._retry_touches(t)
+
+    def _tick(self, t, idle_ticks, max_idle_ticks):
+        for w in self.workers:
+            if w.pins and w.expire_pins(t):
+                self._schedule_worker(w, t)
+        self.policy.on_tick(self, t)
+        self._drain_proxy(t)
+        others = [k for _, _, k, _ in self._heap if k != "tick"]
+        pending_work = any(not s.done for s in self.sessions.values()) or "start" in others
+        idle_ticks = idle_ticks + 1 if not others else 0
+        if idle_ticks > max_idle_ticks:
+            raise RuntimeError(f"simulation stalled: {len(self.proxy_queue)} calls waiting with no other events at t={t:.0f}")
+        if pending_work:
+            self._push(t + self.tick_s, "tick", None)
+        return idle_ticks

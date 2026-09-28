@@ -37,6 +37,9 @@ class LocalDynamo:
                                "--speedup-ratio", str(self.speedup)])
         self._spawn("frontend", ["dynamo.frontend", "--discovery-backend", "file", "--http-port", str(self.port),
                                  "--router-mode", "kv"])
+        self._wait_ready(timeout_s)
+
+    def _wait_ready(self, timeout_s):
         t0 = time.time()
         while time.time() - t0 < timeout_s:
             if any(p.poll() is not None for p in self.procs):

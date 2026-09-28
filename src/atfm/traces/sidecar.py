@@ -8,6 +8,40 @@ from atfm.schema.trace import TraceRow, TraceTable
 
 
 def events_to_trace_table(events: list[Event]) -> TraceTable:
+    by_sess, meta = _session_events(events)
+    rows: list[TraceRow] = []
+    for sid, evs in by_sess.items():
+        _session_rows(sid, evs, meta, rows)
+    return TraceTable.from_rows(rows)
+
+
+def _session_rows(sid, evs, meta, rows):
+    m = meta.get(sid, {"class": "background", "tenant": "unknown", "parent": None})
+    calls = [e for e in evs if e.kind == "llm.request"]
+    tools = _tools(evs)
+    first_call_t = calls[0].t if calls else float("inf")
+    # Tools that ran before the session's first LLM call (setup steps) or in a tool-only session get
+    # synthetic one-token rows with negative turn indices so their phases are still measured.
+    pre = [t for t in tools if t["t_start"] < first_call_t]
+    for k, tl in enumerate(pre):
+        rows.append(_row(sid, m, -(k + 1), tl["t_start"] - 0.01, tl["t_start"], tl["t_start"], 1, 0, tl))
+    _call_rows(sid, m, evs, calls, tools, rows)
+
+
+def _call_rows(sid, m, evs, calls, tools, rows):
+    for i, c in enumerate(calls):
+        first = next((e.t for e in evs if e.kind == "llm.first_token" and e.request_id == c.request_id), None)
+        done = next((e for e in evs if e.kind == "llm.done" and e.request_id == c.request_id), None)
+        t_last = done.t if done else first
+        nxt = calls[i + 1].t if i + 1 < len(calls) else float("inf")
+        between = [t for t in tools if c.t <= t["t_start"] < nxt]
+        rows.append(_row(sid, m, c.turn_index, c.t, first, t_last, c.isl, done.osl if done else 0,
+                         between[0] if between else None))
+        for tl in between[1:]:  # extra tools in the same turn: one synthetic row each
+            rows.append(_row(sid, m, c.turn_index, tl["t_start"] - 0.01, tl["t_start"], tl["t_start"], 1, 0, tl))
+
+
+def _session_events(events):
     by_sess: dict[str, list] = defaultdict(list)
     meta: dict[str, dict] = {}
     for e in sorted(events, key=lambda e: e.t):
@@ -18,28 +52,7 @@ def events_to_trace_table(events: list[Event]) -> TraceTable:
             meta[e.child_session_id]["parent"] = e.parent_session_id
         elif e.kind != "worker.metrics":
             by_sess[e.session_id].append(e)
-    rows: list[TraceRow] = []
-    for sid, evs in by_sess.items():
-        m = meta.get(sid, {"class": "background", "tenant": "unknown", "parent": None})
-        calls = [e for e in evs if e.kind == "llm.request"]
-        tools = _tools(evs)
-        first_call_t = calls[0].t if calls else float("inf")
-        # Tools that ran before the session's first LLM call (setup steps) or in a tool-only session get
-        # synthetic one-token rows with negative turn indices so their phases are still measured.
-        pre = [t for t in tools if t["t_start"] < first_call_t]
-        for k, tl in enumerate(pre):
-            rows.append(_row(sid, m, -(k + 1), tl["t_start"] - 0.01, tl["t_start"], tl["t_start"], 1, 0, tl))
-        for i, c in enumerate(calls):
-            first = next((e.t for e in evs if e.kind == "llm.first_token" and e.request_id == c.request_id), None)
-            done = next((e for e in evs if e.kind == "llm.done" and e.request_id == c.request_id), None)
-            t_last = done.t if done else first
-            nxt = calls[i + 1].t if i + 1 < len(calls) else float("inf")
-            between = [t for t in tools if c.t <= t["t_start"] < nxt]
-            rows.append(_row(sid, m, c.turn_index, c.t, first, t_last, c.isl, done.osl if done else 0,
-                             between[0] if between else None))
-            for tl in between[1:]:  # extra tools in the same turn: one synthetic row each
-                rows.append(_row(sid, m, c.turn_index, tl["t_start"] - 0.01, tl["t_start"], tl["t_start"], 1, 0, tl))
-    return TraceTable.from_rows(rows)
+    return by_sess, meta
 
 
 def _tools(evs: list) -> list[dict]:

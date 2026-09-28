@@ -106,41 +106,57 @@ class Worker:
         return victims
 
     def schedule(self, now: float) -> list[tuple]:
-        self.last_evictions = []
         if len(self.running) >= self.cfg.max_batch:
+            self.last_evictions = []
             return []
-        bs = self.cfg.block_size
-        if self.cfg.priority:
-            self.queue.sort(key=lambda r: (-r.tier, -r.index, r.t_queued))
+        bs = self._prepare_schedule()
+        return self._schedule_queue(now, bs)
+
+    def _schedule_queue(self, now, bs):
         admitted, remaining = [], []
         blocked = False
         for req in self.queue:
             if blocked or len(self.running) >= self.cfg.max_batch:
                 remaining.append(req)
                 continue
-            have = self.resident.get(req.session_id, 0)
-            needed_total = math.ceil((req.isl_total + req.osl) / bs)
-            extra = max(0, needed_total - have)
-            prefix_hit = min(have * bs, max(0, req.isl_total - req.isl_new)) if have else 0
-            snapshot = OrderedDict(self.resident)
-            victims = self._make_room(extra, keep=req.session_id) if extra > 0 else []
+            needed_total, prefix_hit, snapshot, victims = self._reserve(req, bs)
             if victims is None:
                 self.resident = snapshot
                 remaining.append(req)
                 if self.cfg.priority:
                     blocked = True  # no head-of-line skipping under priority: lower-priority calls must not overtake
                 continue
-            self.resident[req.session_id] = needed_total
-            self.resident.move_to_end(req.session_id)
-            self.last_used[req.session_id] = now
-            self.last_evictions.extend((req.request_id, v) for v in victims)
-            recomputed = req.isl_total - prefix_hit
-            t_first = now + recomputed / self.cfg.prefill_tps
-            t_end = t_first + req.osl / self.cfg.decode_tps
-            self.running[req.request_id] = (req, now, t_end)
-            admitted.append((req, now, t_first, t_end, prefix_hit, recomputed, len(victims)))
+            admission = self._admit(req, needed_total, prefix_hit, victims, now)
+            admitted.append(admission)
         self.queue = remaining
         return admitted
+
+    def _prepare_schedule(self):
+        self.last_evictions = []
+        bs = self.cfg.block_size
+        if self.cfg.priority:
+            self.queue.sort(key=lambda r: (-r.tier, -r.index, r.t_queued))
+        return bs
+
+    def _admit(self, req, needed_total, prefix_hit, victims, now):
+        self.resident[req.session_id] = needed_total
+        self.resident.move_to_end(req.session_id)
+        self.last_used[req.session_id] = now
+        self.last_evictions.extend((req.request_id, v) for v in victims)
+        recomputed = req.isl_total - prefix_hit
+        t_first = now + recomputed / self.cfg.prefill_tps
+        t_end = t_first + req.osl / self.cfg.decode_tps
+        self.running[req.request_id] = (req, now, t_end)
+        return (req, now, t_first, t_end, prefix_hit, recomputed, len(victims))
+
+    def _reserve(self, req, bs):
+        have = self.resident.get(req.session_id, 0)
+        needed_total = math.ceil((req.isl_total + req.osl) / bs)
+        extra = max(0, needed_total - have)
+        prefix_hit = min(have * bs, max(0, req.isl_total - req.isl_new)) if have else 0
+        snapshot = OrderedDict(self.resident)
+        victims = self._make_room(extra, keep=req.session_id) if extra > 0 else []
+        return needed_total, prefix_hit, snapshot, victims
 
     def complete(self, request_id: str, now: float) -> None:
         req, _, _ = self.running.pop(request_id)

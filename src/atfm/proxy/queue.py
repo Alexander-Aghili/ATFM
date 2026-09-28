@@ -162,20 +162,23 @@ class HoldQueue:
         self._entry_ids[id(e)] = self._sequence
         self._index(self._sequence, record, self.clock())
         if self.max_size is not None and self.queued > self.max_size:
-            if not self.overflow:
-                self.alarms += 1
-                self.overflow = True
-                for record in self._entries.values():
-                    record.entry.not_before = 0.0
-                self._rebuild(self.clock())
-            else:
-                while self._delayed:
-                    _, key = heapq.heappop(self._delayed)
-                    record = self._entries.get(key)
-                    if record is not None and not record.ready:
-                        record.entry.not_before = 0.0
-                        self._make_ready(key, record)
+            self._release_overflow()
         self.tick()
+
+    def _release_overflow(self):
+        if not self.overflow:
+            self.alarms += 1
+            self.overflow = True
+            for record in self._entries.values():
+                record.entry.not_before = 0.0
+            self._rebuild(self.clock())
+        else:
+            while self._delayed:
+                _, key = heapq.heappop(self._delayed)
+                record = self._entries.get(key)
+                if record is not None and not record.ready:
+                    record.entry.not_before = 0.0
+                    self._make_ready(key, record)
 
     def complete(self, e: Entry | None = None) -> None:
         """Free the slot held by `e`; idempotent per entry (a second call is a no-op)."""

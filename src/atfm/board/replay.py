@@ -62,14 +62,10 @@ class FleetReplayer:
 
     def _state(self, s: _Session, t: float) -> SessionState | None:
         history: list[tuple[str, float]] = []
-        ctx = 0
         for i, r in enumerate(s.rows):
             if t < r["t_request"]:
                 break
-            ctx = int(r["isl"]) + int(r["osl"])
-            t_llm_end = _last_llm_time(r)
-            base = dict(session_id=s.sid, cls=s.cls, tenant=s.tenant, parent_session_id=s.parent,
-                        turn_index=int(r["turn_index"]), ctx_tokens=ctx)
+            t_llm_end, base = self._row_context(s, r)
             if t < t_llm_end:
                 return SessionState(phase="llm_running", t_phase_start=float(r["t_request"]),
                                     tool_history=list(history), **base)
@@ -78,17 +74,33 @@ class FleetReplayer:
                 return None
             ts, te = float(r["t_tool_start"]), float(r["t_tool_end"])
             if t < te:
-                prog = [e for e in (r["progress_events"] or []) if e["t"] <= t]
-                data = [e for e in (r["data_events"] or []) if e["t"] <= t]
-                return SessionState(phase="tool_running", tool_name=r["tool_name"], backend_id=r["backend_id"],
-                                    t_tool_start=min(ts, t), progress=prog, data=data, t_phase_start=ts,
-                                    tool_history=list(history), **base)
+                return self._tool_state(r, t, ts, history, base)
             history.append((r["tool_name"], max(0.0, te - ts)))
-            nxt = s.rows[i + 1] if i + 1 < len(s.rows) else None
-            if nxt is None or t < nxt["t_request"]:
-                return SessionState(phase="llm_pending", tool_name=r["tool_name"], backend_id=r["backend_id"],
-                                    t_phase_start=te, tool_history=list(history), **base)
+            pending = self._pending_state(s, i, r, t, te, history, base)
+            if pending is not None:
+                return pending
         return None
+
+    def _row_context(self, s, r):
+        ctx = int(r["isl"]) + int(r["osl"])
+        t_llm_end = _last_llm_time(r)
+        base = dict(session_id=s.sid, cls=s.cls, tenant=s.tenant, parent_session_id=s.parent,
+                    turn_index=int(r["turn_index"]), ctx_tokens=ctx)
+        return t_llm_end, base
+
+    def _pending_state(self, s, i, r, t, te, history, base):
+        nxt = s.rows[i + 1] if i + 1 < len(s.rows) else None
+        if nxt is None or t < nxt["t_request"]:
+            return SessionState(phase="llm_pending", tool_name=r["tool_name"], backend_id=r["backend_id"],
+                                t_phase_start=te, tool_history=list(history), **base)
+        return None
+
+    def _tool_state(self, r, t, ts, history, base):
+        prog = [e for e in (r["progress_events"] or []) if e["t"] <= t]
+        data = [e for e in (r["data_events"] or []) if e["t"] <= t]
+        return SessionState(phase="tool_running", tool_name=r["tool_name"], backend_id=r["backend_id"],
+                            t_tool_start=min(ts, t), progress=prog, data=data, t_phase_start=ts,
+                            tool_history=list(history), **base)
 
     def demand_truth(self, t: float, horizons: list[float], block_size: int = 16) -> dict:
         """KV blocks and prefill tokens required by sessions that (re)start an LLM call within each horizon.
@@ -101,6 +113,10 @@ class FleetReplayer:
         kv = {c: np.zeros(H) for c in classes}
         pf = {c: np.zeros(H) for c in classes}
         endo = {c: np.zeros(H) for c in classes}
+        self._accumulate_demand(t, horizons, block_size, kv, pf, endo)
+        return {"kv_blocks": kv, "prefill_tokens": pf, "endogenous_kv_blocks": endo}
+
+    def _accumulate_demand(self, t, horizons, block_size, kv, pf, endo):
         lo = np.searchsorted(self._t_req_sorted, t, side="right")
         hi = np.searchsorted(self._t_req_sorted, t + max(horizons), side="right")
         seen: set = set()
@@ -110,12 +126,14 @@ class FleetReplayer:
                 continue
             seen.add(sid)
             tr, isl, c = self._t_req_sorted[j], self._isl_sorted[j], self._cls_sorted[j]
-            blocks = math.ceil(isl / block_size)
-            active = self._start[sid] <= t < self._end[sid]
-            for k, h in enumerate(horizons):
-                if tr <= t + h:
-                    kv[c][k] += blocks
-                    pf[c][k] += isl
-                    if active:
-                        endo[c][k] += blocks
-        return {"kv_blocks": kv, "prefill_tokens": pf, "endogenous_kv_blocks": endo}
+            self._add_demand(sid, tr, isl, c, t, horizons, block_size, kv, pf, endo)
+
+    def _add_demand(self, sid, tr, isl, c, t, horizons, block_size, kv, pf, endo):
+        blocks = math.ceil(isl / block_size)
+        active = self._start[sid] <= t < self._end[sid]
+        for k, h in enumerate(horizons):
+            if tr <= t + h:
+                kv[c][k] += blocks
+                pf[c][k] += isl
+                if active:
+                    endo[c][k] += blocks

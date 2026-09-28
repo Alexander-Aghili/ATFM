@@ -59,17 +59,22 @@ def overlay_sessions(table: TraceTable, rate_per_hour: float, duration_s: float,
     picks = rng.choice(len(fams), size=n, replace=True)
     out = []
     for k, (start, idx) in enumerate(zip(starts, picks)):
-        g = groups[fams[idx]].copy()
-        root_t0 = float(g.loc[g["session_id"] == fams[idx], "t_request"].min()) if (g["session_id"] == fams[idx]).any() \
-            else float(g["t_request"].min())
-        delta = start - root_t0
-        for c in TIME_COLS:
-            g[c] = g[c] + delta
-        g["progress_events"] = g["progress_events"].apply(lambda ev: _shift_events(ev, delta))
-        g["data_events"] = g["data_events"].apply(lambda ev: _shift_events(ev, delta))
-        g["session_id"] = g["session_id"].apply(lambda s: f"{s}#{k}")
-        g["parent_session_id"] = g["parent_session_id"].apply(lambda p: None if pd.isna(p) else f"{p}#{k}")
+        g = _shift_family(groups, fams, idx, start, k)
         out.append(g)
     if not out:
         return TraceTable(table.df.iloc[0:0].copy())
     return TraceTable(pd.concat(out, ignore_index=True))
+
+
+def _shift_family(groups, fams, idx, start, k):
+    g = groups[fams[idx]].copy()
+    root_t0 = float(g.loc[g["session_id"] == fams[idx], "t_request"].min()) if (g["session_id"] == fams[idx]).any() \
+        else float(g["t_request"].min())
+    delta = start - root_t0
+    for c in TIME_COLS:
+        g[c] = g[c] + delta
+    g["progress_events"] = g["progress_events"].apply(lambda ev: _shift_events(ev, delta))
+    g["data_events"] = g["data_events"].apply(lambda ev: _shift_events(ev, delta))
+    g["session_id"] = g["session_id"].apply(lambda s: f"{s}#{k}")
+    g["parent_session_id"] = g["parent_session_id"].apply(lambda p: None if pd.isna(p) else f"{p}#{k}")
+    return g

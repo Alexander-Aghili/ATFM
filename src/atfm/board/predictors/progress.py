@@ -53,6 +53,39 @@ class ProgressCurve:
     def fit(self, train: TraceTable) -> "ProgressCurve":
         pairs: dict[str, list[tuple[float, float]]] = defaultdict(list)
         phases: dict[str, int] = defaultdict(int)
+        self._collect_pairs(train, pairs, phases)
+        edges = np.linspace(0.0, 1.0, self.bins + 1)
+        for tool, pts in pairs.items():
+            if phases[tool] < self.min_phases:
+                continue
+            self._fit_curve(tool, pts, edges)
+        return self
+
+    def _fit_curve(self, tool, pts, edges):
+        arr = np.asarray(pts)
+        pf, tf = np.clip(arr[:, 0], 0, 1), np.clip(arr[:, 1], 0, 1)
+        grid, vals = [0.0], [0.0]
+        for i in range(self.bins):
+            m = (pf >= edges[i]) & (pf < edges[i + 1] if i < self.bins - 1 else pf <= edges[i + 1])
+            if m.any():
+                grid.append(float(np.median(pf[m]))); vals.append(float(np.median(tf[m])))
+        grid.append(1.0); vals.append(1.0)
+        vals = np.maximum.accumulate(np.asarray(vals))                # monotone in progress
+        g = np.asarray(grid)
+        self.curves[tool] = (g, vals)
+        self._fit_sigma(tool, pf, tf, g, vals)
+
+    def _fit_sigma(self, tool, pf, tf, g, vals):
+        pred_tf = np.interp(pf, g, vals)
+        ok = pred_tf > 0.02
+        if ok.any():
+            # predicted duration = elapsed / tf; actual = dur; ratio spread is the curve's uncertainty
+            ratio = (tf[ok] / pred_tf[ok])   # = actual_dur / predicted_dur
+            self.sigma[tool] = float(max(np.std(np.log(np.clip(ratio, 1e-3, 1e3))), self.sigma_floor))
+        else:
+            self.sigma[tool] = 0.5
+
+    def _collect_pairs(self, train, pairs, phases):
         for _, rows in train.session_records():
             for r in rows:
                 ev = r["progress_events"] or []
@@ -62,38 +95,18 @@ class ProgressCurve:
                 dur = float(te) - float(ts)
                 if dur <= 0:
                     continue
-                usable = [(float(e["completed"]) / float(e["total"]), (float(e["t"]) - float(ts)) / dur)
-                          for e in ev if e.get("total") not in (None, 0) and e.get("completed") is not None]
+                usable = self._usable_pairs(ev, ts, dur)
                 if not usable:
                     continue
                 for k in (r["tool_name"], self.composite(r["tool_name"], r.get("tool_args_hash"))):
                     if k is not None:               # one curve per tool name, one per (tool, signature)
                         phases[k] += 1
                         pairs[k].extend(usable)
-        edges = np.linspace(0.0, 1.0, self.bins + 1)
-        for tool, pts in pairs.items():
-            if phases[tool] < self.min_phases:
-                continue
-            arr = np.asarray(pts)
-            pf, tf = np.clip(arr[:, 0], 0, 1), np.clip(arr[:, 1], 0, 1)
-            grid, vals = [0.0], [0.0]
-            for i in range(self.bins):
-                m = (pf >= edges[i]) & (pf < edges[i + 1] if i < self.bins - 1 else pf <= edges[i + 1])
-                if m.any():
-                    grid.append(float(np.median(pf[m]))); vals.append(float(np.median(tf[m])))
-            grid.append(1.0); vals.append(1.0)
-            vals = np.maximum.accumulate(np.asarray(vals))                # monotone in progress
-            g = np.asarray(grid)
-            self.curves[tool] = (g, vals)
-            pred_tf = np.interp(pf, g, vals)
-            ok = pred_tf > 0.02
-            if ok.any():
-                # predicted duration = elapsed / tf; actual = dur; ratio spread is the curve's uncertainty
-                ratio = (tf[ok] / pred_tf[ok])   # = actual_dur / predicted_dur
-                self.sigma[tool] = float(max(np.std(np.log(np.clip(ratio, 1e-3, 1e3))), self.sigma_floor))
-            else:
-                self.sigma[tool] = 0.5
-        return self
+
+    def _usable_pairs(self, ev, ts, dur):
+        usable = [(float(e["completed"]) / float(e["total"]), (float(e["t"]) - float(ts)) / dur)
+                  for e in ev if e.get("total") not in (None, 0) and e.get("completed") is not None]
+        return usable
 
     def _which(self, tool: str | None, key: str | None) -> str | None:
         c = self.composite(tool, key)
@@ -138,19 +151,23 @@ class ProgressPredictor(SurvivalPredictor):
                 t_end = r["t_tool_end"]
                 if r["tool_name"] is None or not ev or t_end is None or (isinstance(t_end, float) and math.isnan(t_end)):
                     continue
-                last = max(ev, key=lambda e: e["t"])
-                last_t = float(last["t"])
-                resid = max(0.0, float(t_end) - last_t)
-                # Residual = end-phase time beyond what extrapolating the observed rate already covers.
-                total, done = last.get("total"), last.get("completed")
-                t_start = r["t_tool_start"]
-                if total and done and done > 0 and not (isinstance(t_start, float) and math.isnan(t_start)):
-                    extrapolated = (float(total) - float(done)) * (last_t - float(t_start)) / float(done)
-                    resid = max(0.0, resid - extrapolated)
+                resid = self._phase_residual(r, ev, t_end)
                 res[r["tool_name"]].append(resid)
                 res[POOLED].append(resid)
         self._residual = {k: np.asarray(v) for k, v in res.items()}
         return self
+
+    def _phase_residual(self, r, ev, t_end):
+        last = max(ev, key=lambda e: e["t"])
+        last_t = float(last["t"])
+        resid = max(0.0, float(t_end) - last_t)
+        # Residual = end-phase time beyond what extrapolating the observed rate already covers.
+        total, done = last.get("total"), last.get("completed")
+        t_start = r["t_tool_start"]
+        if total and done and done > 0 and not (isinstance(t_start, float) and math.isnan(t_start)):
+            extrapolated = (float(total) - float(done)) * (last_t - float(t_start)) / float(done)
+            resid = max(0.0, resid - extrapolated)
+        return resid
 
     def _residual_draw(self, tool: str | None, n: int, rng) -> np.ndarray:
         arr = self._residual.get(tool, self._residual.get(POOLED))
@@ -173,6 +190,9 @@ class ProgressPredictor(SurvivalPredictor):
             d = d_hat * rng.lognormal(0.0, self.curve.sigma_for(s.tool_name, key), size=n)
             remaining = np.maximum(d - (now - t_start), 0.0) + self._residual_draw(s.tool_name, n, rng)
             return remaining
+        return self._rate_remaining(s, now, n, rng, usable, t_start, t_latest, total, done)
+
+    def _rate_remaining(self, s, now, n, rng, usable, t_start, t_latest, total, done):
         shape, rate = rate_posterior(usable, t_start, now)
         r = rng.gamma(shape, 1.0 / rate, size=n)
         work_left = max(total - done, 0.0)

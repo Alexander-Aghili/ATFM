@@ -79,7 +79,8 @@ def create_board_app(board: LiveBoard, *, bus=None, clock=time.time, rng=None, b
                      touch: TouchController | None = None, tier: TierLogger | None = None,
                      replica: ReplicaFloor | None = None) -> FastAPI:
     app = FastAPI()
-    runtime = BoardRuntime(app, board=board, budget_s=budget_s, clock=clock, bus=bus, rng=rng, gdp=gdp, capacity=capacity, touch=touch, tier=tier, replica=replica)
+    runtime = BoardRuntime(app, board=board, budget_s=budget_s, clock=clock, bus=bus, rng=rng,
+                           gdp=gdp, capacity=capacity, touch=touch, tier=tier, replica=replica)
     runtime.register(app)
     return app
 
@@ -119,7 +120,11 @@ class BoardRuntime:
         s = self.st.snapshot
         if s is None:
             return {'t': None, 'horizons': [], 'q50': {}, 'q90': {}}
-        return {'t': s.t, 'model_id': s.model_id, 'horizons': list(s.horizons), 'q50': {t: {c: s.quantiles(t, c, 0.5).tolist() for c in CLASSES} for t in TARGETS}, 'q90': {t: {c: s.quantiles(t, c, 0.9).tolist() for c in CLASSES} for t in TARGETS}, 'endogenous_fraction': {c: s.endogenous_fraction[c].tolist() if c in s.endogenous_fraction else [] for c in CLASSES}}
+        return {'t': s.t, 'model_id': s.model_id, 'horizons': list(s.horizons), 
+                'q50': {t: {c: s.quantiles(t, c, 0.5).tolist() for c in CLASSES} for t in TARGETS}, 
+                'q90': {t: {c: s.quantiles(t, c, 0.9).tolist() for c in CLASSES} for t in TARGETS}, 
+                'endogenous_fraction': {c: s.endogenous_fraction[c].tolist() if c in s.endogenous_fraction else []
+                                         for c in CLASSES}}
 
     async def predict(self, req: Request):
         d = await req.json()
@@ -152,7 +157,6 @@ class BoardRuntime:
         self.st.directives_cache = (s, out)
         return out
 
-
     def _plan_directives(self, now, s, states, resumptions, out):
         if self.st.gdp is not None and self.st.capacity:
             self._plan_holds(now, s, states, resumptions, out)
@@ -163,7 +167,8 @@ class BoardRuntime:
         if self.st.replica is not None:
             out['replica'] = self.st.replica.propose(now, s).model_dump()
 
-
     def _plan_holds(self, now, s, states, resumptions, out):
-        deferrable = [Deferrable(session_id=sid, tenant=states[sid].tenant, eta_s=q[1], kv_blocks=int(np.ceil(states[sid].ctx_tokens / 16)), prefill_tokens=states[sid].ctx_tokens) for sid, q in resumptions.items() if states[sid].cls == 'background']
+        deferrable = [Deferrable(session_id=sid, tenant=states[sid].tenant, eta_s=q[1],
+                                     kv_blocks=int(np.ceil(states[sid].ctx_tokens / 16)), prefill_tokens=states[sid].ctx_tokens)
+                      for sid, q in resumptions.items() if states[sid].cls == 'background']
         out['holds'] = [h.model_dump() for h in self.st.gdp.plan(now, s, self.st.capacity, deferrable)]

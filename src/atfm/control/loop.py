@@ -52,14 +52,12 @@ class ControlLoop:
         self._record_step(d, now, s)
         return s
 
-
     def _record_step(self, d, now, s):
         rep = d.get("replica")
         s["replica"] = int(rep["replicas_at_least"]) if rep else None
         for k in ("holds", "touches", "touch_tokens", "errors"):
             self.totals[k] += s[k]
         self._log({"t": now, **s, "tier": d.get("tier", []), "replica": rep})
-
 
     def _apply_tiers(self, d, now, s):
         s["tier"] = len(d.get("tier", []))
@@ -71,7 +69,6 @@ class ControlLoop:
             s["errors"] += self.lmcache.errors - getattr(self, "_lm_err", 0)
             self._lm_err = self.lmcache.errors
 
-
     def _apply_touches(self, d, now, s):
         for t in d.get("touches", []):
             if t.get("expires_at") is not None and now >= float(t["expires_at"]):
@@ -82,7 +79,6 @@ class ControlLoop:
                 continue
             self._proxy_touch(t, s)
 
-
     def _proxy_touch(self, t, s):
         try:
             r = self.client.post(f"{self.proxy_url}/touch", json={"session_id": t["session_id"]})
@@ -92,7 +88,6 @@ class ControlLoop:
         except Exception:
             s["errors"] += 1
 
-
     def _send_holds(self, holds, s):
         for start in range(0, len(holds), self.hold_batch_size):
             batch = HoldBatch(holds=holds[start:start + self.hold_batch_size])
@@ -101,7 +96,6 @@ class ControlLoop:
                 s["holds"] += applied
             except Exception:
                 s["errors"] += 1
-
 
     def _apply_hold_batch(self, batch):
         response = self.client.post(f"{self.proxy_url}/directives/batch", json=batch.model_dump())
@@ -113,7 +107,6 @@ class ControlLoop:
                 or min(applied, expired) < 0 or applied + expired != len(batch.holds)):
             raise ValueError("invalid hold-batch acknowledgement")
         return applied
-
 
     def _valid_holds(self, d, now, s):
         holds = []

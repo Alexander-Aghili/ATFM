@@ -44,6 +44,22 @@ def worker_metrics_from_prometheus(text: str, t: float, default_total_blocks: in
     """One event per worker. Total and used blocks come from `*kv_total_blocks` / `*kv_active_blocks`
     (Dynamo); a vLLM-only page gives `gpu_cache_usage_perc`, converted with `default_total_blocks`.
     Queue depth is `num_requests_waiting` or `requests_pending`. Workers without a total are skipped."""
+    per = _group_metrics(text, default_worker_id)
+    out = []
+    for w, d in per.items():
+        total = d.get("total", default_total_blocks)
+        if total is None:
+            continue
+        used = d.get("used")
+        if used is None:
+            if "frac" not in d:
+                continue
+            used = int(round(d["frac"] * total))
+        out.append(WorkerMetrics(t=t, worker_id=w, kv_blocks_used=used, kv_blocks_total=int(total), queue_depth=d.get("queue", 0)))
+    return out
+
+
+def _group_metrics(text, default_worker_id):
     per: dict[str, dict] = {}
     for name, labels, value in parse_prometheus(text):
         w = _worker_of(labels, default_worker_id)
@@ -58,15 +74,4 @@ def worker_metrics_from_prometheus(text: str, t: float, default_total_blocks: in
             d["frac"] = float(value)
         elif name.endswith("num_requests_waiting") or name.endswith("requests_pending") or name.endswith("queue_depth"):
             d["queue"] = int(round(value))
-    out = []
-    for w, d in per.items():
-        total = d.get("total", default_total_blocks)
-        if total is None:
-            continue
-        used = d.get("used")
-        if used is None:
-            if "frac" not in d:
-                continue
-            used = int(round(d["frac"] * total))
-        out.append(WorkerMetrics(t=t, worker_id=w, kv_blocks_used=used, kv_blocks_total=int(total), queue_depth=d.get("queue", 0)))
-    return out
+    return per

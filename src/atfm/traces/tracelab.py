@@ -25,34 +25,7 @@ def _round_to_row(rec: dict, turn_index: int, next_t_request: float | None) -> T
     assistant = [_ts(e["timestamp"]) for e in events if str(e.get("source", "")).startswith("assistant.")]
     t_first = min(assistant) if assistant else None
     t_last = max(assistant) if assistant else None
-    tools = rec.get("tools") or []
-    tool_name = t_start = t_end = exit_status = backend = None
-    spawned = 0
-    if tools:
-        crit = max(tools, key=lambda t: t.get("tool_wall_latency_ms") or 0)
-        tool_name = crit["tool_name"]
-        starts = [_ts(t["emitted_at"]) for t in tools if t.get("emitted_at")]
-        ends = []
-        for t in tools:
-            e = _ts(t.get("result_at"))
-            if e is None and t.get("emitted_at") and t.get("tool_wall_latency_ms") is not None:
-                e = _ts(t["emitted_at"]) + t["tool_wall_latency_ms"] / 1000.0
-            if e is not None:
-                ends.append(e)
-        t_start = min(starts) if starts else t_last
-        t_end = max(ends) if ends else None
-        if t_start is not None and t_end is not None and t_end < t_start:
-            t_end = t_start
-        exit_status = 1 if any(t.get("is_error") for t in tools) else 0
-        backend = "local"
-        # Subagent calls (Agent/Task) run inside the parent's session in TraceLab; no separate child
-        # sessions exist, so spawned_children stays 0 (otherwise the forecaster adds phantom children).
-        spawned = 0
-    elif next_t_request is not None:
-        tool_name = THINK
-        t_start = t_last if t_last is not None else t_request
-        t_end = max(next_t_request, t_start)
-        backend = "human"
+    tool_name, t_start, t_end, exit_status, backend, spawned = _round_tool(rec, t_request, t_last, next_t_request)
     return TraceRow(
         session_id=rec["session_id"], parent_session_id=None, cls="interactive",
         tenant=rec.get("user") or "unknown", turn_index=turn_index,
@@ -62,6 +35,48 @@ def _round_to_row(rec: dict, turn_index: int, next_t_request: float | None) -> T
         tool_name=tool_name, t_tool_start=t_start, t_tool_end=t_end, tool_exit_status=exit_status,
         backend_id=backend, spawned_children=spawned, source="tracelab",
     )
+
+
+def _round_tool(rec, t_request, t_last, next_t_request):
+    tools = rec.get("tools") or []
+    tool_name = t_start = t_end = exit_status = backend = None
+    spawned = 0
+    if tools:
+        tool_name, t_start, t_end, exit_status, backend, spawned = _recorded_tool(tools, t_last)
+    elif next_t_request is not None:
+        tool_name = THINK
+        t_start = t_last if t_last is not None else t_request
+        t_end = max(next_t_request, t_start)
+        backend = "human"
+    return tool_name, t_start, t_end, exit_status, backend, spawned
+
+
+def _recorded_tool(tools, t_last):
+    crit = max(tools, key=lambda t: t.get("tool_wall_latency_ms") or 0)
+    tool_name = crit["tool_name"]
+    starts = [_ts(t["emitted_at"]) for t in tools if t.get("emitted_at")]
+    ends = _tool_ends(tools)
+    t_start = min(starts) if starts else t_last
+    t_end = max(ends) if ends else None
+    if t_start is not None and t_end is not None and t_end < t_start:
+        t_end = t_start
+    exit_status = 1 if any(t.get("is_error") for t in tools) else 0
+    backend = "local"
+    # Subagent calls (Agent/Task) run inside the parent's session in TraceLab; no separate child
+    # sessions exist, so spawned_children stays 0 (otherwise the forecaster adds phantom children).
+    spawned = 0
+    return tool_name, t_start, t_end, exit_status, backend, spawned
+
+
+def _tool_ends(tools):
+    ends = []
+    for t in tools:
+        e = _ts(t.get("result_at"))
+        if e is None and t.get("emitted_at") and t.get("tool_wall_latency_ms") is not None:
+            e = _ts(t["emitted_at"]) + t["tool_wall_latency_ms"] / 1000.0
+        if e is not None:
+            ends.append(e)
+    return ends
 
 
 def rounds_to_rows(rounds: list[dict]) -> list[TraceRow]:

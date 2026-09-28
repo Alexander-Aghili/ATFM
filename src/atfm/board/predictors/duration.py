@@ -31,6 +31,36 @@ class DurationModel:
 
     def fit(self, train: TraceTable) -> "DurationModel":
         durs, last, gaps, deltas, spawns, llm = (defaultdict(list) for _ in range(6))
+        self._training_samples(train, durs, last, gaps, deltas, spawns, llm)
+        self._fit_tools(durs, last, gaps, deltas, spawns)
+        self._llm = {c: np.asarray(v) for c, v in llm.items()}
+        self._sorted_llm.clear()
+        self._ensure_pooled()
+        return self
+
+    def _ensure_pooled(self):
+        if POOLED not in self.durations:
+            self.durations[POOLED] = np.array([1.0])
+            self.lognorm[POOLED] = (0.0, 0.5)
+            self._no_return[POOLED] = 0.0
+            self._overhead[POOLED] = 0.0
+            self._isl_delta[POOLED] = np.array([0])
+            self._spawn_rate[POOLED] = 0.0
+            self._gaps[POOLED] = np.array([0.0])
+
+    def _fit_tools(self, durs, last, gaps, deltas, spawns):
+        for tool, ds in durs.items():
+            arr = np.sort(np.asarray(ds, float))
+            self.durations[tool] = arr
+            logs = np.log(arr)
+            self.lognorm[tool] = (float(logs.mean()), float(max(logs.std(), 0.1)))
+            self._no_return[tool] = float(np.mean(last[tool]))
+            self._overhead[tool] = float(np.median(gaps[tool])) if gaps[tool] else 0.0
+            self._gaps[tool] = np.sort(np.asarray(gaps[tool] or [0.0], float))
+            self._isl_delta[tool] = np.asarray(deltas[tool] or [0], int)
+            self._spawn_rate[tool] = float(np.mean(spawns[tool]))
+
+    def _training_samples(self, train, durs, last, gaps, deltas, spawns, llm):
         for _, rows in train.session_records():
             for i, r in enumerate(rows):
                 if not _isnan(r["t_last_token"]):
@@ -44,34 +74,16 @@ class DurationModel:
                     durs[key].append(d)
                     last[key].append(1.0 if is_last else 0.0)
                     spawns[key].append(float(r["spawned_children"]))
-                if not is_last:
-                    nxt = rows[i + 1]
-                    gap = max(0.0, float(nxt["t_request"] - r["t_tool_end"]))
-                    dl = max(0, int(nxt["isl"]) - (int(r["isl"]) + int(r["osl"])))
-                    for key in (tool, POOLED):
-                        gaps[key].append(gap)
-                        deltas[key].append(dl)
-        for tool, ds in durs.items():
-            arr = np.sort(np.asarray(ds, float))
-            self.durations[tool] = arr
-            logs = np.log(arr)
-            self.lognorm[tool] = (float(logs.mean()), float(max(logs.std(), 0.1)))
-            self._no_return[tool] = float(np.mean(last[tool]))
-            self._overhead[tool] = float(np.median(gaps[tool])) if gaps[tool] else 0.0
-            self._gaps[tool] = np.sort(np.asarray(gaps[tool] or [0.0], float))
-            self._isl_delta[tool] = np.asarray(deltas[tool] or [0], int)
-            self._spawn_rate[tool] = float(np.mean(spawns[tool]))
-        self._llm = {c: np.asarray(v) for c, v in llm.items()}
-        self._sorted_llm.clear()
-        if POOLED not in self.durations:
-            self.durations[POOLED] = np.array([1.0])
-            self.lognorm[POOLED] = (0.0, 0.5)
-            self._no_return[POOLED] = 0.0
-            self._overhead[POOLED] = 0.0
-            self._isl_delta[POOLED] = np.array([0])
-            self._spawn_rate[POOLED] = 0.0
-            self._gaps[POOLED] = np.array([0.0])
-        return self
+                self._record_gap(rows, i, r, tool, gaps, deltas, is_last)
+
+    def _record_gap(self, rows, i, r, tool, gaps, deltas, is_last):
+        if not is_last:
+            nxt = rows[i + 1]
+            gap = max(0.0, float(nxt["t_request"] - r["t_tool_end"]))
+            dl = max(0, int(nxt["isl"]) - (int(r["isl"]) + int(r["osl"])))
+            for key in (tool, POOLED):
+                gaps[key].append(gap)
+                deltas[key].append(dl)
 
     @staticmethod
     def _conditional(arr: np.ndarray, elapsed: float, n: int, rng: np.random.Generator,
@@ -84,6 +96,11 @@ class DurationModel:
             pos = arr[arr > 0]
             logs = np.log(pos) if len(pos) else np.array([0.0])
             lognorm = (float(logs.mean()), float(max(logs.std(), 0.1)))
+        return DurationModel._lognormal_tail(lognorm, elapsed, n, rng)
+
+
+    @staticmethod
+    def _lognormal_tail(lognorm, elapsed, n, rng):
         mu, sigma = lognorm
         out = np.empty(n)
         filled = 0
@@ -191,7 +208,6 @@ class HistoryPredictor(SessionPredictor):
             return self._off_tool(s, now, n, rng)
         d = self._draw_duration(s, now, n, rng)
         return self._finish(s, np.maximum(d - s.elapsed(now), 0.0), n, rng)
-
 
     def next_call_isl(self, s: SessionState, n: int, rng: np.random.Generator) -> np.ndarray:
         return (s.ctx_tokens + self.dm.isl_delta(s.tool_name, n, rng)).astype(int)

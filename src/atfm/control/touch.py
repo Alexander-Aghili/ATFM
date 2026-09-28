@@ -39,6 +39,14 @@ class TouchController:
         allowed = int(math.floor(self._credit + 1e-9))
         if allowed <= 0:
             return []
+        cands = self._candidates(now, resumptions, residency, evict_frontier_age)
+        out = [TouchDirective(session_id=sid, worker_id=w, eta_q50=q50, expires_at=now + self.horizon_s)
+               for q50, sid, w in cands[:allowed]]
+        self._credit -= len(out)
+        self.issued += len(out)
+        return out
+
+    def _candidates(self, now, resumptions, residency, evict_frontier_age):
         cands = []
         for sid, r in residency.items():
             q = resumptions.get(sid)
@@ -48,11 +56,7 @@ class TouchController:
             if now - r.last_used >= frontier - self.age_s:
                 cands.append((q[1], sid, r.worker_id))
         cands.sort()
-        out = [TouchDirective(session_id=sid, worker_id=w, eta_q50=q50, expires_at=now + self.horizon_s)
-               for q50, sid, w in cands[:allowed]]
-        self._credit -= len(out)
-        self.issued += len(out)
-        return out
+        return cands
 
 
 class TierLogger:

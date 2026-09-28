@@ -55,20 +55,12 @@ def freeing_capacity(sim, now: float, slot_s: float, e_service_s: float | None) 
     return slots, blocks
 
 
-def forecast_hold_until(
-    sim: Simulator,
-    snapshot: ForecastSnapshot,
-    cfg: ProxyConfig,
-    gdp: GdpLite,
-    mean_isl: float,
-    *,
-    oracle: bool = False,
-) -> float | None:
-    """Apply the same admission rule to forecast and oracle demand.
+def forecast_hold_until(sim: Simulator, snapshot: ForecastSnapshot, cfg: ProxyConfig, gdp: GdpLite,
+                        mean_isl: float, *, oracle: bool = False) -> float | None:
+    """Shared admission rule; only the oracle can count true imminent completions.
 
-    Both paths estimate service occupancy from observed prompt sizes. Only the
-    oracle may use true completion times when counting capacity freed this slot.
-    The caller decides which requests are eligible and records the hold reason.
+    Service occupancy uses observed prompt sizes in both paths. The caller
+    selects eligible requests and records why a hold was imposed.
     """
     free_blocks = sum(w.capacity_free_blocks() for w in sim.workers)
     free_slots = sum(max(0, w.cfg.max_batch - len(w.running)) for w in sim.workers)
@@ -177,6 +169,11 @@ class OracleRulePolicy(OraclePolicy):
                 self._isl_n += 1
         H = len(self.horizons)
         samples = {tgt: {c: np.zeros((H, self.n)) for c in CLASSES} for tgt in TARGETS}
+        self._future_demand(sim, now, samples)
+        self.snapshot = ForecastSnapshot(t=now, horizons=self.horizons, model_id=self.name, samples=samples)
+        self.snapshots += 1
+
+    def _future_demand(self, sim, now, samples):
         seen: set[str] = set()
         for t, _, kind, payload in sorted(sim._heap, key=lambda x: (x[0], x[1])):
             if kind not in ("start", "arrive", "tool_end"):
@@ -190,8 +187,6 @@ class OracleRulePolicy(OraclePolicy):
                 if t <= now + h:
                     samples["kv_blocks"][cls][i, :] += float(np.ceil(isl / self.block_size))
                     samples["prefill_tokens"][cls][i, :] += float(isl)
-        self.snapshot = ForecastSnapshot(t=now, horizons=self.horizons, model_id=self.name, samples=samples)
-        self.snapshots += 1
 
     def on_arrival(self, sim, call) -> float | None:
         if call.session.program.cls != "background" or self.snapshot is None:

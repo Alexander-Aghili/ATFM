@@ -79,6 +79,24 @@ class SessionForecaster:
         hz = np.asarray(self.horizons)[:, None]
         samples = _empty(self.horizons, n)
         endo = {c: np.zeros((H, n)) for c in CLASSES}
+        self._endogenous(t, states, rng, n, hz, samples, endo)
+        self._exogenous(n, rng, samples)
+        endo_frac = {}
+        for c in CLASSES:
+            tot = samples["kv_blocks"][c]
+            frac = np.where(tot > 0, endo[c] / np.maximum(tot, 1e-12), 0.0)
+            endo_frac[c] = frac.mean(axis=1)
+        return ForecastSnapshot(t=t, horizons=self.horizons, model_id=self.predictor.name,
+                                samples=samples, endogenous_fraction=endo_frac)
+
+    def _exogenous(self, n, rng, samples):
+        for c in CLASSES:
+            for k, h in enumerate(self.horizons):
+                kv, pf = self.exo.draw(c, h, n, rng)
+                samples["kv_blocks"][c][k] += kv
+                samples["prefill_tokens"][c][k] += pf
+
+    def _endogenous(self, t, states, rng, n, hz, samples, endo):
         factors = None
         if isinstance(self.predictor, BackendPredictor):
             backends = {s.backend_id for s in states if s.backend_id is not None}
@@ -93,18 +111,6 @@ class SessionForecaster:
             samples["prefill_tokens"][s.cls] += due * isl[None, :]
             endo[s.cls] += due * kv[None, :]
             self._children(s, R, samples, rng)
-        for c in CLASSES:
-            for k, h in enumerate(self.horizons):
-                kv, pf = self.exo.draw(c, h, n, rng)
-                samples["kv_blocks"][c][k] += kv
-                samples["prefill_tokens"][c][k] += pf
-        endo_frac = {}
-        for c in CLASSES:
-            tot = samples["kv_blocks"][c]
-            frac = np.where(tot > 0, endo[c] / np.maximum(tot, 1e-12), 0.0)
-            endo_frac[c] = frac.mean(axis=1)
-        return ForecastSnapshot(t=t, horizons=self.horizons, model_id=self.predictor.name,
-                                samples=samples, endogenous_fraction=endo_frac)
 
     def _children(self, s: SessionState, R: np.ndarray, samples, rng) -> None:
         """One level of fan-out: children spawned by this session's next turn, each with a first call."""

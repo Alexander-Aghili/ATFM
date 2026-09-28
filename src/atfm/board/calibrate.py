@@ -37,6 +37,38 @@ def fit_inflation(forecaster, ticks: list[float], truth_fn, target: float = 0.9,
     `on_tick(t)` runs before each forecast (e.g. to feed arrivals to the exogenous model)."""
     rng = np.random.default_rng(0) if rng is None else rng
     grid = np.concatenate([[1.0], np.geomspace(1.05, 20.0, 60)]) if grid is None else grid
+    sample_sets, truths = _calibration_samples(forecaster, ticks, truth_fn, target_name, rng, states_fn, on_tick)
+    return _fit_factors(sample_sets, truths, grid, target)
+
+
+def _fit_factors(sample_sets, truths, grid, target):
+    H = sample_sets[CLASSES[0]][0].shape[0]
+    out = {}
+    for c in CLASSES:
+        k = np.ones(H)
+        if not any(np.any(y > 0) for y in truths[c]):
+            out[c] = k
+            continue
+        k = _class_factors(sample_sets[c], truths[c], grid, target, H)
+        out[c] = k
+    return out
+
+
+def _class_factors(samples, truths, grid, target, H):
+    k = np.ones(H)
+    for h in range(H):
+        for g in grid:
+            kk = np.ones(H)
+            kk[h] = g
+            if _coverage_at(samples, truths, kk, target)[h] >= target:
+                k[h] = g
+                break
+        else:
+            k[h] = grid[-1]
+    return k
+
+
+def _calibration_samples(forecaster, ticks, truth_fn, target_name, rng, states_fn, on_tick):
     sample_sets = {c: [] for c in CLASSES}
     truths = {c: [] for c in CLASSES}
     for t in ticks:
@@ -48,24 +80,7 @@ def fit_inflation(forecaster, ticks: list[float], truth_fn, target: float = 0.9,
         for c in CLASSES:
             sample_sets[c].append(snap.samples[target_name][c])
             truths[c].append(np.asarray(tr[c], float))
-    H = sample_sets[CLASSES[0]][0].shape[0]
-    out = {}
-    for c in CLASSES:
-        k = np.ones(H)
-        if not any(np.any(y > 0) for y in truths[c]):
-            out[c] = k
-            continue
-        for h in range(H):
-            for g in grid:
-                kk = np.ones(H)
-                kk[h] = g
-                if _coverage_at(sample_sets[c], truths[c], kk, target)[h] >= target:
-                    k[h] = g
-                    break
-            else:
-                k[h] = grid[-1]
-        out[c] = k
-    return out
+    return sample_sets, truths
 
 
 class CalibratedForecaster:

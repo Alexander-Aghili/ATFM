@@ -29,6 +29,11 @@ def oracle_etas(sim, now: float) -> dict[str, float]:
             eta[nc[0]] = float(t)
     for c in sim.proxy_queue:
         eta[c.session.program.session_id] = max(now, float(c.release_not_before))
+    _worker_etas(sim, now, eta)
+    return eta
+
+
+def _worker_etas(sim, now, eta):
     for w in sim.workers:
         for req in w.queue:
             eta[req.session_id] = now
@@ -40,7 +45,6 @@ def oracle_etas(sim, now: float) -> dict[str, float]:
             if s.turn + 1 >= len(s.program.turns) or turn.tool_name is None:
                 continue
             eta[req.session_id] = float(t_end + (turn.tool_duration or 0.0) + sim.harness_overhead_s)
-    return eta
 
 
 def oracle_resumptions(sim, now: float) -> dict[str, ResumptionQuantiles]:
@@ -177,23 +181,9 @@ class _TouchMixin:
 
     def _touch_tick(self, sim, now: float) -> None:
         resumptions = self._resumptions(sim, now)
-        residency, frontier = {}, {}
-        running_all = set()
-        for w in sim.workers:
-            running = w._running_sessions()
-            running_all |= running
-            fa = w.frontier_age(now)
-            frontier[w.worker_id] = fa if fa is not None else 0.0
-            for sid, blocks in w.resident.items():
-                if sid not in running:
-                    residency[sid] = Residency(worker_id=w.worker_id, blocks=blocks, last_used=w.last_used.get(sid, 0.0))
+        residency, frontier, running_all = self._touch_residency(sim, now)
         if self.prefetch:
-            for sid in resumptions:
-                s = sim.sessions.get(sid)
-                if sid in residency or sid in running_all or s is None or s.done:
-                    continue
-                w = s.worker if s.worker is not None else sim.workers[0]
-                residency[sid] = Residency(worker_id=w.worker_id, blocks=s.ctx // w.cfg.block_size + 1, last_used=float("-inf"))
+            self._prefetch_residency(sim, resumptions, residency, running_all)
         for d in self.touch.plan(now, resumptions, residency, frontier):
             blocks = residency[d.session_id].blocks
             if self.yield_to_requests:
@@ -204,6 +194,27 @@ class _TouchMixin:
                     continue
             sim.touch(d.session_id, blocks)
             self.touched.append((now, d.session_id))
+
+    def _prefetch_residency(self, sim, resumptions, residency, running_all):
+        for sid in resumptions:
+            s = sim.sessions.get(sid)
+            if sid in residency or sid in running_all or s is None or s.done:
+                continue
+            w = s.worker if s.worker is not None else sim.workers[0]
+            residency[sid] = Residency(worker_id=w.worker_id, blocks=s.ctx // w.cfg.block_size + 1, last_used=float("-inf"))
+
+    def _touch_residency(self, sim, now):
+        residency, frontier = {}, {}
+        running_all = set()
+        for w in sim.workers:
+            running = w._running_sessions()
+            running_all |= running
+            fa = w.frontier_age(now)
+            frontier[w.worker_id] = fa if fa is not None else 0.0
+            for sid, blocks in w.resident.items():
+                if sid not in running:
+                    residency[sid] = Residency(worker_id=w.worker_id, blocks=blocks, last_used=w.last_used.get(sid, 0.0))
+        return residency, frontier, running_all
 
 
 class OracleTouchPolicy(_TouchMixin, OraclePolicy):

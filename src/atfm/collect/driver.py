@@ -73,35 +73,40 @@ def _run_session(job: JobSpec, k: int, spec: CollectionSpec, bus, env_factory, l
     sid = f"{job.name}-{k}-{uuid.uuid4().hex[:6]}"
     deadline = None if job.deadline_s is None else clock() + job.deadline_s
     cfg = SidecarConfig(session_id=sid, tenant=job.tenant, cls=job.cls, bus=bus, gate_url=spec.proxy_url, clock=clock)
-    tools = errors = 0
+    result = {'tools': 0, 'errors': 0, 'last_error': ''}
     env = None
-    last_error = ""
     try:
         env = env_factory(job, cfg)
-        for s in job.setup:
-            out = env.execute({"command": _expand_setup(s)})
-            tools += 1
-            if out["returncode"] != 0:
-                errors += 1
-        for turn in job.turns:
-            llm(sid, job.cls, job.tenant, deadline, turn.prompt, turn.max_tokens)
-            out = env.execute({"command": turn.cmd})
-            tools += 1
-            if out["returncode"] not in (0, 1):  # test failures (1) are legitimate outcomes
-                errors += 1
-        llm(sid, job.cls, job.tenant, deadline, "final", 8)
-    except Exception as e:
-        errors += 1
-        last_error = f"{type(e).__name__}: {e}"
-        log.exception("session %s failed", sid)
+        _execute_session(job, env, llm, sid, deadline, result)
+    except Exception as exc:
+        result['errors'] += 1
+        result['last_error'] = f'{type(exc).__name__}: {exc}'
+        log.exception('session %s failed', sid)
     finally:
-        cleanup = getattr(env, "cleanup", None)
-        if callable(cleanup):
-            try:
-                cleanup()
-            except Exception:
-                pass
-    return {"tools": tools, "errors": errors, "last_error": last_error}
+        _cleanup_session(env)
+    return result
+
+
+def _execute_session(job, env, llm, sid, deadline, result):
+    for setup in job.setup:
+        output = env.execute({'command': _expand_setup(setup)})
+        result['tools'] += 1
+        result['errors'] += output['returncode'] != 0
+    for turn in job.turns:
+        llm(sid, job.cls, job.tenant, deadline, turn.prompt, turn.max_tokens)
+        output = env.execute({'command': turn.cmd})
+        result['tools'] += 1
+        result['errors'] += output['returncode'] not in (0, 1)
+    llm(sid, job.cls, job.tenant, deadline, 'final', 8)
+
+
+def _cleanup_session(env):
+    cleanup = getattr(env, 'cleanup', None)
+    if callable(cleanup):
+        try:
+            cleanup()
+        except Exception:
+            pass
 
 
 def run_collection(spec: CollectionSpec, env_factory=None, llm=None, bus=None, clock=time.time) -> dict:

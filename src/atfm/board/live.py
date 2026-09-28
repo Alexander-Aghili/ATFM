@@ -32,44 +32,48 @@ class SessionRegistry:
         return s
 
     def apply(self, e: Event) -> None:
-        k = e.kind
-        if k == "session.start":
-            s = self._get(e.session_id, e.t)
-            s.cls, s.tenant, s.parent_session_id = e.cls, e.tenant, e.parent_session_id
-            self._starts.append((e.t, e.cls))
-        elif k == "llm.request":
-            s = self._get(e.session_id, e.t)
-            s.phase, s.t_phase_start, s.turn_index = "llm_running", e.t, e.turn_index
-            s.ctx_tokens = int(e.isl) + int(e.predicted_osl or 0)
-        elif k == "llm.done":
-            s = self._get(e.session_id, e.t)
-            s.phase, s.t_phase_start = "llm_pending", e.t
-            if getattr(e, "worker_id", None):
-                s.worker_id = e.worker_id
-            s.t_last_done = e.t
-        elif k == "tool.start":
-            s = self._get(e.session_id, e.t)
-            s.phase, s.tool_name, s.backend_id = "tool_running", e.tool_name, e.backend_id
-            s.tool_args_hash = getattr(e, "args_hash", None)
+        if e.kind == 'spawn.request':
+            self._get(e.child_session_id, e.t).parent_session_id = e.parent_session_id
+            return
+        handler = _EVENT_HANDLERS.get(e.kind)
+        if handler is not None:
+            handler(self, self._get(e.session_id, e.t), e)
+
+    def _session_start(self, s, e):
+        s.cls, s.tenant, s.parent_session_id = e.cls, e.tenant, e.parent_session_id
+        self._starts.append((e.t, e.cls))
+
+    def _llm_request(self, s, e):
+        s.phase, s.t_phase_start, s.turn_index = 'llm_running', e.t, e.turn_index
+        s.ctx_tokens = int(e.isl) + int(e.predicted_osl or 0)
+
+    def _llm_done(self, s, e):
+        s.phase, s.t_phase_start = 'llm_pending', e.t
+        if getattr(e, 'worker_id', None):
+            s.worker_id = e.worker_id
+        s.t_last_done = e.t
+
+    def _tool_start(self, s, e):
+        s.phase, s.tool_name, s.backend_id = 'tool_running', e.tool_name, e.backend_id
+        s.tool_args_hash = getattr(e, 'args_hash', None)
+        s.t_tool_start, s.t_phase_start = e.t, e.t
+        s.progress, s.data = [], []
+
+    def _tool_update(self, s, e):
+        if s.phase != 'tool_running':
+            # Out-of-order progress belongs to a placeholder until its start arrives.
+            s.phase, s.tool_name, s.backend_id = 'tool_running', 'unknown', 'local'
             s.t_tool_start, s.t_phase_start = e.t, e.t
             s.progress, s.data = [], []
-        elif k in ("tool.progress", "tool.data"):
-            s = self._get(e.session_id, e.t)
-            if s.phase != "tool_running":  # out-of-order or unannounced tool: attach to a placeholder
-                s.phase, s.tool_name, s.backend_id = "tool_running", "unknown", "local"
-                s.t_tool_start, s.t_phase_start = e.t, e.t
-                s.progress, s.data = [], []
-            if k == "tool.progress":
-                s.progress.append({"t": e.t, "completed": e.completed, "total": e.total, "phase": e.phase})
-            else:
-                s.data.append({"t": e.t, "metric": e.metric, "value": e.value})
-        elif k == "tool.end":
-            s = self._get(e.session_id, e.t)
-            if s.phase == "tool_running" and s.t_tool_start is not None:
-                s.tool_history.append((s.tool_name or "unknown", max(0.0, e.t - s.t_tool_start)))
-            s.phase, s.t_phase_start = "llm_pending", e.t
-        elif k == "spawn.request":
-            self._get(e.child_session_id, e.t).parent_session_id = e.parent_session_id
+        if e.kind == 'tool.progress':
+            s.progress.append({'t': e.t, 'completed': e.completed, 'total': e.total, 'phase': e.phase})
+        else:
+            s.data.append({'t': e.t, 'metric': e.metric, 'value': e.value})
+
+    def _tool_end(self, s, e):
+        if s.phase == 'tool_running' and s.t_tool_start is not None:
+            s.tool_history.append((s.tool_name or 'unknown', max(0.0, e.t - s.t_tool_start)))
+        s.phase, s.t_phase_start = 'llm_pending', e.t
 
     def get(self, session_id: str) -> SessionState | None:
         """Look up a session without creating it or refreshing its expiry."""
@@ -100,6 +104,17 @@ class SessionRegistry:
 
     def new_starts_since(self, t: float) -> list[tuple[float, str]]:
         return [x for x in self._starts if x[0] >= t]
+
+
+_EVENT_HANDLERS = {
+    'session.start': SessionRegistry._session_start,
+    'llm.request': SessionRegistry._llm_request,
+    'llm.done': SessionRegistry._llm_done,
+    'tool.start': SessionRegistry._tool_start,
+    'tool.progress': SessionRegistry._tool_update,
+    'tool.data': SessionRegistry._tool_update,
+    'tool.end': SessionRegistry._tool_end,
+}
 
 
 class LiveBoard:

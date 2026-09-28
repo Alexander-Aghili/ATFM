@@ -134,7 +134,8 @@ class ProxyRuntime:
         except Exception:
             pass
 
-    def finish(self, entry: Entry, meta: CallMeta, rid: str, t_arr: float, t_rel: float, t_first, t_last: float, osl: int, status: int, first_emitted: bool=False) -> None:
+    def finish(self, entry: Entry, meta: CallMeta, rid: str, t_arr: float, t_rel: float, t_first,
+               t_last: float, osl: int, status: int, first_emitted: bool = False) -> None:
         if entry.done:
             return
         self.st.queue.complete(entry)
@@ -142,7 +143,10 @@ class ProxyRuntime:
             self.emit(LlmFirstToken(t=t_first, session_id=meta.session_id, request_id=rid))
         self.emit(LlmDone(t=t_last, session_id=meta.session_id, request_id=rid, osl=osl, status=status))
         if self.st.trace is not None:
-            row = {'session_id': meta.session_id, 'parent_session_id': meta.parent, 'class': meta.cls, 'tenant': meta.tenant, 'turn_index': meta.turn_index, 't_request': t_arr, 't_release': t_rel, 't_first_token': t_first, 't_last_token': t_last, 'isl': meta.isl, 'osl': osl, 'status': status}
+            row = {'session_id': meta.session_id, 'parent_session_id': meta.parent, 'class': meta.cls,
+                   'tenant': meta.tenant, 'turn_index': meta.turn_index, 't_request': t_arr,
+                   't_release': t_rel, 't_first_token': t_first, 't_last_token': t_last,
+                   'isl': meta.isl, 'osl': osl, 'status': status}
             self.st.trace.write(json.dumps(row) + '\n')
             self.st.trace.flush()
 
@@ -150,7 +154,8 @@ class ProxyRuntime:
         return {'ok': True}
 
     async def state(self):
-        return {**self.st.queue.stats(), 'predictions': dict(self.st.predictions), 'touches': self.st.touches, 'touch_tokens': self.st.touch_tokens, 'touch_failures': self.st.touch_failures}
+        return {**self.st.queue.stats(), 'predictions': dict(self.st.predictions), 'touches': self.st.touches,
+                'touch_tokens': self.st.touch_tokens, 'touch_failures': self.st.touch_failures}
 
     def apply_holds(self, holds: list[HoldUpdate]) -> dict:
         now = self.clock()

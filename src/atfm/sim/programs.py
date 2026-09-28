@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from atfm.schema.trace import TraceTable, is_missing_scalar as _nan
+from atfm.traces.generation import resolve_children
 from atfm.traces.synthetic import ClassSpec, ToolSpec, WorkloadSpec, _factor
 
 
@@ -52,6 +53,10 @@ class _Gen:
 
     def program(self, cs: ClassSpec, t_arrival: float, parent: str | None = None, max_turns: int | None = None,
                 t_abs_hint: float = 0.0) -> Program:
+        return resolve_children(self._program_steps, (cs, t_arrival, parent, max_turns, t_abs_hint))
+
+    def _program_steps(self, cs: ClassSpec, t_arrival: float, parent: str | None = None, max_turns: int | None = None,
+                t_abs_hint: float = 0.0) -> Program:
         rng, spec = self.rng, self.spec
         self.n += 1
         sid = f"{cs.cls[:2]}{self.n}"
@@ -62,6 +67,11 @@ class _Gen:
         w /= w.sum()
         turns: list[Turn] = []
         spawns: list[tuple[int, Program]] = []
+        yield from self._turn_steps(cs, n_turns, rng, spec, w, sid, t_abs_hint, turns, spawns)
+        return Program(session_id=sid, cls=cs.cls, tenant=f"t{self.n % spec.tenants}", t_arrival=t_arrival, turns=turns,
+                       deadline_s=cs.deadline_s, parent=parent, spawn_at_turn=spawns)
+
+    def _turn_steps(self, cs, n_turns, rng, spec, w, sid, t_abs_hint, turns, spawns):
         for i in range(n_turns):
             isl_new = cs.isl0 if i == 0 else cs.isl_growth
             osl = 1 + rng.poisson(cs.osl_mean)
@@ -72,13 +82,16 @@ class _Gen:
                 d = float(rng.lognormal(cs.think_log_mu, cs.think_log_sigma or 0.5))
                 turns.append(Turn(isl_new, osl, "__think__", d, "human", [], think=True))
                 continue
-            ts = cs.tools[rng.choice(len(cs.tools), p=w)]
-            d = float(rng.lognormal(ts.log_mu, ts.log_sigma)) * _factor(spec, ts.backend_id, t_abs_hint)
-            turns.append(Turn(isl_new, osl, ts.name, d, ts.backend_id, _progress_schedule(ts, d)))
+            ts = self._tool_turn(cs, rng, spec, w, t_abs_hint, turns, isl_new, osl)
             if rng.random() < ts.spawn_prob:
-                spawns.append((i, self.program(cs, 0.0, parent=sid, max_turns=int(rng.integers(1, 4)), t_abs_hint=t_abs_hint)))
-        return Program(session_id=sid, cls=cs.cls, tenant=f"t{self.n % spec.tenants}", t_arrival=t_arrival, turns=turns,
-                       deadline_s=cs.deadline_s, parent=parent, spawn_at_turn=spawns)
+                child = yield (cs, 0.0, sid, int(rng.integers(1, 4)), t_abs_hint)
+                spawns.append((i, child))
+
+    def _tool_turn(self, cs, rng, spec, w, t_abs_hint, turns, isl_new, osl):
+        ts = cs.tools[rng.choice(len(cs.tools), p=w)]
+        d = float(rng.lognormal(ts.log_mu, ts.log_sigma)) * _factor(spec, ts.backend_id, t_abs_hint)
+        turns.append(Turn(isl_new, osl, ts.name, d, ts.backend_id, _progress_schedule(ts, d)))
+        return ts
 
 
 def programs_from_spec(spec: WorkloadSpec, rng: np.random.Generator) -> list[Program]:
@@ -94,47 +107,9 @@ def programs_from_spec(spec: WorkloadSpec, rng: np.random.Generator) -> list[Pro
 
 def programs_from_table(table: TraceTable, rate_per_hour: float | None, duration_s: float,
                         rng: np.random.Generator) -> list[Program]:
-    progs: dict[str, Program] = {}
-    children: dict[str, list[Program]] = {}
-    t0 = float(table.df["t_request"].min()) if len(table.df) else 0.0   # rebase: replayed time starts at zero
-    for sid, rows in table.session_records():
-        turns: list[Turn] = []
-        prev_ctx = 0
-        for i, r in enumerate(rows):
-            reset = bool(turns) and int(r["isl"]) < prev_ctx
-            isl_new = int(r["isl"]) if (not turns or reset) else int(r["isl"]) - prev_ctx
-            prev_ctx = int(r["isl"]) + int(r["osl"])
-            tool = r["tool_name"] if not _nan(r["tool_name"]) else None
-            if tool is None or _nan(r["t_tool_start"]) or _nan(r["t_tool_end"]):
-                if i + 1 < len(rows):
-                    # no recorded tool phase but the session called again: the gap to the next request is the
-                    # think/tool time (a tool-less non-final turn would otherwise end the session in the simulator)
-                    gap = max(0.0, float(rows[i + 1]["t_request"]) - float(r["t_last_token"]))
-                    turns.append(Turn(isl_new, int(r["osl"]), "__gap__", gap, "local", [], think=True, reset=reset))
-                else:
-                    turns.append(Turn(isl_new, int(r["osl"]), None, None, reset=reset))
-                continue
-            d = max(0.0, float(r["t_tool_end"]) - float(r["t_tool_start"]))
-            think = tool in ("__think__", "__gap__")
-            prog = [(float(e["t"]) - float(r["t_tool_start"]), float(e["completed"]),
-                     None if e.get("total") is None else float(e["total"])) for e in (r["progress_events"] or [])]
-            backend = r["backend_id"] if not _nan(r["backend_id"]) else "local"
-            turns.append(Turn(isl_new, int(r["osl"]), tool, d, backend, prog, think=think, reset=reset))
-        parent = rows[0]["parent_session_id"] if not _nan(rows[0]["parent_session_id"]) else None
-        p = Program(session_id=sid, cls=rows[0]["class"], tenant=rows[0]["tenant"], t_arrival=float(rows[0]["t_request"]) - t0,
-                    turns=turns, parent=parent)
-        progs[sid] = p
-        if parent is not None:
-            children.setdefault(parent, []).append(p)
+    progs, children = _table_programs(table)
     roots = [p for p in progs.values() if p.parent is None]
-    for root in roots:
-        for child in children.get(root.session_id, []):
-            idx, t = 0, root.t_arrival
-            for i, tr in enumerate(root.turns):
-                if child.t_arrival >= t:
-                    idx = i
-                t += tr.tool_duration or 0.0
-            root.spawn_at_turn.append((idx, child))
+    _attach_children(roots, children)
     if rate_per_hour:
         n = rng.poisson(rate_per_hour * duration_s / 3600.0)
         starts = np.sort(rng.uniform(0.0, duration_s, size=n))
@@ -143,9 +118,79 @@ def programs_from_table(table: TraceTable, rate_per_hour: float | None, duration
     return sorted(roots, key=lambda p: p.t_arrival)
 
 
+def _table_programs(table):
+    progs: dict[str, Program] = {}
+    children: dict[str, list[Program]] = {}
+    t0 = float(table.df["t_request"].min()) if len(table.df) else 0.0   # rebase: replayed time starts at zero
+    for sid, rows in table.session_records():
+        turns = _table_turns(rows)
+        parent = rows[0]["parent_session_id"] if not _nan(rows[0]["parent_session_id"]) else None
+        p = Program(session_id=sid, cls=rows[0]["class"], tenant=rows[0]["tenant"], t_arrival=float(rows[0]["t_request"]) - t0,
+                    turns=turns, parent=parent)
+        progs[sid] = p
+        if parent is not None:
+            children.setdefault(parent, []).append(p)
+    return progs, children
+
+
+def _attach_children(roots, children):
+    for root in roots:
+        for child in children.get(root.session_id, []):
+            idx, t = 0, root.t_arrival
+            for i, tr in enumerate(root.turns):
+                if child.t_arrival >= t:
+                    idx = i
+                t += tr.tool_duration or 0.0
+            root.spawn_at_turn.append((idx, child))
+
+
+def _table_turns(rows):
+    turns: list[Turn] = []
+    prev_ctx = 0
+    for i, r in enumerate(rows):
+        reset = bool(turns) and int(r["isl"]) < prev_ctx
+        isl_new = int(r["isl"]) if (not turns or reset) else int(r["isl"]) - prev_ctx
+        prev_ctx = int(r["isl"]) + int(r["osl"])
+        tool = r["tool_name"] if not _nan(r["tool_name"]) else None
+        is_gap = _gap_turn(rows, i, r, isl_new, reset, turns, tool)
+        if is_gap:
+            continue
+        d = max(0.0, float(r["t_tool_end"]) - float(r["t_tool_start"]))
+        think = tool in ("__think__", "__gap__")
+        prog = [(float(e["t"]) - float(r["t_tool_start"]), float(e["completed"]),
+                 None if e.get("total") is None else float(e["total"])) for e in (r["progress_events"] or [])]
+        backend = r["backend_id"] if not _nan(r["backend_id"]) else "local"
+        turns.append(Turn(isl_new, int(r["osl"]), tool, d, backend, prog, think=think, reset=reset))
+    return turns
+
+
+def _gap_turn(rows, i, r, isl_new, reset, turns, tool):
+    if tool is None or _nan(r["t_tool_start"]) or _nan(r["t_tool_end"]):
+        if i + 1 < len(rows):
+            # no recorded tool phase but the session called again: the gap to the next request is the
+            # think/tool time (a tool-less non-final turn would otherwise end the session in the simulator)
+            gap = max(0.0, float(rows[i + 1]["t_request"]) - float(r["t_last_token"]))
+            turns.append(Turn(isl_new, int(r["osl"]), "__gap__", gap, "local", [], think=True, reset=reset))
+        else:
+            turns.append(Turn(isl_new, int(r["osl"]), None, None, reset=reset))
+        return True
+    return False
+
+
 def _clone(p: Program, suffix: str, t_arrival: float) -> Program:
-    """Copy a program (and its children, recursively) under a new id suffix so overlay copies never collide."""
-    kids = [(idx, _clone(c, suffix, 0.0)) for idx, c in p.spawn_at_turn]
-    parent = None if p.parent is None else f"{p.parent}{suffix}"
-    return Program(session_id=f"{p.session_id}{suffix}", cls=p.cls, tenant=p.tenant, t_arrival=t_arrival, turns=p.turns,
-                   deadline_s=p.deadline_s, parent=parent, spawn_at_turn=kids)
+    """Clone a program tree iteratively; turns remain shared and identifiers gain a suffix."""
+    root = _clone_node(p, suffix, t_arrival)
+    stack = [(p, root)]
+    while stack:
+        original, clone = stack.pop()
+        for index, child in original.spawn_at_turn:
+            copied = _clone_node(child, suffix, 0.0)
+            clone.spawn_at_turn.append((index, copied))
+            stack.append((child, copied))
+    return root
+
+
+def _clone_node(p, suffix, t_arrival):
+    parent = None if p.parent is None else f'{p.parent}{suffix}'
+    return Program(session_id=f'{p.session_id}{suffix}', cls=p.cls, tenant=p.tenant,
+                   t_arrival=t_arrival, turns=p.turns, deadline_s=p.deadline_s, parent=parent)

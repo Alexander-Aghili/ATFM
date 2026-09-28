@@ -33,6 +33,14 @@ class KalmanSeries(SeriesPredictor):
         R = np.array([[self.r]]) * scale * 0.1
         x = np.array([y[0], 0.0])
         P = np.eye(2) * scale
+        x, P = self._filter(y, F, Hm, Q, R, x, P)
+        x = F @ x
+        P = F @ P @ F.T + Q
+        mean = float(x[0])
+        var = float((Hm @ P @ Hm.T + R)[0, 0])
+        return np.clip(rng.normal(mean, np.sqrt(var), size=n), 0.0, None)
+
+    def _filter(self, y, F, Hm, Q, R, x, P):
         for obs in y:
             x = F @ x
             P = F @ P @ F.T + Q
@@ -40,8 +48,4 @@ class KalmanSeries(SeriesPredictor):
             K = P @ Hm.T / S
             x = x + (K * (obs - Hm @ x)).ravel()
             P = (np.eye(2) - K @ Hm) @ P
-        x = F @ x
-        P = F @ P @ F.T + Q
-        mean = float(x[0])
-        var = float((Hm @ P @ Hm.T + R)[0, 0])
-        return np.clip(rng.normal(mean, np.sqrt(var), size=n), 0.0, None)
+        return x, P

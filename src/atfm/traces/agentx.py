@@ -41,14 +41,18 @@ def _calls_to_rows(session_id: str, parent: str | None, calls: list[dict], group
                   t_request=t_req, t_first_token=t_first, t_last_token=t_last, isl=int(r["in"]), osl=int(r["out"]),
                   prefix_hit_tokens=_shared_prefix_tokens(prev_hash, r.get("hash_ids") or [], block_size),
                   source="agentx")
-        if nxt is not None:
-            t_end = max(float(nxt["t"]), t_last)  # overlapping requests give a zero-length phase
-            spawned = [g for g in groups if t_last <= float(g["t"]) < t_end]
-            kw.update(tool_name="Agent" if spawned else GAP, backend_id="unknown", t_tool_start=t_last,
-                      t_tool_end=t_end, tool_exit_status=0, spawned_children=len(spawned))
+        _call_gap(nxt, t_last, groups, kw)
         rows.append(TraceRow(**kw))
         prev_hash = r.get("hash_ids") or []
     return rows
+
+
+def _call_gap(nxt, t_last, groups, kw):
+    if nxt is not None:
+        t_end = max(float(nxt["t"]), t_last)  # overlapping requests give a zero-length phase
+        spawned = [g for g in groups if t_last <= float(g["t"]) < t_end]
+        kw.update(tool_name="Agent" if spawned else GAP, backend_id="unknown", t_tool_start=t_last,
+                  t_tool_end=t_end, tool_exit_status=0, spawned_children=len(spawned))
 
 
 def trace_to_rows(trace: dict, cls: str = "interactive", tenant: str | None = None) -> list[TraceRow]:

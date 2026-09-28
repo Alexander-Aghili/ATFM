@@ -22,3 +22,20 @@ public entry points, and failure behavior remain part of the contract.
 
 Initial runtime stage: 217 tests passed across proxy, board, control, and sidecar;
 one dependency deprecation warning. Broader validation follows subsequent stages.
+
+## Forecast and simulation boundaries
+
+Training-data collection, empirical fitting, calibration-grid search, forecast
+aggregation, and evaluation summaries now have separate functions. Numeric
+operations and RNG ordering are unchanged. Simulator orchestration dispatches
+arrival, completion, tool, and tick events through explicit handlers; recording
+results is separate from advancing sessions. JSONL reading keeps its original
+cursor commit boundary and bounded-read behavior.
+
+Synthetic program/session generation now uses an explicit depth-first stack.
+Parents resume only after their children finish, preserving seeded draw order.
+Program cloning also uses a stack. Both avoid Python recursion limits while
+retaining O(depth) traversal storage. New tests exercise 2,000-level families.
+
+Core-stage validation: the existing full suite passed (420 passed, five skipped,
+six existing warnings). All maintained core functions meet the 20-line limit.
