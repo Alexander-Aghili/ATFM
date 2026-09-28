@@ -1,0 +1,73 @@
+\section{The problem the serving stack actually solves}
+\label{sec:orientation}
+A model checkpoint describes a computation. A serving system must decide when,
+where, and with what retained state to perform that computation for many users
+at once. Two prompts of the same length can have very different service costs:
+one may reuse a cached prefix on an idle GPU; another may need a full prefill,
+a remote transfer, or admission behind a long queue. A fleet with fast kernels
+can still deliver poor latency if it repeatedly recomputes old contexts or
+routes requests to an overloaded cache-rich worker.
+
+An agent makes the problem more temporal. A coding agent may generate a command,
+wait for a test suite, append its output, and ask the model again. During the
+wait, the GPU sees no active decode for that session. Nevertheless, retaining
+some state may save work when the tool finishes. Retaining everything can also
+prevent other sessions from making progress. The decision requires the cost of
+keeping state, the cost of losing it, and the likely time until reuse.
+
+\subsection{A map of responsibilities}
+Figure~\ref{fig:stack} distinguishes six layers. The application determines
+semantics and dependencies. A gateway enforces request limits and routes work.
+An inference engine schedules token computation and manages active state.
+Kernels implement tensor operations. A cache service extends where reusable
+state can live. A tool runtime executes non-LLM work. A single product can span
+several layers; the boundaries describe responsibilities, not mandatory processes.
+
+\fig{stack}{0.95}{A conceptual serving stack. Arrows denote request or data exchange,
+not a mandated implementation. ATFM primarily concerns the information and policy
+between applications and serving; it does not replace GPU kernels.}{stack}
+
+\begin{table}[htbp]\centering\small
+\caption{Questions that belong to different layers.}
+\begin{tabularx}{\linewidth}{@{}lXX@{}}\toprule
+Layer & Main question & Typical cost of a wrong decision\\\midrule
+Kernel & How do these tensors execute efficiently? & Extra device IO or compute\\
+Engine & Which token work fits this iteration? & Stalls, preemption, wasted capacity\\
+Cache & Which reusable state should exist where? & Recompute, transfer, occupied memory\\
+Router & Which worker should receive this request? & Queueing or lost locality\\
+Admission & Should this work enter now? & Overload or unnecessary delay\\
+Agent control & What is likely to arrive after a tool? & Missed preparation or wasted reservation\\\bottomrule
+\end{tabularx}\end{table}
+
+\subsection{How to read this paper}
+Readers new to serving should start with the equations and worked memory example
+in Section~\ref{sec:fundamentals}, then the engine and cache sections. Readers
+already operating vLLM can focus on cache movement, agent scheduling, and the
+ATFM assessment. The appendix provides notation, terminology, a diagnosis guide,
+and a reading sequence. Equations are models with stated assumptions, not
+universal performance predictors.
+
+The survey is broad but deliberately bounded. It emphasizes autoregressive
+transformer inference, open serving infrastructure, and systems relevant to
+agent traffic. Training, model-quality leaderboards, mobile inference, and every
+proprietary platform are outside scope. ``State of the art'' means the relevant
+research frontier and actively documented mechanisms, not one universally
+fastest system. Published comparisons differ in hardware, model, workload,
+cache warmness, implementation generation, and latency constraints. Their
+headline speedups cannot be put in one league table.
+
+\subsection{Three kinds of evidence}
+\textbf{Established mechanism} means a cited paper or implementation documents
+how a technique works. \textbf{Analytical illustration} means a derivation or a
+synthetic example in this paper, with explicit numbers and assumptions.
+\textbf{ATFM evidence} means a result recorded in this repository. A source's
+reported benchmark is evidence for that source's configuration, not an ATFM
+result. Recent preprints are marked as such; living documentation has an access
+date. We use primary papers and project documentation, and avoid reproducing
+vendor peak-throughput rankings.
+
+The central hypothesis is intentionally narrower than ``agents need better
+serving'': conditional information about a paused session can improve a future
+resource decision enough to pay for obtaining and acting on that information.
+A forecast with lower statistical error is not sufficient. The decision must
+change, complete before it matters, and improve a user-relevant outcome.

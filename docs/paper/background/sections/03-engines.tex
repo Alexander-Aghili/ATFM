@@ -1,0 +1,166 @@
+\section{Inside an inference engine}
+\label{sec:engines}
+\subsection{From static batches to iteration-level scheduling}
+In a static batch, requests can remain tied together until the longest member
+finishes. A request producing ten tokens then wastes potential participation
+while another produces a thousand. Iteration-level scheduling chooses the active
+set again between model iterations, allowing finished requests to leave and
+new work to enter. Orca established this design for generative-model
+serving~\cite{orca}. ``Continuous batching'' is the common operational term.
+
+Consider three requests with output lengths 2, 5, and 3. In a deliberately
+simplified model where a three-slot iteration has constant cost, a fixed batch
+runs five iterations for ten useful token updates out of fifteen possible
+slots. A dynamic scheduler can fill vacated slots with new requests. This
+example demonstrates available scheduling opportunity, not a $15/10$ speedup:
+real iteration time changes with batch composition, prompt work, and cache
+length. The scheduler also needs free state capacity before admitting work.
+
+The engine's queue is not interchangeable with the external gateway queue.
+Once admitted, a request may consume KV blocks and compete for token budget.
+Holding a request outside the engine avoids some of that pressure but adds
+waiting before execution. A useful gateway admission policy must understand
+what the engine can already do, otherwise it can reduce batching and leave the
+GPU idle.
+
+\subsection{PagedAttention and the vLLM memory model}
+The foundational vLLM design maps a sequence's logical KV blocks to physical
+blocks allocated as needed. Blocks do not have to be adjacent in GPU memory.
+This reduces large reservations and external fragmentation, and permits shared
+blocks with reference counting and copy-on-write behavior~\cite{paged}.
+Paging does not compress the tensors in Equation~\ref{eq:kvbytes}.
+
+For a block capacity of $p$ tokens, sequence $i$ with $T_i$ tokens requires
+$\lceil T_i/p\rceil$ blocks. Its unused tail is
+\begin{equation}
+ w_i=p\left\lceil T_i/p\right\rceil-T_i,\qquad 0\le w_i<p.
+\end{equation}
+Ignoring shared blocks, tail waste is less than $Bp$ token slots for $B$
+sequences. Larger blocks reduce some metadata and indexing overheads but
+coarsen allocation and reuse; smaller blocks can reduce unused tails while
+increasing management work. These are design tradeoffs, not a universal best
+block size. The appropriate choice also depends on the attention backend and
+model's supported layouts.
+
+\fig{paging}{1.0}{Logical-to-physical cache mapping. The first two logical blocks
+are shared; suffix blocks are private. Physical IDs need not be contiguous.
+An extension that would modify shared state requires safe ownership handling.}{paging}
+
+vLLM's versioned prefix-cache design identifies full blocks using a chain of
+hashes over prior-prefix identity, current tokens, and relevant extra identity
+fields. A new request can reuse a matching prefix; reference counts and a free
+block structure distinguish currently used from evictable blocks~\cite{prefix}.
+A prefix can be logically cached yet be evicted when space is needed. An active
+reference protects state required by a current computation; retaining a
+finished session's state is a separate policy problem.
+
+\paragraph{Walkthrough: two related prompts.}
+Suppose prompts are ``system + repository + task A'' and ``system + repository +
+task B''. If tokenization and all computational identity match through the
+repository portion, those prefix blocks can be reused. If the first differing
+token is inside a block, a block-level implementation's reuse boundary may be
+before that token. Hash lookup is not a semantic similarity search. Changing a
+system instruction near the front can invalidate later exact-prefix reuse even
+when most natural-language content looks similar.
+
+\subsection{vLLM V1: token budgets and host overhead}
+The V1 guide describes a unified scheduler assigning token counts per request,
+rather than entirely separate scheduling abstractions for prompt and output
+phases. This supports composing chunked prefill, prefix caching, and speculative
+work within a token-budget model~\cite{v1}. The abstraction matters because the
+engine can control work more finely than a gateway that only counts requests.
+An 80-token prompt and an 80,000-token prompt are not equal demand.
+
+A conceptual budget is
+\begin{equation}
+ \sum_{i\in\mathcal A}n_i^{\mathrm{scheduled}}\le K,
+ \qquad M_{\mathrm{active}}+M_{\mathrm{reserved}}\le M_{\mathrm{KV,budget}}.
+\end{equation}
+A token count is only a proxy for work: decode at long context has a different
+cost from a short-context token, and full, local, and latent attention differ.
+The hardware ultimately constrains time and memory, not abstract token units.
+
+The host still tokenizes, validates requests, maintains scheduling metadata,
+prepares tensors, and processes outputs. A model server can use Python at the
+orchestration layer while kernels and collectives execute in compiled code.
+The relevant question is whether Python lies on the measured critical path.
+Moving every component to Rust does not change the amount of KV data read by a
+GPU or transferred over a link. Removing repeated scans, redundant RPCs, or
+avoidable serialization can matter before a language change does.
+
+\subsection{Chunked prefill and interference}
+A large prefill inserted among active decodes can delay their next tokens.
+Chunking divides prompt work across iterations, placing a bound on how much
+prefill competes with decode at once. Sarathi-Serve develops scheduling around
+chunked prefills to manage this throughput/latency tension~\cite{sarathi}.
+
+Let a chunk have $c$ tokens and estimated execution time $t_p(c,B,T)$ under the
+current decode set. A conceptual ITL budget imposes
+\begin{equation}
+ t_d(B,T)+t_p(c,B,T)+t_{\mathrm{other}}\le\tau_{\mathrm{ITL}}.
+\end{equation}
+This additive approximation is conservative when work overlaps and optimistic
+when it ignores interference. Smaller $c$ creates more scheduling boundaries
+and may hurt compute efficiency. Larger $c$ can improve prompt throughput while
+worsening decode tail gaps. Adaptive chunking requires measured response surfaces,
+not simply choosing the smallest chunk.
+
+\subsection{Other engine designs and why comparison matters}
+\textbf{SGLang.} Its original work combines structured LLM-program execution
+with RadixAttention, representing reusable prefixes in a radix-tree-oriented
+cache~\cite{sglang}. This is an alternative organization of prefix reuse, not
+an absence of memory constraints. Its current HiCache design extends reuse
+beyond GPU memory; Section~\ref{sec:hierarchy} separates that layer from the
+original engine mechanism.
+
+\textbf{TensorRT-LLM.} The documented KV subsystem includes block pools, reuse,
+secondary-memory offload, and prioritized eviction. Retention can attach
+priorities to token ranges~\cite{trt}. Therefore a blanket statement that
+``engines expose no retention controls'' is incorrect. ATFM must discover which
+control is available in the deployed backend and compare against that engine's
+best native retention policy.
+
+\textbf{vAttention.} The memory-management paper with this name keeps the
+virtual address layout contiguous while mapping physical GPU memory on demand
+using CUDA virtual-memory APIs~\cite{vattention}. It addresses fragmentation
+without requiring the same non-contiguous virtual layout as PagedAttention.
+This paper is distinct from a later sparse-attention project with the same
+name. The broader lesson is that block paging is one way to manage growing
+state, not a mathematical prerequisite for efficient inference.
+
+\subsection{Speculation, quantization, and parallel execution}
+Speculative decoding generates candidate tokens with a cheaper draft process
+and verifies them using the target model. With the appropriate acceptance and
+correction algorithm it can preserve the target sampling distribution~\cite{spec}.
+A simple throughput comparison is
+\begin{equation}
+ t_{\mathrm{effective\ token}}\approx
+ \frac{t_{\mathrm{draft}}(k)+t_{\mathrm{verify}}(k)+t_{\mathrm{control}}}
+      {\E[A(k)]},
+\end{equation}
+where $A(k)$ counts emitted tokens per round under the exact implementation,
+including any additional verified token. Acceptance, draft overhead, available
+batching, and memory use determine whether the method helps. A request-level
+capacity estimator must not assume one target forward pass always equals one
+emitted token.
+
+Weight quantization reduces model storage/traffic; KV quantization reduces
+sequence-state traffic. They alter different terms in the budget. KIVI studies
+asymmetric low-bit quantization of keys and values~\cite{kivi}; low-bit cache
+storage requires numerical-quality evaluation, scale metadata, and suitable
+kernels. A factor-of-eight reduction in scalar bit width does not imply an
+end-to-end factor-of-eight memory or latency reduction.
+
+Parallelism redistributes work rather than removing it. Tensor parallelism
+splits operations and adds collectives; pipeline parallelism splits layers and
+can suffer bubbles; data parallelism creates independent model replicas and
+needs routing; context parallelism spreads long sequence work; expert parallelism
+routes mixture-of-experts tokens among expert shards. A fleet may combine them.
+A cache-local routing decision that ignores collective topology can be worse
+than a small cache miss on a better-connected worker group.
+
+\takeaway{Before adding a higher-level controller, establish a tuned engine
+baseline with continuous batching, appropriate kernels, realistic token budgets,
+and the native cache/reuse features supported by the chosen model. ATFM should
+be evaluated on top of that baseline, not credited for optimizations already
+available in it.}

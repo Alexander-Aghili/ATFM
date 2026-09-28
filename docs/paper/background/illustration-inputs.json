@@ -1,0 +1,30 @@
+{
+  "kind": "analytical illustrations, not measured results",
+  "kv": {
+    "layers": 32,
+    "head_dim": 128,
+    "element_bytes": 2,
+    "kv_heads": [
+      32,
+      8,
+      1
+    ]
+  },
+  "transfer": {
+    "fixed_overhead_ms": 1,
+    "effective_GiB_s": [
+      8,
+      25,
+      100
+    ],
+    "assumed_recompute_ms": 150
+  },
+  "retention": {
+    "return_distribution": "Normal(20,5) truncated below zero",
+    "miss_cost_s": 0.2,
+    "opportunity_cost_s_per_s": [
+      0.002,
+      0.008
+    ]
+  }
+}

@@ -1,0 +1,175 @@
+\section{Notation and units}
+\begin{longtable}{@{}p{0.19\linewidth}p{0.73\linewidth}@{}}
+\toprule Symbol & Meaning\\\midrule\endfirsthead
+\toprule Symbol & Meaning\\\midrule\endhead
+$L,d,d_h$ & Layer count, hidden width, per-head dimension\\
+$H_q,H_{kv}$ & Query heads and KV heads; they need not be equal\\
+$T,U$ & Prompt/context length and number of generated output tokens\\
+$b$ & Bytes per stored scalar; scales/metadata may be additional\\
+$B$ & Active batch size in engine examples; directive batch size only in the explicitly defined ATFM table\\
+$p$ & Tokens per physical cache block\\
+$M_{\mathrm{KV}}$ & KV payload bytes, with sharding/replication specified separately\\
+$P_{\mathrm{eff}}$ & Effective compute rate for the actual operations/shapes\\
+$B_{\mathrm{effective}}$ & Effective bandwidth in bytes/s, not bits/s\\
+$Q,N,K,H,F$ & Queued requests, sessions, Monte Carlo samples, forecast horizons, and candidate time slots\\
+$R_i,D_{ir}$ & Session return time and its demand for resource $r$\\
+$C_{rs}$ & Usable capacity for resource $r$ in slot $s$ under a stated model\\
+$F(t),S(t),h(t)$ & CDF, survival function, and hazard of a duration/residual distribution\\
+$\rho$ & Utilization under the simplified queue model\\
+$\tau,\epsilon$ & A time/SLO bound and a probability-risk budget, respectively\\\bottomrule
+\end{longtable}
+
+A KiB is $2^{10}$ bytes and a GiB is $2^{30}$ bytes; a GB is $10^9$ bytes.
+A 100 Gb/s link has a raw decimal byte rate of 12.5 GB/s before protocol and
+implementation overhead, approximately 11.64 GiB/s. Do not substitute 100 GB/s
+into a transfer equation for such a link. In the illustrations, bandwidth is
+explicitly in GiB/s to match payload units. A model's advertised maximum context
+length is a supported per-sequence limit, not a promise that many maximum-length
+sequences fit or meet an SLO simultaneously.
+
+\section{Terminology that is easy to conflate}
+\begin{description}[style=nextline,leftmargin=0pt]
+\item[KV cache versus response cache]
+KV caches intermediate attention state. Response caching returns a previously
+produced answer and requires its own semantic/freshness contract. Reusing KV can
+still produce a different output sample.
+\item[Prefix reuse versus session identity]
+A session label is application metadata. Exact reuse depends on compatible
+model state and prefix tokens. Two different sessions may share a prefix; two
+requests in one session may lose reuse after editing earlier context.
+\item[Cache hit versus ready state]
+A metadata hit says an object is known at a location. Execution also requires
+valid ownership, complete transfer, compatible layout, and synchronization.
+\item[Eviction versus offload versus deletion]
+Eviction removes an object from a tier's available resident set. Offload preserves
+a representation elsewhere. Deletion removes the retained representation from
+the relevant store. Exact meanings are API-specific.
+\item[Pin versus priority versus touch]
+A pin normally constrains eviction in a defined location. Priority changes
+relative preference. A touch causes an access that may affect recency. They are
+not interchangeable guarantees, and an external-store pin need not pin engine HBM.
+\item[Continuous batching versus request concurrency]
+Concurrency counts outstanding requests. Continuous batching chooses token work
+between iterations. Large concurrency can increase queueing without increasing
+useful device work.
+\item[Prefill/decode disaggregation versus model parallelism]
+Disaggregation separates request phases. Model parallelism splits one phase's
+model execution across devices. They can be combined.
+\item[Goodput versus throughput]
+Throughput counts completed work under a chosen unit. Goodput counts work meeting
+an explicit quality or latency condition. Both need the offered workload and
+resource budget for interpretation.
+\item[Prediction interval versus capacity guarantee]
+A calibrated interval describes outcome frequency under an evaluated distribution.
+It is not proof that a controller remains safe after arbitrary distribution
+shift or that joint resource risks have been bounded.
+\end{description}
+
+\section{A complete example: one agent returning to a changed fleet}
+This example is constructed for explanation. It is not a simulator result or a
+measurement. Use the 128 KiB/token cache geometry from
+Equation~\ref{eq:kvbytes}. An agent has an 8192-token prefix (1 GiB), finishes a
+turn, and launches a tool. Another workload needs memory while it waits.
+
+\begin{enumerate}
+\item \textbf{At departure}, the engine releases active references according to
+its policy. Retained blocks may remain reusable but evictable. An external cache
+may also have a copy; do not assume one was written merely because offload is
+configured.
+\item \textbf{During the gap}, a progress update changes the predicted remaining
+time to approximately two seconds with uncertainty. If a CPU copy exists, a
+forecasting policy might arrange a restore shortly before the expected return.
+It must include current transfer queueing and destination capacity.
+\item \textbf{At arrival}, the tool result adds 512 tokens. A perfect old-prefix
+hit still requires processing that suffix and its attention to prior context.
+The full new payload at 8704 tokens is 1.0625 GiB, before output growth.
+\item \textbf{At routing}, worker A has the old prefix but 200 ms of estimated
+queueing. Worker B is idle but would pay an assumed 150 ms recomputation penalty.
+Ignoring all other differences, B can win. If A's queue is only 20 ms, A can win.
+Locality must be valued in time, not treated as an absolute preference.
+\item \textbf{After a restore}, an operation acknowledgement must establish which
+bytes became usable and where. If it only confirms admission to an asynchronous
+transfer queue, the engine may still be unable to start.
+\item \textbf{At evaluation}, compare job completion and other tenants' latency.
+Saving this agent 150 ms while delaying ten others by 30 ms each may worsen a
+sum-of-latencies objective. A class-weighted objective could prefer a different
+choice; state those weights explicitly.
+\end{enumerate}
+
+A shared prefix further changes the accounting. If four sessions genuinely
+share the same 1 GiB physical prefix, its retained payload is not 4 GiB. It can
+also have higher reuse value than a private 1 GiB suffix. A session-level policy
+that ignores block sharing can double-count memory and independently evict or
+pin state whose ownership is shared. The actuator must reconcile these decisions
+with the engine's object/block identities.
+
+\section{A diagnosis guide for slow serving}
+\begin{longtable}{@{}p{0.25\linewidth}p{0.31\linewidth}p{0.37\linewidth}@{}}
+\toprule Symptom & Candidate explanation & Measurement that distinguishes it\\\midrule
+\endfirsthead\toprule Symptom & Candidate explanation & Measurement that distinguishes it\\\midrule\endhead
+High TTFT, low GPU busy time & Queueing outside engine, CPU dispatch, cache IO & Per-stage trace; frontend queue age; CPU/event-loop profile; transfer completion\\
+High TTFT, heavy prefill work & Long prompts or poor prefix reuse & Uncached input tokens; cache identity/hit lengths; prefill kernel duration\\
+Long ITL spikes & Prefill interference, collectives, pauses & Iteration composition; chunk size; device trace; per-token delivery timing\\
+Frequent recompute/preemption & Active-state pressure or weak retention & Free/used blocks; eviction reason; prefix age; memory by owner\\
+High hit rate but little benefit & Remote hits, short saved prefixes, hot worker & Saved compute time versus lookup/restore/queue time\\
+Throughput plateaus with spare GPU & CPU/router/generator saturation & Per-process CPU, event-loop lag, offered versus delivered arrival rate\\
+Good call latency, poor job latency & Tools, orchestration, serial dependencies & Whole-session critical-path trace and task-success metric\\
+Prediction fallbacks rise at scale & Shared CPU or unbounded work backlog & Prediction deadline misses, queue age, cancellation effectiveness\\
+Prefetch improves one class only & Transfer/memory interference or unfairness & Per-tenant latency and bandwidth; wasted prefetch and retention time\\\bottomrule
+\end{longtable}
+
+Use a profiler to locate time and an uninstrumented run to measure the effect
+of a change. Instrumentation can distort short operations and asynchronous
+scheduling. A fake worker is useful for isolating HTTP and controller overhead,
+but cannot establish the balance of GPU kernels, HBM, collectives, and actual KV
+transfers. Likewise, an offline maximum-throughput benchmark is not evidence
+about an open arrival process under tail-latency constraints.
+
+\section{Repository map and evidence trail}
+\label{sec:code-map}
+These paths are relative to the ATFM repository and identify the prototype's
+implementation/evidence at the baseline revision. They are not upstream API
+contracts. The repository is available at
+\url{https://github.com/Alexander-Aghili/ATFM/tree/900d63b}.
+
+\begin{longtable}{@{}p{0.43\linewidth}p{0.50\linewidth}@{}}
+\toprule Path & Responsibility or evidence\\\midrule\endfirsthead
+\toprule Path & Responsibility or evidence\\\midrule\endhead
+\path{src/atfm/sidecar/} & Tool execution, progress extraction, configuration, harness adapters\\
+\path{src/atfm/board/} & Session state, forecasts, predictors, aggregation, live HTTP board\\
+\path{src/atfm/proxy/queue.py} & Persistent admission indexes and timed release\\
+\path{src/atfm/control/gdp.py} & Bounded-delay slot assignment and empirical resource tests\\
+\path{src/atfm/control/touch.py} & Budgeted touches and tier recommendations\\
+\path{src/atfm/control/lmcache.py} & Configurable HTTP actuator; current upstream compatibility remains open\\
+\path{src/atfm/sim/} & Modeled engine and policy comparisons\\
+\path{experiments/} & CPU, serving, forecasting, and profiling studies outside the core package\\
+\path{docs/status.md} & Implemented versus validated capabilities\\
+\path{docs/development/control-scaling.md} & Algorithms, exact contracts, complexity, retained benchmarks\\
+\path{docs/research/2026-09-27-proxy-profiling.md} & Proxy profiles, dependency correction, latency and timeout tradeoffs\\
+\path{docs/research/2026-09-28-core-refactor.md} & Refactor decisions, parity hashes, timing limits, final tests\\
+\path{docs/paper/control-implementation.tex} & Main research paper's control implementation/evidence section\\\bottomrule
+\end{longtable}
+
+The background paper intentionally has its own source, figures, and bibliography.
+It can be rebuilt without rewriting the main research manuscript or its frozen
+results. Original architecture diagrams are editable reladraw files. Mathematical
+plots are generated by \path{plots.py}; \path{illustration-inputs.json} records
+assumptions. No illustration should be relabelled as experimental evidence.
+
+\section{Reading sequence and open questions}
+A productive sequence is: attention and GQA for the representation; Orca and
+PagedAttention for scheduling and allocation; Sarathi-Serve and DistServe for
+phase interference; SGLang/HiCache, LMCache, and Mooncake for reuse and movement;
+Preble, Dynamo, and llm-d for fleet composition; then Continuum and ThunderAgent
+for the direct agent-scheduling comparison. Read the relevant current project
+documentation before implementing an integration: a paper explains a design,
+but does not pin today's connector or controller API.
+
+Three questions deserve priority after the present documentation work.
+First, how much predictive information does tool progress add over age and tool
+identity at the precise lead times required by a real actuator? Second, can a
+pinned serving/cache stack turn that information into measurable ready-state
+advantages without increasing contention elsewhere? Third, after accounting for
+control overhead and fairness, is there a robust workload region where ATFM
+improves joint-SLO goodput or whole-job completion over strong simple policies?
+These questions connect the background directly to a falsifiable research plan.

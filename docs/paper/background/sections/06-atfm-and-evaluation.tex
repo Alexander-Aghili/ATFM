@@ -1,0 +1,253 @@
+\section{Where ATFM fits, and what would make it useful}
+\label{sec:atfm}
+\subsection{The specific information advantage being proposed}
+ATFM observes session/tool events, maintains a live forecast board, and turns
+forecasts into admission or placement-related directives. Its potential
+advantage is \emph{lead time}: a tool-progress update may reveal a return before
+a gateway sees the next LLM request. A router choosing among destinations for
+an already-arrived prompt solves a different timing problem, although modern
+routing and scaling systems already use predictive models.
+
+\fig{atfm}{0.97}{ATFM's conceptual feedback loop. Forecasts become bounded
+control decisions; observed outcomes must validate that decisions were delivered
+and useful. Cache actuation is backend-dependent and is not depicted as a
+universal direct GPU pin.}{atfm}
+
+The candidate contribution has three parts: conditional forecasts from
+session-specific observations; aggregate resource uncertainty rather than only
+mean request rate; and decisions made early enough to affect future contention.
+Each must earn its complexity. A high-quality forecast delivered after the
+request arrives has no prefetch lead-time advantage. A prediction that changes
+no action has no decision value. An action that increases another tenant's
+latency more than it saves may be undesirable even when the forecast is correct.
+
+The architecture suggests a useful separation. Keep the request path bounded
+and capable of falling back. Run heavier forecasting on snapshots or an
+independently budgeted path. Deliver versioned, expiring decisions to actuators
+that own the affected resource. This is a design direction; it must not be
+mistaken for a claim that every isolation and acknowledgement mechanism is
+already implemented.
+
+\subsection{Admission constraints: population risk and sample risk}
+For resource $r$ in slot $s$, let $Y_{rs}$ be uncertain protected demand,
+$a_{is}$ a binary assignment of background job $i$, and $d_{ir}$ its estimated
+demand. A conceptual marginal chance constraint is
+\begin{equation}
+ \Prb\!\left(Y_{rs}+\sum_i a_{is}d_{ir}\le C_{rs}\right)
+ \ge1-\epsilon_{rs}.
+ \label{eq:chance}
+\end{equation}
+Capacity $C_{rs}$ must use the same units and time interpretation as demand.
+Existing resident KV and future arriving KV are not interchangeable. A system
+that imposes separate resource constraints does not automatically have a joint
+$1-\epsilon$ guarantee across resources and slots. A conservative union bound
+allocates risks so $\sum_{r,s}\epsilon_{rs}\le\epsilon_{\mathrm{joint}}$;
+a joint-scenario method is another option.
+
+With $K$ forecast samples, a planner can evaluate
+\begin{equation}
+ \frac1K\sum_{k=1}^K\ind\left\{Y_{rs}^{(k)}+\sum_i a_{is}d_{ir}\le C_{rs}\right\}
+ \ge1-\epsilon_{rs}.
+\end{equation}
+This is an empirical constraint under the forecast sample distribution. It is
+not automatically a frequentist guarantee for true future traffic. Finite
+sample uncertainty, model error, drift, and correlated residuals all matter.
+As a simple illustration, even for independent correctly generated draws, a
+Bernoulli event with probability 0.1 has estimated-probability standard error
+$\sqrt{0.1\cdot0.9/256}\approx0.0188$ at 256 samples. Increasing samples reduces
+Monte Carlo noise but does not correct model bias.
+
+ATFM's GDP planner assigns deferrable work in forecast order using sampled
+resource thresholds, bounded holds, and tenant-delay limits. Delay caps can
+release work even when the capacity test has no feasible slot. Consequently
+this implementation should be described as a bounded-delay heuristic with
+empirical feasibility checks, not a proof of overload prevention. The code and
+its scaling notes state the mechanics; a deployable capacity model remains an
+experimental responsibility.
+
+\subsection{A worked use case and its failure cases}
+Imagine a worker pool near a latency limit. Several background agents are
+running tests; an interactive user is generating a response. Some agents report
+that their tests are nearly complete and will soon return with long contexts.
+If this information is reliable and arrives early, a controller could defer
+new deferrable tool launches, preserve selected cache state, or prepare capacity.
+The objective is to reduce the coming peak, not to speed up the tests or invent
+more GPU capacity.
+
+Now change the assumptions. If the tests emit misleading progress, the
+controller can hold unrelated work unnecessarily. If the contexts are small,
+prefetch/control overhead can exceed the saved prefill. If the engine has ample
+headroom, delaying anything may only increase completion time. If link bandwidth
+is saturated, prefetching the predicted burst can congest it earlier. If an
+existing TTL policy already retains the right prefixes, the extra forecast may
+be redundant. If tool time dominates each job, a per-call latency improvement
+may have negligible job-level impact.
+
+A useful deployment region therefore requires all of the following to some
+degree: repeated state, scarce resources, exploitable advance information,
+a supported actuator, and a benefit greater than control/interference costs.
+The size of that region is an empirical question. It cannot be established by
+showing that one regression predicts durations accurately.
+
+\subsection{Comparison by responsibility, not headline speedup}
+\begin{longtable}{@{}p{0.18\linewidth}p{0.35\linewidth}p{0.40\linewidth}@{}}
+\caption{Relevant systems and the comparison ATFM needs. Descriptions refer to
+cited mechanisms, not a claim that other systems cannot be extended.}\label{tab:landscape}\\
+\toprule System & Established focus & What an ATFM comparison must isolate\\\midrule
+\endfirsthead
+\toprule System & Established focus & What an ATFM comparison must isolate\\\midrule
+\endhead
+vLLM & Engine scheduling, paged state, prefix reuse & Incremental benefit on a tuned engine with native reuse enabled\\
+SGLang / HiCache & Program execution, radix reuse, cache tiers & Extra value over existing match/prefetch/eviction policies\\
+TensorRT-LLM & Optimized execution, reuse and retention controls & Prediction benefit beyond available native priorities\\
+LMCache & State retention, movement, cross-engine reuse & Which supported operation a forecast improves, including its cost\\
+Sarathi-Serve & Chunked prefill and phase interference & Admission benefit after reasonable intra-engine scheduling\\
+DistServe & Separate prefill/decode resource allocation & Whether forecast value survives transfer and pool queueing\\
+Mooncake & KV-centric distributed serving and overload control & Extra session information versus existing cluster policy\\
+Preble & Distributed prefix reuse and load balancing & Anticipatory timing versus locality/load decisions at arrival\\
+Dynamo & Routing, transfer coordination, scaling & Session-conditional signals beyond aggregate predictors\\
+llm-d & Kubernetes inference routing and deployment composition & Integration ownership and comparison with enabled policies\\
+Continuum & Bounded retention and program scheduling & Conditional forecasts versus robust TTL decisions\\
+ThunderAgent & Program-aware inference and tool resources & Additional forecast value at equal workflow visibility\\
+Tutti / AsymCache & IO- or kernel-aware cache optimization & Complementarity with a more efficient cache data path\\
+ATFM prototype & Tool signals, sampled forecasts, bounded directives & End-to-end benefit remains to be established on real workers\\\bottomrule
+\end{longtable}
+
+\subsection{What the repository currently demonstrates}
+This assessment is anchored to the repository at \texttt{900d63b}, not an
+assumption that documentation implies hardware validation. Local source paths
+are listed in Appendix~\ref{sec:code-map}.
+
+\begin{itemize}
+\item Offline trace adapters, session forecasting, Monte Carlo aggregation,
+calibration, and evaluation are implemented. Recorded H1/H1b findings depend
+on corpus, split, horizon, and signal quality.
+\item The simulator contains queues, modeled workers, cache eviction, admission,
+and placement-related comparisons. It permits controlled counterfactuals but
+is not a real inference engine.
+\item The board, proxy, event ingestion, and directive paths have local HTTP and
+mock-worker integration evidence. A recorded Mocker setup lacked required KV
+capacity metrics and issued no holds or touches; that run verifies wiring,
+not the efficacy of those controls.
+\item The LMCache HTTP adapter is tested against controlled responses. Current
+controller compatibility, completed transfers, and actual GPU cache effects
+remain unverified on the target deployment.
+\item Tier and replica-floor proposals can be logged; the default launcher is
+not evidence of a fully connected production autoscaler.
+\item The completed refactor passed 420 tests with five skips. Deterministic
+policy and forecast fixtures retained output hashes. This supports code
+maintenance, not a GPU goodput or model-quality claim.
+\end{itemize}
+
+The status document also states that a completed H100 performance study is not
+part of the recorded local evidence. The strongest useful present claim is that
+ATFM provides a testable forecasting/control prototype with measured CPU and
+integration behavior. Production serving advantage is still a hypothesis.
+
+\subsection{Known control costs and the Python/Rust decision}
+The repository has already removed repeated full-history JSONL scans, batched
+hold delivery, introduced persistent admission heaps, and reduced planner and
+empirical-sampling overhead. These changes target work volume before changing
+implementation language. The following bounds distinguish independent scale
+variables; there is no single meaningful $N$ for the whole system.
+
+\begin{table}[htbp]\centering\small
+\caption{Selected ATFM costs after the documented control refactors. Bounds omit
+model-specific setup and external IO unless named.}
+\begin{tabularx}{\linewidth}{@{}lXX@{}}\toprule
+Operation & Principal scaling & Remaining qualification\\\midrule
+Incremental log drain & $O(\Delta E)$ newly read bytes/records & First read and restart still replay retained history\\
+Heap admission updates & Amortized $O(\log Q)$ per heap operation & Due timers and compaction can cause bursts\\
+Peer rank diagnostics & $O(Q)$ collection & Still appears in the HTTP priority path\\
+Batched hold transport & $\lceil D/B\rceil$ RPCs, $O(D)$ payload & No whole-plan distributed transaction\\
+Monte Carlo aggregation & Depends on $N,K,H$; typically at least $O(NK)$ sample work & Vectorization does not eliminate samples or output arrays\\
+GDP slot search & Range pruning; worst-case linear in eligible slots per job & Resource minima can occur in different slots\\\bottomrule
+\end{tabularx}\end{table}
+
+Here $\Delta E$ is newly appended event data, $Q$ queued requests, $D$ directives,
+$B$ directives per transport batch, $N$ sessions, $K$ samples, and $H$ horizons.
+Worst-case GDP work can be $O(NF)$ for $F$ eligible slots; if both grow together,
+this is quadratic. Additional sample and resource dimensions belong explicitly
+in threshold construction. An index does not guarantee a logarithmic search
+when its pruning condition is only necessary. By contrast, returning a full
+$Q$-element diagnostic snapshot necessarily costs $\Omega(Q)$.
+
+Recent local proxy profiling found repeated runtime-detection import work and
+removed it by supplying a missing serving dependency. Its paired fake-worker
+trials improved latency/CPU in that configuration, but prediction timeout rates
+increased. That result is recorded in the proxy-profiling report. It demonstrates
+why a lower CPU total is not sufficient evidence of a healthier control loop.
+Deadline-aware prediction and remaining linear rank work are still important
+investigation targets.
+
+Python is currently appropriate for orchestration and numerical experimentation,
+with bulk numerical work handled by compiled libraries. Rust becomes attractive
+for a \emph{measured} high-frequency CPU component when algorithmic fixes,
+batching, and boundary costs have already been addressed. A native module should
+have a narrow contract and differential tests; moving the whole system would
+add maintenance cost and could leave the real bottleneck unchanged. Transferring
+large KV tensors and scheduling small metadata are separate costs, so neither
+``Python is always negligible'' nor ``Rust will fix saturation'' is justified.
+
+\subsection{An evaluation that could validate or reject the project}
+\paragraph{Stage 1: establish executable contracts.}
+Pin model, tokenizer/template, engine, cache connector, transport, and GPU
+configuration. Verify the cache identity, supported retention/movement
+operation, completion acknowledgement, expiration behavior, and observed
+residency. Record whether the action protects GPU, CPU, disk, or a remote copy.
+A mock endpoint returning 200 is insufficient. Test disconnects, stale events,
+partial failures, and fallback; measure whether a retry changes the same object
+or accidentally creates duplicate work.
+
+\paragraph{Stage 2: evaluate forecasts without leakage.}
+Split by complete session or workflow family and time, not arbitrary events
+from the same run. Report residual-time calibration and quantile loss at
+operational horizons. Compare aggregate last-value/rate predictors, age-only
+survival, tool-type models, and progress-conditioned models. Include missing
+progress, censored calls, unseen tools, and correlated backend slowdowns.
+A forecaster may be well calibrated overall and systematically wrong for the
+largest, most expensive contexts; stratify accordingly.
+
+For quantile $q_\alpha$ and outcome $y$, pinball loss is
+\begin{equation}
+ L_\alpha(y,q_\alpha)=(\alpha-\ind\{y<q_\alpha\})(y-q_\alpha).
+\end{equation}
+Report empirical interval coverage as well as width. Narrow incorrect intervals
+are not better forecasts. Evaluate service demand jointly with timing when they
+are dependent, and retain deterministic seeds for parity tests without treating
+seeds as independent production workloads.
+
+\paragraph{Stage 3: isolate decision value.}
+Use the same tuned engine and cache configuration across arms: native policy;
+robust TTL/working-set baseline; aggregate forecasting; session age-only
+forecasting; progress-conditioned ATFM; and an oracle whose extra information is
+explicit. Disable individual actuators to separate admission, retention,
+prefetch, and scaling effects. A simulated ``ThunderAgent-style'' policy must
+not be labelled a benchmark of the full ThunderAgent implementation. Likewise,
+a clairvoyant cache schedule is an upper bound under its modeled constraints,
+not a deployable competitor.
+
+\paragraph{Stage 4: run closed-loop agent workloads on real workers.}
+Vary sessions, prompt/output lengths, tool gaps, shared-prefix fraction, cache
+capacity, transfer bandwidth, burst correlation, tenant mix, and forecast error.
+Include low load where control can only add overhead, near-saturation load where
+it may help, and sustained overload where admission must make tradeoffs. Use
+both reproducible synthetic programs and real tool traces. Preserve causal
+turn dependencies so latency changes alter future arrival times correctly.
+
+\paragraph{Stage 5: account for the entire outcome.}
+Measure offered/completed/rejected work, joint-SLO goodput, TTFT, ITL tails,
+whole-job completion, fairness, cache bytes by tier, useful/wasted transfers,
+recomputed tokens, GPU idle time, controller CPU, queueing, and prediction
+deadline misses. Include warmup, shutdown/drain rules, retries, errors, and
+load-generator lateness. Run paired workloads with alternating order and
+confidence intervals at the independent workload/run level. Correlated tokens
+from one request are not independent experimental replicates.
+
+\paragraph{Success and falsification criteria.}
+A positive result should show an improved user-relevant objective at equal
+resource budget, no unreported quality loss, and acceptable fairness/overhead.
+A negative result is informative if simple TTL or native policies match the
+benefit, useful lead time is scarce, prediction deadlines are missed, or cache
+movement dominates savings. The project remains useful only if the value of
+extra information survives the full path from observation to completed action.

@@ -1,0 +1,14 @@
+diagram theme: print
+default edge line: (path: square, corners: rounded)
+style hot fill: #e8eff6 border: #245b85
+style cold fill: #f6eee4 border: #a96522
+node gpu "Engine GPU HBM / active attention state" style: hot
+node host "Host DRAM / retained cache objects" below gpu style: cold
+node disk "Local NVMe / larger retained working set" below host style: cold
+node remote "Remote storage / shared cache objects" right of host style: cold
+node meta "Metadata and policy / identity, leases, locations" right of gpu
+edge gpu <-> host "restore / offload" from: bottom to: top
+edge host <-> disk "read / write" from: bottom to: top
+edge host <-> remote "transfer" from: right to: left
+edge meta -> remote from: bottom to: top line: (pattern: dashed)
+edge meta -> gpu from: left to: right line: (pattern: dashed)

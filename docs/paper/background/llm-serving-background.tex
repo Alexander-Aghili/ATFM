@@ -1,0 +1,74 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.9in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype,graphicx,booktabs,tabularx,longtable,array,enumitem}
+\usepackage{amsmath,mathtools}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage[section]{placeins}
+\usepackage{xcolor,xurl,hyperref,fancyhdr}
+\definecolor{navy}{HTML}{245B85}
+\hypersetup{colorlinks=true,linkcolor=navy,citecolor=navy,urlcolor=navy,pdftitle={LLM Inference Serving: Foundations, Systems, and the Case for ATFM},pdfauthor={ATFM project}}
+\setlength{\headheight}{14pt}
+\pagestyle{fancy}\fancyhf{}\fancyhead[L]{\small LLM inference serving}\fancyhead[R]{\small Technical background}\fancyfoot[C]{\thepage}
+\setlength{\parskip}{4pt}\setlength{\parindent}{1em}
+\setlist{itemsep=3pt,topsep=5pt}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Prb}{\mathbb{P}}
+\newcommand{\ind}{\mathbf{1}}
+\newcommand{\fig}[4]{\begin{figure}[htbp]\centering\includegraphics[width=#2\linewidth]{figures/#1.pdf}\caption{#3}\label{fig:#4}\end{figure}}
+\newcommand{\takeaway}[1]{\begin{quote}\textbf{Practical consequence.} #1\end{quote}}
+\begin{document}
+\begin{titlepage}
+\vspace*{1.0cm}
+{\color{navy}\large ATFM TECHNICAL BACKGROUND\par}
+\vspace{0.7cm}
+{\Huge\bfseries LLM Inference Serving\par}
+\vspace{0.4cm}
+{\LARGE Foundations, systems, and the case for anticipatory control\par}
+\vspace{0.9cm}
+{\large KV caches, vLLM, LMCache, distributed serving, and agent workloads\par}
+\vspace{1cm}
+\textbf{Research cutoff: 28 September 2026}\par
+Repository baseline: \texttt{900d63b}, following the verified core refactor.\par
+\vspace{0.7cm}
+\begin{abstract}
+An LLM service converts a stream of variable-length, stateful computations into
+latency-constrained responses. Efficient matrix multiplication is necessary, but
+so are memory allocation, batching, cache reuse, data movement, routing, and
+admission control. Agent workloads add a further complication: a session can
+stop generating tokens while a tool runs, yet return with a large reusable
+context. The best immediate request decision need not be the best session or
+fleet decision.
+
+This paper develops the serving stack from first principles, derives the main
+memory, compute, bandwidth, and queueing relationships, and maps major research
+and open-source systems onto the problems they solve. It covers paged attention,
+continuous batching, prefix reuse, cache tiers, prefill/decode disaggregation,
+parallelism, compression, and program-aware scheduling. It then defines ATFM's
+potential contribution precisely: using observations available before an agent's
+next request to estimate future demand and inform bounded control actions.
+Existing systems already address substantial parts of this problem. The paper
+therefore gives both the case for ATFM and conditions under which it adds no
+value, with a comparison and evaluation plan that can falsify the hypothesis.
+All numerical illustrations are derived examples unless explicitly identified as
+repository measurements. No new GPU serving benchmark is claimed.
+\end{abstract}
+\vfill
+\noindent\small Primary-source survey and engineering synthesis. Living documentation
+was inspected at the cutoff date; deployment APIs must be pinned and tested.
+\end{titlepage}
+\tableofcontents
+\clearpage
+\input{sections/01-orientation}
+\input{sections/02-fundamentals}
+\input{sections/03-engines}
+\input{sections/04-cache-and-distribution}
+\input{sections/05-agents-and-control}
+\input{sections/06-atfm-and-evaluation}
+\appendix
+\input{sections/07-reference}
+\clearpage
+\phantomsection\addcontentsline{toc}{section}{References}
+\input{references}
+\end{document}

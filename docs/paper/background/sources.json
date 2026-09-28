@@ -1,0 +1,353 @@
+[
+  {
+    "key": "transformer",
+    "author": "Vaswani et al.",
+    "title": "Attention Is All You Need",
+    "edition": "2017",
+    "url": "https://arxiv.org/abs/1706.03762",
+    "scope": "Foundational attention formulation; not a serving benchmark.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "mqa",
+    "author": "Shazeer",
+    "title": "Fast Transformer Decoding: One Write-Head is All You Need",
+    "edition": "2019",
+    "url": "https://arxiv.org/abs/1911.02150",
+    "scope": "Multi-query attention and decode bandwidth.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "gqa",
+    "author": "Ainslie et al.",
+    "title": "GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints",
+    "edition": "2023",
+    "url": "https://arxiv.org/abs/2305.13245",
+    "scope": "Grouped-query attention architecture.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "flash",
+    "author": "Dao et al.",
+    "title": "FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness",
+    "edition": "2022",
+    "url": "https://arxiv.org/abs/2205.14135",
+    "scope": "Exact tiled attention; arithmetic and IO are different costs.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "flash3",
+    "author": "Shah et al.",
+    "title": "FlashAttention-3: Fast and Accurate Attention with Asynchrony and Low-precision",
+    "edition": "2024",
+    "url": "https://arxiv.org/abs/2407.08608",
+    "scope": "Hopper-oriented overlap and low-precision kernels.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "flashinfer",
+    "author": "Ye et al.",
+    "title": "FlashInfer: Efficient and Customizable Attention Engine for LLM Inference Serving",
+    "edition": "2025",
+    "url": "https://arxiv.org/abs/2501.01005",
+    "scope": "Inference attention kernels and variable layouts.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "orca",
+    "author": "Yu et al.",
+    "title": "Orca: A Distributed Serving System for Transformer-Based Generative Models",
+    "edition": "2022",
+    "url": "https://www.usenix.org/conference/osdi22/presentation/yu",
+    "scope": "Iteration-level scheduling; OSDI proceedings.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "paged",
+    "author": "Kwon et al.",
+    "title": "Efficient Memory Management for Large Language Model Serving with PagedAttention",
+    "edition": "2023",
+    "url": "https://arxiv.org/abs/2309.06180",
+    "scope": "Foundational vLLM paper; historical implementation, not latest configuration.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "v1",
+    "author": "vLLM contributors",
+    "title": "vLLM V1 guide",
+    "edition": "living documentation",
+    "url": "https://github.com/vllm-project/vllm/blob/main/docs/usage/v1_guide.md",
+    "scope": "Unified token-budget scheduler; mutable main branch.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "prefix",
+    "author": "vLLM contributors",
+    "title": "Automatic Prefix Caching",
+    "edition": "v0.15.0 documentation",
+    "url": "https://docs.vllm.ai/en/v0.15.0/design/prefix_caching/",
+    "scope": "Versioned hash-based cache design; not latest default flags.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "hybrid",
+    "author": "vLLM contributors",
+    "title": "Hybrid KV Cache Manager",
+    "edition": "living documentation",
+    "url": "https://docs.vllm.ai/en/latest/design/hybrid_kv_cache_manager/",
+    "scope": "Full/sliding-window group distinctions; mutable latest docs.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "vdisagg",
+    "author": "vLLM contributors",
+    "title": "Disaggregated Prefilling (experimental)",
+    "edition": "v0.20.0 documentation",
+    "url": "https://docs.vllm.ai/en/v0.20.0/features/disagg_prefill/",
+    "scope": "Connectors and phase separation; experimental in this version.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "sglang",
+    "author": "Zheng et al.",
+    "title": "SGLang: Efficient Execution of Structured Language Model Programs",
+    "edition": "2023",
+    "url": "https://arxiv.org/abs/2312.07104",
+    "scope": "RadixAttention and structured programs.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "hicache",
+    "author": "SGLang contributors",
+    "title": "HiCache System Design and Optimization",
+    "edition": "living documentation",
+    "url": "https://docs.sglang.io/docs/advanced_features/hicache_design",
+    "scope": "GPU/host/storage hierarchy, matching, prefetch, write-back.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "trt",
+    "author": "NVIDIA",
+    "title": "TensorRT-LLM KV Cache System",
+    "edition": "living documentation",
+    "url": "https://nvidia.github.io/TensorRT-LLM/latest/features/kvcache.html",
+    "scope": "Paged pools, prioritized retention, host offload; backend-specific semantics.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "vattention",
+    "author": "Prabhu et al.",
+    "title": "vAttention: Dynamic Memory Management for Serving LLMs without PagedAttention",
+    "edition": "2024",
+    "url": "https://arxiv.org/abs/2405.04437",
+    "scope": "CUDA virtual-memory alternative; distinct from 2025 sparse-attention namesake.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "sarathi",
+    "author": "Agrawal et al.",
+    "title": "Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve",
+    "edition": "2024",
+    "url": "https://arxiv.org/abs/2403.02310",
+    "scope": "Chunked prefills and scheduling interference.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "distserve",
+    "author": "Zhong et al.",
+    "title": "DistServe: Disaggregating Prefill and Decoding for Goodput-optimized Large Language Model Serving",
+    "edition": "2024",
+    "url": "https://arxiv.org/abs/2401.09670",
+    "scope": "Disaggregation with SLO and bandwidth constraints.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "mooncake",
+    "author": "Qin et al.",
+    "title": "Mooncake: A KVCache-centric Disaggregated Architecture for LLM Serving",
+    "edition": "2025 revision",
+    "url": "https://arxiv.org/abs/2407.00079v4",
+    "scope": "KV-centric cluster architecture and overload management.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "preble",
+    "author": "Srivatsa et al.",
+    "title": "Preble: Efficient Distributed Prompt Scheduling for LLM Serving",
+    "edition": "2024",
+    "url": "https://arxiv.org/abs/2407.00023v2",
+    "scope": "Joint cache reuse and load balancing.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "lmcache",
+    "author": "Cheng et al.",
+    "title": "LMCache: An Efficient KV Cache Layer for Enterprise-Scale LLM Inference",
+    "edition": "2025",
+    "url": "https://arxiv.org/abs/2510.09665",
+    "scope": "Cache extraction, cross-engine reuse and transfer; project technical report.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "lmp",
+    "author": "LMCache contributors",
+    "title": "Architecture and Developer Guide: multiprocess mode",
+    "edition": "living documentation",
+    "url": "https://docs.lmcache.ai/mp/architecture.html",
+    "scope": "Separate cache server, L1 manager, L2 adapters, asynchronous controllers.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "llegacy",
+    "author": "LMCache contributors",
+    "title": "LMCache Controller",
+    "edition": "legacy documentation",
+    "url": "https://docs.lmcache.ai/kv_cache_management/index.html",
+    "scope": "Page now marks in-process mode deprecated; important ATFM compatibility boundary.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "lpin",
+    "author": "LMCache contributors",
+    "title": "Pin the KV cache",
+    "edition": "legacy documentation",
+    "url": "https://docs.lmcache.ai/kv_cache_management/pin.html",
+    "scope": "Location-scoped pin, asynchronous event ID; CPU example is not engine-HBM pinning.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "cachegen",
+    "author": "Liu et al.",
+    "title": "CacheGen: KV Cache Compression and Streaming for Fast Large Language Model Serving",
+    "edition": "2023",
+    "url": "https://arxiv.org/abs/2310.07240",
+    "scope": "Compression and network-adaptive context loading.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "cacheblend",
+    "author": "Yao et al.",
+    "title": "CacheBlend: Fast Large Language Model Serving for RAG with Cached Knowledge Fusion",
+    "edition": "2025 revision",
+    "url": "https://arxiv.org/abs/2405.16444v3",
+    "scope": "Non-prefix reuse with selective recomputation; quality requires evaluation.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "kivi",
+    "author": "Liu et al.",
+    "title": "KIVI: A Tuning-Free Asymmetric 2bit Quantization for KV Cache",
+    "edition": "2024",
+    "url": "https://arxiv.org/abs/2402.02750",
+    "scope": "Asymmetric key/value quantization; numerical quality tradeoff.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "mla",
+    "author": "DeepSeek-AI",
+    "title": "DeepSeek-V2: A Strong, Economical, and Efficient Mixture-of-Experts Language Model",
+    "edition": "2024",
+    "url": "https://arxiv.org/abs/2405.04434",
+    "scope": "Multi-head latent attention; architecture-specific cache representation.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "spec",
+    "author": "Leviathan et al.",
+    "title": "Fast Inference from Transformers via Speculative Decoding",
+    "edition": "2022",
+    "url": "https://arxiv.org/abs/2211.17192",
+    "scope": "Draft/verify acceleration with exact-distribution algorithm.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "dynamo",
+    "author": "NVIDIA",
+    "title": "Dynamo Architecture",
+    "edition": "living documentation",
+    "url": "https://docs.nvidia.com/dynamo/dev/knowledge-base/concepts/architecture",
+    "scope": "Frontend, request/event planes, transfer and planner ownership.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "drouter",
+    "author": "NVIDIA",
+    "title": "Dynamo KV-Aware Routing",
+    "edition": "living documentation",
+    "url": "https://docs.nvidia.com/dynamo/dev/knowledge-base/concepts/system-architecture/kv-aware-routing",
+    "scope": "Projected cache reuse and active load; routing is separate from transfer.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "dplanner",
+    "author": "NVIDIA",
+    "title": "Dynamo Planner",
+    "edition": "living documentation",
+    "url": "https://docs.nvidia.com/dynamo/dev/knowledge-base/modular-components/planner/overview",
+    "scope": "Existing predictive and load-based autoscaling; ATFM is not first to forecast.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "llmd",
+    "author": "llm-d contributors",
+    "title": "llm-d Architecture",
+    "edition": "v0.9 documentation snapshot",
+    "url": "https://llm-d.ai/docs/architecture",
+    "scope": "Gateway/EPP, InferencePool, model servers and cache-aware deployment patterns.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "continuum",
+    "author": "Li et al.",
+    "title": "Continuum: Efficient and Robust Multi-Turn LLM Agent Scheduling with KV Cache Time-to-Live",
+    "edition": "2026 revision",
+    "url": "https://arxiv.org/abs/2511.02230v7",
+    "scope": "Latest inspected revision 8 September 2026; TTL and program-level scheduling.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "thunder",
+    "author": "Kang et al.",
+    "title": "ThunderAgent: A Simple, Fast and Program-Aware Agentic Inference System",
+    "edition": "2026 revision",
+    "url": "https://arxiv.org/abs/2602.13692v3",
+    "scope": "Latest inspected revision 30 June 2026; program and tool-resource scheduling.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "tutti",
+    "author": "Qiu et al.",
+    "title": "Tutti: Making SSD-Backed KV Cache Practical for Long-Context LLM Serving",
+    "edition": "2026 preprint",
+    "url": "https://arxiv.org/abs/2605.03375",
+    "scope": "GPU-centric SSD IO research; reported results not reproduced here.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "asym",
+    "author": "Shi et al.",
+    "title": "Multi-Segment Attention: Enabling Efficient KV-Cache Management for Faster Large Language Model Serving",
+    "edition": "2026 preprint",
+    "url": "https://arxiv.org/abs/2606.02964",
+    "scope": "AsymCache; position-dependent recomputation and kernel-aware eviction.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "agentbench",
+    "author": "Chang et al.",
+    "title": "From LLM Inference to Agentic Workloads: Characterization and Implications for Serving Systems",
+    "edition": "2026 preprint",
+    "url": "https://arxiv.org/abs/2608.15127",
+    "scope": "AgentSysBench; heterogeneous non-LLM bottlenecks and state.",
+    "accessed": "2026-09-28"
+  },
+  {
+    "key": "mlperf",
+    "author": "MLCommons",
+    "title": "Agentic Inference for MLPerf Inference",
+    "edition": "8 July 2026",
+    "url": "https://mlcommons.org/2026/07/agentic-inference-for-mlperf-inference/",
+    "scope": "Benchmark announcement, not an ATFM result or a fixed released benchmark claim.",
+    "accessed": "2026-09-28"
+  }
+]

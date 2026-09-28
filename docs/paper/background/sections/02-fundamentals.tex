@@ -1,0 +1,183 @@
+\section{From attention to compute, memory, and latency}
+\label{sec:fundamentals}
+\subsection{What is stored in a KV cache?}
+For a single attention head, let a token's representation be projected into a
+query $q$, key $k$, and value $v$. Given a prefix of length $T$, causal attention
+for its newest token has the form
+\begin{equation}
+ o_T=\operatorname{softmax}\!\left(\frac{q_T K_{1:T}^{\mathsf T}}{\sqrt{d_h}}\right)V_{1:T}.
+ \label{eq:attention}
+\end{equation}
+The keys determine how strongly earlier positions are attended to; values
+provide the content combined by those weights. This is the standard
+scaled-dot-product attention construction~\cite{transformer}. The cache stores
+previously computed keys and values at the required layers. It is neither the
+model's learned weights nor a cache of finished textual answers.
+
+For a causal model with an unchanged prefix, earlier hidden states do not depend
+on future tokens. Their keys and values therefore need not be recomputed when
+one token is appended. The new query must still attend to the appropriate old
+state. Caching removes repeated prefix construction; it does not make reading
+or attending over the prefix free. Queries normally need not be retained for
+future autoregressive steps.
+
+A cache entry has a computational identity. Matching text alone is insufficient
+if model weights, adapters, tokenization, positional treatment, or multimodal
+inputs differ. Reusing state under the wrong identity can silently change the
+answer. Likewise, the KV for a passage following one prefix generally differs
+from its KV following a different prefix. Exact prefix reuse and arbitrary
+passage reuse are distinct mechanisms.
+
+\subsection{Prefill and decode are different workloads}
+During \emph{prefill}, the model processes known prompt tokens. Many token
+projections and feed-forward operations can execute together as matrix-matrix
+operations. During ordinary \emph{decode}, the next token is unknown until the
+previous step completes. Each active sequence contributes roughly one new token
+to an iteration, although speculative methods alter this unit of work.
+
+Let $L$ be layers, $T$ prompt tokens, $d$ hidden width, and $H_qd_h=d$ for an
+ordinary attention configuration. Ignoring architecture-dependent constants,
+a dense model's prefill work has the form
+\begin{equation}
+ F_{\mathrm{prefill}}=\Theta(LTd^2)+\Theta(LT^2d).
+ \label{eq:prefill}
+\end{equation}
+The first term collects projections and feed-forward computation, assuming its
+intermediate width scales with $d$; the second is dense attention. A cached
+single-token decode step at context length $t$ has work
+\begin{equation}
+ F_{\mathrm{step}}=\Theta(Ld^2)+\Theta(Ltd).
+\end{equation}
+For $U$ new output tokens after a $T$-token prompt, the attention contribution
+sums as
+\begin{equation}
+ \sum_{u=0}^{U-1}\Theta(L(T+u)d)
+ =\Theta\!\left(Ld\left(UT+\frac{U(U-1)}{2}\right)\right).
+ \label{eq:decode}
+\end{equation}
+These expressions explain why a single cached decode step is linear in context
+length while a long generation still accumulates a quadratic output-length
+term. A deliberately naive implementation that reruns full dense attention over
+the entire growing prefix at every step can accumulate cubic work in final
+sequence length. That is not how a normal cached inference engine should run.
+They are arithmetic counts, not wall-clock predictions: batching, memory
+traffic, collective communication, and kernel utilization matter.
+
+FlashAttention tiles exact attention to reduce traffic to high-bandwidth memory
+and avoid materializing the full attention matrix there. It does not turn dense
+attention into a linear-arithmetic algorithm~\cite{flash}. FlashAttention-3
+uses hardware-oriented overlap and low-precision techniques~\cite{flash3}.
+FlashInfer focuses on flexible, efficient inference kernels across cache
+layouts and dynamic serving patterns~\cite{flashinfer}. These optimizations are
+complementary to scheduling: a better admission policy cannot recover all the
+performance lost by an unsuitable attention backend.
+
+\subsection{The cache-size equation}
+For a uniform full-attention model, an unsharded sequence's KV payload is
+\begin{equation}
+ M_{\mathrm{KV}}(T)=2LH_{kv}d_hbT,
+ \qquad m_{\mathrm{token}}=2LH_{kv}d_hb,
+ \label{eq:kvbytes}
+\end{equation}
+where $H_{kv}$ is the number of key/value heads, $b$ bytes per stored scalar,
+and the leading two counts keys and values. This excludes allocator metadata,
+quantization scales, temporary buffers, and replication. With $B$ independent
+sequences of lengths $T_i$, payload is $m_{\mathrm{token}}\sum_iT_i$ before
+sharing or architectural exceptions.
+
+Multi-head attention (MHA) uses separate KV heads for query heads. Multi-query
+attention (MQA) shares one KV head across queries~\cite{mqa}. Grouped-query
+attention (GQA) sits between them, with several query heads sharing a KV
+head~\cite{gqa}. Reducing $H_{kv}$ changes model architecture and its stored
+representation; it is not merely a runtime eviction policy.
+
+\paragraph{Worked example.}
+Take an illustrative $L=32$, $H_{kv}=8$, $d_h=128$, and $b=2$. Then
+\begin{align}
+ m_{\mathrm{token}}&=2\cdot32\cdot8\cdot128\cdot2
+ =131{,}072\ \mathrm{bytes}=128\ \mathrm{KiB},\\
+ M_{\mathrm{KV}}(8192)&=1\ \mathrm{GiB}.
+\end{align}
+Sixty-four independent 8192-token contexts consume 64 GiB of payload before
+weights and other allocations. A hypothetical 80 GiB device with 20 GiB of
+weights and 8 GiB reserved for runtime overhead leaves 52 GiB, so only 52 such
+contexts fit under this simplified arithmetic. This is a memory upper bound,
+not a recommended concurrency or measured GPU capacity. Decode throughput and
+latency may impose a lower limit.
+
+\fig{kv-growth}{0.91}{Derived KV payload for an illustrative uniform model.
+Changing the number of KV heads changes the slope; paging changes allocation
+waste rather than the payload slope. No hardware was benchmarked.}{kvgrowth}
+
+\subsection{Where the simple formula stops applying}
+Multi-head latent attention, introduced in DeepSeek-V2, stores a compressed latent
+representation rather than the ordinary full per-head KV tensors~\cite{mla}.
+Its memory formula must include that representation and any positional state;
+substituting an arbitrary small $H_{kv}$ into Equation~\ref{eq:kvbytes} is not a
+general MLA estimator. Sliding-window layers retain a bounded attention window;
+hybrid models may mix full attention, local attention, and recurrent state.
+vLLM's hybrid cache manager explicitly handles different layer groups and their
+cache-hit rules~\cite{hybrid}.
+
+Tensor parallelism can shard cache heads, but heads or other state may be
+replicated depending on the model and parallel degree. Pipeline parallelism
+partitions layers. Context parallelism partitions sequence work/state and
+introduces communication. Always distinguish total cluster bytes from bytes on
+the busiest rank. Dividing a global KV estimate by GPU count is valid only if
+the actual layout shards it evenly. A controller should consume measured
+per-worker capacity and layout metadata rather than infer them from a model's
+parameter count.
+
+\subsection{The roofline view: what limits one iteration?}
+A useful lower-bound model is
+\begin{equation}
+ t_{\mathrm{iter}}\gtrsim
+ \max\left(\frac{F}{P_{\mathrm{eff}}},
+           \frac{D_{\mathrm{HBM}}}{B_{\mathrm{HBM,eff}}},
+           \frac{D_{\mathrm{link}}}{B_{\mathrm{link,eff}}}\right).
+ \label{eq:roofline}
+\end{equation}
+$F$ is floating-point work; $D$ terms are transferred bytes; $P$ and $B$ are
+achievable rates for this workload, not device marketing peaks. Real latency
+also includes launches, synchronization, queueing, and portions that cannot
+overlap. Adding all three ratios overestimates fully overlapped work; taking
+only their maximum underestimates serial dependencies. The execution trace
+determines which is appropriate.
+
+Small-batch dense decode often pays heavily to read weights and KV for few new
+tokens. Batching amortizes weight traffic across more tokens, but adds KV reads
+and can increase per-iteration latency. Large prefill can exploit compute well,
+yet long-context attention or distributed communication may become limiting.
+``Prefill is compute-bound and decode is memory-bound'' is a useful first
+hypothesis, not a property true for every shape, model, or device.
+
+Arithmetic intensity is $I=F/D_{\mathrm{HBM}}$. In a simplified roofline,
+achievable FLOPs/s is bounded by $\min(P_{\mathrm{eff}}, I B_{\mathrm{HBM,eff}})$.
+Optimizing Python dispatch will have little effect while a long GPU kernel is
+dominant and well fed. It can matter enormously when short iterations wait for
+CPU scheduling or when a control service saturates a core. These are different
+critical paths and require different measurements.
+
+\subsection{Latency metrics and useful throughput}
+Let $a_i$ be request arrival, $f_i$ first-token delivery, $z_i$ last-token
+delivery, and $U_i$ the number of output tokens. Then
+\begin{align}
+ \mathrm{TTFT}_i &= f_i-a_i,\\
+ \mathrm{TPOT}_i &= \frac{z_i-f_i}{U_i-1}\quad(U_i>1).
+\end{align}
+Individual inter-token latencies (ITLs) are adjacent delivery gaps. TPOT is an
+average over those gaps and can hide a single long stall. TTFT includes queueing,
+frontend work, cache retrieval, prefill, and delivery; it is not a direct prefill
+kernel timer. Client-observed latency also includes transport and buffering.
+
+For horizon $H$, define request goodput under a chosen joint SLO as
+\begin{equation}
+ G=\frac{1}{H}\sum_i\ind\{\mathrm{success}_i,
+ \mathrm{TTFT}_i\le\tau_f,\ \mathrm{TPOT}_i\le\tau_o\}.
+ \label{eq:goodput}
+\end{equation}
+Report the definition of success, errors, offered load, and rejected requests.
+A system that rejects difficult work can appear to have excellent latency while
+serving few users. Token throughput alone can favor longer outputs or a changed
+workload mix. For agents, whole-job completion time and task success are needed
+in addition to per-call metrics.

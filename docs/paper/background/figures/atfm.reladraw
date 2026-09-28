@@ -1,0 +1,16 @@
+diagram theme: print
+default edge line: (path: square, corners: rounded)
+style signal fill: #e5f1e9 border: #32714b
+style action fill: #f6eee4 border: #a96522
+node signals "Sidecar signals / starts, progress, completions" style: signal
+node board "Forecast board / return time + demand samples" right of signals style: signal
+node policy "Policy / admission and placement proposals" below board style: action
+node proxy "Proxy / bounded holds and fallback" below signals style: action
+node serving "Serving stack / router, engine, cache" below proxy
+node feedback "Observed outcomes / latency, residency, errors" below policy
+edge signals -> board from: right to: left
+edge board -> policy from: bottom to: top
+edge policy -> proxy from: left to: right
+edge proxy -> serving from: bottom to: top
+edge serving -> feedback from: right to: left
+edge feedback -> policy from: top to: bottom line: (pattern: dashed)

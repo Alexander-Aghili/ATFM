@@ -1,0 +1,12 @@
+diagram theme: print
+default edge line: (path: square, corners: rounded)
+style work fill: #e8eff6 border: #245b85
+style pause fill: #f6eee4 border: #a96522
+node llm "LLM turn / extends context" style: work
+node tool "Tool execution / uncertain completion" right of llm style: pause
+node resume "Next LLM turn / old prefix + new observation" below tool style: work
+node state "Retained state during gap / GPU, host, disk, or absent" below llm style: pause
+edge llm -> tool "tool call" from: right to: left
+edge tool -> resume "result" from: bottom to: top
+edge llm -> state from: bottom to: top
+edge state -> resume "hit, restore, or recompute" from: right to: left

@@ -1,0 +1,15 @@
+diagram theme: print
+default edge line: (path: square, corners: rounded)
+style compute fill: #e8eff6 border: #245b85
+style control fill: #f6eee4 border: #a96522
+node app "Application / agent or user"
+node gateway "Gateway and router / admission, placement" below app style: control
+node engine "Inference engine / vLLM, SGLang, TRT-LLM" below gateway style: compute
+node kernel "GPU kernels / attention, GEMM, collectives" below engine style: compute
+node cache "Cache service / LMCache, other tiers" right of engine style: control
+node tool "Tool runtime / sandbox, search, APIs" right of app
+edge app -> gateway from: bottom to: top
+edge gateway -> engine from: bottom to: top
+edge engine -> kernel from: bottom to: top
+edge engine <-> cache from: right to: left
+edge app <-> tool from: right to: left
