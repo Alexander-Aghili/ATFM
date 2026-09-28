@@ -191,3 +191,16 @@ are unchanged. The next priority is bounded, deadline-aware prediction work.
 Thread-aware profiling remains an optional experiment dependency, and the
 repository's proxy-profiling report preserves all individual trials and
 measurement limitations.
+
+\paragraph{Behavior-preserving maintenance.}
+A subsequent core refactor consolidates sidecar execution and configuration,
+simulator callbacks and index calculations, and trace/forecast schema helpers.
+Ten deterministic simulation policy variants preserve request, session, and
+random-generator-state hashes; an 8,192-session forecast preserves its result
+hash. A shared per-line parser helper was rejected after a 4.9\% microbenchmark
+regression, retaining inline parsing. The retained sidecar paths preserve output
+and event hashes; their 21-sample medians differ by +1.8\% for wrapped output and
+-0.1\% for subprocess output. These short synthetic measurements support the
+maintenance decision, not universal performance equivalence. The final suite
+passes 420 tests with five skips. The dated core-refactor report records the
+fixtures, intermediate revisions, raw timings, and validation limits.

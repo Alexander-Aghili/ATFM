@@ -8,6 +8,7 @@ predate today's launchers. Use the [project README](../../README.md) and
 
 | Note | Role |
 | --- | --- |
+| [Core refactor validation](2026-09-28-core-refactor.md) | Shared boundaries, exact output parity, retained timings, and rejected parser extraction. |
 | [Proxy CPU profiling](2026-09-27-proxy-profiling.md) | Thread-aware profiles, redundant import searches, and paired dependency optimization trials. |
 | [Repeated control attribution](2026-09-27-control-attribution.md) | Paired trials, prediction fallback counts, descriptor limits, and worker headroom. |
 | [HTTP load baseline](2026-09-27-http-load-baseline.md) | Real local service processes, fake worker, scheduled agent turns, burst scenarios, and raw evidence. |

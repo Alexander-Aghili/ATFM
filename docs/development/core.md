@@ -217,14 +217,13 @@ owns command classification, turn advancement, launch, and result conversion.
 The mini-SWE-agent mixin delegates there, then calls its harness-specific
 `_check_finished` hook exactly once, including launch failures.
 
-`sidecar/events.py:publish_progress` is the shared parser chain for subprocess
-lines and completed executor output. A progress match stops the chain even
-when its completed count duplicates the previous match. Data matches allow
-later parsers to run; parser/publication exceptions remain best-effort.
-Each execution owns its parser state and passes the previous completed value;
-the helper returns the new value. Live output retains per-line timestamps;
-wrapped output retains completion timestamps. Byte output, text conversion,
-and timeout termination still belong to their original execution paths.
+The per-line parser loops remain inline in `core.py` and `adapters.py`.
+Extraction added about 5% in a tight parsing benchmark and was rejected to
+preserve throughput. A progress match stops the chain even when its completed
+count duplicates the previous match; data matches allow later parsers to run.
+Each execution owns parser state. Live output retains per-line timestamps;
+wrapped output retains completion timestamps. Preserve these contracts in both
+loops when changing parsers.
 
 Keep subprocess timeout/drain handling separate from wrapped-executor error
 handling: only the subprocess owner can terminate a process group. Consolidating
@@ -237,3 +236,14 @@ Simulation policies share inert event callbacks through `_PolicyHooks`.
 overriding expected next-tool duration and forecast/hold handling. Placement
 mixins still override the duration term to zero. Sharing these methods must not
 change method-resolution order for placement, event draining, or RNG consumption.
+
+Trace consumers share `schema.trace.is_missing_scalar`, which recognizes only
+`None` and floating-point NaN. This deliberately preserves the existing scalar
+contract; replacing it with a broader pandas missing-value check can change
+behavior for arrays and nullable scalars. Forecast class/target order lives in
+`schema.forecast`; the forecaster and calibration modules retain their previous
+imports for compatibility. The order determines array axes and must remain
+stable across prediction and calibration.
+
+See the [refactor validation](../research/2026-09-28-core-refactor.md) for exact
+output checks, benchmark limitations, and the parser extraction we rejected.
