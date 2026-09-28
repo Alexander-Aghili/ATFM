@@ -1,0 +1,24 @@
+default edge line: (path: square, corners: rounded)
+style runtime fill: #e8f1fa border: #37618a text: (color: #172c42)
+style control fill: #fff0df border: #af702f text: (color: #513416)
+style data fill: #eaf5ed border: #50815c text: (color: #203d28)
+style evidence fill: #f0eafa border: #8060a5 text: (color: #38244d)
+style external fill: #f1f3f5 border: #78838d text: (color: #29333c)
+
+node index "Reader entry points / README.md and docs/README.md / Setup, purpose and navigation" (wrap: 39) style: data gap: wide
+node current "Current implementation / architecture/03-code-and-documentation / status.md; development/core.md" (wrap: 39) style: data gap: wide right of index
+node ops "Operate and change code / operations.md; CONTRIBUTING.md / development performance and load guides" (wrap: 39) style: data gap: wide right of current
+node design "Design intent and history / architecture/01-context, 02-container / superpowers specs/plans; detail.md" (wrap: 39) style: data gap: wide below index
+node evidence "Dated experimental evidence / research/*.md and results/ / Configs, environment, hashes, summaries" (wrap: 39) style: evidence gap: wide right of design
+node manuscript "ATFM research manuscript / paper/atfm-paper.tex + references.bib / Frozen results and vector figures" (wrap: 39) style: data gap: wide right of evidence
+node background "Serving background survey / paper/background/sections + sources / Reused artwork with provenance manifest" (wrap: 39) style: data gap: wide below design
+node backgroundbuild "Background publication build / background/build.py / Separate PDF and portable source ZIP" (wrap: 39) style: evidence gap: wide right of background
+node paperbuild "Main publication build / paper/build_latex.py / Main PDF and portable source ZIP" (wrap: 39) style: evidence gap: wide right of backgroundbuild
+edge index -> current "understand" (size: small) from: right to: left
+edge current -> ops "run / modify" (size: small) from: right to: left
+edge index -> design "design rationale" (size: small) from: bottom to: top
+edge design -> evidence "evaluate claims" (size: small) from: right to: left
+edge evidence -> manuscript "curated evidence" (size: small) from: right to: left
+edge manuscript -> paperbuild "compile" (size: small) from: bottom to: top
+edge background -> backgroundbuild "compile" (size: small) from: right to: left
+edge index -> background "learn serving" (size: small) from: bottom to: top left of design

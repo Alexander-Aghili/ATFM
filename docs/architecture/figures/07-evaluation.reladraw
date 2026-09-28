@@ -1,0 +1,23 @@
+default edge line: (path: square, corners: rounded)
+style runtime fill: #e8f1fa border: #37618a text: (color: #172c42)
+style control fill: #fff0df border: #af702f text: (color: #513416)
+style data fill: #eaf5ed border: #50815c text: (color: #203d28)
+style evidence fill: #f0eafa border: #8060a5 text: (color: #38244d)
+style external fill: #f1f3f5 border: #78838d text: (color: #29333c)
+
+node inputs "Trace and program inputs / traces adapters or synthetic families / Configurations, seeds, train/test split" (wrap: 39) style: data gap: wide
+node h1 "H1 forecast evaluation / atfm_experiments/h1.py / Replay observed events and score horizons" (wrap: 39) style: evidence gap: wide right of inputs
+node h1score "Forecast evidence / eval/forecast, coverage, resumption / CRPS, pinball, coverage, return timing" (wrap: 39) style: evidence gap: wide right of h1
+node h2score "Serving-policy evidence / eval/serving.py + H2 paired summaries / Latency, SLO, hold and cache costs" (wrap: 39) style: evidence gap: wide below inputs
+node h2 "H2 closed-loop simulation / atfm_experiments/h2sim.py / Same programs and seeds across arms" (wrap: 39) style: evidence gap: wide right of h2score
+node sim "Simulator owns virtual time / Heap events, router, worker KV model / Policies affect subsequent arrivals" (wrap: 39) style: runtime gap: wide right of h2
+node load "HTTP load evaluation / experiments/load/runtime.py / Fake worker + real proxy and board" (wrap: 39) style: evidence gap: wide below h2score
+node profile "CPU and transport attribution / Latencies, yappi, control batches / benchmark_cpu, benchmark_gdp" (wrap: 39) style: evidence gap: wide right of load
+node phoenix "Optional agent analytics / tool_traces.py + phoenix_smoke.py / Offline event export to OpenInference" (wrap: 39) style: external gap: wide right of profile
+edge inputs -> h1 "held-out trace" (size: small) from: right to: left
+edge h1 -> h1score "predictions vs truth" (size: small) from: right to: left
+edge inputs -> h2 "paired programs" (size: small) from: bottom to: top
+edge h2 -> sim "policy arms" (size: small) from: right to: left
+edge sim -> h2score "outcomes" (size: small) from: top to: bottom
+edge load -> profile "measure" (size: small) from: right to: left
+edge load -> phoenix "completed event logs" (size: small) from: bottom to: bottom below profile

@@ -1,0 +1,23 @@
+default edge line: (path: square, corners: rounded)
+style runtime fill: #e8f1fa border: #37618a text: (color: #172c42)
+style control fill: #fff0df border: #af702f text: (color: #513416)
+style data fill: #eaf5ed border: #50815c text: (color: #203d28)
+style evidence fill: #f0eafa border: #8060a5 text: (color: #38244d)
+style external fill: #f1f3f5 border: #78838d text: (color: #29333c)
+
+node receive "1. Receive and remember / Parse body and session headers / Update turn and bounded prompt LRU" (wrap: 39) style: runtime gap: wide
+node predict "2. Predict expected times / BoardClient or local fallback / Budgeted executor; record outcomes" (wrap: 39) style: runtime gap: wide right of receive
+node rank "3. Compute scheduling metadata / proxy/index.py: CallMeta / Class, tier, index, promotion time" (wrap: 39) style: runtime gap: wide right of predict
+node forward "6. Forward when released / Session header + nvext.agent_hints / Upstream streaming or JSON response" (wrap: 39) style: runtime gap: wide below receive
+node release "5. Release eligible entries / Admission window and hold cap / Timer handles delay and promotion" (wrap: 39) style: control gap: wide right of forward
+node queue "4. Enqueue in HoldQueue / Ready, arrival, delay, promotion heaps / Entry identity and stable tie ordering" (wrap: 39) style: data gap: wide right of release
+node finish "7. Complete or cancel / Finish once; return window capacity / Preserve response and clean resources" (wrap: 39) style: runtime gap: wide below forward
+node events "Lifecycle records throughout / Request and first token before finish / Done and trace on completion" (wrap: 39) style: data gap: wide right of finish
+node touch "Separate keep-alive path / POST /touch uses remembered prompt / One output token; lowest priority" (wrap: 39) style: control gap: wide right of events
+edge receive -> predict "metadata" (size: small) from: right to: left
+edge predict -> rank "expectations" (size: small) from: right to: left
+edge rank -> queue "Entry" (size: small) from: bottom to: top
+edge queue -> release "eligible heads" (size: small) from: left to: right
+edge release -> forward "release signal" (size: small) from: left to: right
+edge forward -> finish "response / error" (size: small) from: bottom to: top
+edge finish -> events "accounting" (size: small) from: right to: left

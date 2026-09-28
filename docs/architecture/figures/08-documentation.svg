@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1599" height="555" viewBox="-107 0 1599 555" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
+  <defs>
+    <marker id="r6fe9d335-arrow-5c5c7c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#5c5c7c"/>
+    </marker>
+    <marker id="r6fe9d335-arrow-5c5c7c-back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#5c5c7c"/>
+    </marker>
+    <mask id="r6fe9d335-cut-1" maskUnits="userSpaceOnUse" x="-107" y="0" width="1599" height="555">
+      <rect x="-107" y="0" width="1599" height="555" fill="white"/>
+      <circle cx="210" cy="155.76" r="6.2" fill="black"/>
+    </mask>
+  </defs>
+  <rect x="-107" y="0" width="1599" height="555" fill="#111111"/>
+  <path d="M90 40 H346 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H90 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#eaf5ed" stroke="#50815c"/>
+  <text x="218" y="68.4" fill="#203d28" text-anchor="middle">Reader entry points</text>
+  <text x="218" y="87.4" fill="#203d28" text-anchor="middle">README.md and docs/README.md</text>
+  <text x="218" y="106.4" fill="#203d28" text-anchor="middle">Setup, purpose and navigation</text>
+  <path d="M506.4 40 H838.4 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H506.4 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#eaf5ed" stroke="#50815c"/>
+  <text x="672.4" y="68.4" fill="#203d28" text-anchor="middle">Current implementation</text>
+  <text x="672.4" y="87.4" fill="#203d28" text-anchor="middle">architecture/03-code-and-documentation</text>
+  <text x="672.4" y="106.4" fill="#203d28" text-anchor="middle">status.md; development/core.md</text>
+  <path d="M970.8 40 H1310.8 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H970.8 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#eaf5ed" stroke="#50815c"/>
+  <text x="1140.8" y="68.4" fill="#203d28" text-anchor="middle">Operate and change code</text>
+  <text x="1140.8" y="87.4" fill="#203d28" text-anchor="middle">operations.md; CONTRIBUTING.md</text>
+  <text x="1140.8" y="106.4" fill="#203d28" text-anchor="middle">development performance and load guides</text>
+  <path d="M56.5 235 H379.5 a8 8 0 0 1 8 8 V312 a8 8 0 0 1 -8 8 H56.5 a8 8 0 0 1 -8 -8 V243 a8 8 0 0 1 8 -8 Z" fill="#eaf5ed" stroke="#50815c"/>
+  <text x="218" y="263.4" fill="#203d28" text-anchor="middle">Design intent and history</text>
+  <text x="218" y="282.4" fill="#203d28" text-anchor="middle">architecture/01-context, 02-container</text>
+  <text x="218" y="301.4" fill="#203d28" text-anchor="middle">superpowers specs/plans; detail.md</text>
+  <path d="M575.9 235 H915.9 a8 8 0 0 1 8 8 V312 a8 8 0 0 1 -8 8 H575.9 a8 8 0 0 1 -8 -8 V243 a8 8 0 0 1 8 -8 Z" fill="#f0eafa" stroke="#8060a5"/>
+  <text x="745.9" y="263.4" fill="#38244d" text-anchor="middle">Dated experimental evidence</text>
+  <text x="745.9" y="282.4" fill="#38244d" text-anchor="middle">research/*.md and results/</text>
+  <text x="745.9" y="301.4" fill="#38244d" text-anchor="middle">Configs, environment, hashes, summaries</text>
+  <path d="M1120.3 235 H1443.3 a8 8 0 0 1 8 8 V312 a8 8 0 0 1 -8 8 H1120.3 a8 8 0 0 1 -8 -8 V243 a8 8 0 0 1 8 -8 Z" fill="#eaf5ed" stroke="#50815c"/>
+  <text x="1281.8" y="263.4" fill="#203d28" text-anchor="middle">ATFM research manuscript</text>
+  <text x="1281.8" y="282.4" fill="#203d28" text-anchor="middle">paper/atfm-paper.tex + references.bib</text>
+  <text x="1281.8" y="301.4" fill="#203d28" text-anchor="middle">Frozen results and vector figures</text>
+  <path d="M48 430 H388 a8 8 0 0 1 8 8 V507 a8 8 0 0 1 -8 8 H48 a8 8 0 0 1 -8 -8 V438 a8 8 0 0 1 8 -8 Z" fill="#eaf5ed" stroke="#50815c"/>
+  <text x="218" y="458.4" fill="#203d28" text-anchor="middle">Serving background survey</text>
+  <text x="218" y="477.4" fill="#203d28" text-anchor="middle">paper/background/sections + sources</text>
+  <text x="218" y="496.4" fill="#203d28" text-anchor="middle">Reused artwork with provenance manifest</text>
+  <path d="M527.4 430 H842.4 a8 8 0 0 1 8 8 V507 a8 8 0 0 1 -8 8 H527.4 a8 8 0 0 1 -8 -8 V438 a8 8 0 0 1 8 -8 Z" fill="#f0eafa" stroke="#8060a5"/>
+  <text x="684.9" y="458.4" fill="#38244d" text-anchor="middle">Background publication build</text>
+  <text x="684.9" y="477.4" fill="#38244d" text-anchor="middle">background/build.py</text>
+  <text x="684.9" y="496.4" fill="#38244d" text-anchor="middle">Separate PDF and portable source ZIP</text>
+  <path d="M968.4 430 H1249.4 a8 8 0 0 1 8 8 V507 a8 8 0 0 1 -8 8 H968.4 a8 8 0 0 1 -8 -8 V438 a8 8 0 0 1 8 -8 Z" fill="#f0eafa" stroke="#8060a5"/>
+  <text x="1108.9" y="458.4" fill="#38244d" text-anchor="middle">Main publication build</text>
+  <text x="1108.9" y="477.4" fill="#38244d" text-anchor="middle">paper/build_latex.py</text>
+  <text x="1108.9" y="496.4" fill="#38244d" text-anchor="middle">Main PDF and portable source ZIP</text>
+  <path d="M 354 82.5 L 498.4 82.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r6fe9d335-arrow-5c5c7c)"/>
+  <rect x="385.2" y="74.5" width="82" height="16" fill="#111111"/>
+  <g font-size="12px">
+  <text x="426.2" y="86.7" fill="#d9d9d9" text-anchor="middle">understand</text>
+  </g>
+  <path d="M 846.4 82.5 L 962.8 82.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r6fe9d335-arrow-5c5c7c)"/>
+  <rect x="877.6" y="66.5" width="54" height="32" fill="#111111"/>
+  <g font-size="12px">
+  <text x="904.6" y="78.7" fill="#d9d9d9" text-anchor="middle">run</text>
+  <text x="904.6" y="94.7" fill="#d9d9d9" text-anchor="middle">modify</text>
+  </g>
+  <path d="M 210 125 L 210 176 C 210 178.21, 211.79 180, 214 180 L 214 180 C 216.21 180, 218 181.79, 218 184 L 218 235" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r6fe9d335-arrow-5c5c7c)"/>
+  <rect x="147" y="144.5" width="126" height="16" fill="#111111"/>
+  <g font-size="12px">
+  <text x="210" y="156.7" fill="#d9d9d9" text-anchor="middle">design rationale</text>
+  </g>
+  <path d="M 387.5 277.5 L 567.9 277.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r6fe9d335-arrow-5c5c7c)"/>
+  <rect x="418.7" y="269.5" width="118" height="16" fill="#111111"/>
+  <g font-size="12px">
+  <text x="477.7" y="281.7" fill="#d9d9d9" text-anchor="middle">evaluate claims</text>
+  </g>
+  <path d="M 923.9 277.5 L 1112.3 277.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r6fe9d335-arrow-5c5c7c)"/>
+  <rect x="955.1" y="269.5" width="126" height="16" fill="#111111"/>
+  <g font-size="12px">
+  <text x="1018.1" y="281.7" fill="#d9d9d9" text-anchor="middle">curated evidence</text>
+  </g>
+  <path d="M 1281.8 320 L 1281.8 355 C 1281.8 366.05, 1272.85 375, 1261.8 375 L 1128.9 375 C 1117.85 375, 1108.9 383.95, 1108.9 395 L 1108.9 430" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r6fe9d335-arrow-5c5c7c)"/>
+  <rect x="1164.85" y="367" width="61" height="16" fill="#111111"/>
+  <g font-size="12px">
+  <text x="1195.35" y="379.2" fill="#d9d9d9" text-anchor="middle">compile</text>
+  </g>
+  <path d="M 396 472.5 L 519.4 472.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r6fe9d335-arrow-5c5c7c)"/>
+  <rect x="427.2" y="464.5" width="61" height="16" fill="#111111"/>
+  <g font-size="12px">
+  <text x="457.7" y="476.7" fill="#d9d9d9" text-anchor="middle">compile</text>
+  </g>
+  <path d="M 226 125 L 226 136.2 C 226 147.25, 217.05 156.2, 206 156.2 L 6.5 156.2 C -4.55 156.2, -13.5 165.15, -13.5 176.2 L -13.5 378.8 C -13.5 389.85, -4.55 398.8, 6.5 398.8 L 198 398.8 C 209.05 398.8, 218 407.75, 218 418.8 L 218 430" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r6fe9d335-arrow-5c5c7c)" mask="url(#r6fe9d335-cut-1)"/>
+  <rect x="-65.5" y="269.5" width="104" height="16" fill="#111111"/>
+  <g font-size="12px">
+  <text x="-13.5" y="281.7" fill="#d9d9d9" text-anchor="middle">learn serving</text>
+  </g>
+</svg>

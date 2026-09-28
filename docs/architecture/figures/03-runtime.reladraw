@@ -1,0 +1,26 @@
+default edge line: (path: square, corners: rounded)
+style runtime fill: #e8f1fa border: #37618a text: (color: #172c42)
+style control fill: #fff0df border: #af702f text: (color: #513416)
+style data fill: #eaf5ed border: #50815c text: (color: #203d28)
+style evidence fill: #f0eafa border: #8060a5 text: (color: #38244d)
+style external fill: #f1f3f5 border: #78838d text: (color: #29333c)
+
+node agent "Agent harness / mini-SWE-agent, OpenHands, Harbor / Owns session and tool execution" (wrap: 39) style: external gap: wide
+node proxy "Proxy process / proxy/app.py: ProxyRuntime / Admission, hints, response lifecycle" (wrap: 39) style: runtime gap: wide right of agent
+node engine "External serving pool / Dynamo frontend and model workers / Actual token generation and KV cache" (wrap: 39) style: external gap: wide right of proxy
+node sidecar "In-process sidecar / sidecar/core.py and adapters.py / Tool start, progress, data, end" (wrap: 39) style: runtime gap: wide below agent
+node bus "Event transport / bus/jsonl.py in shipped launchers / Redis library or memory alternatives" (wrap: 39) style: data gap: wide right of sidecar
+node board "Board process / board/service.py: BoardRuntime / Registry, forecasts, controller planning" (wrap: 39) style: runtime gap: wide right of bus
+node gate "Proxy control endpoints / /directives/batch, /gate, /touch / Hold delivery and launch checks" (wrap: 39) style: control gap: wide below sidecar
+node loop "Control-loop process / control/loop.py: ControlLoop / Tick, fetch, validate, batch, apply" (wrap: 39) style: control gap: wide right of gate
+node actuator "Optional LMCache endpoint / control/lmcache.py adapter / Pin and move requests; verify effects" (wrap: 39) style: external gap: wide right of loop
+edge agent -> proxy "chat request" (size: small) from: right to: left
+edge proxy -> engine "HTTP + hints" (size: small) from: right to: left
+edge agent -> sidecar "execute tool" (size: small) from: bottom to: top
+edge sidecar -> bus "tool events" (size: small) from: right to: left
+edge proxy -> bus "LLM events" (size: small) from: bottom to: top
+edge bus -> board "drain on tick" (size: small) from: right to: left
+edge engine -> board "worker metrics" (size: small) from: bottom to: top
+edge loop -> board "tick + directives" (size: small) from: top to: bottom
+edge loop -> gate "holds via proxy" (size: small) from: left to: right
+edge loop -> actuator "optional actuation" (size: small) from: right to: left

@@ -251,13 +251,12 @@ owns command classification, turn advancement, launch, and result conversion.
 The mini-SWE-agent mixin delegates there, then calls its harness-specific
 `_check_finished` hook exactly once, including launch failures.
 
-The per-line parser loops remain inline in `core.py` and `adapters.py`.
-Extraction added about 5% in a tight parsing benchmark and was rejected to
-preserve throughput. A progress match stops the chain even when its completed
-count duplicates the previous match; data matches allow later parsers to run.
-Each execution owns parser state. Live output retains per-line timestamps;
-wrapped output retains completion timestamps. Preserve these contracts in both
-loops when changing parsers.
+Per-line parser dispatch is shared through `_ToolEvents` in `sidecar/core.py`,
+used by the subprocess runner and wrapped executor. A progress match stops the
+chain even when its completed count duplicates the previous match; data matches
+allow later parsers to run. Each execution owns parser state. Live output retains
+per-line timestamps; wrapped output retains completion timestamps. Preserve
+these contracts when changing the shared implementation.
 
 Keep subprocess timeout/drain handling separate from wrapped-executor error
 handling: only the subprocess owner can terminate a process group. Consolidating
@@ -279,5 +278,8 @@ behavior for arrays and nullable scalars. Forecast class/target order lives in
 imports for compatibility. The order determines array axes and must remain
 stable across prediction and calibration.
 
-See the [refactor validation](../research/2026-09-28-core-refactor.md) for exact
-output checks, benchmark limitations, and the parser extraction we rejected.
+See the [initial refactor study](../research/2026-09-28-core-refactor.md) for its
+historical decisions and the [subsequent modularity results](../research/results/modularity-2026-09-28)
+for the later shared-parser implementation and output/performance comparisons.
+The [implementation architecture](../architecture/03-code-and-documentation.md)
+maps these contracts to runtime flows and module ownership.

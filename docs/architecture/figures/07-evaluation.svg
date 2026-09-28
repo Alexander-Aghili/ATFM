@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1471" height="598" viewBox="0 0 1471 598" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
+  <defs>
+    <marker id="r24f47a8a-arrow-5c5c7c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#5c5c7c"/>
+    </marker>
+    <marker id="r24f47a8a-arrow-5c5c7c-back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#5c5c7c"/>
+    </marker>
+    <mask id="r24f47a8a-cut-1" maskUnits="userSpaceOnUse" x="0" y="0" width="1471" height="598">
+      <rect x="0" y="0" width="1471" height="598" fill="white"/>
+      <circle cx="658.5" cy="213.3" r="6.2" fill="black"/>
+    </mask>
+  </defs>
+  <rect x="0" y="0" width="1471" height="598" fill="#111111"/>
+  <path d="M48 49.5 H388 a8 8 0 0 1 8 8 V126.5 a8 8 0 0 1 -8 8 H48 a8 8 0 0 1 -8 -8 V57.5 a8 8 0 0 1 8 -8 Z" fill="#eaf5ed" stroke="#50815c"/>
+  <text x="218" y="77.9" fill="#203d28" text-anchor="middle">Trace and program inputs</text>
+  <text x="218" y="96.9" fill="#203d28" text-anchor="middle">traces adapters or synthetic families</text>
+  <text x="218" y="115.9" fill="#203d28" text-anchor="middle">Configurations, seeds, train/test split</text>
+  <path d="M577.4 40 H858.4 a8 8 0 0 1 8 8 V136 a8 8 0 0 1 -8 8 H577.4 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#f0eafa" stroke="#8060a5"/>
+  <text x="717.9" y="68.4" fill="#38244d" text-anchor="middle">H1 forecast evaluation</text>
+  <text x="717.9" y="87.4" fill="#38244d" text-anchor="middle">atfm_experiments/h1.py</text>
+  <text x="717.9" y="106.4" fill="#38244d" text-anchor="middle">Replay observed events and score</text>
+  <text x="717.9" y="125.4" fill="#38244d" text-anchor="middle">horizons</text>
+  <path d="M1090.8 49.5 H1422.8 a8 8 0 0 1 8 8 V126.5 a8 8 0 0 1 -8 8 H1090.8 a8 8 0 0 1 -8 -8 V57.5 a8 8 0 0 1 8 -8 Z" fill="#f0eafa" stroke="#8060a5"/>
+  <text x="1256.8" y="77.9" fill="#38244d" text-anchor="middle">Forecast evidence</text>
+  <text x="1256.8" y="96.9" fill="#38244d" text-anchor="middle">eval/forecast, coverage, resumption</text>
+  <text x="1256.8" y="115.9" fill="#38244d" text-anchor="middle">CRPS, pinball, coverage, return timing</text>
+  <path d="M56.5 244.5 H379.5 a8 8 0 0 1 8 8 V321.5 a8 8 0 0 1 -8 8 H56.5 a8 8 0 0 1 -8 -8 V252.5 a8 8 0 0 1 8 -8 Z" fill="#f0eafa" stroke="#8060a5"/>
+  <text x="218" y="272.9" fill="#38244d" text-anchor="middle">Serving-policy evidence</text>
+  <text x="218" y="291.9" fill="#38244d" text-anchor="middle">eval/serving.py + H2 paired summaries</text>
+  <text x="218" y="310.9" fill="#38244d" text-anchor="middle">Latency, SLO, hold and cache costs</text>
+  <path d="M505.5 244.5 H811.5 a8 8 0 0 1 8 8 V321.5 a8 8 0 0 1 -8 8 H505.5 a8 8 0 0 1 -8 -8 V252.5 a8 8 0 0 1 8 -8 Z" fill="#f0eafa" stroke="#8060a5"/>
+  <text x="658.5" y="272.9" fill="#38244d" text-anchor="middle">H2 closed-loop simulation</text>
+  <text x="658.5" y="291.9" fill="#38244d" text-anchor="middle">atfm_experiments/h2sim.py</text>
+  <text x="658.5" y="310.9" fill="#38244d" text-anchor="middle">Same programs and seeds across arms</text>
+  <path d="M979.9 244.5 H1294.9 a8 8 0 0 1 8 8 V321.5 a8 8 0 0 1 -8 8 H979.9 a8 8 0 0 1 -8 -8 V252.5 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
+  <text x="1137.4" y="272.9" fill="#172c42" text-anchor="middle">Simulator owns virtual time</text>
+  <text x="1137.4" y="291.9" fill="#172c42" text-anchor="middle">Heap events, router, worker KV model</text>
+  <text x="1137.4" y="310.9" fill="#172c42" text-anchor="middle">Policies affect subsequent arrivals</text>
+  <path d="M69 439.5 H367 a8 8 0 0 1 8 8 V516.5 a8 8 0 0 1 -8 8 H69 a8 8 0 0 1 -8 -8 V447.5 a8 8 0 0 1 8 -8 Z" fill="#f0eafa" stroke="#8060a5"/>
+  <text x="218" y="467.9" fill="#38244d" text-anchor="middle">HTTP load evaluation</text>
+  <text x="218" y="486.9" fill="#38244d" text-anchor="middle">experiments/load/runtime.py</text>
+  <text x="218" y="505.9" fill="#38244d" text-anchor="middle">Fake worker + real proxy and board</text>
+  <path d="M506.4 439.5 H796.4 a8 8 0 0 1 8 8 V516.5 a8 8 0 0 1 -8 8 H506.4 a8 8 0 0 1 -8 -8 V447.5 a8 8 0 0 1 8 -8 Z" fill="#f0eafa" stroke="#8060a5"/>
+  <text x="651.4" y="467.9" fill="#38244d" text-anchor="middle">CPU and transport attribution</text>
+  <text x="651.4" y="486.9" fill="#38244d" text-anchor="middle">Latencies, yappi, control batches</text>
+  <text x="651.4" y="505.9" fill="#38244d" text-anchor="middle">benchmark_cpu, benchmark_gdp</text>
+  <path d="M922.4 439.5 H1245.4 a8 8 0 0 1 8 8 V516.5 a8 8 0 0 1 -8 8 H922.4 a8 8 0 0 1 -8 -8 V447.5 a8 8 0 0 1 8 -8 Z" fill="#f1f3f5" stroke="#78838d"/>
+  <text x="1083.9" y="467.9" fill="#29333c" text-anchor="middle">Optional agent analytics</text>
+  <text x="1083.9" y="486.9" fill="#29333c" text-anchor="middle">tool_traces.py + phoenix_smoke.py</text>
+  <text x="1083.9" y="505.9" fill="#29333c" text-anchor="middle">Offline event export to OpenInference</text>
+  <path d="M 396 92 L 569.4 92" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r24f47a8a-arrow-5c5c7c)"/>
+  <rect x="427.2" y="84" width="111" height="16" fill="#111111"/>
+  <g font-size="12px">
+  <text x="482.7" y="96.2" fill="#d9d9d9" text-anchor="middle">held-out trace</text>
+  </g>
+  <path d="M 866.4 92 L 1082.8 92" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r24f47a8a-arrow-5c5c7c)"/>
+  <rect x="897.6" y="84" width="154" height="16" fill="#111111"/>
+  <g font-size="12px">
+  <text x="974.6" y="96.2" fill="#d9d9d9" text-anchor="middle">predictions vs truth</text>
+  </g>
+  <path d="M 218 134.5 L 218 169.5 C 218 180.55, 226.95 189.5, 238 189.5 L 638.5 189.5 C 649.55 189.5, 658.5 198.45, 658.5 209.5 L 658.5 244.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r24f47a8a-arrow-5c5c7c)"/>
+  <rect x="379.25" y="181.5" width="118" height="16" fill="#111111"/>
+  <g font-size="12px">
+  <text x="438.25" y="193.7" fill="#d9d9d9" text-anchor="middle">paired programs</text>
+  </g>
+  <path d="M 819.5 287 L 971.9 287" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r24f47a8a-arrow-5c5c7c)"/>
+  <rect x="850.7" y="279" width="90" height="16" fill="#111111"/>
+  <g font-size="12px">
+  <text x="895.7" y="291.2" fill="#d9d9d9" text-anchor="middle">policy arms</text>
+  </g>
+  <path d="M 1137.4 244.5 L 1137.4 233.3 C 1137.4 222.25, 1128.45 213.3, 1117.4 213.3 L 440 213.3 C 428.95 213.3, 420 222.25, 420 233.3 L 420 340.7 C 420 351.75, 411.05 360.7, 400 360.7 L 238 360.7 C 226.95 360.7, 218 351.75, 218 340.7 L 218 329.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r24f47a8a-arrow-5c5c7c)" mask="url(#r24f47a8a-cut-1)"/>
+  <rect x="744.7" y="205.3" width="68" height="16" fill="#111111"/>
+  <g font-size="12px">
+  <text x="778.7" y="217.5" fill="#d9d9d9" text-anchor="middle">outcomes</text>
+  </g>
+  <path d="M 375 482 L 498.4 482" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r24f47a8a-arrow-5c5c7c)"/>
+  <rect x="406.2" y="474" width="61" height="16" fill="#111111"/>
+  <g font-size="12px">
+  <text x="436.7" y="486.2" fill="#d9d9d9" text-anchor="middle">measure</text>
+  </g>
+  <path d="M 218 524.5 L 218 535.7 C 218 542.77, 223.73 548.5, 230.8 548.5 L 1071.1 548.5 C 1078.17 548.5, 1083.9 542.77, 1083.9 535.7 L 1083.9 524.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r24f47a8a-arrow-5c5c7c)"/>
+  <rect x="573.95" y="540.5" width="154" height="16" fill="#111111"/>
+  <g font-size="12px">
+  <text x="650.95" y="552.7" fill="#d9d9d9" text-anchor="middle">completed event logs</text>
+  </g>
+</svg>

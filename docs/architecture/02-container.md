@@ -129,5 +129,5 @@ Source: `02-container.reladraw` (rendered with `npx reladraw 02-container.reladr
 ## Links to other levels
 
 - ↑ [System Context](./01-context.md).
-- Component views are not drawn: the largest container (demand board) has six components (registry, predictor ladder, forecaster, exogenous model, snapshot publisher, per-request API) documented in spec section 5.
+- ↓ [Current code and documentation architecture](03-code-and-documentation.md): detailed runtime, queue, forecasting, module, evaluation and documentation views.
 - See also: [architecture spec v1.1](../superpowers/specs/2026-09-22-atfm-architecture-design.md).

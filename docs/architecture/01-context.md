@@ -94,5 +94,6 @@ Source: `01-context.reladraw` (rendered with `npx reladraw 01-context.reladraw -
 
 ## Links to other levels
 
+- ↓ [Current implementation diagrams](03-code-and-documentation.md) — code ownership, runtime flows and documentation.
 - ↓ [Container diagram](./02-container.md) — the deployable parts inside ATFM.
 - See also: [architecture spec v1.1](../superpowers/specs/2026-09-22-atfm-architecture-design.md), [design page](./atfm-architecture.html).
