@@ -1,0 +1,41 @@
+         9300107 function calls in 6.635 seconds
+
+   Ordered by: cumulative time
+   List reduced from 75 to 35 due to restriction <35>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    6.635    6.635 benchmark_cpu.py:67(<lambda>)
+        1    1.101    1.101    6.635    6.635 forecaster.py:78(forecast)
+   100000    0.101    0.000    4.133    0.000 progress.py:185(resumption)
+   100000    0.822    0.000    3.040    0.000 progress.py:159(_remaining_from_progress)
+   600000    0.276    0.000    1.449    0.000 fromnumeric.py:3325(prod)
+   600000    0.534    0.000    1.172    0.000 fromnumeric.py:66(_wrapreduction)
+   100000    0.462    0.000    1.037    0.000 progress.py:153(_residual_draw)
+   100000    0.137    0.000    1.001    0.000 duration.py:199(next_call_isl)
+   100000    0.108    0.000    0.982    0.000 duration.py:184(_finish)
+   100000    0.165    0.000    0.931    0.000 progress.py:109(time_fraction)
+   100000    0.348    0.000    0.839    0.000 duration.py:116(gap)
+   100000    0.330    0.000    0.814    0.000 duration.py:147(isl_delta)
+   700002    0.521    0.000    0.521    0.000 {method 'reduce' of 'numpy.ufunc' objects}
+   100000    0.072    0.000    0.485    0.000 fromnumeric.py:2245(clip)
+   100006    0.076    0.000    0.413    0.000 fromnumeric.py:48(_wrapfunc)
+   100000    0.073    0.000    0.401    0.000 forecaster.py:110(_children)
+   100000    0.110    0.000    0.328    0.000 fromnumeric.py:38(_wrapit)
+   100000    0.091    0.000    0.226    0.000 _function_base_impl.py:1549(interp)
+   900006    0.207    0.000    0.207    0.000 {built-in method builtins.getattr}
+   100000    0.036    0.000    0.189    0.000 {method 'any' of 'numpy.ndarray' objects}
+   100000    0.031    0.000    0.164    0.000 {method 'clip' of 'numpy.ndarray' objects}
+   100000    0.026    0.000    0.153    0.000 _methods.py:55(_any)
+   100000    0.132    0.000    0.132    0.000 _methods.py:96(_clip)
+   100000    0.053    0.000    0.129    0.000 duration.py:202(spawn)
+   300000    0.076    0.000    0.101    0.000 progress.py:96(_which)
+   100000    0.039    0.000    0.083    0.000 progress.py:105(sigma_for)
+   100000    0.073    0.000    0.073    0.000 {built-in method numpy._core._multiarray_umath.interp}
+   100000    0.057    0.000    0.068    0.000 {built-in method builtins.max}
+   600000    0.067    0.000    0.067    0.000 {method 'items' of 'dict' objects}
+   500000    0.063    0.000    0.063    0.000 {method 'get' of 'dict' objects}
+   100000    0.024    0.000    0.060    0.000 progress.py:102(has)
+   600000    0.050    0.000    0.050    0.000 fromnumeric.py:3320(_prod_dispatcher)
+   100000    0.050    0.000    0.050    0.000 {method 'astype' of 'numpy.ndarray' objects}
+   100000    0.031    0.000    0.042    0.000 _type_check_impl.py:265(iscomplexobj)
+   100018    0.041    0.000    0.041    0.000 {built-in method numpy.zeros}

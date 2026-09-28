@@ -1,0 +1,31 @@
+         3836504 function calls in 8.024 seconds
+
+   Ordered by: cumulative time
+   List reduced from 63 to 25 due to restriction <25>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.002    0.002    8.024    8.024 benchmark_gdp.py:31(<lambda>)
+        1    0.224    0.224    8.022    8.022 gdp.py:103(plan)
+   100000    5.567    0.000    6.566    0.000 gdp.py:82(_first_slot)
+        2    0.126    0.063    0.854    0.427 gdp.py:43(slot_demand)
+        2    0.385    0.193    0.385    0.193 shape_base.py:378(stack)
+   100000    0.088    0.000    0.337    0.000 numeric.py:675(flatnonzero)
+   100004    0.328    0.000    0.328    0.000 {built-in method numpy.arange}
+     2048    0.001    0.000    0.314    0.000 _function_base_impl.py:1549(interp)
+     2048    0.312    0.000    0.312    0.000 {built-in method numpy._core._multiarray_umath.interp}
+   100000    0.031    0.000    0.161    0.000 main.py:253(__init__)
+   100000    0.026    0.000    0.139    0.000 fromnumeric.py:2031(nonzero)
+   100000    0.021    0.000    0.132    0.000 {built-in method builtins.all}
+   100000    0.130    0.000    0.130    0.000 {method 'validate_python' of 'pydantic_core._pydantic_core.SchemaValidator' objects}
+   200000    0.109    0.000    0.127    0.000 gdp.py:93(<genexpr>)
+   200006    0.069    0.000    0.121    0.000 gdp.py:39(n_slots)
+   100004    0.032    0.000    0.113    0.000 fromnumeric.py:48(_wrapfunc)
+        1    0.012    0.012    0.100    0.100 gdp.py:62(_slot_thresholds)
+   100000    0.050    0.000    0.096    0.000 fromnumeric.py:1917(ravel)
+   100000    0.070    0.000    0.070    0.000 {method 'nonzero' of 'numpy.ndarray' objects}
+   400006    0.064    0.000    0.064    0.000 {built-in method builtins.max}
+        2    0.000    0.000    0.055    0.027 fromnumeric.py:732(partition)
+   500000    0.052    0.000    0.052    0.000 {method 'get' of 'dict' objects}
+        1    0.011    0.011    0.045    0.045 {built-in method builtins.sorted}
+   400004    0.044    0.000    0.044    0.000 {built-in method builtins.getattr}
+   100000    0.034    0.000    0.034    0.000 gdp.py:112(<lambda>)

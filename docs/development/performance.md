@@ -1,5 +1,8 @@
 # Python, performance, and when to use Rust
 
+The [current bottleneck audit](../research/2026-09-27-current-bottlenecks.md)
+combines fresh profiles with deployed-path review and orders the remaining work.
+
 ## Current decision
 
 Keep the core in Python until measurements identify a runtime limit that

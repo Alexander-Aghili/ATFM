@@ -1,0 +1,81 @@
+"""Profile current control hot paths; local component evidence, not fleet capacity."""
+from __future__ import annotations
+
+import argparse
+import cProfile
+import hashlib
+import json
+from pathlib import Path
+import platform
+import pstats
+import time
+
+import numpy as np
+
+from atfm.bus import JsonlBus
+from atfm.proxy.queue import Entry, HoldQueue
+from atfm.schema.events import ToolProgress, event_to_dict
+from atfm_experiments.benchmark_gdp import workload
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--out", type=Path, required=True)
+    args = parser.parse_args()
+    args.out.mkdir(parents=True, exist_ok=True)
+    rows = []
+    for sessions, slots, draws in [(100000, 10000, 1024), (1000000, 300, 128)]:
+        run = workload(sessions, slots, draws, True)
+        profile = cProfile.Profile()
+        result = profile.runcall(run)
+        assert len(result) == sessions
+        with (args.out / f"gdp-{sessions}-profile.txt").open("w") as stream:
+            stats = pstats.Stats(profile, stream=stream).strip_dirs().sort_stats("cumulative")
+            stats.print_stats(25)
+        del result
+    for size in (10000, 100000, 1000000):
+        path = args.out / "events.jsonl"
+        line = json.dumps(event_to_dict(ToolProgress(t=1, session_id="s", call_id="c", completed=1))) + "\n"
+        with path.open("w") as stream:
+            for _ in range(size):
+                stream.write(line)
+        bus = JsonlBus(path)
+        assert len(bus.drain()) == size
+        timings = []
+        for _ in range(3):
+            start = time.perf_counter()
+            events = bus.drain()
+            timings.append(time.perf_counter() - start)
+            assert len(events) == size
+            del events
+        rows.append(dict(case="unchanged_jsonl_drain", size=size, median_s=float(np.median(timings)),
+                         min_s=min(timings), max_s=max(timings), bytes=path.stat().st_size))
+        path.unlink()
+        print(rows[-1], flush=True)
+    for size in (1000, 4000):
+        timings = []
+        for repeat in range(4):
+            queue = HoldQueue(1, clock=lambda: 0.0, release_order_max=size)
+            queue.pending = [Entry(str(i), i % 3, float(i % 7), float(-i)) for i in range(size)]
+            start = time.perf_counter()
+            queue.tick()
+            while queue.pending:
+                queue.complete()
+            elapsed = time.perf_counter() - start
+            assert len(queue.release_order) == size
+            if repeat:
+                timings.append(elapsed)
+        rows.append(dict(case="single_slot_queue_drain", size=size, median_s=float(np.median(timings)),
+                         min_s=min(timings), max_s=max(timings)))
+        print(rows[-1], flush=True)
+    (args.out / "timings.json").write_text(json.dumps(rows, indent=2) + "\n")
+    paths = ["src/atfm/control/gdp.py", "src/atfm/proxy/queue.py", "src/atfm/bus/jsonl.py", __file__]
+    (args.out / "environment.json").write_text(json.dumps(dict(
+        python=platform.python_version(), platform=platform.platform(), numpy=np.__version__,
+        source_sha256={str(Path(p).relative_to(Path.cwd()) if Path(p).is_absolute() else p):
+                       hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in paths},
+        notes="GDP times are instrumented profiles, not repeated wall-time benchmarks. JSONL warmup + 3 runs; queue setup excluded, warmup + 3 runs."), indent=2) + "\n")
+
+
+if __name__ == "__main__":
+    main()
