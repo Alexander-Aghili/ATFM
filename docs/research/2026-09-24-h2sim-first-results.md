@@ -444,3 +444,23 @@ admissions; eviction ordering and touches only act when room is needed. The LMCa
 therefore needs a shorter pin horizon or a pin tied to the eviction frontier (pin only what is about to
 go), which is a knob to sweep before the hardware study. The exact-time pin arm is again no better than the
 forecast pins.
+
+### Hard-pin arms, interactive long tools (`h2sim_interactive_long_pin`, 3 seeds)
+
+| arm | SLO diff vs native [95% CI] | bg JCT diff (s) | pins per seed | recomputed prefill |
+|---|---|---|---|---|
+| proxy_rules | +0.020 [+0.006, +0.038] | +48 | 0 | 3.24e7 |
+| forecast_M2_kv (eviction order) | **+0.035 [+0.022, +0.050]** | +63 | 0 | 3.34e7 |
+| forecast_M1_pin | +0.019 [+0.005, +0.033] | +66 | 1238 | 3.34e7 |
+| forecast_M2_pin | +0.019 [+0.003, +0.034] | +61 | 1287 | 3.32e7 |
+| oracle_pin | +0.012 [-0.002, +0.027] | +92 | 1294 | 3.58e7 |
+| pin_random | +0.017 [+0.003, +0.032] | +126 | 1784 | 3.95e7 |
+| forecast_M2_touch (yielding) | +0.029 [+0.014, +0.043] | +59 | 740 touches | 2.96e7 |
+
+Here the pin arms are no better than rules and no better than random pins on the SLO (random pins only cost
+more background time and recompute), while eviction ordering (+3.5) and the yielding touch (+2.9) keep
+their gains. A 30 s hard pin is too blunt an instrument in this regime: it protects contexts the cache
+was not going to evict and blocks admissions when it is full. The LMCache actuator should therefore pin
+*at the eviction frontier* (only sessions whose blocks are about to go, the way the touch controller
+already selects) and for a shorter horizon; the pin arm in the simulator needs that variant before the
+LMCache form is compared again.
