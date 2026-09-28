@@ -13,7 +13,7 @@ node lmcache "LMCache controller / [dim]pin, move, lookup by prefix tokens; CPU 
 node sidecar "Tool-runtime sidecar / [dim]in-process; wraps tool subprocesses; emits progress[/dim]" (wrap: 30)  style: svc  below harness  gap: wide
 node bus     "Event bus / [dim]Redis Streams (deploy); in-memory or JSONL (dev)[/dim]" (wrap: 28)  style: svc  right of sidecar
 node board   "Demand board / [dim]session registry; predictors B0..M3; Monte Carlo forecast every 5 s[/dim]" (wrap: 32)  style: svc  right of bus
-node control "Controllers / [dim]ground delay program; pre-staging and replica floor log only[/dim]" (wrap: 30)  style: svc  right of board
+node control "Controllers / [dim]admission planner; pre-staging and replica floor log only[/dim]" (wrap: 30)  style: svc  right of board
 
 node store    "Trace and run store / [dim]trace table, snapshots, run metrics (parquet + JSON)[/dim]" (wrap: 28)  style: store  below bus  gap: wide
 node sim      "Simulator and evaluation / [dim]closed-loop fleet model; forecast and serving metrics[/dim]" (wrap: 30)  style: svc  below control  gap: wide

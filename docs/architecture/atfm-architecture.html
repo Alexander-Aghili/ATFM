@@ -79,7 +79,7 @@ td.k{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
     <li><a href="#lifecycle">Turn lifecycle</a></li>
     <li><a href="#queue">Where the queue lives</a></li>
     <li><a href="#board">Demand board</a></li>
-    <li><a href="#gdp">Ground delay</a></li>
+    <li><a href="#gdp">Admission delay</a></li>
     <li><a href="#tiers">Memory tiers</a></li>
     <li><a href="#sidecar">Sidecar</a></li>
     <li><a href="#sim">Simulator and evaluation</a></li>
@@ -93,7 +93,7 @@ td.k{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
 
 <header>
   <h1>ATFM Architecture</h1>
-  <p class="sub">Air-traffic-style flow management for agent fleets on a shared NVIDIA Dynamo GPU pool: forecast demand from in-flight sessions, order calls by class, delay deferrable work on the ground.</p>
+  <p class="sub">Forecast-based admission control for agent fleets on a shared NVIDIA Dynamo GPU pool: forecast demand from in-flight sessions, order calls by class, delay deferrable work before admission.</p>
   <div class="meta">Design v1.1 · revised 2026-09-23 after external review · status updated 2026-09-23 · source: docs/superpowers/specs/2026-09-22-atfm-architecture-design.md</div>
 </header>
 
@@ -105,7 +105,7 @@ td.k{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
 <div class="card"><div class="id">L1 · built and reviewed · 91 tests plus 2 gated</div><h4>Plumbing on the laptop</h4><p>Event schema and buses, byte-exact sidecar with pytest / percent / counter / rate parsers and a launch gate, mini-SWE-agent adapters (local and Docker), the proxy with global window and priority tiers, live demand board, Dynamo Mocker launcher, scripted trace collection, coverage report, H1b runner.</p></div>
 <div class="card"><div class="id">Verified on this machine</div><h4>Dynamo v1.5 stack</h4><p>Mocker workers plus the frontend start with file discovery in about four seconds and serve a request carrying <code>nvext.agent_hints</code>. An end-to-end run with three concurrent scripted sessions through the proxy held the window at two and gave the deadline-bound interactive session the top tier.</p></div>
 <div class="card"><div class="id">H1b · gate passed (long-tool regime)</div><h4>Long-tool trace collection</h4><p>16 real phases of 78 to 345 s (cmake builds at two parallelism levels, linear and staged pipelines at four sizes), plus two runs of the numpy test suite (49,696 tests, 200 s, 51k progress events each), scored per session every 15 s with the job family held out: the progress signal cuts remaining-time error 2.8x over elapsed time alone (q90 pinball 8.9 vs 24.9 on 202 points; CRPS 30.1 vs 59.0). numpy is S-shaped in progress and M2 only beats M1 once one prior run of the suite is in training (CRPS 18.8 vs 53.7). Earlier figures without numpy: q90 pinball 10.0 vs 28.1; CRPS 17.8 vs 59.7), 10 to 30x on linear output, 2 to 5x on staged output, and 1.2 to 15x on cmake percent markers once a per-tool progress curve is learned from another build. Eight job families on one machine; the numpy suite is being added.</p></div>
-<div class="card"><div class="id">v1 completion · built, test-first · 201 tests</div><h4>Controllers, deploy plumbing, placement mechanism</h4><p>New <code>atfm.control</code> package: GDP planner (ration-by-schedule on forecast samples, per-slot chance constraint on KV and prefill, hard cap, per-tenant fairness), placement touch controller (keep-alive touches of sessions forecast to return soon and at risk of eviction, within a budget), tier logger, replica floor with a virtual Planner connector. Simulator: keep-alive touch arms, trace replay regime, golden test, provenance manifest. Deploy: Redis Streams bus with resumable cursor, Prometheus worker-metrics scraper, board HTTP service, proxy overflow-to-FCFS with alarms, directive expiry and a <code>/touch</code> endpoint; sidecar parsers for rows, stages and training monitors; OpenHands and Harbor adapters. No new experiments were run in this pass.</p></div>
+<div class="card"><div class="id">v1 completion · built, test-first · 201 tests</div><h4>Controllers, deploy plumbing, placement mechanism</h4><p>New <code>atfm.control</code> package: GDP planner (expected-resumption ordering on forecast samples, per-slot chance constraint on KV and prefill, hard cap, per-tenant fairness), placement touch controller (keep-alive touches of sessions forecast to return soon and at risk of eviction, within a budget), tier logger, replica floor with a virtual Planner connector. Simulator: keep-alive touch arms, trace replay regime, golden test, provenance manifest. Deploy: Redis Streams bus with resumable cursor, Prometheus worker-metrics scraper, board HTTP service, proxy overflow-to-FCFS with alarms, directive expiry and a <code>/touch</code> endpoint; sidecar parsers for rows, stages and training monitors; OpenHands and Harbor adapters. No new experiments were run in this pass.</p></div>
 <div class="card"><div class="id">L0 policies · built, reviewed, fixed · 3 regimes run</div><h4>Closed-loop simulator, six arms</h4><p>Heap event loop with KV LRU workers, prefix reuse and priority batching; proxy window, tiers, capped and re-consulted holds; arms native, proxy rules, forecast M1, forecast M2, oracle, ThunderAgent-style working set, plus a no-hold ablation. Every arm logs where each call waited and what a hold cost (hold seconds, held KV block-seconds, evictions attributed to holds, recomputed prefill). Synthetic programs only; see the H2 table below. Note: <code>docs/research/2026-09-24-h2sim-first-results.md</code>.</p></div>
 </div>
 
@@ -154,7 +154,7 @@ td.k{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
 <tr><td class="k">D8</td><td>Hardware</td><td>Laptop simulation and functional tests, then 1×H100, then 2×H100 with Mocker padding</td><td>8×H100 nodes, two-node runs</td><td>The literature demonstrates on 1 to 4 GPUs.</td></tr>
 <tr><td class="k">D9</td><td>Sidecar contract</td><td>Result path untouched; separate state path emits progress and data events; fail-open</td><td>Modifying tool output; blocking on the bus</td><td>Agents must see identical tool results with and without the sidecar.</td></tr>
 <tr><td class="k">D10</td><td>Control-loop safety</td><td>Every controller fails open: default hints if the board is down, hard caps on holds, advisory pre-staging</td><td>Fail-closed</td><td>A forecasting bug must never stall a fleet.</td></tr>
-<tr><td class="k">D11</td><td>Central claim</td><td>Three separable hypotheses. <b>H1a</b> demand board: in-flight session state forecasts fleet demand at 30 s to 15 min better than history (evidence exists). <b>H1b</b> sidecar: live tool progress improves on elapsed time, testable only on long-tool workloads. <b>H2</b> controller: admission on those forecasts lowers interactive latency after tool return or GPU cost at a stated background delay budget, beyond native Dynamo priority and ThunderAgent</td><td>One combined claim</td><td>A null M2 minus M1 on sub-second tools says nothing about the sidecar; a forecast gain says nothing about a controller until a closed-loop run shows it.</td></tr>
+<tr><td class="k">D11</td><td>Central claim</td><td>Three separable hypotheses. <b>H1a</b> demand board: in-flight session state forecasts fleet demand at 30 s to 15 min better than history (evidence exists). <b>H1b</b> sidecar: live tool progress improves on elapsed time, testable only on long-tool workloads. <b>H2</b> controller: admission on those forecasts lowers interactive latency after tool return or GPU cost at a stated backadmission delay budget, beyond native Dynamo priority and ThunderAgent</td><td>One combined claim</td><td>A null M2 minus M1 on sub-second tools says nothing about the sidecar; a forecast gain says nothing about a controller until a closed-loop run shows it.</td></tr>
 <tr><td class="k">D12</td><td>What counts as a policy result</td><td>Closed-loop runs only: the simulator generating sessions that react to reply times, or live agents on hardware. Trace replay scores forecasts and calibrates the simulator</td><td>Policy sweeps on replayed traces</td><td>A policy changes when agents get replies, which changes what they launch next; a fixed replay cannot see that feedback.</td></tr>
 </tbody></table></div>
 
@@ -165,7 +165,7 @@ td.k{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
 
 <figure>
 <div class="diag">
-<svg viewBox="0 0 1080 470" role="img" aria-label="System context: harness LLM calls flow through the ATFM proxy into the Dynamo frontend, router and workers; sidecar tool events flow over the event bus to the demand board, whose forecasts drive the ground delay, pre-staging and replica floor controllers, which act on the proxy, the workers and the planner.">
+<svg viewBox="0 0 1080 470" role="img" aria-label="System context: harness LLM calls flow through the ATFM proxy into the Dynamo frontend, router and workers; sidecar tool events flow over the event bus to the demand board, whose forecasts drive the admission delay, pre-staging and replica floor controllers, which act on the proxy, the workers and the planner.">
 <defs>
   <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker>
   <marker id="arF" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--fcast)"/></marker>
@@ -227,7 +227,7 @@ td.k{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
 
 <!-- controllers -->
 <rect x="620" y="320" width="130" height="50" rx="4" fill="var(--surface)" stroke="var(--hold)"/>
-<text x="685" y="341" text-anchor="middle">ground delay</text>
+<text x="685" y="341" text-anchor="middle">admission delay</text>
 <text x="685" y="358" text-anchor="middle" font-size="11">HoldDirective</text>
 <rect x="770" y="320" width="130" height="50" rx="4" fill="var(--surface)" stroke="var(--kv)"/>
 <text x="835" y="341" text-anchor="middle">pre-staging</text>
@@ -266,7 +266,7 @@ td.k{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
 <div class="card"><div class="id">atfm.proxy</div><h4>Harness proxy</h4><p>OpenAI-compatible ASGI server. Classifies the session, asks the board for predictions, computes the index, holds or releases, writes hints and headers, forwards the body untouched, logs every call.</p></div>
 <div class="card"><div class="id">atfm.sidecar</div><h4>Tool-runtime sidecar</h4><p>Wraps tool subprocesses in the harness. Streams output through parsers (pytest, builds, dbt, training logs) that emit progress and data events. Output reaches the agent byte-for-byte.</p></div>
 <div class="card"><div class="id">atfm.board</div><h4>Demand board</h4><p>Session registry plus the predictor ladder B0 to M3. Every 5 s draws 512 Monte Carlo futures of the fleet and publishes KV and prefill demand per horizon and class.</p></div>
-<div class="card"><div class="id">atfm.control</div><h4>Controllers</h4><p>Ground delay program (30 s slots, chance constraint on samples, ration-by-schedule order), pre-staging across tiers, replica floor via the Dynamo planner plugin.</p></div>
+<div class="card"><div class="id">atfm.control</div><h4>Controllers</h4><p>Bounded-delay admission planner (30 s slots, chance constraint on samples, expected-resumption ordering order), pre-staging across tiers, replica floor via the Dynamo planner plugin.</p></div>
 <div class="card"><div class="id">atfm.dynamo</div><h4>Dynamo adapters</h4><p>Hint encoding, SGLang HiCache pinning, worker metric scraping, Mocker launcher, planner gRPC stub. The only package that knows Dynamo's wire formats.</p></div>
 <div class="card"><div class="id">atfm.sim · atfm.eval</div><h4>Simulator and evaluation</h4><p>Discrete-event fleet model using the same policy and controller classes as deployment. Forecast scoring (CRPS, pinball, coverage, lead time) and serving metrics with paired bootstrap CIs.</p></div>
 </div>
@@ -286,7 +286,7 @@ td.k{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
 <rect x="270" y="70" width="190" height="70" rx="8" fill="var(--hold-soft)" stroke="var(--hold)" stroke-width="1.5"/>
 <text x="365" y="98" text-anchor="middle" font-weight="500">LLM_PENDING</text>
 <text x="365" y="118" text-anchor="middle" font-size="11">in proxy hold queue</text>
-<text x="365" y="132" text-anchor="middle" font-size="11">index π · ground delay</text>
+<text x="365" y="132" text-anchor="middle" font-size="11">index π · admission delay</text>
 
 <rect x="520" y="70" width="190" height="70" rx="8" fill="var(--surface)" stroke="currentColor"/>
 <text x="615" y="98" text-anchor="middle" font-weight="500">LLM_QUEUED</text>
@@ -340,7 +340,7 @@ td.k{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
 <line x1="310" y1="72" x2="358" y2="72" stroke="currentColor" marker-end="url(#ar3)"/>
 <line x1="420" y1="94" x2="420" y2="128" stroke="currentColor" marker-end="url(#ar3)"/>
 <text x="20" y="290" font-size="11" fill="var(--muted)">Proxy sees sessions but controls nothing;</text>
-<text x="20" y="306" font-size="11" fill="var(--muted)">no ground delay, no unblocking bonus, no slack override.</text>
+<text x="20" y="306" font-size="11" fill="var(--muted)">no admission delay, no unblocking bonus, no slack override.</text>
 
 <line x1="540" y1="20" x2="540" y2="310" stroke="currentColor" stroke-dasharray="2 4"/>
 
@@ -467,8 +467,8 @@ hint              strict_priority ∈ {2 slack, 1 interactive, 0 background}; pr
 <h3>What M2 does with a progress stream</h3>
 <p>For a tool reporting completed work <span class="num">w</span> of total <span class="num">W</span>, the board keeps a Gamma posterior over the work rate updated by each (Δw, Δt) increment, and a small phase model for tools whose end phase reports nothing (teardown, upload). Remaining time is <code>(W − w)/r</code> drawn from the posterior plus the end-phase residual. Data events (loss curves, failing test counts) update an early-stop probability that truncates the distribution. When no progress events arrive, M2 is exactly M1.</p>
 
-<h2 id="gdp">Ground delay: holding background work, at a stated cost</h2>
-<p>Holding a deferrable call in the proxy trades background completion time for interactive latency. It is a cost, charged against a per-class delay budget, not a free action. The proxy can only act on a request that has arrived: while a tool runs, the program plans provisionally, and the decision is made at arrival. Delaying earlier than that needs the separate launch gate in the sidecar. Every 30 s the program looks 15 minutes ahead in 30-second slots, with interactive demand per slot as a random variable from the forecast samples for both KV blocks and prefill tokens per second, and assigns deferrable sessions provisional release slots so the overflow chance stays below ε per slot and per resource, in ration-by-schedule order.</p>
+<h2 id="gdp">Admission delay: holding background work, at a stated cost</h2>
+<p>Holding a deferrable call in the proxy trades background completion time for interactive latency. It is a cost, charged against a per-class delay budget, not a free action. The proxy can only act on a request that has arrived: while a tool runs, the program plans provisionally, and the decision is made at arrival. Delaying earlier than that needs the separate launch gate in the sidecar. Every 30 s the program looks 15 minutes ahead in 30-second slots, with interactive demand per slot as a random variable from the forecast samples for both KV blocks and prefill tokens per second, and assigns deferrable sessions provisional release slots so the overflow chance stays below ε per slot and per resource, in expected-resumption order.</p>
 
 <figure>
 <div class="diag">
@@ -515,11 +515,11 @@ hint              strict_priority ∈ {2 slack, 1 interactive, 0 background}; pr
 <text x="70" y="318" font-size="11" fill="var(--muted)">minimize Σ c_i (τ − τ⁰_i)⁺   s.t.  P(I_τ + Σ K_i x_iτ ≤ C_τ) ≥ 1−ε  on the forecast samples; hard cap 10 min; per-tenant max delay tracked</text>
 </svg>
 </div>
-<figcaption><b>A provisional plan, enforced at arrival.</b> Sessions s7, s9 and s12 are forecast to resume into the surge, where the q90 interactive band plus their KV exceeds capacity. When each one's call actually arrives at the proxy it is held and released in original order once the band recedes. v1 solves the plan greedily in ration-by-schedule order on the samples; this is a heuristic with the fairness property, not an optimum, and per-slot constraints do not bound overflow across the horizon (union bound: 30ε), so the realized overflow rate is reported.</figcaption>
+<figcaption><b>A provisional plan, enforced at arrival.</b> Sessions s7, s9 and s12 are forecast to resume into the surge, where the q90 interactive band plus their KV exceeds capacity. When each one's call actually arrives at the proxy it is held and released in original order once the band recedes. v1 solves the plan greedily in expected-resumption order on the samples; this is a heuristic with the fairness property, not an optimum, and per-slot constraints do not bound overflow across the horizon (union bound: 30ε), so the realized overflow rate is reported.</figcaption>
 </figure>
 
 <h2 id="tiers">Memory tiers: future work, and what v1 measures instead</h2>
-<p>The same per-session distribution would decide where a paused session's KV should live: keep and pin when likely to resume soon, demote when not, promote or speculatively prefill when the lower quantile of the remaining time falls inside the tier's lead time. No shipped API implements that placement for one session today, so this is deferred until a mechanism is demonstrated end to end. What v1 measures on the real backend is the cost of holding: a held session's prefix stays in the engine's cache subject to its eviction policy, so the cost is cache occupancy while held, evictions of other prefixes it causes, recomputed prefill when it resumes, and the background delay itself.</p>
+<p>The same per-session distribution would decide where a paused session's KV should live: keep and pin when likely to resume soon, demote when not, promote or speculatively prefill when the lower quantile of the remaining time falls inside the tier's lead time. No shipped API implements that placement for one session today, so this is deferred until a mechanism is demonstrated end to end. What v1 measures on the real backend is the cost of holding: a held session's prefix stays in the engine's cache subject to its eviction policy, so the cost is cache occupancy while held, evictions of other prefixes it causes, recomputed prefill when it resumes, and the backadmission delay itself.</p>
 
 <figure>
 <div class="diag">
@@ -559,7 +559,7 @@ hint              strict_priority ∈ {2 slack, 1 interactive, 0 background}; pr
 <text x="40" y="286" font-size="11" fill="var(--muted)">thresholds T_hot, T_cold and lead times are measured at L2 and swept in the simulator; the simulator and the real run log identical TierDirectives</text>
 </svg>
 </div>
-<figcaption><b>Ground holding applied to memory, when a mechanism exists.</b> Until then the controller only logs the directive it would have issued, so simulated and real runs stay comparable, and the four hold costs above are reported with every policy result.</figcaption>
+<figcaption><b>Bounded admission applied to memory, when a mechanism exists.</b> Until then the controller only logs the directive it would have issued, so simulated and real runs stay comparable, and the four hold costs above are reported with every policy result.</figcaption>
 </figure>
 
 <h2 id="sidecar">Sidecar: two paths out of every tool call</h2>
@@ -639,7 +639,7 @@ hint              strict_priority ∈ {2 slack, 1 interactive, 0 background}; pr
     bus/       in-memory · JSONL file · Redis Streams
     sidecar/   run_tool, parsers, harness adapters, spawn gate
     board/     registry, predictors B0..M3, forecaster, per-request predictions
-    proxy/     ASGI server, index, hold queue, hints, ground-delay enforcement
+    proxy/     ASGI server, index, hold queue, hints, admission delay enforcement
     control/   gdp, prestage, planner plugin
     dynamo/    hints, HiCache, metrics scrape, Mocker launcher, gRPC stub
     sim/       DES loop, sessions, workers, tiers, router, engine, workload spec

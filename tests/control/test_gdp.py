@@ -1,4 +1,4 @@
-"""GDP planner (spec 6.2): 30 s slots over 15 min, greedy ration-by-schedule on the forecast samples,
+"""GDP planner (spec 6.2): 30 s slots over 15 min, greedy expected-resumption ordering on the forecast samples,
 per-slot per-resource chance constraint, hard cap, per-tenant fairness. Directives expire."""
 import numpy as np
 import pytest
@@ -22,7 +22,7 @@ def _snap(t, horizons, kv_by_h, pf_by_h, n=64, jitter=0.0, rng=None):
 HORIZONS = [30.0, 60.0, 90.0, 120.0]
 
 
-def test_greedy_ration_by_schedule_releases_when_the_slot_has_room():
+def test_greedy_resumption_order_releases_when_the_slot_has_room():
     # capacity 1000 blocks; interactive demand per slot: 900, 100, 100, 100 (cumulative 900, 1000, 1100, 1200)
     snap = _snap(0.0, HORIZONS, [900, 1000, 1100, 1200], [0, 0, 0, 0])
     planner = GdpPlanner(slot_s=30.0, horizon_s=120.0, eps=0.1, max_hold_s=600.0)

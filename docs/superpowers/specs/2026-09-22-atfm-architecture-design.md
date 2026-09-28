@@ -10,7 +10,7 @@ Companion documents: `detail.md` (research plan), `docs/research/*.md` (platform
 ### v1.1 changes (external design review, 2026-09-23)
 
 - Central claim split into three hypotheses (D11) so the sidecar earns its place independently of the demand board.
-- Ground delay restated: holding has a cost, the proxy can only act on requests that have arrived, delaying earlier needs an explicit launch gate, delay budgets per class (6.2).
+- Admission delay restated: holding has a cost, the proxy can only act on requests that have arrived, delaying earlier needs an explicit launch gate, delay budgets per class (6.2).
 - Global admission window first; per-worker windows via proxy-side worker selection are a separate integration project (D1, 4.2).
 - Stable priority tiers in `nvext.agent_hints`, fine ordering stays inside the proxy (4.3).
 - Index objective stated; the unblocking term is a heuristic to be ablated (4.3).
@@ -32,8 +32,8 @@ Companion documents: `detail.md` (research plan), `docs/research/*.md` (platform
 | D7 | Language and runtime | Python 3.12, uv, pydantic models, FastAPI for proxy and board, numpy/scipy, pytest. No Rust in v1 | Rust plugin, Go sidecar | Research velocity; all Dynamo extension points we use are Python or HTTP/gRPC. |
 | D8 | Hardware ladder | L0 laptop simulation, L1 laptop functional, L2 1xH100, L3 2xH100, L4 2xH100 + Mocker padding | 8xH100 nodes | Literature norm is 1 to 4 GPUs; see demonstration ladder. |
 | D9 | Sidecar contract | Result path untouched; a separate state path emits `{call_id, phase, completed, total, ts}` and data events; sidecar is fail-open | Modifying tool outputs, blocking on the bus | Agents must see identical tool results with and without the sidecar. |
-| D10 | Control loop safety | Every controller is fail-open: proxy forwards with default hints if the board is unreachable; ground delays have hard caps; pre-staging is advisory | Fail-closed | A forecasting bug must never stall a fleet. |
-| D11 | Central claim | Three separable hypotheses. **H1a (demand board):** in-flight session state (phase, elapsed time, context size) forecasts fleet demand at 30 s to 15 min better than history-based predictors. Evidence exists (first results, 2026-09-22). **H1b (sidecar):** live tool progress improves the forecast beyond elapsed time, measurable only on long-tool workloads. **H2 (controller):** a proxy that admits and orders calls on those forecasts lowers interactive latency after tool return or GPU cost at a stated background delay budget, beyond native Dynamo priority scheduling and ThunderAgent. Each is tested on its own workload regime and reported with metric, horizon and split | One combined claim | A null M2-minus-M1 on sub-second tools says nothing about the sidecar; a forecast gain says nothing about a controller until a closed-loop run shows it. |
+| D10 | Control loop safety | Every controller is fail-open: proxy forwards with default hints if the board is unreachable; admission delays have hard caps; pre-staging is advisory | Fail-closed | A forecasting bug must never stall a fleet. |
+| D11 | Central claim | Three separable hypotheses. **H1a (demand board):** in-flight session state (phase, elapsed time, context size) forecasts fleet demand at 30 s to 15 min better than history-based predictors. Evidence exists (first results, 2026-09-22). **H1b (sidecar):** live tool progress improves the forecast beyond elapsed time, measurable only on long-tool workloads. **H2 (controller):** a proxy that admits and orders calls on those forecasts lowers interactive latency after tool return or GPU cost at a stated backadmission delay budget, beyond native Dynamo priority scheduling and ThunderAgent. Each is tested on its own workload regime and reported with metric, horizon and split | One combined claim | A null M2-minus-M1 on sub-second tools says nothing about the sidecar; a forecast gain says nothing about a controller until a closed-loop run shows it. |
 | D12 | What counts as a policy result | Only closed-loop runs: the simulator generating sessions that react to reply times, or live agents on hardware. Trace replay (TraceLab, AgentX) scores forecasts and calibrates the simulator | Policy sweeps on replayed traces | A policy changes when agents get replies, which changes when they launch tools, spawn and call again; a fixed replay cannot see that feedback. |
 
 ## 1. Goal and non-goals
@@ -75,7 +75,7 @@ Components and ownership:
 | Bus | `atfm.bus` | Event transport: in-memory (tests), JSONL file (replay), Redis Streams (deploy) | schema |
 | Demand board | `atfm.board` | Session registry, predictors (ladder), Monte Carlo fleet forecaster, per-request predictions | schema, bus |
 | Proxy | `atfm.proxy` | OpenAI-compatible ASGI server: classify, index, hold queue, hints, forward, log | schema, bus, board client |
-| Controllers | `atfm.control` | Ground delay program, pre-staging, planner plugin | board, proxy, dynamo adapters |
+| Controllers | `atfm.control` | Bounded-delay admission planner, pre-staging, planner plugin | board, proxy, dynamo adapters |
 | Dynamo adapters | `atfm.dynamo` | Hints encoding, HiCache pinning, worker metrics scrape, Mocker launcher, planner gRPC stub | none (HTTP/gRPC) |
 | Simulator | `atfm.sim` | Discrete-event fleet model with pluggable policies; same interfaces as proxy/board | schema, board predictors |
 | Traces | `atfm.traces` | Adapters in/out, synthetic session generator, perturbation injector | schema |
@@ -115,7 +115,7 @@ Every adapter produces this table; every simulator run emits it. Columns: sessio
 
 ### 3.5 Directives (controller outputs)
 
-- `HoldDirective{session_id, release_not_before, reason}` (ground delay; proxy enforces).
+- `HoldDirective{session_id, release_not_before, reason}` (admission delay; proxy enforces).
 - `TierDirective{session_id, target_tier in {hbm,dram,ssd,drop}, by_time, ttl_s}` (pre-staging; Dynamo adapter translates: SGLang `cache_control` pin with TTL, `speculative_prefill`, or no-op with logging when unsupported).
 - `ReplicaFloor{component, at_least, until}` (planner plugin returns `OverrideType.AT_LEAST`).
 
@@ -126,7 +126,7 @@ Every adapter produces this table; every simulator run emits it. Columns: sessio
 ```
  TOOL_RUNNING --(tool.end)--> LLM_PENDING --(proxy releases)--> LLM_QUEUED --(engine admits)--> LLM_RUNNING --(done)--> TOOL_RUNNING
       ^  elapsed a, progress w/W            held in proxy hold queue     Dynamo router + engine queue    decode; preemptible
-      |  survival S(a), filter posterior     ground delay applies here    priority hint orders here
+      |  survival S(a), filter posterior     admission delay applies here    priority hint orders here
       +---------------------------------------------------------------------------------------------------(spawn)--> child session
 ```
 
@@ -136,7 +136,7 @@ The demand board's prediction target is the time from "now" until `LLM_PENDING` 
 
 | Layer | Holds a backlog when | Sees | Can do |
 |---|---|---|---|
-| ATFM proxy hold queue | always, by design (per-worker admission window) | class, tenant, deadline, sidecar progress, board predictions, forecast | order, hold (ground delay), gate spawns, set hints |
+| ATFM proxy hold queue | always, by design (per-worker admission window) | class, tenant, deadline, sidecar progress, board predictions, forecast | order, hold (admission delay), gate spawns, set hints |
 | Dynamo router pending heap | workers saturated (active-block tracking) | per-worker prefix overlap and load, `priority`, `strict_priority` | order by (tier, effective arrival), pick worker |
 | Engine scheduler (vLLM/SGLang) | KV blocks or batch slots exhausted | its own waiting and running sets, priority value | admit order, preempt running lower-priority decodes, evict KV (SGLang priority eviction) |
 
@@ -191,13 +191,13 @@ The proxy asks the board for `E[S_i]`, `E[T_tool_next,i]` and predicted OSL for 
 
 Lives in the proxy (4.2, 4.3). Preemption of long background decodes is delegated to the engine through priority; the proxy additionally may cancel and re-issue a background request when an interactive surge is forecast and the engine does not support preemption (configurable, off by default).
 
-### 6.2 Tactical: ground delay program (GDP), a heuristic
+### 6.2 Tactical: bounded-delay admission planner (GDP), a heuristic
 
-What ground delay is: when a deferrable session's next call arrives at the proxy during a forecast surge, the proxy may hold it (not forward it) until a planned release time. Holding costs background completion time; it is a trade, not a free action. It is justified only against an explicit budget: each background class carries a delay budget (default 10 min per hold, and a per-session cumulative cap tied to its deadline), and the objective in 4.3 charges `w(class) * delay` for every held second.
+What admission delay is: when a deferrable session's next call arrives at the proxy during a forecast surge, the proxy may hold it (not forward it) until a planned release time. Holding costs background completion time; it is a trade, not a free action. It is justified only against an explicit budget: each background class carries a delay budget (default 10 min per hold, and a per-session cumulative cap tied to its deadline), and the objective in 4.3 charges `w(class) * delay` for every held second.
 
-What the proxy can and cannot do: it can only act on a request that has arrived. While a tool is running, the GDP plans provisionally (which sessions it would hold, for how long); the decision is made at arrival using the latest plan. Delaying a session before its tool completes requires a separate, explicit control: the launch gate (7), which the sidecar consults before starting a tool or spawning a child for deferrable classes. The gate is the only "before departure" lever; the hold is an admission lever.
+What the proxy can and cannot do: it can only act on a request that has arrived. While a tool is running, the GDP plans provisionally (which sessions it would hold, for how long); the decision is made at arrival using the latest plan. Delaying a session before its tool completes requires a separate, explicit control: the launch gate (7), which the sidecar consults before starting a tool or spawning a child for deferrable classes. The gate controls tool launch; the hold controls LLM admission.
 
-The plan: every 30 s on the latest snapshot, slots tau of 30 s over the next 15 min. Inputs: interactive demand samples per slot for both resources (KV blocks and prefill tokens/s), capacity per resource (from worker metrics and pending replica changes), deferrable sessions with forecast resumption slot tau_i^0, delay cost c_i, and K_i. Assign each deferrable session a provisional release slot minimizing `sum c_i (tau - tau_i^0)^+` subject to `P(I_tau + sum K_i x_i,tau <= C_tau) >= 1 - eps` per slot and per resource, evaluated on the samples. v1 solver: greedy in ration-by-schedule order (sessions ordered by tau_i^0, each taking the earliest slot whose constraints still hold on the samples). This is a heuristic with the RBS fairness property; it is not claimed optimal. Per-slot constraints do not bound the probability of any overflow across the horizon (the union bound gives at most 30 eps over 30 slots), so eps is chosen with that in mind and the realized overflow rate is reported.
+The plan: every 30 s on the latest snapshot, slots tau of 30 s over the next 15 min. Inputs: interactive demand samples per slot for both resources (KV blocks and prefill tokens/s), capacity per resource (from worker metrics and pending replica changes), deferrable sessions with forecast resumption slot tau_i^0, delay cost c_i, and K_i. Assign each deferrable session a provisional release slot minimizing `sum c_i (tau - tau_i^0)^+` subject to `P(I_tau + sum K_i x_i,tau <= C_tau) >= 1 - eps` per slot and per resource, evaluated on the samples. v1 solver: greedy in expected-resumption order (sessions ordered by tau_i^0, each taking the earliest slot whose constraints still hold on the samples). This is a heuristic with the Expected-resumption ordering property; it is not claimed optimal. Per-slot constraints do not bound the probability of any overflow across the horizon (the union bound gives at most 30 eps over 30 slots), so eps is chosen with that in mind and the realized overflow rate is reported.
 
 Output: HoldDirectives with the hard cap, per-tenant fairness accounting (max imposed delay), and the KV side effects of holding measured on the backend (6.3).
 
@@ -205,7 +205,7 @@ Output: HoldDirectives with the hard cap, per-tenant fairness accounting (max im
 
 Explicit placement (pin, demote, promote, speculative prefill on a resumption ETA) is deferred until one mechanism is demonstrated end to end on a real backend (D3). The design is unchanged: per-session q10/q90 of the resumption time against tier lead times. Until then the controller only logs the TierDirective it would have issued, so simulated and real runs stay comparable.
 
-What v1 measures instead: a held session's cached prefix stays in the engine's cache subject to its eviction policy; it is not reserved capacity. The cost of a hold is therefore the combination of cache occupancy while held, evictions of other sessions' prefixes caused by it, later cache misses and recomputed prefill when it resumes, and the background delay itself. All four are recorded per hold on the real backend (recomputed prefill tokens, KV hit rate, evictions, imposed delay) and reported with the policy results.
+What v1 measures instead: a held session's cached prefix stays in the engine's cache subject to its eviction policy; it is not reserved capacity. The cost of a hold is therefore the combination of cache occupancy while held, evictions of other sessions' prefixes caused by it, later cache misses and recomputed prefill when it resumes, and the backadmission delay itself. All four are recorded per hold on the real backend (recomputed prefill tokens, KV hit rate, evictions, imposed delay) and reported with the policy results.
 
 ### 6.4 Tactical: replica floor (future work)
 

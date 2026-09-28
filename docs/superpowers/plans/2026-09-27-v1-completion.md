@@ -45,7 +45,7 @@
 
 - [ ] Step 1: write tests: (a) two deferrable sessions and interactive samples that saturate slot 0 only: the first session is released at slot 1, the second at slot 0 if it fits; (b) a session whose earliest feasible slot is beyond the cap gets `release_not_before = now + max_hold_s` and reason `capped`; (c) property: over 50 random snapshots, no directive exceeds the cap and, for released slots, the chance constraint evaluated on the planner's own samples holds; (d) tenant fairness: `tenant_max_delay` bounds a tenant's imposed delay.
 - [ ] Step 2: run, expect ImportError.
-- [ ] Step 3: implement: slots = horizon/slot; interactive demand per slot per resource from the snapshot's horizon closest to each slot end (cumulative demand differences); greedy ration-by-schedule in `eta_s` order; each session takes the earliest slot >= its own where `P(I + assigned <= C) >= 1 - eps` on the samples for both resources; commit its samples to the slot; cap at max_hold_s; directives expire at `now + slot_s`.
+- [ ] Step 3: implement: slots = horizon/slot; interactive demand per slot per resource from the snapshot's horizon closest to each slot end (cumulative demand differences); greedy expected-resumption ordering in `eta_s` order; each session takes the earliest slot >= its own where `P(I + assigned <= C) >= 1 - eps` on the samples for both resources; commit its samples to the slot; cap at max_hold_s; directives expire at `now + slot_s`.
 - [ ] Step 4: run tests, all pass; run whole suite.
 - [ ] Step 5: commit `feat(control): directives and GDP planner`.
 

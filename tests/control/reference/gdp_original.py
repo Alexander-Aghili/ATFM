@@ -1,6 +1,6 @@
-"""Ground delay program planner (spec 6.2).
+"""Bounded-delay admission planner planner (spec 6.2).
 
-Every plan interval, slice the horizon into slots and, for each deferrable session in ration-by-schedule
+Every plan interval, slice the horizon into slots and, for each deferrable session in expected-resumption ordering
 order (earliest forecast resumption first), find the earliest slot at or after its own in which the
 chance constraint P(interactive demand + assigned deferrable demand <= capacity) >= 1 - eps holds on the
 forecast samples for every resource. The session's demand is then committed to that slot. A session whose

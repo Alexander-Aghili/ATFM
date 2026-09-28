@@ -10,13 +10,13 @@
 
 ## 1. Summary
 
-Enterprises running agent fleets on self-hosted GPUs face a congestion problem that current inference stacks handle reactively. Agents alternate between short LLM turns and tool calls that range from milliseconds to hours. When many agents resume at once, they arrive at the GPU pool like aircraft arriving at a congested airport: they queue while holding memory, caches thrash, and user-facing latency suffers.
+Enterprises running agent fleets on self-hosted GPUs face a congestion problem that current inference stacks handle reactively. Agents alternate between short LLM turns and tool calls that range from milliseconds to hours. When many agents resume at once, they compete for GPU capacity, queue while holding memory, and can trigger cache eviction and higher latency.
 
-The core idea borrows from how the FAA manages air traffic. The FAA can see where every aircraft is and when it will land, projects arrival demand against airport capacity, and absorbs delay on the ground (cheap) rather than in the air (expensive). We apply the same approach to agent fleets:
+ATFM predicts demand from active sessions and schedules deferrable work before a surge reaches the serving pool:
 
 1. **A demand board.** A streaming, probabilistic forecast of fleet demand for GPU memory and compute, built from the live state of every in-flight agent session (which tool is running, how far along it is, what data it is producing), not only from historical request rates.
 2. **Class-aware scheduling.** Background agents whose next LLM turn will be short and will quickly launch another long tool call are served early, like I/O-bound processes in an operating system. User-facing agents get strong latency protection. Long background decodes can be preempted and offloaded.
-3. **Forecast-driven control.** When the forecast predicts a surge, deferrable background work is delayed before it consumes resources (ground delay), capacity is scaled and KV state is pre-staged ahead of demand, and delay is allocated fairly across tenants.
+3. **Forecast-driven control.** When the forecast predicts a surge, deferrable background work is delayed before it consumes resources (admission delay), capacity is scaled and KV state is pre-staged ahead of demand, and delay is allocated fairly across tenants.
 
 The target workload mixes interactive and background agents on a shared, self-hosted GPU pool. The prototype builds on NVIDIA Dynamo.
 
@@ -34,22 +34,15 @@ The target workload mixes interactive and background agents on a shared, self-ho
 
 ## 3. Core Idea
 
-### 3.1 The aviation analogy
+### 3.1 Forecast-based admission
 
-| Aviation | Agent fleet |
-|---|---|
-| Aircraft en route | Agent sessions paused on tool calls |
-| ADS-B position updates refining ETA | Progress and data events refining tool completion time |
-| Airport acceptance rate | HBM capacity, prefill throughput, token quotas |
-| Airborne holding (expensive) | Agent resumes, waits in queue holding memory, cache thrashes |
-| Ground holding (cheap) | Delay a deferrable turn, tool launch, or subagent spawn before it consumes resources |
-| Ground delay program | Planned delays for deferrable workload classes during a forecast surge |
-| Ration-by-schedule, collaborative decision making | Fair delay allocation across tenants; agents and tools report intent and progress |
+ATFM combines three mechanisms:
 
-Two insights carry over directly:
+- **Session observations:** tool progress and data events refine estimates of the next LLM request.
+- **Resource forecasts:** aggregate return-time and context-size distributions estimate demand against memory and compute capacity.
+- **Bounded admission:** schedule deferrable requests within explicit delay budgets, preserving expected-resumption order and tenant accounting.
 
-- **Delay is cheaper before departure than on arrival.** Holding a deferrable agent before it resumes costs almost nothing; letting it resume into a congested pool costs memory, cache, and latency for everyone.
-- **Aggregate forecasts are sharper than individual ones.** A single tool call's completion time is noisy, but the sum over thousands of in-flight sessions is much more predictable, as long as correlated slowdowns are modeled.
+Holding a request trades background completion time against resource pressure; it is not free. Forecast aggregation must account for shared-backend slowdowns and correlated resumptions.
 
 ### 3.2 The demand board
 
@@ -98,10 +91,10 @@ This is a weighted shortest-expected-processing-time rule (the cμ rule, or a Gi
 | Horizon | Decisions | Method |
 |---|---|---|
 | Strategic (days to weeks) | GPU count, memory tiers, reserved vs. on-demand capacity | Two-stage stochastic program with CVaR constraint on tail latency |
-| Tactical (minutes) | Scale-out, KV pre-staging, ground delays for deferrable classes | Forecast upper bounds; chance-constrained ground holding with ration-by-schedule fairness |
+| Tactical (minutes) | Scale-out, KV pre-staging, admission delays for deferrable classes | Forecast upper bounds; chance-constrained bounded admission with expected-resumption ordering fairness |
 | Real-time (seconds) | Queue ordering, preemption, KV retention and prefetch | Class-aware index (3.3); integrate existing TTL and progress-aware policies |
 
-### 3.5 Ground delay formulation (tactical)
+### 3.5 Admission delay formulation (tactical)
 
 Discretize the horizon into slots τ. Let `C_τ` be pool capacity, `I_τ` the forecast interactive demand (random), and `x_{i,τ}` the decision to release background session *i* in slot τ.
 
@@ -111,7 +104,7 @@ subject to  P( I_τ + Σ_i K_i · x_{i,τ} ≤ C_τ ) ≥ 1 - ε    for all τ
             Σ_τ x_{i,τ} = 1                              for all i
 ```
 
-where `τ_i^0` is the session's natural (forecast) resumption slot and `c_i` its delay cost (higher for tight deadlines). This adapts the stochastic ground holding problem from air traffic management (Ball, Hoffman, Odoni, and Rifkin, 2003; chance-constrained ground delay programs). In practice, released sessions are ordered by ration-by-schedule (original expected resumption order) for fairness across tenants.
+where `τ_i^0` is the session's natural (forecast) resumption slot and `c_i` its delay cost (higher for tight deadlines). In practice, released sessions are ordered by expected-resumption ordering (original expected resumption order) for fairness across tenants.
 
 ---
 
@@ -127,9 +120,8 @@ where `τ_i^0` is the session's natural (forecast) resumption slot and `c_i` its
 | llm-d flow control | Priority admission and tenant fairness | No forecasting |
 | Dynamo Planner | Autoscaling from forecast request counts and sequence lengths (ARIMA, Kalman, Prophet) | Forecasts from history, not in-flight state |
 | Predictive K8s autoscaling for LLMs (Sept 2026) | Delay-aware lookahead with UCB margin | Demand-history signal; finds predictor sophistication matters little |
-| Air traffic flow management (OR literature) | Stochastic ground holding, chance-constrained and robust ground delay programs | Never applied to compute or LLM serving |
 
-**Positioning:** no existing system aggregates streaming per-session state into a probabilistic fleet demand forecast and uses it for ground-delay-style control combined with class-aware scheduling.
+**Positioning:** no existing system aggregates streaming per-session state into a probabilistic fleet demand forecast and uses it for forecast-based admission control combined with class-aware scheduling.
 
 ---
 
@@ -152,7 +144,7 @@ where `τ_i^0` is the session's natural (forecast) resumption slot and `c_i` its
 
 - **H1 (forecastability):** In-flight session state forecasts fleet KV and prefill demand at 30 s to 15 min horizons significantly better than history-based predictors.
 - **H2 (class-aware scheduling):** The unblocking-aware index improves interactive SLO attainment and background throughput versus static priority, at equal GPU cost.
-- **H3 (forecast-driven control):** Ground delays, forecast-driven pre-staging, and forecast-driven scaling improve the SLO-versus-GPU-cost Pareto frontier beyond H2 alone.
+- **H3 (forecast-driven control):** Admission delays, forecast-driven pre-staging, and forecast-driven scaling improve the SLO-versus-GPU-cost Pareto frontier beyond H2 alone.
 
 ---
 
@@ -163,7 +155,7 @@ where `τ_i^0` is the session's natural (forecast) resumption slot and `c_i` its
 | Component | Role | Built on |
 |---|---|---|
 | Inference backend | Serves the model | Dynamo + vLLM or SGLang |
-| Harness proxy | Sits between agent harnesses and Dynamo frontend; sets `nvext.agent_hints` (`priority`, `osl`, `speculative_prefill`) per request; enforces ground delays; logs requests | New (thin service) |
+| Harness proxy | Sits between agent harnesses and Dynamo frontend; sets `nvext.agent_hints` (`priority`, `osl`, `speculative_prefill`) per request; enforces admission delays; logs requests | New (thin service) |
 | Tool-runtime sidecar | Wraps tool execution; emits progress and data events without changing what the agent sees | New; follows the result-path / progress-path separation from "Ask the Tool" |
 | Event bus | Carries session and tool events to the demand board | Redis Streams or Kafka |
 | Demand board | Maintains per-session posteriors and fleet forecasts | New (Python) |
@@ -323,7 +315,7 @@ Runs in parallel with Phase 1; needs only short-horizon service-time predictions
 
 | ID | Policy |
 |---|---|
-| P4 | P3 + ground delay: hold background resumptions and tool launches when forecast q90 demand exceeds capacity; release by ration-by-schedule |
+| P4 | P3 + admission delay: hold background resumptions and tool launches when forecast q90 demand exceeds capacity; release by expected-resumption ordering |
 | P5 | P4 + pre-staging: `speculative_prefill` and KV prefetch triggered by the forecast instead of fixed timers |
 | P6 | P5 + planner integration: forecast upper bound sets the replica floor |
 | P6-oracle | Perfect future knowledge (headroom) |
@@ -374,7 +366,7 @@ Runs in parallel with Phase 1; needs only short-horizon service-time predictions
 | 1–3 | Phase 0: platform, sidecar, proxy, trace generation |
 | 3–6 | Phase 1: demand board, model ladder, forecast evaluation, gate decision |
 | 4–8 | Phase 2: scheduling policies in DynoSim, GPU confirmation |
-| 7–11 | Phase 3: ground delay, pre-staging, planner integration; multi-node runs |
+| 7–11 | Phase 3: admission delay, pre-staging, planner integration; multi-node runs |
 | 12 | Write-up, dataset release prep, prototype release packaging |
 
 ---
@@ -383,7 +375,7 @@ Runs in parallel with Phase 1; needs only short-horizon service-time predictions
 
 1. **Trace dataset:** agent sessions with class labels, tool progress and data events, KV footprints, and controlled perturbations (publishable)
 2. **Paper 1 (H1):** forecasting agent fleet demand from in-flight state
-3. **Paper 2 (H2/H3):** class-aware scheduling and ground delay control for agent serving
+3. **Paper 2 (H2/H3):** class-aware scheduling and admission delay control for agent serving
 4. **Prototype:** harness proxy, tool sidecar, router strategy, and planner plugin installable on an existing Dynamo deployment
 
 ---
@@ -418,12 +410,6 @@ Runs in parallel with Phase 1; needs only short-horizon service-time predictions
 - NVIDIA Dynamo Planner design documentation
 - DynoSim: Simulating the Pareto Frontier (NVIDIA, May 2026)
 - llm-d flow control (Red Hat Developer, August 2026)
-
-**Air traffic flow management**
-- Ball, Hoffman, Odoni, Rifkin, A Stochastic Integer Program with Dual Network Structure and Its Application to the Ground-Holding Problem, Operations Research 51(1), 2003
-- Chen and Sun, Stochastic Ground-Delay-Program Planning in a Metroplex, J. Guidance, Control, and Dynamics, 2018
-- Glover and Ball, Stochastic Optimization Models for Ground Delay Program Planning with Equity–Efficiency Tradeoffs, Transportation Research Part C, 2013
-- Distributionally Robust Ground Delay Programs with Learning-Driven Airport Capacity Predictions, arXiv:2402.11415
 
 **Methods**
 - Adams and MacKay, Bayesian Online Changepoint Detection, 2007

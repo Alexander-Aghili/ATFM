@@ -66,7 +66,7 @@ epsilon values use the previous general scan.
 
 The first candidate slot has a scalar fast path; remaining candidates are
 checked together with NumPy. Each session still commits its load before the
-next session is considered, preserving greedy ration-by-schedule, both resource
+next session is considered, preserving greedy expected-resumption ordering, both resource
 constraints, hold caps, tenant overrides, and directive order. Thresholds are
 local to a planning call, so changed snapshots cannot reuse stale values.
 
