@@ -183,3 +183,33 @@ def test_profile_is_saved_after_real_http_shutdown(tmp_path):
     assert any(t['name'] == '_MainThread' for t in metadata['threads'])
     assert any(t['name'] != '_MainThread' for t in metadata['threads'])
     assert not (directory / 'board.pstats').exists()
+
+
+def test_profile_separates_threads_and_saves_on_failure(tmp_path):
+    import csv
+    import threading
+    yappi = pytest.importorskip('yappi')
+    from atfm_experiments.load.profiling import profile_serving
+
+    def worker_only():
+        return sum(range(1000))
+
+    def main_only():
+        return sum(range(1000))
+
+    with pytest.raises(RuntimeError, match='injected'):
+        with profile_serving(tmp_path):
+            main_only()
+            worker = threading.Thread(target=worker_only)
+            worker.start()
+            worker.join()
+            raise RuntimeError('injected')
+    assert not yappi.is_running()
+    with (tmp_path / 'proxy-profile.csv').open() as stream:
+        rows = list(csv.DictReader(stream))
+    worker_rows = [r for r in rows if r['function'] == 'worker_only']
+    main_rows = [r for r in rows if r['function'] == 'main_only']
+    assert len(worker_rows) == len(main_rows) == 1
+    assert worker_rows[0]['thread'] != main_rows[0]['thread']
+    assert main_rows[0]['thread_name'] == '_MainThread'
+    assert (tmp_path / 'proxy-profile.json').is_file()

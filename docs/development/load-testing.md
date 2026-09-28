@@ -252,3 +252,9 @@ work, then validate changes in unprofiled runs with identical workload settings.
 The initial cProfile trials are retained as exploratory evidence only: on this
 Python 3.12.13 build, a minimal reproduction captured worker-thread calls in a
 single profile and produced ambiguous concurrent timing attribution.
+
+The [proxy profiling study](../research/2026-09-27-proxy-profiling.md) found repeated
+missing-`sniffio` searches in HTTPcore 1.0.9. The serving extra now supplies it
+explicitly. Compare environments as well as source: provenance records AnyIO,
+HTTPcore, sniffio (including absence), and Yappi versions. Faster HTTP processing
+can change prediction fallback frequency even when all requests succeed.
