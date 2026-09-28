@@ -43,7 +43,9 @@ def default_contrasts(arms: list[str]) -> list[tuple[str, str]]:
              ("forecast_M2_kv_size", "forecast_M2_kv"), ("forecast_M1_kv_size", "forecast_M1_kv"),
              ("oracle_kv_size", "oracle_kv"), ("forecast_M2_kv_size", "oracle_kv_size"),
              ("forecast_M2_kv_cw", "forecast_M2_kv"), ("forecast_M1_kv_cw", "forecast_M1_kv"),
-             ("oracle_kv_cw", "oracle_kv"), ("forecast_M2_kv_cw", "oracle_kv_cw"), ("forecast_M2_kv_cw", "forecast_M1_kv_cw")]
+             ("oracle_kv_cw", "oracle_kv"), ("forecast_M2_kv_cw", "oracle_kv_cw"), ("forecast_M2_kv_cw", "forecast_M1_kv_cw"),
+             ("forecast_M2_kv_q", "forecast_M2_kv"), ("oracle_kv_q", "oracle_kv"), ("forecast_M2_kv_q", "oracle_kv_q"),
+             ("forecast_M2_kv_q", "forecast_M1_kv_q")]
     return [(a, b) for a, b in cands if a in arms and b in arms]
 ABLATIONS = ["forecast_M1_nohold", "forecast_M2_nohold"]
 
