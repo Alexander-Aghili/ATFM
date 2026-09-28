@@ -93,3 +93,20 @@ the alternatives and gives reproducible local tracing/evaluation commands.
 The client extra is `observability`; the Phoenix server has a separate locked
 project under `observability/server/` to avoid changing the core's SDK versions.
 Default tests require neither the server nor its optional packages.
+
+## Local HTTP load trials
+
+The [load harness](../docs/development/load-testing.md) runs the proxy, board, and
+fake model worker in separate local processes, with scheduled session arrivals,
+agent/tool turns, synchronized completion bursts, and periodic control updates.
+It requires serving dependencies but no GPU or external API:
+
+```bash
+uv sync --extra dev --extra serve
+uv run python -m atfm_experiments.load \
+  --sessions 16 64 256 --patterns staggered burst --out runs/http-load-baseline
+```
+
+Keep output directories fresh; raw request, control, queue, process, and generator
+lag records accompany configuration/source hashes and summaries. These are
+integrated CPU/HTTP tests, not measurements of model-worker hardware capacity.
