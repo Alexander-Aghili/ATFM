@@ -46,3 +46,35 @@ async def test_waiting_interactive_is_promoted_when_slack_runs_out():
     assert waiting.released.is_set() and q.stats()["in_flight"] == 1
     q.complete(waiting); q.complete(waiting)           # idempotent per entry
     assert q.stats()["in_flight"] == 0
+
+
+def test_batch_release_matches_repeated_selection():
+    import random
+
+    rng = random.Random(31)
+    for overflow in (False, True):
+        for available in (0, 1, 7, 100):
+            queue = HoldQueue(window=available, clock=lambda: 10.0)
+            queue.overflow = overflow
+            entries = [Entry(str(i), rng.randrange(3), rng.randrange(4), rng.randrange(5),
+                             not_before=rng.choice([0.0, 20.0]), promote_at=rng.choice([None, 5.0, 15.0]))
+                       for i in range(60)]
+            queue.pending = entries.copy()
+            for entry in entries:
+                if entry.tier == 1 and entry.promote_at is not None and entry.promote_at <= 10.0:
+                    entry.tier = 2
+            remaining, expected = entries.copy(), []
+            for _ in range(available):
+                eligible = [e for e in remaining if e.not_before <= 10.0]
+                if not eligible:
+                    break
+                best = (min(eligible, key=lambda e: e.t_arrival) if overflow else
+                        max(eligible, key=lambda e: (e.tier, e.index, -e.t_arrival)))
+                remaining.remove(best)
+                expected.append(best)
+            queue.tick()
+            assert list(queue.release_order) == [e.session_id for e in expected]
+            assert queue.pending == remaining
+            assert queue.in_flight == len(expected)
+            assert all(e.released.is_set() and e.t_release == 10.0 for e in expected)
+            assert all(not e.released.is_set() for e in remaining)

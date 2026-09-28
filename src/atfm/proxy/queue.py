@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import heapq
 from collections import deque
 import time
 from dataclasses import dataclass, field
@@ -89,19 +90,21 @@ class HoldQueue:
         for e in self.pending:
             if e.tier == 1 and e.promote_at is not None and e.promote_at <= now:
                 e.tier = 2
-        while self.in_flight < self.window:
-            eligible = [e for e in self.pending if e.not_before <= now]
-            if not eligible:
-                break
+        available = max(0, self.window - self.in_flight)
+        if available:
+            eligible = [(i, e) for i, e in enumerate(self.pending) if e.not_before <= now]
             if self.overflow:
-                best = min(eligible, key=lambda e: e.t_arrival)
+                selected = heapq.nsmallest(available, eligible, key=lambda item: item[1].t_arrival)
             else:
-                best = max(eligible, key=lambda e: (e.tier, e.index, -e.t_arrival))
-            self.pending.remove(best)
-            self.in_flight += 1
-            best.t_release = now
-            best.released.set()
-            self.release_order.append(best.session_id)
+                selected = heapq.nlargest(available, eligible,
+                                         key=lambda item: (item[1].tier, item[1].index, -item[1].t_arrival))
+            released_indices = {i for i, _ in selected}
+            self.pending = [e for i, e in enumerate(self.pending) if i not in released_indices]
+            for _, best in selected:
+                self.in_flight += 1
+                best.t_release = now
+                best.released.set()
+                self.release_order.append(best.session_id)
         if self.overflow and (self.max_size is None or len(self.pending) <= self.max_size // 2):
             self.overflow = False
         self._arm_timer(now)

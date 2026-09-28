@@ -32,6 +32,14 @@ def make_case(case: str, size: int, out: Path):
             worker.resident = OrderedDict((f"s{i}", 1) for i in range(size))
             return worker._make_room(size // 2, keep="new")
         return run
+    if case == "admission":
+        from atfm.proxy.queue import Entry, HoldQueue
+        def run():
+            queue = HoldQueue(size, clock=lambda: 0.0, release_order_max=size)
+            queue.pending = [Entry(str(i), i % 3, float(i % 7), float(-i)) for i in range(size)]
+            queue.tick()
+            return list(queue.release_order)
+        return run
     if case == "queue":
         def run():
             worker = Worker("w", EngineConfig(size * 10, 1, 20000.0, 40.0, priority=True))
@@ -98,7 +106,7 @@ def fingerprint(value) -> str:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--cases", nargs="+", choices=["eviction", "queue", "forecast", "duration", "bootstrap", "h1", "h2"],
+    parser.add_argument("--cases", nargs="+", choices=["eviction", "admission", "queue", "forecast", "duration", "bootstrap", "h1", "h2"],
                         default=["eviction", "duration", "bootstrap"])
     parser.add_argument("--sizes", type=int, nargs="+", default=[128, 512, 2048])
     parser.add_argument("--repeats", type=int, default=3)
