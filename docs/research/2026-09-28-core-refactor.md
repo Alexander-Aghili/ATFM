@@ -53,6 +53,9 @@ hardware or workloads. The wrapped difference is +1.8%, subprocess -0.1%, and
 forecast -2.5%. These are observations, not claimed speedups. Complexity and
 allocation strategy in the forecast/scheduling hot paths remain unchanged.
 
+The associated paper section compiles without overflowing boxes, unresolved
+references, or missing glyphs; its two affected pages were visually checked.
+
 ## Reproduction and provenance
 
 [Raw evidence and scripts](results/core-refactor-2026-09-28/) retain all samples.
