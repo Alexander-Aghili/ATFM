@@ -59,9 +59,51 @@ class GdpPlanner:
     def _feasible(self, inter: np.ndarray, committed: float, need: float, cap: float) -> bool:
         return float((inter + committed + need <= cap).mean()) >= 1.0 - self.eps
 
+    def _slot_thresholds(self, demand: dict[str, list[np.ndarray]]) -> dict[str, np.ndarray] | None:
+        """Exact empirical chance thresholds; no interpolated quantile approximation.
+
+        The required count uses the same floating-point division as the original
+        Boolean mean. Comparing the selected sample with the original addition
+        order also avoids changing decisions at a capacity rounding boundary.
+        Unusual/nonfinite inputs retain the general sample-scan implementation.
+        """
+        if not 0 <= self.eps < 1:
+            return None
+        thresholds = {}
+        for resource, rows in demand.items():
+            samples = np.asarray(rows)
+            n = samples.shape[1]
+            if n == 0 or not np.isfinite(samples).all():
+                return None
+            required = int(np.searchsorted(np.arange(n + 1) / n, 1.0 - self.eps))
+            thresholds[resource] = np.partition(samples, required - 1, axis=1)[:, required - 1].copy()
+        return thresholds
+
+    def _first_slot(self, d: Deferrable, start: int, demand, thresholds, committed, capacity) -> int | None:
+        if thresholds is None:
+            for k in range(start, self.n_slots):
+                if (k - start) * self.slot_s > self.max_hold_s:
+                    break
+                if all(self._feasible(demand[r][k], committed[r][k], getattr(d, r), capacity.get(r, float("inf")))
+                       for r in RESOURCES):
+                    return k
+            return None
+        if start >= self.n_slots or self.max_hold_s < 0:
+            return None
+        if all(thresholds[r][start] + committed[r][start] + getattr(d, r) <= capacity.get(r, float("inf"))
+               for r in RESOURCES):
+            return start
+        slots = np.arange(start + 1, self.n_slots)
+        eligible = ~((slots - start) * self.slot_s > self.max_hold_s)
+        for r in RESOURCES:
+            eligible &= thresholds[r][slots] + committed[r][slots] + getattr(d, r) <= capacity.get(r, float("inf"))
+        feasible = np.flatnonzero(eligible)
+        return int(slots[feasible[0]]) if len(feasible) else None
+
     def plan(self, now: float, snap: ForecastSnapshot, capacity: dict[str, float], deferrable: list[Deferrable],
              tenant_max_delay: dict[str, float] | None = None) -> list[HoldDirective]:
         demand = {r: self.slot_demand(snap, r) for r in RESOURCES}
+        thresholds = self._slot_thresholds(demand)
         committed = {r: np.zeros(self.n_slots) for r in RESOURCES}
         self.last_assignment = {}
         self.max_imposed_delay = {}
@@ -69,14 +111,7 @@ class GdpPlanner:
         out = []
         for d in sorted(deferrable, key=lambda x: (x.eta_s, x.session_id)):
             start = max(0, int(d.eta_s // self.slot_s))          # the session's own resumption slot
-            chosen = None
-            for k in range(start, self.n_slots):
-                if (k - start) * self.slot_s > self.max_hold_s:    # imposed delay is measured from resumption (spec 6.2)
-                    break
-                if all(self._feasible(demand[r][k], committed[r][k], getattr(d, r), capacity.get(r, float("inf")))
-                       for r in RESOURCES):
-                    chosen = k
-                    break
+            chosen = self._first_slot(d, start, demand, thresholds, committed, capacity)
             if chosen is None:
                 imposed, reason, release = self.max_hold_s, "capped", now + d.eta_s + self.max_hold_s
             else:
