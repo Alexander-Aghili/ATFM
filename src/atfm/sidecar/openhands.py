@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Callable
 
 from atfm.sidecar.adapters import SidecarExecutor, wrap_executor
-from atfm.sidecar.minisweagent import SidecarConfig
+from atfm.sidecar.config import SidecarConfig
 
 
 def sidecar_terminal(execute: Callable, cfg: SidecarConfig) -> Callable:

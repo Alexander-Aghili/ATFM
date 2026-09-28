@@ -207,3 +207,25 @@ advances before registry application; downstream failure is not automatically
 retried, and restarting replays history. Durable recovery requires checkpointing
 board state and log position together, plus explicit duplicate/sequence handling.
 See [implementation decisions](control-scaling.md) for complexity and evidence.
+
+## Tool sidecar boundaries
+
+`sidecar/config.py` owns configuration and bounded gate waiting; it has no
+mini-SWE-agent dependency. `SidecarConfig` remains importable from
+`sidecar.minisweagent` for compatibility. `sidecar/adapters.py:SidecarExecutor`
+owns command classification, turn advancement, launch, and result conversion.
+The mini-SWE-agent mixin delegates there, then calls its harness-specific
+`_check_finished` hook exactly once, including launch failures.
+
+`sidecar/events.py:ProgressEmitter` is the shared parser chain for subprocess
+lines and completed executor output. A progress match stops the chain even
+when its completed count duplicates the previous match. Data matches allow
+later parsers to run; parser/publication exceptions remain best-effort.
+Each execution owns its parser state. Live output retains per-line timestamps;
+wrapped output retains completion timestamps. Byte output, text conversion,
+and timeout termination still belong to their original execution paths.
+
+Keep subprocess timeout/drain handling separate from wrapped-executor error
+handling: only the subprocess owner can terminate a process group. Consolidating
+parsing must not change which errors reach the caller or invent live progress
+for an executor whose output is available only at completion.

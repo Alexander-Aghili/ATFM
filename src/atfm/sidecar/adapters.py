@@ -7,24 +7,13 @@ after the fact (progress timestamps are all at completion, a weaker signal), and
 the executor's result unchanged."""
 from __future__ import annotations
 
-import time
 import uuid
 from typing import Callable
 
-from atfm.schema.events import ToolData, ToolEnd, ToolProgress, ToolStart
+from atfm.schema.events import ToolEnd, ToolStart
 from atfm.sidecar.core import ToolContext, _safe_publish, classify_tool, command_signature, run_tool
-from atfm.sidecar.gate import gate_allowed_at
-from atfm.sidecar.minisweagent import SidecarConfig
-from atfm.sidecar.parsers import default_parsers
-
-
-def _gate_wait(cfg: SidecarConfig) -> None:
-    if cfg.deferrable:
-        allowed = gate_allowed_at(cfg.gate_url, cfg.session_id, "tool")
-        if allowed is not None:
-            wait = min(max(0.0, allowed - cfg.clock()), cfg.max_gate_wait_s)
-            if wait > 0:
-                time.sleep(wait)
+from atfm.sidecar.config import SidecarConfig
+from atfm.sidecar.events import ProgressEmitter
 
 
 class SidecarExecutor:
@@ -36,9 +25,10 @@ class SidecarExecutor:
 
     def execute(self, command: str, cwd: str | None = None, timeout: float | None = None, env: dict | None = None) -> dict:
         cfg = self.cfg
-        _gate_wait(cfg)
-        ctx = ToolContext(session_id=cfg.session_id, turn_index=cfg.turn_index, tool_name=classify_tool(command),
-                          backend_id=cfg.backend_for(classify_tool(command)), args_hash=command_signature(command))
+        cfg.wait_for_gate()
+        tool = classify_tool(command)
+        ctx = ToolContext(session_id=cfg.session_id, turn_index=cfg.turn_index, tool_name=tool,
+                          backend_id=cfg.backend_for(tool), args_hash=command_signature(command))
         cfg.turn_index += 1
         try:
             res = run_tool(self.argv_builder(command), ctx, cfg.bus, cwd=cwd or None, env=env, timeout=timeout,
@@ -56,7 +46,7 @@ def wrap_executor(fn: Callable, cfg: SidecarConfig, *, output_key="output", rc_k
     after the executor returns (spec 10: the result path is a pass-through)."""
 
     def wrapped(command: str, *args, **kwargs):
-        _gate_wait(cfg)
+        cfg.wait_for_gate()
         tool = classify_tool(command)
         call_id = uuid.uuid4().hex[:16]
         t0 = cfg.clock()
@@ -80,28 +70,9 @@ def wrap_executor(fn: Callable, cfg: SidecarConfig, *, output_key="output", rc_k
         except Exception:                          # unknown result shape: close the state path, hand the result back
             _safe_publish(cfg.bus, ToolEnd(t=t1, session_id=cfg.session_id, call_id=call_id, exit_status=0, output_chars=0))
             return result
-        parsers = default_parsers()
-        last = None
+        progress = ProgressEmitter(cfg.bus, cfg.session_id, call_id)
         for line in text.splitlines():
-            for p in parsers:
-                try:
-                    prog = p.feed(line, t1)
-                    if prog is not None:
-                        if prog.get("completed") != last:
-                            last = prog["completed"]
-                            total = prog.get("total")
-                            _safe_publish(cfg.bus, ToolProgress(t=t1, session_id=cfg.session_id, call_id=call_id,
-                                                                completed=float(prog["completed"]),
-                                                                total=None if total is None else float(total), phase=prog.get("phase")))
-                        break
-                    fd = getattr(p, "feed_data", None)
-                    if fd is not None:
-                        d = fd(line, t1)
-                        if d is not None:
-                            _safe_publish(cfg.bus, ToolData(t=t1, session_id=cfg.session_id, call_id=call_id,
-                                                            metric=d["metric"], value=float(d["value"])))
-                except Exception:
-                    continue
+            progress.feed(line, t1)
         try:
             exit_status = int(rc) if rc is not None else 0
         except (TypeError, ValueError):
