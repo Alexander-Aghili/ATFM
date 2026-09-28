@@ -53,7 +53,7 @@ def _serve(a, board, rng):
     import uvicorn
     from atfm.board.service import create_board_app
     from atfm.bus import JsonlBus
-    app = create_board_app(board, bus=JsonlBus(a.events), rng=rng)
+    app = create_board_app(board, bus=JsonlBus(a.events), rng=rng, prediction_max_age_s=a.prediction_max_age)
     if a.control:
         _attach_scraper(a, app)
     uvicorn.run(app, host="127.0.0.1", port=a.serve, log_level="warning")
@@ -82,6 +82,7 @@ def _arguments():
     ap.add_argument("--train", required=True, help="parquet trace table to fit the predictor on")
     ap.add_argument("--tick", type=float, default=5.0)
     ap.add_argument("--once", action="store_true")
+    ap.add_argument("--prediction-max-age", type=float, default=None, help="maximum prediction state age in seconds (default: max(1, 3*tick))")
     ap.add_argument("--serve", type=int, default=None, help="serve the board HTTP API on this port instead of the file loop")
     ap.add_argument("--control", default=None, help="YAML with gdp/touch/tier/replica/metrics sections to attach controllers")
     a = ap.parse_args()

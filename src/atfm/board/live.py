@@ -143,10 +143,15 @@ class LiveBoard:
         if dm is None:
             return 0.0
         s = self.registry.get(session_id)
-        tool = None
-        if s is not None:
-            tool = s.tool_name if s.phase == "tool_running" else (s.tool_history[-1][0] if s.tool_history else None)
-        return dm.mean(tool)
+        return dm.mean(self.next_tool(s))
+
+    @staticmethod
+    def next_tool(state: SessionState | None) -> str | None:
+        if state is None:
+            return None
+        if state.phase == "tool_running":
+            return state.tool_name
+        return state.tool_history[-1][0] if state.tool_history else None
 
     def expected_service(self, session_id: str, isl: int, osl: int) -> float:
         return isl / self.prefill_tps + osl / self.decode_tps

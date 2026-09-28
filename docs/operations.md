@@ -142,6 +142,7 @@ cursor restores stream position, not the board's in-memory model/session state.
 | Service | Method and path | Purpose |
 | --- | --- | --- |
 | Board | `GET /healthz` | Process health. |
+| Board | `GET /state` | Published prediction freshness, control admission, and stage timings. |
 | Board | `POST /tick` | Ingest available events and compute a snapshot. |
 | Board | `GET /snapshot` | Read snapshot quantiles and endogenous fractions. |
 | Board | `POST /predict` | Predict service and next-tool duration for `session_id`, `isl`, `osl`. |
@@ -251,3 +252,44 @@ Application shutdown stops prediction admission, cancels work not yet started,
 waits for running jobs, and closes owned clients and trace output. Injected
 predictors and upstream clients remain caller-owned. A custom synchronous
 predictor must eventually return; Python cannot forcibly stop its thread.
+
+## Board computation and prediction freshness
+
+The HTTP board runs event ingestion, forecasting, controller planning, and metrics
+state updates on one dedicated control worker. Only one unfinished control job
+is admitted: overlapping `/tick` or `/directives` requests receive HTTP 503 with
+`Retry-After: 1`. A cancelled caller does not release the worker. A metrics scrape
+that finds it busy skips that update and retries on its next scheduled scrape.
+Shutdown drains the current job before closing the worker.
+
+After a successful tick, the board atomically publishes a version containing
+session tool means, service-rate parameters, and pre-encoded snapshot JSON.
+`/predict` reads the last complete version while another tick runs; `/snapshot`
+does not recompute quantiles on the HTTP event loop. Controller outputs are also
+serialized on the worker and cached per snapshot. Mutable registry/model/RNG
+state stays with that worker; configure controllers before starting requests.
+
+`--prediction-max-age SECONDS` sets the maximum age of a prediction view. The
+default is `max(1, 3 * tick_s)`: 15 seconds with the board launcher's default
+five-second tick. Match this to the actual control-loop cadence. Age uses a
+monotonic clock starting **before ingestion**, so calculation time counts toward
+the limit. `/predict` adds `prediction_version`, `prediction_age_s`, and `stale`.
+An expired view returns zero estimates with `over_budget: true`, which makes the
+proxy use its existing fallback. Startup version zero contains the initial
+registry projection and pooled unknown-session estimate; it expires normally if
+no tick succeeds. New events become visible only after a successful tick.
+
+Board `GET /state` reports publication age/version, served/stale/unavailable
+prediction counts, control admission counters, and stage timings (`count`,
+`total_s`, `max_s`, `last_s`). Stages distinguish publication read, prediction
+calculation/serialization, ingestion, projection, forecast, snapshot serialization,
+and directive planning/serialization. Read timing includes the brief publication
+lock; no prediction waits for the control worker. Times exclude network transit
+and time before the event loop dispatches the handler.
+
+This fast path applies to the built-in `LiveBoard` prediction methods. Custom
+subclasses overriding those methods retain a bounded, four-job legacy prediction
+runner and their caller budget; their arbitrary internal state is not converted
+into immutable prediction views. Thread isolation does not remove Python GIL
+contention or provide hard real-time deadlines. Forecast/controller algorithms
+and their random-number order are unchanged.

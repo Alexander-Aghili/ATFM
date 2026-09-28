@@ -126,11 +126,16 @@ def _diagnostics(app, role, cfg, directory):
             result['queue'] = app.state.queue.stats()
             result['predictions'] = app.state.prediction_runner.snapshot()
         else:
-            snapshot = app.state.snapshot
-            result['snapshot_t'] = None if snapshot is None else snapshot.t
-            result['snapshot_age_s'] = None if snapshot is None else time.time() - snapshot.t
-            result['sessions'] = len(app.state.board.registry.session_ids())
+            result.update(_board_diagnostics(app.state))
         return result
+
+
+def _board_diagnostics(state):
+    reader = state.reader.status()
+    t = reader['snapshot_t']
+    return dict(snapshot_t=t, snapshot_age_s=None if t is None else time.time() - t,
+                sessions=reader['sessions'], board_state=reader, control=state.control_worker.snapshot(),
+                control_stages=state.control_worker.timings.snapshot())
 
 
 def _lifespan(app, role, cfg, directory, diagnostics):
@@ -177,6 +182,7 @@ def _board_app(cfg, directory):
     board = LiveBoard(SessionRegistry(), forecast, tick_s=cfg.control_interval_s)
     app = create_board_app(board, bus=JsonlBus(directory / 'events.jsonl'), rng=np.random.default_rng(cfg.seed),
                            gdp=GdpPlanner(slot_s=cfg.slot_s, horizon_s=cfg.slot_s * cfg.slots, max_hold_s=cfg.max_hold_s),
+                           prediction_max_age_s=cfg.prediction_max_age_s,
                            capacity={'kv_blocks': cfg.capacity_kv_blocks, 'prefill_tokens': cfg.capacity_prefill_tokens})
     return app
 

@@ -4,11 +4,15 @@ from __future__ import annotations
 
 import asyncio
 import time
+from contextlib import asynccontextmanager
 
 import numpy as np
 from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 
-from atfm.board.forecaster import CLASSES, TARGETS
+from atfm.board.execution import ControlWorker
+from atfm.board.publication import Publication, snapshot_json
+from atfm.board.serving import BoardReader
 from atfm.board.live import LiveBoard, SessionRegistry
 from atfm.board.metrics import worker_metrics_from_prometheus
 from atfm.board.resumption import resumption_quantiles
@@ -58,7 +62,9 @@ class MetricsScraper:
             page, t=time.time(), default_total_blocks=metrics.get('default_total_blocks'),
             default_worker_id=metrics.get('default_worker_id'))
         if events:
-            self._update(events)
+            future = self.st.control_worker.submit(self._update, events)
+            if future is not None:
+                future.result()
 
     def _update(self, events):
         st, metrics = self.st, self.st.metrics_cfg
@@ -77,24 +83,28 @@ class MetricsScraper:
 def create_board_app(board: LiveBoard, *, bus=None, clock=time.time, rng=None, budget_s: float = 0.05,
                      gdp: GdpPlanner | None = None, capacity: dict[str, float] | None = None,
                      touch: TouchController | None = None, tier: TierLogger | None = None,
-                     replica: ReplicaFloor | None = None) -> FastAPI:
+                     replica: ReplicaFloor | None = None, prediction_max_age_s: float | None = None) -> FastAPI:
     app = FastAPI()
-    runtime = BoardRuntime(app, board=board, budget_s=budget_s, clock=clock, bus=bus, rng=rng,
+    max_age = prediction_max_age_s if prediction_max_age_s is not None else max(1., 3 * getattr(board, "tick_s", 5.))
+    runtime = BoardRuntime(app, board=board, budget_s=budget_s, clock=clock, bus=bus, rng=rng, max_age_s=max_age,
                            gdp=gdp, capacity=capacity, touch=touch, tier=tier, replica=replica)
     runtime.register(app)
     return app
 
 
 class BoardRuntime:
-    def __init__(self, app, board, budget_s, clock, bus=None, rng=None, gdp=None, capacity=None, touch=None, tier=None, replica=None):
+    def __init__(self, app, board, budget_s, clock, max_age_s, bus=None, rng=None, gdp=None, capacity=None, touch=None, tier=None, replica=None):
         self.board, self.clock, self.budget_s = board, clock, budget_s
         st = app.state
         st.board, st.bus, st.rng = board, bus if bus is not None else InMemoryBus(), rng if rng is not None else np.random.default_rng(0)
+        st.control_worker = self.worker = ControlWorker()
+        st.reader = self.reader = BoardReader(board, clock(), budget_s, max_age_s)
         st.snapshot = None
         st.directives_cache = None       # (snapshot object, response): computed once per snapshot, served to every poller
         st.gdp, st.capacity, st.touch, st.tier, st.replica = gdp, capacity or {}, touch, tier, replica
         st.residency, st.frontier = {}, {}          # fed by a metrics scraper when one is attached
         self.st = st
+        self.directives_response = (None, None)
 
     def register(self, app):
         app.get('/healthz')(self.healthz)
@@ -102,6 +112,8 @@ class BoardRuntime:
         app.get('/snapshot')(self.snapshot)
         app.post('/predict')(self.predict)
         app.post('/directives')(self.directives)
+        app.get('/state')(self.status)
+        app.router.lifespan_context = self.lifespan
 
     def ingest(self) -> int:
         for e in self.st.bus.drain():
@@ -111,37 +123,54 @@ class BoardRuntime:
     async def healthz(self):
         return {'ok': True}
 
+    @asynccontextmanager
+    async def lifespan(self, app):
+        try:
+            yield
+        finally:
+            await asyncio.to_thread(self.worker.close)
+            await asyncio.to_thread(self.reader.close)
+
     async def tick(self):
-        n = self.ingest()
-        self.st.snapshot = self.board.step(self.clock(), self.st.rng)
-        return {'sessions': n, 't': self.st.snapshot.t}
+        return await self.worker.run(self._tick)
+
+    def _tick(self):
+        captured_at = self.reader.monotonic()
+        with self.worker.timings.measure('ingest'):
+            n = self.ingest()
+        now = self.clock()
+        with self.worker.timings.measure('projection'):
+            predictions = self.reader.capture(self.board, now)
+        with self.worker.timings.measure('forecast'):
+            snapshot = self.board.step(now, self.st.rng)
+        with self.worker.timings.measure('snapshot_serialize'):
+            encoded = snapshot_json(snapshot)
+        version = self.reader.published.read().version + 1
+        self.reader.published.publish(Publication(version, captured_at, snapshot, predictions, encoded))
+        self.st.snapshot = snapshot
+        return {'sessions': n, 't': snapshot.t, 'version': version}
 
     async def snapshot(self):
-        s = self.st.snapshot
-        if s is None:
-            return {'t': None, 'horizons': [], 'q50': {}, 'q90': {}}
-        return {'t': s.t, 'model_id': s.model_id, 'horizons': list(s.horizons), 
-                'q50': {t: {c: s.quantiles(t, c, 0.5).tolist() for c in CLASSES} for t in TARGETS}, 
-                'q90': {t: {c: s.quantiles(t, c, 0.9).tolist() for c in CLASSES} for t in TARGETS}, 
-                'endogenous_fraction': {c: s.endogenous_fraction[c].tolist() if c in s.endogenous_fraction else []
-                                         for c in CLASSES}}
+        return self.reader.snapshot()
 
     async def predict(self, req: Request):
-        d = await req.json()
-        t0 = time.perf_counter()
-        sid, isl, osl = (d.get('session_id', ''), int(d.get('isl', 0)), int(d.get('osl', 0)))
+        return await self.reader.predict(await req.json())
 
-        def _compute():
-            return (float(self.board.expected_service(sid, isl, osl)), float(self.board.expected_tool_next(sid)))
-        try:
-            e_service, e_tool = await asyncio.wait_for(asyncio.to_thread(_compute), timeout=self.budget_s)
-            over = False
-        except Exception:
-            e_service, e_tool, over = (0.0, 0.0, True)
-        ms = (time.perf_counter() - t0) * 1000.0
-        return {'e_service_s': e_service, 'e_tool_next_s': e_tool, 'elapsed_ms': ms, 'over_budget': over or ms > self.budget_s * 1000.0}
+    async def status(self):
+        return dict(**self.reader.status(), control=self.worker.snapshot(), control_stages=self.worker.timings.snapshot())
 
     async def directives(self):
+        return await self.worker.run(self._directives_measured)
+
+    def _directives_measured(self):
+        with self.worker.timings.measure('directives'):
+            result = self._directives()
+        if self.directives_response[0] is not result:
+            with self.worker.timings.measure('directives_serialize'):
+                self.directives_response = (result, JSONResponse(result))
+        return self.directives_response[1]
+
+    def _directives(self):
         """Controllers run once per snapshot (they spend touch credit and reset planner state); every poller
             of the same snapshot gets the cached answer. POST because it is not free of side effects."""
         now = self.clock()
