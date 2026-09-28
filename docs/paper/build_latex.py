@@ -86,6 +86,7 @@ def main():
                  'build_latex.py','build_visuals.py','probability_visuals.py','VISUALS.md','build_paper.py','paper.css','manuscript.html',
                  'fig/forecast-flow.reladraw','fig/research-roadmap.reladraw',
                  'fig/fig-system.svg','fig/fig-system.reladraw']]
+        paths.append(HERE / 'control-implementation.tex')
         paths += sorted((HERE/'latex-fig').glob('*'))
         paths += sorted((HERE/'results').glob('*'))
         paths += sorted((HERE/'sources/prior-work').glob('*'))

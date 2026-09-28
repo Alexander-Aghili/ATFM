@@ -411,6 +411,8 @@ Holds are reconsidered at expiry and capped relative to request arrival. Expirat
 The completed loaded experiment uses a 600-second hold cap. The long-interactive-tool experiment uses 60 seconds. Where the admission window equals engine batch capacity, the window-based arms place their backlog at the proxy. The native arm queues at the engine. This queue placement is part of the treatment, and results do not isolate the effect of engine-side priority hints.
 
 
+\input{control-implementation.tex}
+
 \section{Experimental Methodology}
 \label{sec:5}
 

@@ -21,10 +21,11 @@ from atfm_experiments.benchmark_gdp import workload
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--cases", nargs="+", choices=["gdp", "jsonl", "queue"], default=["gdp", "jsonl", "queue"])
     args = parser.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
     rows = []
-    for sessions, slots, draws in [(100000, 10000, 1024), (1000000, 300, 128)]:
+    for sessions, slots, draws in ([(100000, 10000, 1024), (1000000, 300, 128)] if "gdp" in args.cases else []):
         run = workload(sessions, slots, draws, True)
         profile = cProfile.Profile()
         result = profile.runcall(run)
@@ -33,7 +34,7 @@ def main():
             stats = pstats.Stats(profile, stream=stream).strip_dirs().sort_stats("cumulative")
             stats.print_stats(25)
         del result
-    for size in (10000, 100000, 1000000):
+    for size in ((10000, 100000, 1000000) if "jsonl" in args.cases else []):
         path = args.out / "events.jsonl"
         line = json.dumps(event_to_dict(ToolProgress(t=1, session_id="s", call_id="c", completed=1))) + "\n"
         with path.open("w") as stream:
@@ -46,13 +47,13 @@ def main():
             start = time.perf_counter()
             events = bus.drain()
             timings.append(time.perf_counter() - start)
-            assert len(events) == size
+            assert events == []
             del events
         rows.append(dict(case="unchanged_jsonl_drain", size=size, median_s=float(np.median(timings)),
                          min_s=min(timings), max_s=max(timings), bytes=path.stat().st_size))
         path.unlink()
         print(rows[-1], flush=True)
-    for size in (1000, 4000):
+    for size in ((1000, 4000) if "queue" in args.cases else []):
         timings = []
         for repeat in range(4):
             queue = HoldQueue(1, clock=lambda: 0.0, release_order_max=size)

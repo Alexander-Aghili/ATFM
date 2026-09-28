@@ -1,0 +1,26 @@
+\subsection{Control implementation and scaling}
+\label{sec:control-implementation}
+The live prototype and the policy simulations have distinct performance costs.
+The implementation revisions described here address live control overhead; they
+do not revise the reported simulation outcomes or establish hardware throughput.
+
+\paragraph{Incremental event consumption.}
+Previously, live JSONL draining reused the full-file offline reader, so each tick
+parsed and reapplied historical records. A per-consumer byte cursor now separates
+incremental consumption from full replay. With bounded event size, parsing costs
+$O(\Delta E)$ for newly appended events rather than $O(E)$ for the entire history;
+an unchanged log needs only a metadata check. A new board still replays from the
+beginning to reconstruct state. Complete malformed lines are counted and skipped,
+partial last lines are retried, and observed truncation or file replacement resets
+the cursor. Rotation requires coordination to avoid losing an unread old-file tail;
+unobserved copy-truncate/regrowth is unsupported. This cursor does not checkpoint
+model state or acknowledge successful downstream application. Crash-safe recovery
+still requires consistent state/log checkpoints and duplicate handling. Consumed
+arrival records are discarded while future timestamps are retained, preserving
+the existing exclusion of starts older than the previous board tick.
+
+The design prioritizes event semantics before CPU kernels. Tests exercise repeated
+drains and board ticks, partial and malformed lines, independent readers, file
+replacement, observed truncation, and I/O retry. Component benchmarks and their
+source hashes accompany the development documentation; none measures GPU service
+capacity or end-to-end tail latency.

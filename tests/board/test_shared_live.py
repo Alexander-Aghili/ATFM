@@ -99,3 +99,33 @@ def test_live_and_simulated_forecasts_match_with_the_same_seed():
     sim.sessions["0.0"] = SimpleNamespace(done=True)
     policy.on_tick(sim, 11.0)
     assert policy.registry.get("0.0") is None
+
+
+def test_jsonl_ticks_do_not_reapply_events_and_prune_consumed_starts(tmp_path):
+    from fastapi.testclient import TestClient
+    from atfm.bus import JsonlBus
+    from atfm.board.service import create_board_app
+    from atfm.schema.events import ToolProgress
+
+    registry = SessionRegistry()
+    board = LiveBoard(registry, SessionForecaster(Predictor(), ExogenousModel(), [10.0], n=4))
+    bus = JsonlBus(tmp_path / 'events.jsonl')
+    bus.publish(start('a', 0))
+    bus.publish(ToolProgress(t=1, session_id='a', call_id='c', completed=1))
+    client = TestClient(create_board_app(board, bus=bus, clock=lambda: 5.0))
+    for _ in range(3):
+        assert client.post('/tick').status_code == 200
+    assert len(registry.get('a').progress) == 1
+    assert registry.new_starts_since(0) == []
+    assert board.forecaster.exo.rate('background') == pytest.approx(1 / 60)
+
+
+def test_start_consumption_retains_future_and_discards_late_events():
+    registry = SessionRegistry()
+    for sid, t in [('future', 10), ('current', 3), ('old', 1)]:
+        registry.apply(start(sid, t))
+    assert registry.consume_starts(2, 5) == [(3, 'background')]
+    assert registry.new_starts_since(0) == [(10, 'background')]
+    assert registry.consume_starts(5, 10) == []
+    assert registry.consume_starts(10, 11) == [(10, 'background')]
+    assert registry.new_starts_since(0) == []

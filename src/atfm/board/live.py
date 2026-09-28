@@ -88,6 +88,16 @@ class SessionRegistry:
             self.drop(sid)
         return list(self._s.values())
 
+    def consume_starts(self, start: float, end: float) -> list[tuple[float, str]]:
+        """Consume [start, end), discard late starts, retain future timestamps.
+
+        The live board is the single consumer. Arrival order need not equal event
+        time order; events older than its previous tick remain excluded.
+        """
+        ready = [x for x in self._starts if start <= x[0] < end]
+        self._starts = [x for x in self._starts if x[0] >= end]
+        return ready
+
     def new_starts_since(self, t: float) -> list[tuple[float, str]]:
         return [x for x in self._starts if x[0] >= t]
 
@@ -106,7 +116,9 @@ class LiveBoard:
         self._starts_ptr = 0.0
 
     def step(self, now: float, rng: np.random.Generator) -> ForecastSnapshot:
-        starts = [s for s in self.registry.new_starts_since(self._starts_ptr) if s[0] < now]
+        if now < self._starts_ptr:
+            raise ValueError("board ticks must be nondecreasing")
+        starts = self.registry.consume_starts(self._starts_ptr, now)
         self._starts_ptr = now
         self.forecaster.exo.update(now, starts)
         return self.forecaster.forecast(now, self.registry.states(now), rng)

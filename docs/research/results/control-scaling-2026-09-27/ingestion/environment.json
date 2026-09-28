@@ -1,0 +1,12 @@
+{
+  "python": "3.12.13",
+  "platform": "Linux-6.17.0-1032-oem-x86_64-with-glibc2.39",
+  "numpy": "2.5.3",
+  "source_sha256": {
+    "src/atfm/control/gdp.py": "dff7730deefabc09ca183be20b3ddaf862b8f8786d8fe19772457d4c3a49e7ca",
+    "src/atfm/proxy/queue.py": "e7d555142f0ff936c7a385b45827f67ce2b36cd592aeb0ed9900ba6fdf4b67d1",
+    "src/atfm/bus/jsonl.py": "daf9dc0a6788bd259b40e2cb7c8d8478f899511159bc8bd8d85b4ea760b56ec8",
+    "experiments/src/atfm_experiments/profile_bottlenecks.py": "81f83b30779bec00c96f79951fe7f3e055ce9f057dc7a29c51900fa00bc4e8f4"
+  },
+  "notes": "GDP times are instrumented profiles, not repeated wall-time benchmarks. JSONL warmup + 3 runs; queue setup excluded, warmup + 3 runs."
+}

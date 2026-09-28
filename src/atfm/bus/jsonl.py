@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from threading import Lock
 
@@ -15,6 +16,9 @@ class JsonlBus:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self._lock = Lock()
         self.errors = 0
+        self.malformed = 0
+        self._identity: tuple[int, int] | None = None
+        self._offset = 0
 
     def publish(self, e: Event) -> None:
         try:
@@ -25,7 +29,39 @@ class JsonlBus:
             self.errors += 1
 
     def drain(self) -> list[Event]:
-        return read_events(self.path)
+        """Consume complete appended lines once per reader lifetime.
+
+        A new reader replays from zero. Replacement or observed truncation resets
+        the cursor; copy-truncate followed by regrowth between polls is unsupported.
+        Consumption is not an acknowledgement of downstream application or a
+        durable checkpoint. I/O failures leave the cursor unchanged for retry.
+        """
+        with self._lock:
+            try:
+                stream = self.path.open("rb")
+            except FileNotFoundError:
+                return []
+            with stream:
+                stat = os.fstat(stream.fileno())
+                identity = (stat.st_dev, stat.st_ino)
+                offset = self._offset if identity == self._identity and stat.st_size >= self._offset else 0
+                stream.seek(offset)
+                events = []
+                malformed = 0
+                while stream.tell() < stat.st_size:
+                    line = stream.readline(stat.st_size - stream.tell())
+                    if not line.endswith(b"\n"):
+                        break
+                    offset = stream.tell()
+                    if not line.strip():
+                        continue
+                    try:
+                        events.append(parse_event(json.loads(line)))
+                    except (ValueError, UnicodeDecodeError):
+                        malformed += 1
+                self._identity, self._offset = identity, offset
+                self.malformed += malformed
+                return events
 
 
 def read_events(path: str | Path) -> list[Event]:

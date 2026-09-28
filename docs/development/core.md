@@ -51,7 +51,8 @@ exogenous model. Its initial cursor is zero. A start exactly at the current tick
 is counted on a later tick; repeating a tick does not count that start twice.
 Call with nondecreasing times and ingest events before stepping. The cursor does
 not provide late-event recovery: starts older than the previous tick are not
-replayed. Offline H1 evaluation has its own trace-based observation schedule.
+replayed. Consumed and late start records are discarded; future timestamps remain
+pending, preserving arrival order without assuming timestamp order. Offline H1 evaluation has its own trace-based observation schedule.
 
 `SessionRegistry.get(id)` returns an owned, mutable state or `None`. It neither
 creates a session nor updates its activity timestamp. `session_ids()` returns a
@@ -183,3 +184,26 @@ about a scientific assumption just to reduce the comment count.
 - [Contributing](../../CONTRIBUTING.md) covers test and review expectations.
 - [Research index](../research/README.md) links dated findings without treating
   historical run instructions as the current API.
+
+## Live JSONL consumption
+
+`JsonlBus.drain()` maintains a byte cursor per instance and consumes only complete
+newline-terminated records appended since its last successful drain. Offline
+`read_events()` still reads the whole file. A fresh instance starts at zero so a
+fresh board can reconstruct its state; do not reuse a live reader with an empty
+board. Repeated drains with no new records return an empty list.
+
+Reads stop at the file size observed on opening. An incomplete last line is
+retried, blank lines are skipped, and malformed complete records increment
+`malformed` and are consumed. An I/O failure leaves the cursor unchanged. Missing
+files return no events. Replacement (device/inode change) or observed truncation
+resets the cursor. Writers must use append-only files: same-inode rewriting, or
+copy-truncate followed by regrowth past the cursor between polls, is unsupported.
+Rotation must coordinate writers/readers: an unread tail of a renamed file is not
+recovered automatically. The lock coordinates one instance, not multiple writers.
+
+This is a transport cursor, not transactional acknowledgement. Successful drain
+advances before registry application; downstream failure is not automatically
+retried, and restarting replays history. Durable recovery requires checkpointing
+board state and log position together, plus explicit duplicate/sequence handling.
+See [implementation decisions](control-scaling.md) for complexity and evidence.
