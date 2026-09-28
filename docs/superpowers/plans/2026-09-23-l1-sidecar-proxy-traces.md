@@ -16,7 +16,7 @@
 
 **Tech Stack:** Python 3.12, uv, pydantic v2, FastAPI + uvicorn, httpx, numpy, pandas, pytest, pytest-asyncio, optional extras: `mini-swe-agent` (harness), `ai-dynamo` (Mocker + frontend), Docker CLI for tool containers.
 
-**Spec:** `docs/superpowers/specs/2026-09-22-atfm-architecture-design.md` v1.1, sections 3.2, 4, 5.1, 5.4, 6.2 (hold semantics only), 7, 9 (H1b), 10, 13 item 2. Platform facts: `docs/research/2026-09-22-platform-acquisition.md`.
+**Spec:** `docs/superpowers/specs/2026-09-22-atfm-architecture-design.md` v1.1, sections 3.2, 4, 5.1, 5.4, 6.2 (hold semantics only), 7, 9 (H1b), 10, 13 item 2. Current platform setup: [operations guide](../../operations.md).
 
 ## Global Constraints
 

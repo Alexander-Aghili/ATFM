@@ -4,7 +4,7 @@
 > boundaries are summarized in [implementation status](../../status.md).
 > Use [operations](../../operations.md) for executable setup instructions.
 
-Date: 2026-09-22, revised 2026-09-23 (v1.1). Status: approved for implementation by the founder's instruction to proceed.
+Date: 2026-09-22, revised 2026-09-23 (v1.1). Status: approved for implementation.
 Companion documents: `detail.md` (research plan), `docs/research/*.md` (platform, benchmarks, demonstration ladder, first H1 results).
 
 ### v1.1 changes (external design review, 2026-09-23)

@@ -21,7 +21,6 @@ predate today's launchers. Use the [project README](../../README.md) and
 | [CPU scaling and Python/Rust](2026-09-27-cpu-scaling.md) | Measured CPU optimizations, asymptotic bounds, and language decision. |
 | [Demonstration ladder](2026-09-22-demonstration-ladder.md) | Evaluation stages and the claims each can support. |
 | [Evaluation benchmarks](2026-09-22-evaluation-benchmarks.md) | Benchmark and dataset survey. |
-| [Platform acquisition](2026-09-22-platform-acquisition.md) | Infrastructure planning at the time of the survey. |
 | [First H1 results](2026-09-22-h1-first-results.md) | Initial TraceLab forecast evaluation. |
 | [Second corpus and H1b](2026-09-23-h1-second-corpus-and-h1b.md) | AgentX generalization and progress-conditioned resumption. |
 | [L1 results](2026-09-23-l1-results.md) | Local collection and serving integration. |

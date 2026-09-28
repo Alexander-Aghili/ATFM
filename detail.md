@@ -1,6 +1,6 @@
 # Agent Traffic Flow Management: Core Idea and Experiment Plan
 
-> **Research and product plan.** This document includes proposed capabilities.
+> **Research and implementation plan.** This document includes proposed capabilities.
 > For the implemented system, start with the [README](README.md),
 > [implementation status](docs/status.md), and [core developer guide](docs/development/core.md).
 
@@ -18,7 +18,7 @@ The core idea borrows from how the FAA manages air traffic. The FAA can see wher
 2. **Class-aware scheduling.** Background agents whose next LLM turn will be short and will quickly launch another long tool call are served early, like I/O-bound processes in an operating system. User-facing agents get strong latency protection. Long background decodes can be preempted and offloaded.
 3. **Forecast-driven control.** When the forecast predicts a surge, deferrable background work is delayed before it consumes resources (ground delay), capacity is scaled and KV state is pre-staged ahead of demand, and delay is allocated fairly across tenants.
 
-The first target customer is an enterprise that self-hosts open models and runs both interactive and background agents on the same GPU pool. The prototype builds on NVIDIA Dynamo.
+The target workload mixes interactive and background agents on a shared, self-hosted GPU pool. The prototype builds on NVIDIA Dynamo.
 
 ---
 
@@ -371,11 +371,11 @@ Runs in parallel with Phase 1; needs only short-horizon service-time predictions
 
 | Weeks | Work |
 |---|---|
-| 1–3 | Phase 0: platform, sidecar, proxy, trace generation; start customer discovery |
+| 1–3 | Phase 0: platform, sidecar, proxy, trace generation |
 | 3–6 | Phase 1: demand board, model ladder, forecast evaluation, gate decision |
 | 4–8 | Phase 2: scheduling policies in DynoSim, GPU confirmation |
 | 7–11 | Phase 3: ground delay, pre-staging, planner integration; multi-node runs |
-| 12 | Write-up, dataset release prep, design-partner prototype packaging |
+| 12 | Write-up, dataset release prep, prototype release packaging |
 
 ---
 
@@ -388,55 +388,17 @@ Runs in parallel with Phase 1; needs only short-horizon service-time predictions
 
 ---
 
-## 16. Customer Discovery
-
-### 16.1 First-customer profile
-
-- Self-hosts open models on dedicated GPUs (at least one 8-GPU node for agents)
-- Runs both interactive agents (developer assistant) and background agents (CI-fix, migration, test generation, data pipelines) on the same pool
-- Has visible GPU budgets and felt surge pain
-- Can deploy a sidecar in its tool runtime
-
-### 16.2 Segments
-
-| Segment | Why | Role |
-|---|---|---|
-| Regulated enterprises (banks, insurers, defense, healthcare) with internal AI platforms | Must self-host; mixed agent classes; tight GPU budgets | Likeliest first design partner |
-| Companies running background coding agents at scale (e.g., Stripe, Ramp, Spotify publicly report high agent PR volumes) | Best source of workload shape, deadlines, deferrability | Interviews; some evaluating self-hosting |
-| Coding-agent vendors with on-prem / VPC offerings | Run serving stacks for many regulated customers; long sessions | Partnership / channel |
-| GPU clouds offering managed open-model inference (CoreWeave, Nebius, Lambda, Crusoe) | Multi-tenant version of the same problem | Channel and strategic partners |
-| NVIDIA Dynamo team | Co-designing `agent_hints` v1 and asking for harness feedback | Ecosystem relationship; shape the API |
-
-### 16.3 Interview questions
-
-1. What share of your agent traffic is background, and what are its real deadlines?
-2. What happens during a surge today? Do interactive users notice?
-3. What is your GPU utilization, and how long does scale-out take?
-4. Do your long-running tools emit progress, logs, or metrics that could be streamed?
-5. Would you install a sidecar in your tool runtime?
-6. How do you allocate GPU capacity across teams or tenants today?
-7. What would a 20% reduction in GPU-hours at the same SLO be worth to you?
-8. Could you share anonymized traces?
-
-The deadline and surge answers indicate whether ground delays have value for that customer; the sidecar answer indicates whether the in-flight signal is obtainable.
-
-### 16.4 Sequencing
-
-Start discovery calls in week 1 alongside Phase 0, let early conversations shape the workload mix, and aim for one design partner willing to share anonymized traces by the end of Phase 1.
-
----
-
-## 17. Open Questions
+## 16. Open Questions
 
 - How much of the forecast's value survives when only weak (end-phase) signals are available?
-- What is the right delay-cost model `c_i` for background work: linear, deadline-based, or learned from customer SLAs?
+- What is the right delay-cost model `c_i` for background work: linear, deadline-based, or learned from workload SLOs?
 - Does the class-aware index interact badly with KV-aware routing (priority versus cache locality)?
-- Can the same demand board govern hosted-API token quotas and spend, extending the market beyond self-hosters?
+- Can the same demand board govern hosted-API token quotas and spend, extending the experiment beyond self-hosted serving?
 - Which signals should be proposed for standardization in `agent_hints` or tool protocols?
 
 ---
 
-## 18. References
+## 17. References
 
 **Agent serving and KV management**
 - Abhyankar et al., InferCept (ICML 2024)

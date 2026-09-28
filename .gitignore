@@ -5,3 +5,13 @@ __pycache__/
 runs/
 .pytest_cache/
 .superpowers/
+
+# Local business material and document build outputs
+/docs/business-plan/
+/business/
+/business-plan/
+/docs/business/
+/docs/research/2026-09-22-platform-acquisition.md
+/output/
+/tmp/
+.ruff_cache/

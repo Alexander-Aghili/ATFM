@@ -6,8 +6,8 @@
 
 > **Diagram type**: System Context
 > **Scope**: ATFM (Agent Traffic Flow Management) as one system, the people who depend on it, and the external systems it touches.
-> **Audience**: everyone: founders, reviewers, platform operators, agent developers.
-> **Status**: draft v1.1, generated from the architecture spec (2026-09-23); diagrams moved from Mermaid C4 to reladraw on 2026-09-27; pending founder validation.
+> **Audience**: everyone: contributors, reviewers, platform operators, agent developers.
+> **Status**: draft v1.1, generated from the architecture spec (2026-09-23); diagrams moved from Mermaid C4 to reladraw on 2026-09-27; historical design view; see current implementation diagrams.
 
 ## Overview
 
