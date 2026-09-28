@@ -545,3 +545,27 @@ the design: the placement objective is time-to-next-use; the forecast's job is t
 current estimate reaches about 85% of the exact-quantity upper bound in this regime. The board should
 predict next use directly (arrival plus the proxy's per-class queue estimate, without the tool-tail
 bias), which is a modelling change for the predictor, not the controller.
+
+### Queue-aware placement, interactive long tools (`h2sim_interactive_long_q`, 3 seeds)
+
+| arm | SLO diff vs native [95% CI] | bg JCT diff (s) |
+|---|---|---|
+| proxy_rules | +0.022 [+0.007, +0.036] | +54 |
+| forecast_M2_kv (arrival) | +0.029 [+0.013, +0.043] | +55 |
+| **forecast_M2_kv_q** | **+0.037 [+0.020, +0.052]** | +60 |
+| forecast_M1_kv_q | +0.036 [+0.021, +0.051] | +62 |
+| oracle_kv (exact arrival) | +0.012 [-0.006, +0.028] | +61 |
+| oracle_kv_q (exact arrival + class queue wait) | +0.026 [+0.011, +0.041] | +40 |
+
+Here both rankings gain from the queue term (the forecast by +0.8, the exact arm by +1.4 points) because
+interactive calls queue too when interactive load saturates the window, and the queue-aware forecast is
+the best arm, above the exact-arrival-plus-queue arm (native-referenced intervals overlap; no direct
+contrast yet for the `_q` pairs). Across the two regimes: rank on time to next KV use; the exact quantity
+is the upper bound in the loaded regime (+3.8) and the forecast reaches +3.2 there and +3.7 here. The
+"forecast beats the truth" paradox of the third batch is closed: it was the truth of the wrong quantity.
+
+**State of H2 (2026-09-27, end).** Admission holds: negative. KV placement by predicted time to next use:
+positive in both loaded regimes, +3.2 to +3.8 points over native and +1.4 to +1.9 over rules, at no
+background cost; the deployable forms (touch, LMCache pin) reach part of it and need frontier-aware
+targeting; M2 over M1 is not a tested difference in any run. The forecaster's next improvement is to
+predict next use (arrival plus per-class queue estimate) directly instead of relying on tool-tail bias.
