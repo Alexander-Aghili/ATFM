@@ -6,6 +6,15 @@ import matplotlib.pyplot as plt
 from build_visuals import save,ROOT,COL
 
 def main():
+    _hazard_residual()
+    _rate_posterior()
+    _dependence_risk()
+    _demand_fan()
+    _sampling_loss()
+    _loss_matrix()
+
+
+def _hazard_residual():
     fig,axs=plt.subplots(1,2,figsize=(7,2.9),layout='constrained')
     e=np.linspace(.5,120,240)
     for k,label,color,style in [(.6,'Decreasing hazard (k = 0.6)',COL['B2'],'-'),(1.,'Constant hazard (k = 1)',COL['M1'],'--'),(2.,'Increasing hazard (k = 2)',COL['M2'],':')]:
@@ -17,6 +26,9 @@ def main():
     axs[0].legend(fontsize=7,frameon=False)
     for a in axs:a.grid(alpha=.2)
     save(fig,'hazard-residual')
+
+
+def _rate_posterior():
 
     fig,axs=plt.subplots(1,2,figsize=(7,2.9),layout='constrained')
     v=np.linspace(.001,2,500); r=np.linspace(1,220,500);wleft=20
@@ -30,6 +42,9 @@ def main():
     for a in axs:a.grid(alpha=.2)
     save(fig,'rate-posterior')
 
+
+def _dependence_risk():
+
     fig,axs=plt.subplots(1,2,figsize=(7,2.8),layout='constrained')
     xs=np.array([0,100,200]); distributions=[([.25,.5,.25],'Independent',COL['B2']),([.5,0,.5],'Perfectly synchronized',COL['M1'])]
     for j,(pmf,label,color) in enumerate(distributions):
@@ -41,14 +56,11 @@ def main():
     for a in axs:a.grid(axis='y',alpha=.2)
     save(fig,'dependence-risk')
 
+
+def _demand_fan():
+
     # Coherent hypothetical sample paths; analytic mean uses the same construction.
-    rng=np.random.default_rng(20260927);M=20000; h=np.arange(0,121,5)
-    returns=rng.exponential([20,40,80],size=(M,3)); sizes=np.array([100,150,200])
-    known=(returns[:,:,None]<=h).astype(float)*sizes[None,:,None]
-    known=known.sum(axis=1)
-    increments=rng.poisson(.015*5,size=(M,len(h)-1))
-    future=np.column_stack([np.zeros(M),np.cumsum(increments,axis=1)])*100
-    total=known+future
+    h, total, sizes = _demand_samples()
     fig,axs=plt.subplots(1,2,figsize=(7,2.9),layout='constrained')
     q=np.quantile(total,[.05,.5,.95],axis=0)
     axs[0].fill_between(h,q[0],q[2],color='#dbe6ee',step='mid',label='Pointwise central 90%')
@@ -62,6 +74,20 @@ def main():
     for a in axs:a.grid(alpha=.2)
     save(fig,'demand-fan')
 
+
+def _demand_samples():
+    rng=np.random.default_rng(20260927);M=20000; h=np.arange(0,121,5)
+    returns=rng.exponential([20,40,80],size=(M,3)); sizes=np.array([100,150,200])
+    known=(returns[:,:,None]<=h).astype(float)*sizes[None,:,None]
+    known=known.sum(axis=1)
+    increments=rng.poisson(.015*5,size=(M,len(h)-1))
+    future=np.column_stack([np.zeros(M),np.cumsum(increments,axis=1)])*100
+    total=known+future
+    return h, total, sizes
+
+
+def _sampling_loss():
+
     fig,axs=plt.subplots(1,2,figsize=(7,2.8),layout='constrained')
     m=np.arange(32,1025);p=.1
     axs[0].plot(m,100*np.sqrt(p*(1-p)/m),color=COL['B2'])
@@ -73,6 +99,9 @@ def main():
     axs[1].set(xlabel='Observation minus forecast quantile (blocks)',ylabel='q90 pinball loss (blocks)');axs[1].text(-95,60,'Overprediction\npenalty slope 0.1',fontsize=8);axs[1].text(35,6,'Underprediction\npenalty slope 0.9',fontsize=8)
     for a in axs:a.grid(alpha=.2)
     save(fig,'sampling-loss')
+
+
+def _loss_matrix():
 
     d=pd.read_csv(ROOT/'results/h1_tracelab_r200__metrics.csv')
     d=d[(d['class']=='interactive')&(d.target=='kv_blocks')]

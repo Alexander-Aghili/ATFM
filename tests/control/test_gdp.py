@@ -69,13 +69,17 @@ def test_property_never_violates_cap_or_its_own_chance_constraint():
         for d in out:
             eta = next(x for x in defs if x.session_id == d.session_id).eta_s
             assert 0.0 <= d.release_not_before <= eta + 120.0 + 1e-9        # never more than the cap after resumption
-        # released (uncapped) sessions must satisfy the constraint on the planner's own samples
-        assigned = planner.last_assignment                       # slot -> list of session ids
-        for slot, sids in assigned.items():
-            for res in ("kv_blocks", "prefill_tokens"):
-                inter = planner.slot_demand(snap, res)[slot]     # (n,) samples of interactive demand in that slot
-                load = inter + sum(next(x for x in defs if x.session_id == s).__getattribute__(res) for s in sids)
-                assert (load <= cap[res]).mean() >= 1 - planner.eps - 1e-9
+        _assert_assignments_feasible(planner, snap, defs, cap)
+
+
+def _assert_assignments_feasible(planner, snap, defs, cap):
+    # released (uncapped) sessions must satisfy the constraint on the planner's own samples
+    assigned = planner.last_assignment                       # slot -> list of session ids
+    for slot, sids in assigned.items():
+        for res in ("kv_blocks", "prefill_tokens"):
+            inter = planner.slot_demand(snap, res)[slot]     # (n,) samples of interactive demand in that slot
+            load = inter + sum(next(x for x in defs if x.session_id == s).__getattribute__(res) for s in sids)
+            assert (load <= cap[res]).mean() >= 1 - planner.eps - 1e-9
 
 
 def test_tenant_fairness_caps_a_tenants_imposed_delay():

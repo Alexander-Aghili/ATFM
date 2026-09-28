@@ -77,12 +77,7 @@ async def test_proxy_combines_board_calls_and_uses_local_fallback(status):
     from tests.proxy.test_hardening import _upstream
     from atfm.proxy.index import estimate_isl
 
-    calls = []
-    def respond(request):
-        calls.append(request)
-        return httpx.Response(status, json={'e_service_s': 2, 'e_tool_next_s': 3})
-    board = BoardClient('http://board')
-    board.client.close()
+    calls, board, respond = _board_fixture(status)
     cfg = ProxyConfig(upstream_url='http://up', beta=1, board_timeout_s=1)
     upstream = httpx.AsyncClient(transport=httpx.ASGITransport(app=_upstream()), base_url='http://up')
     body = {'model': 'm', 'messages': [{'role': 'user', 'content': 'hello'}]}
@@ -99,12 +94,55 @@ async def test_proxy_combines_board_calls_and_uses_local_fallback(status):
     await upstream.aclose()
 
 
+def _board_fixture(status):
+    calls = []
+    def respond(request):
+        calls.append(request)
+        return httpx.Response(status, json={'e_service_s': 2, 'e_tool_next_s': 3})
+    board = BoardClient('http://board')
+    board.client.close()
+    return calls, board, respond
+
+
 @pytest.mark.parametrize('outcome', ['used', 'error', 'timeout', 'disabled', 'cancelled'])
 async def test_prediction_outcomes_account_for_each_request(outcome):
     import asyncio
     import threading
     from tests.proxy.test_hardening import _upstream
 
+    started, release, predict = _prediction_fixture(outcome)
+    upstream = httpx.AsyncClient(transport=httpx.ASGITransport(app=_upstream()), base_url='http://up')
+    app = create_app(ProxyConfig(upstream_url='http://up', board_timeout_s=.02 if outcome == 'timeout' else 1),
+                     upstream_client=upstream,
+                     predictor=None if outcome == 'disabled' else Mock(expected_times=predict))
+    try:
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url='http://proxy') as client:
+            await _check_prediction_outcome(client, outcome, started)
+    finally:
+        release.set()
+        app.state.pool.shutdown()
+        await upstream.aclose()
+
+
+async def _check_prediction_outcome(client, outcome, started):
+    import asyncio
+    task = asyncio.create_task(client.post('/v1/chat/completions', json={'messages': []}))
+    if outcome == 'cancelled':
+        assert await asyncio.to_thread(started.wait, 1)
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+    else:
+        assert (await task).status_code == 200
+    counts = (await client.get('/state')).json()['predictions']
+    assert counts[outcome] == 1
+    assert counts['pending'] == 0
+    assert counts['attempted'] == (outcome != 'disabled')
+    assert sum(counts[k] for k in ('used', 'error', 'timeout', 'cancelled')) == counts['attempted']
+
+
+def _prediction_fixture(outcome):
+    import threading
     started, release = threading.Event(), threading.Event()
     def predict(*args):
         started.set()
@@ -114,26 +152,4 @@ async def test_prediction_outcomes_account_for_each_request(outcome):
             raise ValueError('bad prediction')
         return 2., 3.
 
-    upstream = httpx.AsyncClient(transport=httpx.ASGITransport(app=_upstream()), base_url='http://up')
-    app = create_app(ProxyConfig(upstream_url='http://up', board_timeout_s=.02 if outcome == 'timeout' else 1),
-                     upstream_client=upstream,
-                     predictor=None if outcome == 'disabled' else Mock(expected_times=predict))
-    try:
-        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url='http://proxy') as client:
-            task = asyncio.create_task(client.post('/v1/chat/completions', json={'messages': []}))
-            if outcome == 'cancelled':
-                assert await asyncio.to_thread(started.wait, 1)
-                task.cancel()
-                with pytest.raises(asyncio.CancelledError):
-                    await task
-            else:
-                assert (await task).status_code == 200
-            counts = (await client.get('/state')).json()['predictions']
-            assert counts[outcome] == 1
-            assert counts['pending'] == 0
-            assert counts['attempted'] == (outcome != 'disabled')
-            assert sum(counts[k] for k in ('used', 'error', 'timeout', 'cancelled')) == counts['attempted']
-    finally:
-        release.set()
-        app.state.pool.shutdown()
-        await upstream.aclose()
+    return started, release, predict

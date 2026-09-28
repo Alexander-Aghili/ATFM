@@ -59,14 +59,7 @@ async def test_touches_are_counted_only_on_upstream_success():
     from fastapi.responses import JSONResponse
     from atfm.proxy.app import create_app
     from atfm.proxy.config import ProxyConfig
-    up = FastAPI()
-    up.state.fail = False
-
-    @up.post("/v1/chat/completions")
-    async def chat(req: Request):
-        if up.state.fail:
-            return JSONResponse({"error": "boom"}, status_code=503)
-        return JSONResponse({"choices": [{"message": {"content": "k"}}], "usage": {"prompt_tokens": 9, "completion_tokens": 1}})
+    up = _touch_upstream()
     app = create_app(ProxyConfig(upstream_url="http://up"), upstream_client=httpx.AsyncClient(transport=httpx.ASGITransport(app=up), base_url="http://up"))
     async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://p") as c:
         await c.post("/v1/chat/completions", json={"model": "m", "messages": [{"role": "user", "content": "x"}]},
@@ -75,3 +68,17 @@ async def test_touches_are_counted_only_on_upstream_success():
         r = (await c.post("/touch", json={"session_id": "s"})).json()
         st = (await c.get("/state")).json()
         assert r["ok"] is False and st["touches"] == 0 and st["touch_failures"] == 1
+
+
+def _touch_upstream():
+    from fastapi import FastAPI, Request
+    from fastapi.responses import JSONResponse
+    up = FastAPI()
+    up.state.fail = False
+
+    @up.post("/v1/chat/completions")
+    async def chat(req: Request):
+        if up.state.fail:
+            return JSONResponse({"error": "boom"}, status_code=503)
+        return JSONResponse({"choices": [{"message": {"content": "k"}}], "usage": {"prompt_tokens": 9, "completion_tokens": 1}})
+    return up

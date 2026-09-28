@@ -168,14 +168,7 @@ def test_calibration_updates_exogenous_rate_incrementally(tmp_path, monkeypatch)
     not a burst of every early start reported at the first tick."""
     import atfm_experiments.h1 as h1mod
     from atfm.schema.trace import TraceRow, TraceTable
-    rows = []
-    for k in range(16):
-        t0 = k * 3 * 86400.0
-        rows.append(TraceRow(session_id=f"s{k}", cls="interactive", tenant="t", turn_index=0, t_request=t0, t_first_token=t0 + 1,
-                             t_last_token=t0 + 2, isl=100, osl=10, tool_name="Bash", t_tool_start=t0 + 2, t_tool_end=t0 + 40, source="tracelab"))
-        rows.append(TraceRow(session_id=f"s{k}", cls="interactive", tenant="t", turn_index=1, t_request=t0 + 40, t_first_token=t0 + 41,
-                             t_last_token=t0 + 42, isl=120, osl=10, tool_name=None, source="tracelab"))
-    train = TraceTable.from_rows(rows)
+    train = _calibration_training()
     cfg = H1Config(name="rate", source="tracelab", tracelab_parquet="unused", overlay_rate_per_hour=360.0, overlay_duration_s=3600.0,
                    tick_s=30.0, horizons=[30.0], n_samples=16, models=["M1"], calibrate=True, block_seconds=7 * 86400.0, out_dir=str(tmp_path))
     captured = {}
@@ -186,3 +179,16 @@ def test_calibration_updates_exogenous_rate_incrementally(tmp_path, monkeypatch)
     h1mod._calibrate(cfg, h1mod._build(cfg, train), train)
     rate = captured["fc"].exo.rate("interactive")
     assert 0.3 * 360 / 3600 <= rate <= 2.0 * 360 / 3600, rate
+
+
+def _calibration_training():
+    from atfm.schema.trace import TraceRow, TraceTable
+    rows = []
+    for k in range(16):
+        t0 = k * 3 * 86400.0
+        rows.append(TraceRow(session_id=f"s{k}", cls="interactive", tenant="t", turn_index=0, t_request=t0, t_first_token=t0 + 1,
+                             t_last_token=t0 + 2, isl=100, osl=10, tool_name="Bash", t_tool_start=t0 + 2, t_tool_end=t0 + 40, source="tracelab"))
+        rows.append(TraceRow(session_id=f"s{k}", cls="interactive", tenant="t", turn_index=1, t_request=t0 + 40, t_first_token=t0 + 41,
+                             t_last_token=t0 + 42, isl=120, osl=10, tool_name=None, source="tracelab"))
+    train = TraceTable.from_rows(rows)
+    return train

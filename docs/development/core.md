@@ -40,6 +40,40 @@ Keep new shared behavior at the lowest layer that has enough information.
 Controllers consume schema types; they should not import the HTTP service or
 simulator. Avoid a general utility module for unrelated calculations.
 
+## Function boundaries and traversal
+
+Every tracked Python function has a maximum of **20 physical lines**, from the
+`def`/`async def` line through its last statement. Multiline signatures,
+docstrings, comments, blank lines, and nested definitions count; decorators do
+not. This applies to core code, experiments, scripts, tests (including independent
+reference algorithms), and paper-generation tools. Check it with
+`python scripts/check_function_size.py`; pytest also enforces the rule.
+
+Extract a named operation when a function grows: parsing, admission, forwarding,
+recording, or cleanup. Pass the state that operation actually owns. Per-app
+`ProxyRuntime` and `BoardRuntime` objects hold request-handler dependencies;
+public factories and `app.state` remain compatible. The load harness similarly
+owns its clients and tasks in one trial, with summary calculations in a separate
+report module. Keep helpers close to their caller unless they serve a genuinely
+shared contract, such as sidecar parser event handling.
+
+Keep control flow shallow with early returns and explicit lifecycle phases.
+Do not meet the limit by packing statements onto one line, constructing elaborate
+expressions, or creating chains of forwarding-only wrappers. Preserve exception
+and cancellation boundaries: completion still releases admission slots once,
+subprocess timeouts still kill the process group, and load trials still close
+clients and reap their children.
+
+Synthetic family generation uses `traces/generation.py:resolve_children`, an
+explicit depth-first stack. Generators yield child arguments and receive child
+results before continuing their parent. This preserves original random draw and
+session-numbering order without using one Python stack frame per generation.
+Program cloning also traverses iteratively. Traversal storage is O(depth);
+there is no arbitrary depth truncation that would change a workload's meaning.
+
+See [the refactor validation record](../research/results/modularity-2026-09-28/)
+for equivalence hashes, timing comparisons, and the limits of those checks.
+
 ## Time, ownership, and randomness
 
 Event times, tick times, and absolute return times must use one time base. Live

@@ -74,6 +74,25 @@ def chart_ratio(data: dict, title: str) -> str:
     def Y(v): return T + (1 - v / ymax) * (H - T - B)
     out = [f'<svg class="ratio" viewBox="0 0 {W} {H}" role="img" aria-label="{title}: ratio of Kalman baseline loss to elapsed-time model loss versus horizon at three arrival rates">']
     out.append(f'<text x="{L}" y="16" class="ct">{title}</text>')
+    _ratio_axes(out, X, Y, W, H, L, R, T, B, xs)
+    for i, (rate, ys) in enumerate(sorted(data.items())):
+        pts = " ".join(f"{X(x):.1f},{Y(y):.1f}" for x, y in zip(xs, ys))
+        out.append(f'<polyline points="{pts}" class="s{i+1} line"/>')
+        for x, y in zip(xs, ys):
+            out.append(f'<circle cx="{X(x):.1f}" cy="{Y(y):.1f}" r="4" class="s{i+1} dot"/>')
+    _ratio_legend(out, data, L, T)
+    out.append("</svg>")
+    return "".join(out)
+
+
+def _ratio_legend(out, data, L, T):
+    # legend (fixed order, same for both panels)
+    for i, rate in enumerate(sorted(data)):
+        out.append(f'<line x1="{L+8+i*110}" x2="{L+30+i*110}" y1="{T-14}" y2="{T-14}" class="s{i+1} line"/>'
+                   f'<text x="{L+36+i*110}" y="{T-10}" class="tick">{rate}/h</text>')
+
+
+def _ratio_axes(out, X, Y, W, H, L, R, T, B, xs):
     for g in [1, 2, 3, 4, 5, 6]:
         out.append(f'<line x1="{L}" x2="{W-R}" y1="{Y(g):.1f}" y2="{Y(g):.1f}" class="grid"/>')
         out.append(f'<text x="{L-6}" y="{Y(g)+4:.1f}" class="tick" text-anchor="end">{g}x</text>')
@@ -82,17 +101,6 @@ def chart_ratio(data: dict, title: str) -> str:
         lab = {10: "10 s", 30: "30 s", 120: "2 min", 300: "5 min", 900: "15 min"}[h]
         out.append(f'<text x="{X(x):.1f}" y="{H-B+18}" class="tick" text-anchor="middle">{lab}</text>')
     out.append(f'<text x="{(L+W-R)/2:.1f}" y="{H-6}" class="axis" text-anchor="middle">forecast horizon</text>')
-    for i, (rate, ys) in enumerate(sorted(data.items())):
-        pts = " ".join(f"{X(x):.1f},{Y(y):.1f}" for x, y in zip(xs, ys))
-        out.append(f'<polyline points="{pts}" class="s{i+1} line"/>')
-        for x, y in zip(xs, ys):
-            out.append(f'<circle cx="{X(x):.1f}" cy="{Y(y):.1f}" r="4" class="s{i+1} dot"/>')
-    # legend (fixed order, same for both panels)
-    for i, rate in enumerate(sorted(data)):
-        out.append(f'<line x1="{L+8+i*110}" x2="{L+30+i*110}" y1="{T-14}" y2="{T-14}" class="s{i+1} line"/>'
-                   f'<text x="{L+36+i*110}" y="{T-10}" class="tick">{rate}/h</text>')
-    out.append("</svg>")
-    return "".join(out)
 
 
 def chart_h1b() -> str:
@@ -108,6 +116,14 @@ def chart_h1b() -> str:
         out.append(f'<text x="{X(g):.1f}" y="{H-14}" class="tick" text-anchor="middle">{g}</text>')
     out.append(f'<text x="{(L+W-R)/2:.1f}" y="{H-2}" class="axis" text-anchor="middle">mean q90 pinball loss on remaining seconds (lower is better)</text>')
     bh = (rh - 4) / 3
+    _h1b_bars(out, rows, X, L, T, rh, gap, bh)
+    for i, n in enumerate(("B2 history", "M1 elapsed time", "M2 progress")):
+        out.append(f'<rect x="{L+8+i*180}" y="{T-22}" width="12" height="10" rx="2" class="s{i+1} bar"/><text x="{L+24+i*180}" y="{T-13}" class="tick">{n}</text>')
+    out.append("</svg>")
+    return "".join(out)
+
+
+def _h1b_bars(out, rows, X, L, T, rh, gap, bh):
     for r, (name, b2, m1, m2) in enumerate(rows):
         y = T + r * (rh + gap)
         cls = "lab strong" if name == "all phases" else "lab"
@@ -116,37 +132,35 @@ def chart_h1b() -> str:
             yy = y + i * (bh + 2)
             out.append(f'<rect x="{L}" y="{yy:.1f}" width="{max(X(v)-L,1):.1f}" height="{bh:.1f}" rx="2" class="s{i+1} bar"/>')
             out.append(f'<text x="{X(v)+4:.1f}" y="{yy+bh-1:.1f}" class="val">{v:.1f}</text>')
-    for i, n in enumerate(("B2 history", "M1 elapsed time", "M2 progress")):
-        out.append(f'<rect x="{L+8+i*180}" y="{T-22}" width="12" height="10" rx="2" class="s{i+1} bar"/><text x="{L+24+i*180}" y="{T-13}" class="tick">{n}</text>')
-    out.append("</svg>")
-    return "".join(out)
 
 
 def chart_h2() -> str:
-    def panel(x_off, title, vals, vmin, vmax, fmt, ticks):
-        W, L, R, T = 360, 118, 14, 30
-        rh, gap = 26, 8
-        H = T + len(H2) * (rh + gap) + 30
-        def X(v): return L + (v - vmin) / (vmax - vmin) * (W - L - R)
-        o = [f'<g transform="translate({x_off},0)">', f'<text x="{L}" y="14" class="ct">{title}</text>']
-        for g in ticks:
-            o.append(f'<line x1="{X(g):.1f}" x2="{X(g):.1f}" y1="{T-4}" y2="{H-26}" class="{"base" if g == 0 else "grid"}"/>')
-            o.append(f'<text x="{X(g):.1f}" y="{H-12}" class="tick" text-anchor="middle">{fmt(g)}</text>')
-        for r, (name, m, lo, hi) in enumerate(vals):
-            y = T + r * (rh + gap) + rh / 2
-            o.append(f'<text x="{L-8}" y="{y+4:.1f}" class="lab" text-anchor="end">{name}</text>')
-            o.append(f'<line x1="{X(lo):.1f}" x2="{X(hi):.1f}" y1="{y:.1f}" y2="{y:.1f}" class="ci"/>')
-            for bound in (lo, hi):
-                o.append(f'<line x1="{X(bound):.1f}" x2="{X(bound):.1f}" y1="{y-3:.1f}" y2="{y+3:.1f}" class="ci"/>')
-            o.append(f'<circle cx="{X(m):.1f}" cy="{y:.1f}" r="3" class="s1 dot"/>')
-        o.append("</g>")
-        return "".join(o), H
-    a, H = panel(0, "Interactive SLO difference", [(n, m, lo, hi) for n, m, lo, hi, *_ in H2], -0.04, 0.12,
+    a, H = _h2_panel(0, "Interactive SLO difference", [(n, m, lo, hi) for n, m, lo, hi, *_ in H2], -0.04, 0.12,
                  lambda g: f"{g:+.2f}", [-0.04, 0, 0.04, 0.08, 0.12])
-    b, _ = panel(370, "Background JCT difference (s)", [(n, j, lo, hi) for n, _, _, _, j, lo, hi in H2], -200, 2200,
+    b, _ = _h2_panel(370, "Background JCT difference (s)", [(n, j, lo, hi) for n, _, _, _, j, lo, hi in H2], -200, 2200,
                  lambda g: f"{g:+d}", [0, 500, 1000, 1500, 2000])
     return (f'<svg viewBox="0 0 740 {H}" role="img" aria-label="H2 loaded regime: paired differences against the native arm with 95% bootstrap intervals, interactive SLO on the left and background completion time on the right">'
             + a + b + "</svg>")
+
+
+def _h2_panel(x_off, title, vals, vmin, vmax, fmt, ticks):
+    W, L, R, T = 360, 118, 14, 30
+    rh, gap = 26, 8
+    H = T + len(H2) * (rh + gap) + 30
+    def X(v): return L + (v - vmin) / (vmax - vmin) * (W - L - R)
+    o = [f'<g transform="translate({x_off},0)">', f'<text x="{L}" y="14" class="ct">{title}</text>']
+    for g in ticks:
+        o.append(f'<line x1="{X(g):.1f}" x2="{X(g):.1f}" y1="{T-4}" y2="{H-26}" class="{"base" if g == 0 else "grid"}"/>')
+        o.append(f'<text x="{X(g):.1f}" y="{H-12}" class="tick" text-anchor="middle">{fmt(g)}</text>')
+    for r, (name, m, lo, hi) in enumerate(vals):
+        y = T + r * (rh + gap) + rh / 2
+        o.append(f'<text x="{L-8}" y="{y+4:.1f}" class="lab" text-anchor="end">{name}</text>')
+        o.append(f'<line x1="{X(lo):.1f}" x2="{X(hi):.1f}" y1="{y:.1f}" y2="{y:.1f}" class="ci"/>')
+        for bound in (lo, hi):
+            o.append(f'<line x1="{X(bound):.1f}" x2="{X(bound):.1f}" y1="{y-3:.1f}" y2="{y+3:.1f}" class="ci"/>')
+        o.append(f'<circle cx="{X(m):.1f}" cy="{y:.1f}" r="3" class="s1 dot"/>')
+    o.append("</g>")
+    return "".join(o), H
 
 
 
@@ -202,15 +216,7 @@ def v2_table():
 
 def kv_table():
     """Placement arms in both regimes; oracle_kv rows come from the oracle-only reruns when present."""
-    runs = [('h2sim_loaded_kv', 'h2sim_loaded_kv_oracle'), ('h2sim_interactive_long_kv', 'h2sim_interactive_long_kv_oracle')]
-    data = []
-    for base, orc in runs:
-        d = paired(base)
-        try:
-            d = {**{k: v for k, v in d.items() if k[0] != 'oracle_kv'}, **{k: v for k, v in paired(orc).items() if k[0] == 'oracle_kv'}}
-        except FileNotFoundError:
-            d = {k: v for k, v in d.items() if k[0] != 'oracle_kv'}
-        data.append(d)
+    data = _placement_data()
     labels = {'proxy_rules': 'Rules', 'forecast_M1_kv': 'Forecast M1 placement', 'forecast_M2_kv': 'Forecast M2 placement',
               'oracle_kv': 'True-return-time placement', 'working_set': 'Working set'}
     out = []
@@ -223,6 +229,19 @@ def kv_table():
                             f"[{float(r['diff_ci_lo'])*scale:+.{precision}f}, {float(r['diff_ci_hi'])*scale:+.{precision}f}]"))
         out.append('<tr>' + cell(label) + ''.join(cell(v, True) for v in vals) + '</tr>')
     return ''.join(out)
+
+
+def _placement_data():
+    runs = [('h2sim_loaded_kv', 'h2sim_loaded_kv_oracle'), ('h2sim_interactive_long_kv', 'h2sim_interactive_long_kv_oracle')]
+    data = []
+    for base, orc in runs:
+        d = paired(base)
+        try:
+            d = {**{k: v for k, v in d.items() if k[0] != 'oracle_kv'}, **{k: v for k, v in paired(orc).items() if k[0] == 'oracle_kv'}}
+        except FileNotFoundError:
+            d = {k: v for k, v in d.items() if k[0] != 'oracle_kv'}
+        data.append(d)
+    return data
 
 
 def contrasts(run):
@@ -241,15 +260,20 @@ def contrast_table():
              ('oracle_kv_cw', 'oracle_kv', 'class-weighted vs plain (true return)', 1)]
     out = []
     for a, bb, label, which in pairs:
-        vals = []
-        for run in runs[which]:
-            c = contrasts(run)
-            for metric, scale, precision in (('slo_attainment_sessions', 100, 1), ('bg_jct_mean', 1, 0)):
-                r = c.get((a, bb, metric))
-                vals.append('-' if r is None else (f"{float(r['diff_mean'])*scale:+.{precision}f} "
-                            f"[{float(r['diff_ci_lo'])*scale:+.{precision}f}, {float(r['diff_ci_hi'])*scale:+.{precision}f}]"))
-        out.append('<tr>' + cell(label) + ''.join(cell(v, True) for v in vals) + '</tr>')
+        row = _contrast_row(a, bb, label, which, runs)
+        out.append(row)
     return ''.join(out)
+
+
+def _contrast_row(a, bb, label, which, runs):
+    vals = []
+    for run in runs[which]:
+        c = contrasts(run)
+        for metric, scale, precision in (('slo_attainment_sessions', 100, 1), ('bg_jct_mean', 1, 0)):
+            r = c.get((a, bb, metric))
+            vals.append('-' if r is None else (f"{float(r['diff_mean'])*scale:+.{precision}f} "
+                        f"[{float(r['diff_ci_lo'])*scale:+.{precision}f}, {float(r['diff_ci_hi'])*scale:+.{precision}f}]"))
+    return '<tr>' + cell(label) + ''.join(cell(v, True) for v in vals) + '</tr>'
 
 
 def touch_table():

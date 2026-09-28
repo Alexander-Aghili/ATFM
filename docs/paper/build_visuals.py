@@ -23,6 +23,16 @@ def row(df,arm,metric):
     return df[(df.arm==arm)&(df.metric==metric)].iloc[0]
 
 def main():
+    _agent_timeline()
+    _survival_example()
+    _progress_concept()
+    _calibration()
+    _regime_effects()
+    _cap_ablation()
+    _resource_costs()
+
+
+def _agent_timeline():
     # Conceptual timing illustration; these are not observations.
     fig,ax=plt.subplots(figsize=(7,2.5),layout='constrained')
     phases=[[(0,8,'Model'),(8,44,'Tool'),(52,8,'Pending'),(60,12,'Model')],
@@ -37,6 +47,9 @@ def main():
     ax.legend(handles=[Patch(color=v,label=k) for k,v in colors.items()],ncol=3,loc='upper center',bbox_to_anchor=(.5,-.26),frameon=False)
     save(fig,'agent-timeline')
 
+
+def _survival_example():
+
     fig,axs=plt.subplots(1,2,figsize=(7,2.8),layout='constrained')
     # Empirical support [10,20,40,80], observed surviving past 30 seconds.
     for ax,x,p,title in [(axs[0],[0,10,50],[.5,.25,.25],'B2: subtract elapsed time'),(axs[1],[10,50],[.5,.5],'M1: condition on survival')]:
@@ -44,6 +57,9 @@ def main():
         ax.scatter(x,p,color=COL['B2'] if ax is axs[0] else COL['M1'],zorder=3)
         ax.set(title=title,xlabel='Remaining tool time (s)',xlim=(-5,60),ylim=(0,.62),yticks=[0,.25,.5]); ax.grid(axis='y',alpha=.25)
     axs[0].set_ylabel('Probability mass'); save(fig,'survival-example')
+
+
+def _progress_concept():
 
     fig,axs=plt.subplots(1,2,figsize=(7,2.8),layout='constrained')
     p=np.linspace(.02,1,100)
@@ -56,6 +72,9 @@ def main():
     for ax in axs: ax.grid(alpha=.2)
     save(fig,'progress-concept')
 
+
+def _calibration():
+
     fig,axs=plt.subplots(1,2,figsize=(7,2.9),layout='constrained')
     for suffix,label,style in [('', 'Uncalibrated','-'),('_cal','Dispersion calibrated','--')]:
         d=pd.read_csv(ROOT/f'results/h1_tracelab_r200{suffix}__metrics.csv')
@@ -67,6 +86,9 @@ def main():
     axs[1].set_ylabel('q90 pinball loss (thousand KV blocks)')
     for ax in axs: ax.set_xscale('log'); ax.set_xticks([10,30,120,300,900],['10','30','120','300','900']); ax.set_xlabel('Forecast horizon (s)'); ax.grid(alpha=.2)
     axs[0].legend(fontsize=7.5,frameon=False,loc='lower right'); save(fig,'calibration')
+
+
+def _regime_effects():
 
     fig,axs=plt.subplots(1,2,figsize=(7,3.7),layout='constrained')
     regimes=['short_tool','long_tool','long_tool_loaded','interactive_long','long_tool_loaded_cap60']
@@ -81,6 +103,9 @@ def main():
     axs[0].set_xlabel('SLO difference from native (pp)'); axs[1].set_xlabel('Background JCT difference (s)'); axs[1].legend(frameon=False,fontsize=8,loc='lower right')
     save(fig,'regime-effects')
 
+
+def _cap_ablation():
+
     fig,axs=plt.subplots(1,2,figsize=(7,3),layout='constrained')
     for ax,metric,scale in [(axs[0],'slo_attainment_sessions',100),(axs[1],'bg_jct_mean',1)]:
         for j,(arm,label) in enumerate([('proxy_rules','Rules'),('forecast_M1','M1'),('forecast_M2','M2'),('working_set','Working set')]):
@@ -94,6 +119,9 @@ def main():
     axs[0].set_yticklabels(['Rules','M1','M2','Working set']); axs[1].set_yticklabels([])
     axs[0].set_xlabel('Session-weighted SLO (%)'); axs[1].set_xlabel('Mean background JCT (s)'); axs[1].legend(loc='lower right',fontsize=7,frameon=False)
     save(fig,'cap-ablation')
+
+
+def _resource_costs():
 
     fig,axs=plt.subplots(1,3,figsize=(7,2.8),layout='constrained')
     d=pd.read_csv(ROOT/'results/h2sim_long_tool_loaded__metrics.csv')

@@ -171,6 +171,11 @@ async def test_proxy_last_body_and_release_order_are_bounded():
             await c.post("/v1/chat/completions", json={"model": "m", "messages": [{"role": "user", "content": "x"}]},
                          headers={"x-atfm-session": f"s{i}", "x-atfm-class": "background", "x-atfm-tenant": "t"})
     assert list(app.state.last_body) == ["s3", "s4", "s5"]
+    _assert_release_history_bounded()
+
+
+def _assert_release_history_bounded():
+    from atfm.proxy.queue import HoldQueue
     q = HoldQueue(window=1, clock=lambda: 0.0, release_order_max=2)
     from atfm.proxy.queue import Entry
     for i in range(4):

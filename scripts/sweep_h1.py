@@ -22,6 +22,10 @@ def main():
         df["seed"], df["rate"] = seed, rate if rate else base.get("overlay_rate_per_hour")
         frames.append(df)
         print(cfg["name"], "done")
+    _write_summary(frames, a, base)
+
+
+def _write_summary(frames, a, base):
     all_ = pd.concat(frames, ignore_index=True)
     kv = all_[all_["target"] == "kv_blocks"]
     keys = ["class", "model", "h", "rate"]

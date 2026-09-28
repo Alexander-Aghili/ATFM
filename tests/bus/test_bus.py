@@ -40,10 +40,7 @@ def test_jsonl_partial_utf8_and_malformed_complete_lines(tmp_path):
 
     p = tmp_path / "events.jsonl"
     bus = JsonlBus(p)
-    event = _ev()[0].model_copy(update={"tool_name": "café"})
-    line = (json.dumps(event_to_dict(event), ensure_ascii=False) + "\n").encode()
-    split = line.index(b"\xc3") + 1
-    p.write_bytes(b'garbage\n{}\n\xff\n\n' + line[:split])
+    event, line, split = _partial_utf8(p)
     assert bus.drain() == []
     assert bus.malformed == 3
     assert bus.drain() == []
@@ -55,6 +52,16 @@ def test_jsonl_partial_utf8_and_malformed_complete_lines(tmp_path):
         stream.write(b'\n')
     assert bus.drain() == [event]
     assert bus.drain() == []
+
+
+def _partial_utf8(p):
+    import json
+    from atfm.schema.events import event_to_dict
+    event = _ev()[0].model_copy(update={"tool_name": "café"})
+    line = (json.dumps(event_to_dict(event), ensure_ascii=False) + "\n").encode()
+    split = line.index(b"\xc3") + 1
+    p.write_bytes(b'garbage\n{}\n\xff\n\n' + line[:split])
+    return event, line, split
 
 
 def test_jsonl_replacement_missing_path_and_observed_truncation(tmp_path):

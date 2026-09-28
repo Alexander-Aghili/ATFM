@@ -107,15 +107,7 @@ def test_serving_metrics_use_makespan():
 
 # I8: the forecast arm's index term conditions on the session's tool history
 def test_forecast_arm_index_term_conditions_on_tool():
-    rows = []
-    for k in range(10):
-        t = k * 100.0
-        rows.append(TraceRow(session_id=f"s{k}", cls="background", tenant="t", turn_index=0, t_request=t, t_first_token=t + 1, t_last_token=t + 2,
-                             isl=100, osl=10, tool_name="pytest", backend_id="ci", t_tool_start=t + 2, t_tool_end=t + 62, source="test"))
-        rows.append(TraceRow(session_id=f"s{k}", cls="background", tenant="t", turn_index=1, t_request=t + 63, t_first_token=t + 64, t_last_token=t + 65,
-                             isl=120, osl=10, tool_name="bash", backend_id="local", t_tool_start=t + 65, t_tool_end=t + 66, source="test"))
-        rows.append(TraceRow(session_id=f"s{k}", cls="background", tenant="t", turn_index=2, t_request=t + 67, t_first_token=t + 68, t_last_token=t + 69,
-                             isl=140, osl=10, tool_name=None, source="test"))
+    rows = _duration_training_rows()
     from atfm.board.predictors import SurvivalPredictor
     pred = SurvivalPredictor().fit(TraceTable.from_rows(rows))
     pol = ForecastPolicy(window=4, cfg=ProxyConfig(upstream_url="x", beta=1.0), predictor=pred, train_table=None, horizons=[30.0], n=8, hold=False)
@@ -129,6 +121,19 @@ def test_forecast_arm_index_term_conditions_on_tool():
     call = type("C", (), {"session": s, "turn_index": 1, "isl_total": 120, "osl": 10})()
     sim = type("Sim", (), {"now": 62.0})()
     assert abs(pol.e_tool_next(sim, call) - 60.0) < 1e-6        # conditioned on the pytest history, not the pooled mean (~30)
+
+
+def _duration_training_rows():
+    rows = []
+    for k in range(10):
+        t = k * 100.0
+        rows.append(TraceRow(session_id=f"s{k}", cls="background", tenant="t", turn_index=0, t_request=t, t_first_token=t + 1, t_last_token=t + 2,
+                             isl=100, osl=10, tool_name="pytest", backend_id="ci", t_tool_start=t + 2, t_tool_end=t + 62, source="test"))
+        rows.append(TraceRow(session_id=f"s{k}", cls="background", tenant="t", turn_index=1, t_request=t + 63, t_first_token=t + 64, t_last_token=t + 65,
+                             isl=120, osl=10, tool_name="bash", backend_id="local", t_tool_start=t + 65, t_tool_end=t + 66, source="test"))
+        rows.append(TraceRow(session_id=f"s{k}", cls="background", tenant="t", turn_index=2, t_request=t + 67, t_first_token=t + 68, t_last_token=t + 69,
+                             isl=140, osl=10, tool_name=None, source="test"))
+    return rows
 
 # I9: no head-of-line skipping under priority
 def test_priority_engine_does_not_skip_head_of_line():

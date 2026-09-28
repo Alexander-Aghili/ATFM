@@ -100,19 +100,23 @@ async def test_cancel_and_upstream_exception_release_slots():
         assert r.status_code == 502
         st = (await c.get("/state")).json()
         assert st["in_flight"] == 0 and st["queued"] == 0
-        # a request cancelled while held must leave nothing behind
-        await c.post("/directives", json={"session_id": "held", "release_not_before": time.time() + 3, "reason": "gdp"})
-        task = asyncio.create_task(c.post("/v1/chat/completions", json=BODY, headers=_headers("held")))
-        await asyncio.sleep(0.1)
-        assert (await c.get("/state")).json()["held"] == 1
-        task.cancel()
-        try:
-            await task
-        except (asyncio.CancelledError, Exception):
-            pass
-        st = (await c.get("/state")).json()
-        assert st["queued"] == 0 and st["in_flight"] == 0
+        await _cancel_held(c)
     assert all(e.status == 502 for e in bus.drain() if e.kind == "llm.done")
+
+
+async def _cancel_held(c):
+    # a request cancelled while held must leave nothing behind
+    await c.post("/directives", json={"session_id": "held", "release_not_before": time.time() + 3, "reason": "gdp"})
+    task = asyncio.create_task(c.post("/v1/chat/completions", json=BODY, headers=_headers("held")))
+    await asyncio.sleep(0.1)
+    assert (await c.get("/state")).json()["held"] == 1
+    task.cancel()
+    try:
+        await task
+    except (asyncio.CancelledError, Exception):
+        pass
+    st = (await c.get("/state")).json()
+    assert st["queued"] == 0 and st["in_flight"] == 0
 
 async def test_malformed_deadline_is_ignored():
     up = _upstream()

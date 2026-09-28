@@ -60,18 +60,23 @@ def test_batch_release_matches_repeated_selection():
                              not_before=rng.choice([0.0, 20.0]), promote_at=rng.choice([None, 5.0, 15.0]))
                        for i in range(60)]
             queue.pending = entries.copy()
-            remaining, expected = entries.copy(), []
-            for _ in range(available):
-                eligible = [e for e in remaining if e.not_before <= 10.0]
-                if not eligible:
-                    break
-                best = (min(eligible, key=lambda e: e.t_arrival) if overflow else
-                        max(eligible, key=lambda e: (2 if e.tier == 1 and e.promote_at is not None and e.promote_at <= 10 else e.tier, e.index, -e.t_arrival)))
-                remaining.remove(best)
-                expected.append(best)
+            remaining, expected = _scan_releases(entries, available, overflow)
             queue.tick()
             assert list(queue.release_order) == [e.session_id for e in expected]
             assert queue.pending == remaining
             assert queue.in_flight == len(expected)
             assert all(e.released.is_set() and e.t_release == 10.0 for e in expected)
             assert all(not e.released.is_set() for e in remaining)
+
+
+def _scan_releases(entries, available, overflow):
+    remaining, expected = entries.copy(), []
+    for _ in range(available):
+        eligible = [e for e in remaining if e.not_before <= 10.0]
+        if not eligible:
+            break
+        best = (min(eligible, key=lambda e: e.t_arrival) if overflow else
+                max(eligible, key=lambda e: (2 if e.tier == 1 and e.promote_at is not None and e.promote_at <= 10 else e.tier, e.index, -e.t_arrival)))
+        remaining.remove(best)
+        expected.append(best)
+    return remaining, expected

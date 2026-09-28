@@ -17,42 +17,54 @@ def test_indexed_queue_matches_scan_reference_over_event_traces(seed):
     entries = [[], []]
     for step in range(1000):
         action = rng.choice(['submit'] * 5 + ['complete'] * 3 + ['cancel', 'advance', 'window'])
-        if action == 'submit':
-            sid = f's{step % 17}'
-            tier, index = rng.randrange(3), rng.randrange(4)
-            promotion = now[0] + rng.choice([0, 1, 5]) if tier == 1 else None
-            hold = now[0] + rng.randrange(12)
-            expires = now[0] + rng.choice([-1, 0, 10])
-            for j, (queue, cls) in enumerate(zip(queues, (Entry, ScanEntry))):
-                queue.set_directive(sid, hold, 'test', expires)
-                e = cls(sid, tier, index, now[0], promote_at=promotion)
-                entries[j].append(e)
-                queue.submit(e)
-        elif action in ('complete', 'cancel') and entries[0]:
-            index = rng.randrange(len(entries[0]))
-            for j, queue in enumerate(queues):
-                getattr(queue, action)(entries[j][index])
-        elif action == 'advance':
-            now[0] += rng.choice([0, .5, 2, 10])
-            for queue in queues:
-                queue.tick()
-        elif action == 'window':
-            window = rng.randrange(6)
-            for queue in queues:
-                queue.window = window
-                queue.tick()
-        assert queues[0].stats() == queues[1].stats(), (seed, step, action)
-        assert list(queues[0].release_order) == list(queues[1].release_order)
-        for left, right in zip(entries[0], entries[1]):
-            assert (left.tier, left.not_before, left.t_release, left.done) == (right.tier, right.not_before, right.t_release, right.done)
-        counterparts = {id(right): id(left) for left, right in zip(*entries)}
-        assert [id(e) for e in queues[0].pending] == [counterparts[id(e)] for e in queues[1].pending]
+        _apply_action(action, rng, now, queues, entries, step)
+        _assert_equivalent(queues, entries, seed, step, action)
     for queue in queues:
         queue.window = 10000
         now[0] += 100
         queue.tick()
     assert list(queues[0].release_order) == list(queues[1].release_order)
     assert queues[0].queued == 0
+
+
+def _assert_equivalent(queues, entries, seed, step, action):
+    assert queues[0].stats() == queues[1].stats(), (seed, step, action)
+    assert list(queues[0].release_order) == list(queues[1].release_order)
+    for left, right in zip(entries[0], entries[1]):
+        assert (left.tier, left.not_before, left.t_release, left.done) == (right.tier, right.not_before, right.t_release, right.done)
+    counterparts = {id(right): id(left) for left, right in zip(*entries)}
+    assert [id(e) for e in queues[0].pending] == [counterparts[id(e)] for e in queues[1].pending]
+
+
+def _apply_action(action, rng, now, queues, entries, step):
+    if action == 'submit':
+        _submit_pair(rng, now, queues, entries, step)
+    elif action in ('complete', 'cancel') and entries[0]:
+        index = rng.randrange(len(entries[0]))
+        for j, queue in enumerate(queues):
+            getattr(queue, action)(entries[j][index])
+    elif action == 'advance':
+        now[0] += rng.choice([0, .5, 2, 10])
+        for queue in queues:
+            queue.tick()
+    elif action == 'window':
+        window = rng.randrange(6)
+        for queue in queues:
+            queue.window = window
+            queue.tick()
+
+
+def _submit_pair(rng, now, queues, entries, step):
+    sid = f's{step % 17}'
+    tier, index = rng.randrange(3), rng.randrange(4)
+    promotion = now[0] + rng.choice([0, 1, 5]) if tier == 1 else None
+    hold = now[0] + rng.randrange(12)
+    expires = now[0] + rng.choice([-1, 0, 10])
+    for j, (queue, cls) in enumerate(zip(queues, (Entry, ScanEntry))):
+        queue.set_directive(sid, hold, 'test', expires)
+        e = cls(sid, tier, index, now[0], promote_at=promotion)
+        entries[j].append(e)
+        queue.submit(e)
 
 
 def test_equal_keys_keep_insertion_order_and_compact_cancelled_records():

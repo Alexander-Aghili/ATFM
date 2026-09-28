@@ -92,22 +92,26 @@ class HoldQueue:
                 e.tier = 2
         available = max(0, self.window - self.in_flight)
         if available:
-            eligible = [(i, e) for i, e in enumerate(self.pending) if e.not_before <= now]
-            if self.overflow:
-                selected = heapq.nsmallest(available, eligible, key=lambda item: item[1].t_arrival)
-            else:
-                selected = heapq.nlargest(available, eligible,
-                                         key=lambda item: (item[1].tier, item[1].index, -item[1].t_arrival))
-            released_indices = {i for i, _ in selected}
-            self.pending = [e for i, e in enumerate(self.pending) if i not in released_indices]
-            for _, best in selected:
-                self.in_flight += 1
-                best.t_release = now
-                best.released.set()
-                self.release_order.append(best.session_id)
+            self._release_ready(available, now)
         if self.overflow and (self.max_size is None or len(self.pending) <= self.max_size // 2):
             self.overflow = False
         self._arm_timer(now)
+
+
+    def _release_ready(self, available, now):
+        eligible = [(i, e) for i, e in enumerate(self.pending) if e.not_before <= now]
+        if self.overflow:
+            selected = heapq.nsmallest(available, eligible, key=lambda item: item[1].t_arrival)
+        else:
+            selected = heapq.nlargest(available, eligible,
+                                     key=lambda item: (item[1].tier, item[1].index, -item[1].t_arrival))
+        released_indices = {i for i, _ in selected}
+        self.pending = [e for i, e in enumerate(self.pending) if i not in released_indices]
+        for _, best in selected:
+            self.in_flight += 1
+            best.t_release = now
+            best.released.set()
+            self.release_order.append(best.session_id)
 
     def _arm_timer(self, now: float) -> None:
         future = [e.not_before for e in self.pending if e.not_before > now]

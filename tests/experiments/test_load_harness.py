@@ -68,6 +68,13 @@ def test_real_http_stack_runs_agent_turns_and_control_and_stops_children(tmp_pat
                      control_interval_s=.025, monitor_interval_s=.025, max_hold_s=.01, client_keepalive_connections=keepalive)
     directory = tmp_path / 'case'
     result = run_case(cfg, directory)
+    _assert_trial_metrics(result, directory)
+    _assert_lifecycle(directory)
+    with pytest.raises(FileExistsError):
+        run_case(cfg, directory)
+
+
+def _assert_trial_metrics(result, directory):
     assert result['requests_ok'] == result['requests_attempted'] == 8
     assert result['client_errors'] == {} and result['session_errors'] == []
     assert result['client_to_headers_sent_s']['count'] == 8
@@ -79,6 +86,10 @@ def test_real_http_stack_runs_agent_turns_and_control_and_stops_children(tmp_pat
     assert result['tool_publish_errors'] == 0
     assert result['final_observations']['proxy']['metrics']['queue']['in_flight'] == 0
     assert len(json.loads((directory / 'tools.json').read_text())) == 4
+
+
+def _assert_lifecycle(directory):
+    from atfm.bus import read_events
     events = read_events(directory / 'events.jsonl')
     assert sum(e.kind == 'llm.request' for e in events) == 8
     assert sum(e.kind == 'tool.end' for e in events) == 4
@@ -86,8 +97,6 @@ def test_real_http_stack_runs_agent_turns_and_control_and_stops_children(tmp_pat
     shutdown = json.loads((directory / 'shutdown.json').read_text())
     assert set(shutdown) == {'worker', 'board', 'proxy'}
     assert all(p['exit_code'] is not None for p in shutdown.values())
-    with pytest.raises(FileExistsError):
-        run_case(cfg, directory)
 
 
 def test_startup_failure_still_reaps_started_children(tmp_path, monkeypatch):
@@ -186,7 +195,6 @@ def test_profile_is_saved_after_real_http_shutdown(tmp_path):
 
 
 def test_profile_separates_threads_and_saves_on_failure(tmp_path):
-    import csv
     import threading
     yappi = pytest.importorskip('yappi')
     from atfm_experiments.load.profiling import profile_serving
@@ -205,6 +213,11 @@ def test_profile_separates_threads_and_saves_on_failure(tmp_path):
             worker.join()
             raise RuntimeError('injected')
     assert not yappi.is_running()
+    _assert_thread_profiles(tmp_path)
+
+
+def _assert_thread_profiles(tmp_path):
+    import csv
     with (tmp_path / 'proxy-profile.csv').open() as stream:
         rows = list(csv.DictReader(stream))
     worker_rows = [r for r in rows if r['function'] == 'worker_only']
