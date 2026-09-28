@@ -8,7 +8,7 @@ from tests.control.test_loop import DIRECTIVES, FakeClient, FakeResponse
 def test_loop_pins_through_lmcache_instead_of_touching_the_proxy(tmp_path):
     http = FakeClient({("POST", "http://board/tick"): FakeResponse(200, {"sessions": 2}),
                        ("POST", "http://board/directives"): FakeResponse(200, DIRECTIVES),
-                       ("POST", "http://proxy/directives"): FakeResponse(200, {"ok": True})})
+                       ("POST", "http://proxy/directives/batch"): FakeResponse(200, {"ok": True, "applied": 1, "expired": 0})})
     lm = LMClient()
     act = LMCacheActuator(LMCacheConfig(url="http://lmcache:9000", instance_id="vllm-0"), client=lm,
                           tokens=PromptTokens(tokenize=lambda m: [7] * len(m), prompt_source=lambda sid: [{"role": "user", "content": "x"}]))

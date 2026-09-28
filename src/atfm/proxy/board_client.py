@@ -3,6 +3,8 @@
 the proxy's defaults (0.0), which is what it would use without a board."""
 from __future__ import annotations
 
+import math
+
 import httpx
 
 
@@ -17,6 +19,15 @@ class BoardClient:
             return r.json() if r.status_code == 200 else {}
         except Exception:
             return {}
+
+    def expected_times(self, session_id: str, isl: int, osl: int) -> tuple[float, float]:
+        """Fetch both estimates once; reject unavailable results for proxy fallback."""
+        result = self._predict(session_id, isl, osl)
+        service, tool = float(result["e_service_s"]), float(result["e_tool_next_s"])
+        if (result.get("over_budget", False) or not math.isfinite(service)
+                or not math.isfinite(tool) or service < 0 or tool < 0):
+            raise ValueError("unavailable board prediction")
+        return service, tool
 
     def expected_tool_next(self, session_id: str) -> float:
         return float(self._predict(session_id, 0, 0).get("e_tool_next_s", 0.0))

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, FiniteFloat
 
 
 class _Directive(BaseModel):
@@ -47,3 +47,21 @@ class ReplicaDirective(_Directive):
     replicas_at_least: int
     horizon_s: float
     demand_q90_blocks: float = 0.0
+
+
+MAX_HOLD_BATCH = 1024
+
+
+class HoldUpdate(BaseModel):
+    """Proxy transport shape; expiry remains optional for legacy callers."""
+
+    session_id: str
+    release_not_before: FiniteFloat
+    reason: str = "gdp"
+    expires_at: FiniteFloat | None = None
+
+
+class HoldBatch(BaseModel):
+    """A bounded, fully validated group applied before one admission pass."""
+
+    holds: list[HoldUpdate] = Field(max_length=MAX_HOLD_BATCH)

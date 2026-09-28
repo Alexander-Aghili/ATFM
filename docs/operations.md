@@ -149,7 +149,8 @@ cursor restores stream position, not the board's in-memory model/session state.
 | Proxy | `GET /healthz` | Process health. |
 | Proxy | `GET /state` | Queue and admission state. |
 | Proxy | `POST /v1/chat/completions` | Forward admitted chat requests, including streaming responses. |
-| Proxy | `POST /directives` | Accept an expiring session hold. |
+| Proxy | `POST /directives` | Accept a session hold for subsequent submissions (legacy single-update endpoint). |
+| Proxy | `POST /directives/batch` | Validate up to 1,024 holds, apply nonexpired updates, then schedule once. |
 | Proxy | `POST /touch` | Refresh a remembered session prefix. |
 | Proxy | `POST /gate` | Query a session's launch delay. |
 | Proxy | `GET /session/{session_id}/prompt` | Retrieve remembered messages for placement tokenization. |
@@ -213,3 +214,6 @@ The provided service launchers are local development processes. They do not
 configure authentication or TLS for the control endpoints. Operating them as a
 shared service requires deployment-specific access control, telemetry, and
 process supervision outside these scripts.
+
+See [control scaling decisions](development/control-scaling.md) for batching, expiry,
+restart, and incremental JSONL consumption contracts.

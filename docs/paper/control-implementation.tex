@@ -24,3 +24,18 @@ drains and board ticks, partial and malformed lines, independent readers, file
 replacement, observed truncation, and I/O retry. Component benchmarks and their
 source hashes accompany the development documentation; none measures GPU service
 capacity or end-to-end tail latency.
+
+\paragraph{Batched control delivery.}
+Previously each hold caused a serial HTTP request and a fresh queue scan. The
+controller now sends bounded batches of at most 1,024 holds. The proxy validates
+all records before applying a batch, discards expired updates, and performs one
+admission pass. For $D$ directives, backlog $Q$, and batch bound $B$, the repeated
+list-scan term changes from $O(DQ)$ to $O(D+\lceil D/B\rceil Q)$, excluding release
+selection. Round trips decrease from $D$ to $\lceil D/B\rceil$; payload work stays
+$O(D)$. Chunks are independent, not a durable whole-plan transaction. Updates
+retain their original meaning: they govern subsequent submissions and do not
+retime already queued requests. Versioned deltas and automatic retry are deferred
+because expiry renewal and restart synchronization require a separate protocol.
+The per-request board client also retrieves service and next-tool estimates in
+one request, with local fallback on unavailable results. CPU work still shares
+the board event loop; these changes do not establish request-tail isolation.

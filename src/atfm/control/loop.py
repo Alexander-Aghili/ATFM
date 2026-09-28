@@ -7,12 +7,17 @@ import json
 import time
 from pathlib import Path
 
+from atfm.control.directives import HoldBatch, HoldUpdate, MAX_HOLD_BATCH
+
 
 class ControlLoop:
     def __init__(self, board_url: str, proxy_url: str, client=None, interval_s: float = 5.0, log_path: str | Path | None = None,
-                 timeout_s: float = 2.0, lmcache=None):
+                 timeout_s: float = 2.0, lmcache=None, hold_batch_size: int = MAX_HOLD_BATCH):
         """With an `LMCacheActuator`, touches become pins and tier directives are executed (pin / move);
         without one, touches go to the proxy's /touch and tier directives are only logged."""
+        if not 1 <= hold_batch_size <= MAX_HOLD_BATCH:
+            raise ValueError(f"hold_batch_size must be in [1, {MAX_HOLD_BATCH}]")
+        self.hold_batch_size = hold_batch_size
         if client is None:
             import httpx
             client = httpx.Client(timeout=timeout_s)
@@ -40,13 +45,27 @@ class ControlLoop:
             self.totals["errors"] += 1
             self._log({"t": now, "error": "board unreachable"})
             return s
+        holds = []
         for h in d.get("holds", []):
-            if h.get("expires_at") is not None and now >= float(h["expires_at"]):
-                continue
             try:
-                self.client.post(f"{self.proxy_url}/directives", json={"session_id": h["session_id"], "release_not_before": float(h["release_not_before"]),
-                                                                      "reason": h.get("reason", "gdp"), "expires_at": h.get("expires_at")})
-                s["holds"] += 1
+                hold = HoldUpdate.model_validate(h)
+            except ValueError:
+                s["errors"] += 1
+                continue
+            if hold.expires_at is None or now < hold.expires_at:
+                holds.append(hold)
+        for start in range(0, len(holds), self.hold_batch_size):
+            batch = HoldBatch(holds=holds[start:start + self.hold_batch_size])
+            try:
+                response = self.client.post(f"{self.proxy_url}/directives/batch", json=batch.model_dump())
+                result = response.json()
+                applied = result.get("applied")
+                expired = result.get("expired")
+                if (response.status_code != 200 or result.get("ok") is not True
+                        or type(applied) is not int or type(expired) is not int
+                        or min(applied, expired) < 0 or applied + expired != len(batch.holds)):
+                    raise ValueError("invalid hold-batch acknowledgement")
+                s["holds"] += applied
             except Exception:
                 s["errors"] += 1
         from atfm.control.directives import TierDirective, TouchDirective

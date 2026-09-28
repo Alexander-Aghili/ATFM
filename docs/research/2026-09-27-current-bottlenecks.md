@@ -5,6 +5,9 @@ forecasting. The deployed path also contains repeated log reads, queue scans,
 and serial RPCs that can dominate a full control cycle independently of GDP.
 This audit adds component timings and profiles; it makes no runtime changes.
 
+Subsequent fixes are tracked in [control scaling decisions](../development/control-scaling.md).
+The observations and measurements below describe the pre-change source hashes.
+
 ## Measured costs
 
 | Component | Workload | Result | What it establishes |

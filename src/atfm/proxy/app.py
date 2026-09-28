@@ -6,6 +6,8 @@ emits llm.* events. Fail-open everywhere (D10).
 """
 from __future__ import annotations
 
+from atfm.control.directives import HoldBatch, HoldUpdate
+
 from collections import OrderedDict
 
 import asyncio
@@ -70,6 +72,9 @@ def create_app(cfg: ProxyConfig, *, upstream_client: httpx.AsyncClient | None = 
             return e_service, 0.0
 
         def _call():
+            combined = getattr(st.predictor, "expected_times", None)
+            if combined is not None:
+                return combined(meta.session_id, meta.isl, meta.predicted_osl)
             return (float(st.predictor.expected_service(meta.session_id, meta.isl, meta.predicted_osl)),
                     float(st.predictor.expected_tool_next(meta.session_id)))
 
@@ -109,13 +114,27 @@ def create_app(cfg: ProxyConfig, *, upstream_client: httpx.AsyncClient | None = 
     async def state():
         return {**st.queue.stats(), "touches": st.touches, "touch_tokens": st.touch_tokens, "touch_failures": st.touch_failures}
 
+    def apply_holds(holds: list[HoldUpdate]) -> dict:
+        now = clock()
+        applied = 0
+        for directive in holds:
+            if directive.expires_at is not None and directive.expires_at <= now:
+                continue
+            st.queue.set_directive(directive.session_id, directive.release_not_before,
+                                   directive.reason, expires_at=directive.expires_at)
+            applied += 1
+        if applied:
+            st.queue.tick()
+        return {"ok": True, "applied": applied, "expired": len(holds) - applied}
+
     @app.post("/directives")
-    async def directives(req: Request):
-        d = await req.json()
-        st.queue.set_directive(d["session_id"], float(d["release_not_before"]), d.get("reason", ""),
-                               expires_at=d.get("expires_at"))
-        st.queue.tick()
+    async def directives(directive: HoldUpdate):
+        apply_holds([directive])
         return {"ok": True}
+
+    @app.post("/directives/batch")
+    async def directive_batch(batch: HoldBatch):
+        return apply_holds(batch.holds)
 
     @app.get("/session/{session_id}/prompt")
     async def session_prompt(session_id: str):

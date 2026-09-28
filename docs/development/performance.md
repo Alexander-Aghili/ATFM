@@ -1,7 +1,8 @@
 # Python, performance, and when to use Rust
 
 The [current bottleneck audit](../research/2026-09-27-current-bottlenecks.md)
-combines fresh profiles with deployed-path review and orders the remaining work.
+records the pre-change profiles. [Implementation decisions](control-scaling.md)
+track the subsequent fixes and their validation.
 
 ## Current decision
 
@@ -28,7 +29,7 @@ performance optimization.
 | Area | Current implementation | Scaling risk / first investigation |
 | --- | --- | --- |
 | Board ticks | `board/service.py` calls `board.step` synchronously inside an async endpoint. | Forecast computation blocks that event loop; measure tick duration and overlapping `/predict` latency. |
-| Per-request predictions | `proxy/board_client.py` makes a request for service time and another for next-tool duration. | Two HTTP round trips and a four-worker prediction pool; consider a combined response path before changing language. |
+| Per-request predictions | `proxy/board_client.py` retrieves service time and next-tool duration together. | One HTTP round trip; the four-worker pool can still remain occupied after caller timeout. |
 | Event ingestion | `JsonlBus.drain()` consumes complete appended records using a per-instance byte cursor. | O(new bytes) parsing; idle drains perform a metadata check. Restart replays once; downstream transactional recovery remains separate. |
 | Forecast aggregation | Per-session Python loops plus `(horizons, draws)` NumPy operations. | Work grows with sessions, horizons, draws, and fan-out. Profile sampling versus aggregation and allocation. |
 | Admission queue | `HoldQueue.tick()` scans pending entries and selects eligible requests. | Deep queues can cause repeated linear scans; measure queue depth and scheduling CPU time. |
