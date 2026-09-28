@@ -464,3 +464,16 @@ was not going to evict and blocks admissions when it is full. The LMCache actuat
 *at the eviction frontier* (only sessions whose blocks are about to go, the way the touch controller
 already selects) and for a shorter horizon; the pin arm in the simulator needs that variant before the
 LMCache form is compared again.
+
+### The oracle gap was a simulator ordering artefact
+
+Tracing the exact-return-time arm's victims showed that seven in ten had no future event at the moment of
+eviction: they were sessions whose call had just completed. The worker-done handler re-filled the freed
+batch slot (and decided the evictions that admission needed) *before* pushing the finished session's
+tool-end event, so any policy reading the event heap saw the session that had just returned as "unknown"
+and evicted it first, while the forecast arms, which read the registry, saw its `llm.done` and kept it.
+Fixed (`core._worker_done` now records the session's tool or end before scheduling; pinned by
+`test_finished_session_has_a_future_event_before_worker_done_schedules_evictions`; the golden metrics for
+the non-oracle arms did not move). Every `oracle_kv`, `oracle_touch` and `oracle_pin` result above is
+contaminated by this and is being rerun; the forecast, rules, working-set and random-ablation results are
+unaffected. The claim "forecast placement beats exact return times" is withdrawn until the reruns land.
