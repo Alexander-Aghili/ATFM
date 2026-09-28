@@ -1,6 +1,6 @@
 {
   "description": "Frozen inputs for the revised paper; metrics copied from completed local runs. Original data/ and runs/ are gitignored. 2026-09-27 addendum: the 60-second-cap loaded run (same regime and rates as h2sim_long_tool_loaded) completed and is frozen here.",
-  "repository_commit": "e1940a6888ffb8b3354f473fa0d0b8e27b5f78ac",
+  "repository_commit": "a144165ef324570be1d2d86eadee3586bde0afdb",
   "sources": [
     {
       "source": "runs/sweep_tracelab.csv",
@@ -416,8 +416,140 @@
       "snapshot": "h2sim_interactive_long_touch2__config.json",
       "sha256": "bd9c33b80a97e83eda9b176ea69523594e69b5549e6ae9884a7bedb5b8a461e3",
       "snapshot_sha256": "bd9c33b80a97e83eda9b176ea69523594e69b5549e6ae9884a7bedb5b8a461e3"
+    },
+    {
+      "source": "runs/h2sim_loaded_oracle2/metrics.csv",
+      "snapshot": "h2sim_loaded_oracle2__metrics.csv",
+      "sha256": "55b23a6ff55028c82dba36704a1068201de5e2621346f5a447b139f689c5140a",
+      "snapshot_sha256": "55b23a6ff55028c82dba36704a1068201de5e2621346f5a447b139f689c5140a"
+    },
+    {
+      "source": "runs/h2sim_loaded_oracle2/paired.csv",
+      "snapshot": "h2sim_loaded_oracle2__paired.csv",
+      "sha256": "f58263dc9f05e79e9783c3ca766068c8b4b39e18ed824bf03b343275132b5960",
+      "snapshot_sha256": "f58263dc9f05e79e9783c3ca766068c8b4b39e18ed824bf03b343275132b5960"
+    },
+    {
+      "source": "runs/h2sim_loaded_oracle2/contrasts.csv",
+      "snapshot": "h2sim_loaded_oracle2__contrasts.csv",
+      "sha256": "552a6230a4fe97fa5b4c978cb8d995d7ad65b1b3fd92195196256f1585518a9d",
+      "snapshot_sha256": "552a6230a4fe97fa5b4c978cb8d995d7ad65b1b3fd92195196256f1585518a9d"
+    },
+    {
+      "source": "runs/h2sim_loaded_oracle2/config.json",
+      "snapshot": "h2sim_loaded_oracle2__config.json",
+      "sha256": "682ea009eafadafcefa858cf4f0fa628e1ec66a610b9b4e645abe96203d23918",
+      "snapshot_sha256": "682ea009eafadafcefa858cf4f0fa628e1ec66a610b9b4e645abe96203d23918"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_oracle2/metrics.csv",
+      "snapshot": "h2sim_interactive_long_oracle2__metrics.csv",
+      "sha256": "6a07c2a2137806f75a39791575c31abea9caf2dcb6b8d86f465a068ad15930ec",
+      "snapshot_sha256": "6a07c2a2137806f75a39791575c31abea9caf2dcb6b8d86f465a068ad15930ec"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_oracle2/paired.csv",
+      "snapshot": "h2sim_interactive_long_oracle2__paired.csv",
+      "sha256": "72a92f6c7303be4b54d92b0b0e457ea623c46e2b2c3386fd451dc444418e9fdf",
+      "snapshot_sha256": "72a92f6c7303be4b54d92b0b0e457ea623c46e2b2c3386fd451dc444418e9fdf"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_oracle2/contrasts.csv",
+      "snapshot": "h2sim_interactive_long_oracle2__contrasts.csv",
+      "sha256": "ee503180925289e1625c78fb51c178ce4912a7b35e20f12aaf1c11c470c7a336",
+      "snapshot_sha256": "ee503180925289e1625c78fb51c178ce4912a7b35e20f12aaf1c11c470c7a336"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_oracle2/config.json",
+      "snapshot": "h2sim_interactive_long_oracle2__config.json",
+      "sha256": "85d7253f81571219ea0717a6e1b0bc405b235174473af59df4c8c44284b78a44",
+      "snapshot_sha256": "85d7253f81571219ea0717a6e1b0bc405b235174473af59df4c8c44284b78a44"
+    },
+    {
+      "source": "runs/h2sim_loaded_q/metrics.csv",
+      "snapshot": "h2sim_loaded_q__metrics.csv",
+      "sha256": "29dd2353fca869985c62895df282d9930fd091e3b472dc93daf606806a0af258",
+      "snapshot_sha256": "29dd2353fca869985c62895df282d9930fd091e3b472dc93daf606806a0af258"
+    },
+    {
+      "source": "runs/h2sim_loaded_q/paired.csv",
+      "snapshot": "h2sim_loaded_q__paired.csv",
+      "sha256": "c32f767aca86e4cc5ed3c36aa94faafb3cb673885b9a4b385007bac151fef472",
+      "snapshot_sha256": "c32f767aca86e4cc5ed3c36aa94faafb3cb673885b9a4b385007bac151fef472"
+    },
+    {
+      "source": "runs/h2sim_loaded_q/contrasts.csv",
+      "snapshot": "h2sim_loaded_q__contrasts.csv",
+      "sha256": "ad3a5d9099de4566799e98472f27ef30dd402ab65f7a3ad4551a8758cdbb62e5",
+      "snapshot_sha256": "ad3a5d9099de4566799e98472f27ef30dd402ab65f7a3ad4551a8758cdbb62e5"
+    },
+    {
+      "source": "runs/h2sim_loaded_q/config.json",
+      "snapshot": "h2sim_loaded_q__config.json",
+      "sha256": "89d5bc5f72256265492652d5abe538857b73e42813d1e9cee576e60a4aa7a844",
+      "snapshot_sha256": "89d5bc5f72256265492652d5abe538857b73e42813d1e9cee576e60a4aa7a844"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_q/metrics.csv",
+      "snapshot": "h2sim_interactive_long_q__metrics.csv",
+      "sha256": "f466a512184d7e664cc474d3dcee94c159f06c77da417f26c106e813a26d031d",
+      "snapshot_sha256": "f466a512184d7e664cc474d3dcee94c159f06c77da417f26c106e813a26d031d"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_q/paired.csv",
+      "snapshot": "h2sim_interactive_long_q__paired.csv",
+      "sha256": "bc0f1b9f5237f247840a40e1c857f169225813e6444b23949359b01c8ca6bdb1",
+      "snapshot_sha256": "bc0f1b9f5237f247840a40e1c857f169225813e6444b23949359b01c8ca6bdb1"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_q/contrasts.csv",
+      "snapshot": "h2sim_interactive_long_q__contrasts.csv",
+      "sha256": "8b08f43e8bd6e115c60b256bdba3d362d430f399ed935d5a996e3ff6781c3396",
+      "snapshot_sha256": "8b08f43e8bd6e115c60b256bdba3d362d430f399ed935d5a996e3ff6781c3396"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_q/config.json",
+      "snapshot": "h2sim_interactive_long_q__config.json",
+      "sha256": "101cc95570ef451f0a97af915135657393fd654a1a59342a2fc311738cd3c82c",
+      "snapshot_sha256": "101cc95570ef451f0a97af915135657393fd654a1a59342a2fc311738cd3c82c"
+    },
+    {
+      "source": "runs/h2sim_loaded_pin/metrics.csv",
+      "snapshot": "h2sim_loaded_pin__metrics.csv",
+      "sha256": "07f8f9a8ec948e62a65fd810af458e1d97237050941721f997724ef7340d6354",
+      "snapshot_sha256": "07f8f9a8ec948e62a65fd810af458e1d97237050941721f997724ef7340d6354"
+    },
+    {
+      "source": "runs/h2sim_loaded_pin/paired.csv",
+      "snapshot": "h2sim_loaded_pin__paired.csv",
+      "sha256": "d2745fe9b75cc24f6cce74bc5415060900b1af50b4f36f5251a22cc7ffc400aa",
+      "snapshot_sha256": "d2745fe9b75cc24f6cce74bc5415060900b1af50b4f36f5251a22cc7ffc400aa"
+    },
+    {
+      "source": "runs/h2sim_loaded_pin/config.json",
+      "snapshot": "h2sim_loaded_pin__config.json",
+      "sha256": "7f7117a7951108d20a4bb3374cb2c4c3aecb631be6258ea898b1dc8f81ecdb0b",
+      "snapshot_sha256": "7f7117a7951108d20a4bb3374cb2c4c3aecb631be6258ea898b1dc8f81ecdb0b"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_pin/metrics.csv",
+      "snapshot": "h2sim_interactive_long_pin__metrics.csv",
+      "sha256": "116729da72c8a1c649a6b2fad47ef27992533dce047192b5d040a5cdb2d300dc",
+      "snapshot_sha256": "116729da72c8a1c649a6b2fad47ef27992533dce047192b5d040a5cdb2d300dc"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_pin/paired.csv",
+      "snapshot": "h2sim_interactive_long_pin__paired.csv",
+      "sha256": "d4370a305ccc70db45f3c0163317ae7b44e85de25285d1fe1badffc892a5160b",
+      "snapshot_sha256": "d4370a305ccc70db45f3c0163317ae7b44e85de25285d1fe1badffc892a5160b"
+    },
+    {
+      "source": "runs/h2sim_interactive_long_pin/config.json",
+      "snapshot": "h2sim_interactive_long_pin__config.json",
+      "sha256": "da0369c0d0981ebbd71efc50f268d8cdd45eba73d329161427321f9fa33183af",
+      "snapshot_sha256": "da0369c0d0981ebbd71efc50f268d8cdd45eba73d329161427321f9fa33183af"
     }
   ],
   "paper_revision_date": "2026-09-27",
-  "evidence_cutoff": "Includes the interactive-long, 60-second-cap, GDP-lite v2, KV placement (with corrected true-return-time reruns) and index-diagnostic runs, all completed 2026-09-27; third batch (2026-09-27 evening): placement comparison with direct contrasts, size-aware and class-weighted variants, keep-alive touch arms, in both loaded regimes; touch ablation runs (random touches, queued touches) in both regimes."
+  "evidence_cutoff": "Includes the interactive-long, 60-second-cap, GDP-lite v2, KV placement (with corrected true-return-time reruns) and index-diagnostic runs, all completed 2026-09-27; third batch (2026-09-27 evening): placement comparison with direct contrasts, size-aware and class-weighted variants, keep-alive touch arms, in both loaded regimes; touch ablation runs (random touches, queued touches) in both regimes; corrected true-return-time reruns (oracle2), queue-aware placement (q) and hard-pin (pin) runs in both regimes, 2026-09-27 late."
 }

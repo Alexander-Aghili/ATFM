@@ -58,7 +58,7 @@ The revision draws on the architecture specification, master plan, research note
 - The expanded H1b score file has nine scored job families and 202 observations per model. Its M1/M2 loss ratios are 2.80 for q90 pinball and 1.96 for CRPS. Repeated observations are not independent replicates.
 - Session-weighted SLO is the average within-session fraction of eligible calls meeting the target. The loaded native point estimate is 0.853 from `paired.csv`; the older draft mixed in a different aggregation.
 - H2 intervals are a 300-draw paired bootstrap over common session IDs pooled across three seeds, not a seed-level uncertainty analysis.
-- The completed long-interactive experiment is included, including its lack of an M2 policy advantage. The 60-second-cap loaded run completed after the first cutoff and is included as Section 6.5 (a controlled cap ablation); the GDP-lite v2 reruns of both regimes are included as Section 6.6; the KV placement runs, including the corrected true-return-time reruns, are Section 6.7; the third batch (direct contrasts, size and class variants, keep-alive touch arms) is Section 6.8; the index diagnostic is reported in Section 6.6.
+- The completed long-interactive experiment is included, including its lack of an M2 policy advantage. The 60-second-cap loaded run completed after the first cutoff and is included as Section 6.5 (a controlled cap ablation); the GDP-lite v2 reruns of both regimes are included as Section 6.6; the KV placement runs, including the corrected true-return-time reruns, are Section 6.7; the third batch (direct contrasts, size and class variants, keep-alive touch arms) is Section 6.8; the ordering-artefact correction, corrected true-return-time reruns and queue-aware placement are Section 6.9; the index diagnostic is reported in Section 6.6.
 - Working-set and lookahead policies are local diagnostic baselines, not full published systems or optimal upper bounds.
 - First-resumption KV demand is not instantaneous resident occupancy, and prompt demand is not cache-miss-adjusted prefill work.
 - Current signature-aware progress support is separated from historical collection scores. Hardware validation, a deployed Redis topology, real-worker KV placement, and external replica scaling are not presented as completed results; simulated placement experiments are reported separately.
@@ -84,6 +84,10 @@ The probability expansion adds return/no-return mixtures, pending-gap convolutio
 ## HTML evidence synchronization
 
 The LaTeX abstract now introduces the problem, approach, and qualitative findings without detailed experimental numbers. The results include the completed no-index diagnostic, both KV-eviction workloads, and corrected lookahead reruns from the updated HTML and frozen CSVs. The dated revision notes describe successive manuscript states. For the current set of included placement variants and direct contrasts, consult the LaTeX results sections and frozen CSV manifest; hardware validation remains separate. Native-referenced intervals are not described as equivalence tests or direct M1/M2 comparisons.
+
+September 27 integration update: LaTeX includes Dynamo/LMCache background, code-level adapter boundaries, the deployment wiring check, and the latest placement/touch diagnostics. `fig/integration.reladraw` generates the integration diagram; `integration_visuals.py` plots frozen place/touch2 contrasts. Regenerate with `python3 build_latex.py --figures --bundle`. Backend actuation and GPU benefit remain unvalidated.
+
+Timed Appendix D example: `python3 timed_cache_example.py` validates the synthetic schedules and regenerates `results/timed-cache-example.json`, `latex-fig/timed-cache-timeline.{pdf,svg}`, and `latex-fig/timed-cache-residency.{pdf,svg}`. Inputs are illustrative, including manual online forecasts; no real GPU or fitted ATFM performance is claimed. The optimal schedule attains the 12 ms total-flow lower bound.
 
 ## Control implementation revisions
 

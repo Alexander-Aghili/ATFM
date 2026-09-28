@@ -1,0 +1,13 @@
+contrast,a,b,diff_mean,diff_ci_lo,diff_ci_hi,metric
+forecast_M2_kv vs forecast_M1_kv,forecast_M2_kv,forecast_M1_kv,0.0036162872939732305,-0.008994706850100556,0.016561399775134523,slo_attainment_sessions
+forecast_M2_kv vs oracle_kv,forecast_M2_kv,oracle_kv,0.01654378187731198,0.0040548854186653995,0.028642903174976805,slo_attainment_sessions
+forecast_M1_kv vs oracle_kv,forecast_M1_kv,oracle_kv,0.01292749458333875,-0.0013161394988986496,0.02803155275662775,slo_attainment_sessions
+oracle_kv_cw vs oracle_kv,oracle_kv_cw,oracle_kv,0.008675777521704342,-0.004730987393672836,0.021927225864399838,slo_attainment_sessions
+forecast_M2_kv vs forecast_M1_kv,forecast_M2_kv,forecast_M1_kv,-3.7704380901764125,-15.664451337405524,5.868966297113524,bg_jct_mean
+forecast_M2_kv vs oracle_kv,forecast_M2_kv,oracle_kv,-5.926790506963698,-18.587708779804654,6.919426692812365,bg_jct_mean
+forecast_M1_kv vs oracle_kv,forecast_M1_kv,oracle_kv,-2.1563524167872856,-11.704270734106956,10.982926812970877,bg_jct_mean
+oracle_kv_cw vs oracle_kv,oracle_kv_cw,oracle_kv,1.3088003334546556,-9.102631095376058,10.754447717879213,bg_jct_mean
+forecast_M2_kv vs forecast_M1_kv,forecast_M2_kv,forecast_M1_kv,0.001854140914709479,-0.0028136895151615353,0.006540672095672198,deadline_hit_rate
+forecast_M2_kv vs oracle_kv,forecast_M2_kv,oracle_kv,0.0006180469715698633,-0.00532408854248052,0.005526293488209117,deadline_hit_rate
+forecast_M1_kv vs oracle_kv,forecast_M1_kv,oracle_kv,-0.0012360939431396156,-0.0066920769553237835,0.003146733361849052,deadline_hit_rate
+oracle_kv_cw vs oracle_kv,oracle_kv_cw,oracle_kv,-0.0006180469715697523,-0.005036647246758191,0.00368812258742655,deadline_hit_rate

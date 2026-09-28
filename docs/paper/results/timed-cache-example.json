@@ -1,0 +1,420 @@
+{
+  "description": "Synthetic arithmetic example; manual forecasts; not fitted ATFM or GPU measurements",
+  "arrivals_ms": [
+    4,
+    8,
+    12,
+    16
+  ],
+  "contexts": [
+    "A",
+    "B",
+    "C",
+    "A"
+  ],
+  "parameters": {
+    "context_mib": 64,
+    "gpu_cache_mib": 128,
+    "host_cache_mib": 192,
+    "load_ms": 2,
+    "service_ms": 3,
+    "recompute_ms": 6,
+    "writeback_ms": 0
+  },
+  "forecast_arrival_ms": [
+    9,
+    13,
+    17
+  ],
+  "forecast_available_ms": [
+    0,
+    0,
+    7
+  ],
+  "schedules": {
+    "Clairvoyant optimum": [
+      [
+        "DMA",
+        0,
+        2,
+        "B",
+        "load",
+        null
+      ],
+      [
+        "GPU",
+        4,
+        7,
+        "A",
+        "serve",
+        0
+      ],
+      [
+        "DMA",
+        7,
+        9,
+        "C",
+        "load",
+        null
+      ],
+      [
+        "GPU",
+        8,
+        11,
+        "B",
+        "serve",
+        1
+      ],
+      [
+        "DMA",
+        11,
+        13,
+        "A",
+        "load",
+        null
+      ],
+      [
+        "GPU",
+        12,
+        15,
+        "C",
+        "serve",
+        2
+      ],
+      [
+        "GPU",
+        16,
+        19,
+        "A",
+        "serve",
+        3
+      ]
+    ],
+    "Forecast staging (synthetic)": [
+      [
+        "GPU",
+        4,
+        7,
+        "A",
+        "serve",
+        0
+      ],
+      [
+        "DMA",
+        7,
+        9,
+        "B",
+        "load",
+        null
+      ],
+      [
+        "GPU",
+        9,
+        12,
+        "B",
+        "serve",
+        1
+      ],
+      [
+        "DMA",
+        11,
+        13,
+        "C",
+        "load",
+        null
+      ],
+      [
+        "GPU",
+        13,
+        16,
+        "C",
+        "serve",
+        2
+      ],
+      [
+        "DMA",
+        15,
+        17,
+        "A",
+        "load",
+        null
+      ],
+      [
+        "GPU",
+        17,
+        20,
+        "A",
+        "serve",
+        3
+      ]
+    ],
+    "Reactive host reload + LRU": [
+      [
+        "GPU",
+        4,
+        7,
+        "A",
+        "serve",
+        0
+      ],
+      [
+        "DMA",
+        8,
+        10,
+        "B",
+        "load",
+        null
+      ],
+      [
+        "GPU",
+        10,
+        13,
+        "B",
+        "serve",
+        1
+      ],
+      [
+        "DMA",
+        12,
+        14,
+        "C",
+        "load",
+        null
+      ],
+      [
+        "GPU",
+        14,
+        17,
+        "C",
+        "serve",
+        2
+      ],
+      [
+        "DMA",
+        16,
+        18,
+        "A",
+        "load",
+        null
+      ],
+      [
+        "GPU",
+        18,
+        21,
+        "A",
+        "serve",
+        3
+      ]
+    ],
+    "Reactive recompute + LRU": [
+      [
+        "GPU",
+        4,
+        7,
+        "A",
+        "serve",
+        0
+      ],
+      [
+        "GPU",
+        8,
+        14,
+        "B",
+        "recompute",
+        1
+      ],
+      [
+        "GPU",
+        14,
+        17,
+        "B",
+        "serve",
+        1
+      ],
+      [
+        "GPU",
+        17,
+        23,
+        "C",
+        "recompute",
+        2
+      ],
+      [
+        "GPU",
+        23,
+        26,
+        "C",
+        "serve",
+        2
+      ],
+      [
+        "GPU",
+        26,
+        32,
+        "A",
+        "recompute",
+        3
+      ],
+      [
+        "GPU",
+        32,
+        35,
+        "A",
+        "serve",
+        3
+      ]
+    ]
+  },
+  "residency": {
+    "Clairvoyant optimum": [
+      [
+        "A",
+        0,
+        7
+      ],
+      [
+        "B",
+        0,
+        11
+      ],
+      [
+        "C",
+        7,
+        19
+      ],
+      [
+        "A",
+        11,
+        19
+      ]
+    ],
+    "Forecast staging (synthetic)": [
+      [
+        "A",
+        0,
+        11
+      ],
+      [
+        "B",
+        7,
+        15
+      ],
+      [
+        "C",
+        11,
+        20
+      ],
+      [
+        "A",
+        15,
+        20
+      ]
+    ],
+    "Reactive host reload + LRU": [
+      [
+        "A",
+        0,
+        12
+      ],
+      [
+        "B",
+        8,
+        16
+      ],
+      [
+        "C",
+        12,
+        21
+      ],
+      [
+        "A",
+        16,
+        21
+      ]
+    ],
+    "Reactive recompute + LRU": [
+      [
+        "A",
+        0,
+        17
+      ],
+      [
+        "B",
+        8,
+        26
+      ],
+      [
+        "C",
+        17,
+        35
+      ],
+      [
+        "A",
+        26,
+        35
+      ]
+    ]
+  },
+  "results": [
+    {
+      "policy": "Clairvoyant optimum",
+      "completion_ms": [
+        7,
+        11,
+        15,
+        19
+      ],
+      "total_flow_ms": 12,
+      "mean_flow_ms": 3.0,
+      "gap_ms": 0,
+      "dma_busy_ms": 6,
+      "gpu_busy_ms": 12,
+      "h2d_mib": 192
+    },
+    {
+      "policy": "Forecast staging (synthetic)",
+      "completion_ms": [
+        7,
+        12,
+        16,
+        20
+      ],
+      "total_flow_ms": 15,
+      "mean_flow_ms": 3.75,
+      "gap_ms": 3,
+      "dma_busy_ms": 6,
+      "gpu_busy_ms": 12,
+      "h2d_mib": 192
+    },
+    {
+      "policy": "Reactive host reload + LRU",
+      "completion_ms": [
+        7,
+        13,
+        17,
+        21
+      ],
+      "total_flow_ms": 18,
+      "mean_flow_ms": 4.5,
+      "gap_ms": 6,
+      "dma_busy_ms": 6,
+      "gpu_busy_ms": 12,
+      "h2d_mib": 192
+    },
+    {
+      "policy": "Reactive recompute + LRU",
+      "completion_ms": [
+        7,
+        17,
+        26,
+        35
+      ],
+      "total_flow_ms": 45,
+      "mean_flow_ms": 11.25,
+      "gap_ms": 33,
+      "dma_busy_ms": 0,
+      "gpu_busy_ms": 30,
+      "h2d_mib": 0
+    }
+  ]
+}

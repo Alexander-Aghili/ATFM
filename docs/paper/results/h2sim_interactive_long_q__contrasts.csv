@@ -1,0 +1,4 @@
+contrast,a,b,diff_mean,diff_ci_lo,diff_ci_hi,metric
+forecast_M2_kv vs oracle_kv,forecast_M2_kv,oracle_kv,0.01654378187731198,0.0040548854186653995,0.028642903174976805,slo_attainment_sessions
+forecast_M2_kv vs oracle_kv,forecast_M2_kv,oracle_kv,-5.926790506963698,-18.587708779804654,6.919426692812365,bg_jct_mean
+forecast_M2_kv vs oracle_kv,forecast_M2_kv,oracle_kv,0.0006180469715698633,-0.00532408854248052,0.005526293488209117,deadline_hit_rate
