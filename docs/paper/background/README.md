@@ -52,3 +52,19 @@ When updating the survey, revise the cutoff and edition/scope notes, check the
 source rather than copying a headline speedup, and distinguish an accepted
 control request from completed movement and observed cache reuse. Review the
 PDF after changes; a clean LaTeX log does not establish visual quality.
+
+## Reused paper artwork
+
+Five figures reproduce original artwork from vLLM (Figure 6), LMCache (Figure 5),
+DistServe (Figure 6), Continuum (Figure 1), and ThunderAgent (Figure 3). The last
+two reuse the repository's existing archive. Captions identify the authors,
+paper version, figure number, and license. See [the artwork manifest](figures/papers/manifest.json)
+for source URLs, SHA-256 hashes, modifications, and license links.
+
+The artwork is unchanged apart from scaling and SVG-to-PDF conversion. DistServe
+artwork retains CC BY-SA 4.0; the other reproduced artwork retains CC BY 4.0.
+These third-party licenses apply to their respective figures. Source SVG/PNG
+files and the PDFs used for typesetting are included in the standalone bundle.
+To regenerate an SVG's PDF, run `inkscape SOURCE.svg --export-type=pdf`.
+Four original synthesis diagrams and four analytical plots complement the
+reproductions where a project-specific explanation is needed.

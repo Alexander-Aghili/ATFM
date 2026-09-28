@@ -46,7 +46,7 @@ def main():
         shutil.copyfile(scratch/f'{NAME}.pdf', directory/f'{NAME}.pdf')
     if args.bundle:
         paths = [p for p in HERE.rglob('*') if p.is_file() and
-                 p.suffix in {'.tex', '.pdf', '.svg', '.reladraw', '.py', '.md', '.json'}
+                 p.suffix in {'.tex', '.pdf', '.png', '.svg', '.reladraw', '.py', '.md', '.json'}
                  and p.name != f'{NAME}.pdf']
         with zipfile.ZipFile(HERE/f'{NAME}-source.zip', 'w', zipfile.ZIP_DEFLATED) as archive:
             for path in sorted(paths):

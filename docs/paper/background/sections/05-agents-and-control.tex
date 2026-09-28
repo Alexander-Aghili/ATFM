@@ -174,12 +174,25 @@ tool duration~\cite{continuum}. It is a direct baseline for a claim about agent
 cache retention, not merely background context. An ATFM comparison should use
 the actual supported policy or label a simplified reproduction honestly.
 
+\fig{papers/continuum-cache}{1.0}{Continuum's original cache-retention
+motivation. Compare the illustrated agent execution and cache lifetimes when
+reading its TTL policy. Reproduced from Li et al.~\cite{continuum}, Figure 1,
+arXiv:2511.02230v7, CC BY 4.0; scaled and format-converted only.}{continuum-original}
+
 ThunderAgent's June 2026 revision represents agent workflows as programs and
 coordinates KV-related scheduling with tool resources and environment
 preparation~\cite{thunder}. It already addresses the mismatch between isolated
 request decisions and workflow needs. ATFM's possible contribution is a
 particular use of conditional forecasts and cross-session uncertainty, not the
 idea of treating agents as programs.
+
+\begin{figure}[htbp]
+\centering\includegraphics[width=\linewidth]{figures/papers/thunderagent-overview.png}
+\caption{ThunderAgent's original system overview, showing program-aware
+coordination of inference and tool execution. Reproduced from Kang et
+al.~\cite{thunder}, Figure 3, arXiv:2602.13692v3, CC BY 4.0; scaled only.}
+\label{fig:thunder-original}
+\end{figure}
 
 These systems also bound the research claim. If a simple robust TTL, native
 retention priority, or working-set policy captures most of the benefit, a more

@@ -1,0 +1,59 @@
+[
+  {
+    "file": "vllm.svg",
+    "url": "https://arxiv.org/html/2309.06180v1/logical-and-physical-block-table.svg",
+    "version": "2309.06180v1",
+    "figure": "6",
+    "authors": "Kwon et al.",
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "sha256": "f11e074b41599ac2a62beb584f24d0e43e1fe1398641c8e88303a8107b30f53e",
+    "modification": "Unmodified artwork; scaled for placement. SVG artwork also converted to PDF."
+  },
+  {
+    "file": "lmcache.png",
+    "url": "https://arxiv.org/html/2510.09665v2/lmcache_arch.png",
+    "version": "2510.09665v2",
+    "figure": "5",
+    "authors": "Liu et al.",
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "sha256": "f41522ce56cf0dee4685a70a53a9368cb2f4463d7edfd52e06079a6b4059e460",
+    "modification": "Unmodified artwork; scaled for placement. SVG artwork also converted to PDF."
+  },
+  {
+    "file": "distserve.svg",
+    "url": "https://arxiv.org/html/2401.09670v3/architecture.svg",
+    "version": "2401.09670v3",
+    "figure": "6",
+    "authors": "Zhong et al.",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "sha256": "60d16eb2f451432a67a982b2c4d5389c703fe35eba77493f96f307ff7b42ab93",
+    "modification": "Unmodified artwork; scaled for placement. SVG artwork also converted to PDF."
+  },
+  {
+    "file": "thunderagent-overview.png",
+    "url": "https://arxiv.org/html/2602.13692v3/TR5.png",
+    "authors": "Hao Kang et al.",
+    "title": "ThunderAgent",
+    "version": "2602.13692v3",
+    "figure": "Figure 3",
+    "license": "CC BY 4.0 (arXiv distribution)",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "modification": "Unmodified artwork; scaled for placement. SVG artwork also converted to PDF.",
+    "sha256": "55a97c8e4e205b7280e062e8c9b244db2fc0115929cc7c58504724afe93b79bd"
+  },
+  {
+    "file": "continuum-cache.svg",
+    "url": "https://arxiv.org/html/2511.02230v7/intro.svg",
+    "authors": "Hanchen Li et al.",
+    "title": "Continuum",
+    "version": "2511.02230v7",
+    "figure": "Figure 1",
+    "license": "CC BY 4.0 (arXiv distribution)",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "modification": "Unmodified artwork; scaled for placement. SVG artwork also converted to PDF.",
+    "sha256": "a57ce1b07d23cb4989df69ed87b4dc093653d2a47adc24e5cf9b11624c2fba59"
+  }
+]

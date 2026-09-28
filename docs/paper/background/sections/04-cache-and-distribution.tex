@@ -53,6 +53,15 @@ replacement for the engine's attention scheduler. External cache capacity is
 useful only if the correct state can be retrieved at a cost lower than the
 alternative.
 
+\begin{figure}[htbp]
+\centering\includegraphics[width=0.52\linewidth]{figures/papers/lmcache.png}
+\caption{LMCache's technical-report architecture connects inference engines to
+storage and transport backends. Reproduced from Liu et al.~\cite{lmcache},
+Figure 5, arXiv:2510.09665v2, CC BY 4.0; scaled only. This depicts the report's
+architecture; the current multiprocess implementation is discussed below.}
+\label{fig:lmcache-original}
+\end{figure}
+
 The current multiprocess architecture documentation places cache management in
 a separate server. A storage manager composes local memory management, secondary
 storage adapters, and asynchronous store, prefetch, and eviction controllers.
@@ -123,9 +132,10 @@ required state between them. DistServe motivates this separation through
 independent phase SLOs, resource allocation, and parallelism plans, while
 accounting for transfer bandwidth~\cite{distserve}.
 
-\fig{disaggregation}{0.95}{Conceptual prefill/decode separation. The tensor
-transfer is on the critical dependency path unless overlapped with other useful
-work. Metadata routing and tensor transport are different responsibilities.}{pd}
+\fig{papers/distserve}{1.0}{DistServe's runtime architecture. The global
+scheduler coordinates separate prefill and decode worker groups; KV transfer
+connects their execution. Reproduced from Zhong et al.~\cite{distserve},
+Figure 6, arXiv:2401.09670v3, CC BY-SA 4.0; scaled and format-converted only.}{pd}
 
 The benefit is conditional. Let $\Delta t_{\mathrm{interference}}$ be the
 colocation penalty removed and $\Delta t_{\mathrm{specialization}}$ the gain

@@ -21,10 +21,10 @@ Reviewed 28 September 2026. Living documentation is a dated snapshot, not a pinn
 | trt | [TensorRT-LLM KV Cache System](https://nvidia.github.io/TensorRT-LLM/latest/features/kvcache.html) (living documentation) | Paged pools, prioritized retention, host offload; backend-specific semantics. |
 | vattention | [vAttention: Dynamic Memory Management for Serving LLMs without PagedAttention](https://arxiv.org/abs/2405.04437) (2024) | CUDA virtual-memory alternative; distinct from 2025 sparse-attention namesake. |
 | sarathi | [Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve](https://arxiv.org/abs/2403.02310) (2024) | Chunked prefills and scheduling interference. |
-| distserve | [DistServe: Disaggregating Prefill and Decoding for Goodput-optimized Large Language Model Serving](https://arxiv.org/abs/2401.09670) (2024) | Disaggregation with SLO and bandwidth constraints. |
+| distserve | [DistServe: Disaggregating Prefill and Decoding for Goodput-optimized Large Language Model Serving](https://arxiv.org/abs/2401.09670v3) (2024) | Disaggregation with SLO and bandwidth constraints. |
 | mooncake | [Mooncake: A KVCache-centric Disaggregated Architecture for LLM Serving](https://arxiv.org/abs/2407.00079v4) (2025 revision) | KV-centric cluster architecture and overload management. |
 | preble | [Preble: Efficient Distributed Prompt Scheduling for LLM Serving](https://arxiv.org/abs/2407.00023v2) (2024) | Joint cache reuse and load balancing. |
-| lmcache | [LMCache: An Efficient KV Cache Layer for Enterprise-Scale LLM Inference](https://arxiv.org/abs/2510.09665) (2025) | Cache extraction, cross-engine reuse and transfer; project technical report. |
+| lmcache | [LMCache: An Efficient KV Cache Layer for Enterprise-Scale LLM Inference](https://arxiv.org/abs/2510.09665v2) (2025) | Cache extraction, cross-engine reuse and transfer; project technical report. |
 | lmp | [Architecture and Developer Guide: multiprocess mode](https://docs.lmcache.ai/mp/architecture.html) (living documentation) | Separate cache server, L1 manager, L2 adapters, asynchronous controllers. |
 | llegacy | [LMCache Controller](https://docs.lmcache.ai/kv_cache_management/index.html) (legacy documentation) | Page now marks in-process mode deprecated; important ATFM compatibility boundary. |
 | lpin | [Pin the KV cache](https://docs.lmcache.ai/kv_cache_management/pin.html) (legacy documentation) | Location-scoped pin, asynchronous event ID; CPU example is not engine-HBM pinning. |

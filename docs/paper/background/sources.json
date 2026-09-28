@@ -157,7 +157,7 @@
     "author": "Zhong et al.",
     "title": "DistServe: Disaggregating Prefill and Decoding for Goodput-optimized Large Language Model Serving",
     "edition": "2024",
-    "url": "https://arxiv.org/abs/2401.09670",
+    "url": "https://arxiv.org/abs/2401.09670v3",
     "scope": "Disaggregation with SLO and bandwidth constraints.",
     "accessed": "2026-09-28"
   },
@@ -181,10 +181,10 @@
   },
   {
     "key": "lmcache",
-    "author": "Cheng et al.",
+    "author": "Liu et al.",
     "title": "LMCache: An Efficient KV Cache Layer for Enterprise-Scale LLM Inference",
     "edition": "2025",
-    "url": "https://arxiv.org/abs/2510.09665",
+    "url": "https://arxiv.org/abs/2510.09665v2",
     "scope": "Cache extraction, cross-engine reuse and transfer; project technical report.",
     "accessed": "2026-09-28"
   },

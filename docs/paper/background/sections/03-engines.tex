@@ -42,9 +42,10 @@ increasing management work. These are design tradeoffs, not a universal best
 block size. The appropriate choice also depends on the attention backend and
 model's supported layouts.
 
-\fig{paging}{1.0}{Logical-to-physical cache mapping. The first two logical blocks
-are shared; suffix blocks are private. Physical IDs need not be contiguous.
-An extension that would modify shared state requires safe ownership handling.}{paging}
+\fig{papers/vllm}{1.0}{vLLM's original block-table translation diagram:
+logical token blocks map to noncontiguous physical KV blocks. Reproduced from
+Kwon et al.~\cite{paged}, Figure 6, arXiv:2309.06180v1, CC BY 4.0;
+scaled and format-converted only.}{paging}
 
 vLLM's versioned prefix-cache design identifies full blocks using a chain of
 hashes over prior-prefix identity, current tokens, and relevant extra identity
