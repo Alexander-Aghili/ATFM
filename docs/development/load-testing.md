@@ -295,3 +295,16 @@ seconds; these are aggregates, not latency quantiles. Existing middleware endpoi
 histograms and heartbeat lag remain separate. Prediction-stage times cannot see
 socket backlog or event-loop delay before dispatch. `/state` is also available
 outside the harness. See the [paired isolation study](../research/2026-09-28-board-isolation.md).
+
+## Request phase timing
+
+Proxy trace rows now include `prediction_s` (monotonic elapsed wait around the
+prediction runner), `t_enqueued` (wall-clock time immediately before queue
+submission), and `t_admitted` (the queue's release timestamp). Reports add
+`proxy_prediction_wait_s`, `proxy_admission_wait_s` (`t_admitted - t_enqueued`),
+and `proxy_release_dispatch_s` (`t_release - t_admitted`). Existing upstream
+and arrival-to-release measurements retain their meanings. Admission waiting
+includes both directives and the admission window; dispatch delay measures when
+a released coroutine actually resumes. These are elapsed times, not CPU costs.
+Wall-clock adjustments can affect timestamp differences. Older traces have no
+phase samples rather than invented zero durations.

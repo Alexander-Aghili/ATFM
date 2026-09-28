@@ -18,6 +18,8 @@ class Entry:
     released: asyncio.Event = field(default_factory=asyncio.Event)
     t_release: float | None = None
     done: bool = False
+    t_enqueued: float | None = None
+    prediction_s: float = 0.0
 
 
 @dataclass

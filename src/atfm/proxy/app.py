@@ -131,6 +131,7 @@ class ProxyRuntime:
             row = {'session_id': meta.session_id, 'parent_session_id': meta.parent, 'class': meta.cls,
                    'tenant': meta.tenant, 'turn_index': meta.turn_index, 't_request': t_arr,
                    't_release': t_rel, 't_first_token': t_first, 't_last_token': t_last,
+                   't_enqueued': entry.t_enqueued, 't_admitted': entry.t_release, 'prediction_s': entry.prediction_s,
                    'isl': meta.isl, 'osl': osl, 'status': status}
             self.st.trace.write(json.dumps(row) + '\n')
             self.st.trace.flush()
@@ -232,11 +233,14 @@ class ProxyRuntime:
         return meta
 
     async def _enqueue(self, meta, now):
+        started = time.perf_counter()
         e_service, e_tool = await self.predict(meta)
+        prediction_s = time.perf_counter() - started
         idx = compute_index(meta, self.cfg, e_service, e_tool)
         self.st.last_index[meta.session_id] = idx
         entry = Entry(session_id=meta.session_id, tier=tier(meta, self.cfg, now, e_service), index=idx,
-                      t_arrival=now, promote_at=promote_at(meta, self.cfg, e_service))
+                      t_arrival=now, promote_at=promote_at(meta, self.cfg, e_service),
+                      t_enqueued=self.clock(), prediction_s=prediction_s)
         self.st.queue.submit(entry)
         return entry
 

@@ -78,6 +78,7 @@ def _assert_trial_metrics(result, directory):
     assert result['requests_ok'] == result['requests_attempted'] == 8
     assert result['client_errors'] == {} and result['session_errors'] == []
     assert result['client_to_headers_sent_s']['count'] == 8
+    assert all(result[k]['count'] == 8 for k in ('proxy_prediction_wait_s', 'proxy_admission_wait_s', 'proxy_release_dispatch_s'))
     assert result['client_to_proxy_timestamp_s']['count'] == 8
     requests = [json.loads(line) for line in (directory / 'requests.jsonl').read_text().splitlines()]
     assert all('http11.receive_response_headers.complete' in r['transport_s'] for r in requests)
@@ -187,7 +188,7 @@ def test_profile_is_saved_after_real_http_shutdown(tmp_path):
                                 worker_service_s=.005, control_enabled=False, profile_proxy=True), directory)
     assert result['requests_ok'] == 4
     stats = pstats.Stats(str(directory / 'proxy.pstats'))
-    assert any(file.endswith('/atfm/proxy/app.py') and function == 'chat'
+    assert any(file.endswith('/atfm/proxy/app.py') and function.rsplit('.', 1)[-1] == 'chat'
                for file, _, function in stats.stats)
     assert 'primitive_calls' in (directory / 'proxy-profile.csv').read_text()
     assert 'Thread' in (directory / 'proxy-profile.txt').read_text()

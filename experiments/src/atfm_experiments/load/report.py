@@ -19,7 +19,7 @@ def write_report(trial):
         return max((o['metrics'][section][key] for o in metrics if o['role'] == role), default=0)
     report = {**_run_metrics(trial, elapsed, traces, successful, paired, maximum),
               **_latency_metrics(trial, elapsed, traces, successful, paired, maximum),
-              **_control_metrics(trial, elapsed, traces, successful, paired, maximum)}
+              **_control_metrics(trial, elapsed, traces, successful, paired, maximum), **_request_phases(traces)}
     write_json(trial.directory / 'summary.json', report)
     return report
 
@@ -77,3 +77,10 @@ def _control_metrics(trial, elapsed, traces, successful, paired, maximum):
         'final_observations': {role: next((o for o in reversed(trial.observations) if o['role'] == role), None)
                                      for role in trial.endpoints}
     }
+
+
+def _request_phases(traces):
+    complete = [t for t in traces if t.get('t_enqueued') is not None and t.get('t_admitted') is not None]
+    return dict(proxy_prediction_wait_s=distribution(t['prediction_s'] for t in complete),
+                proxy_admission_wait_s=distribution(t['t_admitted'] - t['t_enqueued'] for t in complete),
+                proxy_release_dispatch_s=distribution(t['t_release'] - t['t_admitted'] for t in complete))
