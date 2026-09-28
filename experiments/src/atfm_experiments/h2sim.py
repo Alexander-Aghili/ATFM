@@ -31,7 +31,8 @@ ARMS = ["native", "proxy_rules", "forecast_M1", "forecast_M2", "oracle", "oracle
         "forecast_M1_kv_size", "forecast_M2_kv_size", "oracle_kv_size",
         "forecast_M1_kv_cw", "forecast_M2_kv_cw", "oracle_kv_cw",
         "forecast_M1_touch", "forecast_M2_touch", "oracle_touch", "touch_random",
-        "forecast_M1_pin", "forecast_M2_pin", "oracle_pin", "pin_random", "oracle_kv_fresh"]
+        "forecast_M1_pin", "forecast_M2_pin", "oracle_pin", "pin_random", "oracle_kv_fresh",
+        "forecast_M1_kv_q", "forecast_M2_kv_q", "oracle_kv_q"]
 
 
 def default_contrasts(arms: list[str]) -> list[tuple[str, str]]:
@@ -66,6 +67,7 @@ class H2SimConfig(BaseModel):
     max_hold_s: float = 600.0        # cap on any policy hold, enforced in the simulator core
     contrasts: list[list[str]] = Field(default_factory=list)   # explicit [a, b] pairs; empty = default_contrasts(arms)
     kv_bg_weight: float = 3.0        # class weight on background absence for the *_cw placement arms
+    queue_window_s: float = 300.0    # *_kv_q arms: window for the recent per-class proxy queue wait added to absence
     touch_budget_per_s: float = 1.0  # keep-alive touches per second for the *_touch arms
     touch_horizon_s: float = 30.0
     touch_age_s: float = 10.0
@@ -125,14 +127,16 @@ def _arm(name: str, cfg: H2SimConfig, engines: list[EngineConfig], train_program
         return ForecastTouchPolicy(cfg.window, pcfg, pred, table, horizons=[30.0, 120.0, 300.0], n=64,
                                    horizon_s=cfg.touch_horizon_s, age_s=cfg.touch_age_s, budget_per_s=cfg.touch_budget_per_s,
                                    prefetch=cfg.touch_prefetch, retry=cfg.touch_retry, yield_to_requests=cfg.touch_yield)
-    if name in ("oracle_kv", "oracle_kv_size", "oracle_kv_cw", "oracle_kv_fresh"):
+    if name in ("oracle_kv", "oracle_kv_size", "oracle_kv_cw", "oracle_kv_fresh", "oracle_kv_q"):
         return OracleKvPolicy(cfg.window, pcfg, size_aware=name.endswith("_size"),
-                              bg_weight=cfg.kv_bg_weight if name.endswith("_cw") else 1.0, fresh=name.endswith("_fresh"))
+                              bg_weight=cfg.kv_bg_weight if name.endswith("_cw") else 1.0, fresh=name.endswith("_fresh"),
+                              queue_aware=name.endswith("_q"), queue_window_s=cfg.queue_window_s)
     if name in ("forecast_M1_kv", "forecast_M2_kv", "forecast_M1_kv_size", "forecast_M2_kv_size",
-                "forecast_M1_kv_cw", "forecast_M2_kv_cw"):
+                "forecast_M1_kv_cw", "forecast_M2_kv_cw", "forecast_M1_kv_q", "forecast_M2_kv_q"):
         pred, table = fit_predictor_on_programs(name.split("_")[1], train_programs, engines, rng)
         return ForecastKvPolicy(cfg.window, pcfg, pred, table, horizons=[30.0, 120.0, 300.0], n=64,
-                                size_aware=name.endswith("_size"), bg_weight=cfg.kv_bg_weight if name.endswith("_cw") else 1.0)
+                                size_aware=name.endswith("_size"), bg_weight=cfg.kv_bg_weight if name.endswith("_cw") else 1.0,
+                                queue_aware=name.endswith("_q"), queue_window_s=cfg.queue_window_s)
     if name == "oracle_rule_noidx":
         return OracleRuleNoIdxPolicy(cfg.window, pcfg, horizons=[30.0, 120.0, 300.0], gdp=GdpLite(max_hold_s=cfg.max_hold_s))
     if name == "oracle_rule":

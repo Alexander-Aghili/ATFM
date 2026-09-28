@@ -48,8 +48,21 @@ def oracle_resumptions(sim, now: float) -> dict[str, ResumptionQuantiles]:
     return {sid: (t - now, t - now, t - now) for sid, t in oracle_etas(sim, now).items() if np.isfinite(t)}
 
 
+def recent_queue_wait(rows: list[dict], now: float, window_s: float = 300.0) -> dict[str, float]:
+    """Mean proxy queue wait per class over calls released in the last `window_s` seconds (what a proxy
+    knows about how long each class's next call will wait before its KV is used)."""
+    acc: dict[str, list[float]] = {}
+    for r in rows:
+        t = r.get("t_release")
+        if t is None or t < now - window_s:
+            continue
+        acc.setdefault(r["class"], []).append(float(r.get("queue_proxy_s", 0.0)))
+    return {c: float(np.mean(v)) for c, v in acc.items() if v}
+
+
 def order_victims(candidates: list[str], eta: dict[str, float], blocks: dict[str, int], now: float,
-                  size_aware: bool, cls: dict[str, str] | None = None, bg_weight: float = 1.0) -> list[str]:
+                  size_aware: bool, cls: dict[str, str] | None = None, bg_weight: float = 1.0,
+                  queue_wait: dict[str, float] | None = None) -> list[str]:
     """Eviction order, first to go first. Absence = max(0, eta - now); unknown sessions (no eta) go first.
     size_aware scores idle block-seconds (absence x resident blocks) instead of absence alone. bg_weight > 1
     multiplies background absence: the interactive SLO pays for interactive misses, so background contexts
@@ -59,6 +72,8 @@ def order_victims(candidates: list[str], eta: dict[str, float], blocks: dict[str
         if not np.isfinite(e):
             return float("inf")
         absence = max(0.0, e - now)
+        if queue_wait and cls is not None:                 # time to next KV *use*: arrival plus the class's queue wait
+            absence += queue_wait.get(cls.get(sid, ""), 0.0)
         s = absence * blocks.get(sid, 1) if size_aware else absence
         if cls is not None and cls.get(sid) == "background":
             s *= bg_weight
@@ -72,6 +87,9 @@ class _KvOrdering:
     _eta: dict[str, float]
     size_aware: bool = False
     bg_weight: float = 1.0
+    queue_aware: bool = False
+    queue_window_s: float = 300.0
+    last_queue_wait: dict = {}
     _now: float = 0.0
 
     def e_tool_next(self, sim, call) -> float:
@@ -80,7 +98,11 @@ class _KvOrdering:
     def kv_victims(self, sim, worker, candidates: list[str]) -> list[str]:
         blocks = {sid: worker.resident_blocks(sid) for sid in candidates}
         cls = {sid: sim.sessions[sid].program.cls for sid in candidates if sid in sim.sessions}
-        return order_victims(candidates, self._eta, blocks, sim.now, self.size_aware, cls, self.bg_weight)
+        qw = None
+        if self.queue_aware:
+            qw = recent_queue_wait(sim.rows[-2000:], sim.now, self.queue_window_s)
+            self.last_queue_wait = qw
+        return order_victims(candidates, self._eta, blocks, sim.now, self.size_aware, cls, self.bg_weight, qw)
 
 
 class OracleKvPolicy(_KvOrdering, OraclePolicy):
@@ -88,16 +110,20 @@ class OracleKvPolicy(_KvOrdering, OraclePolicy):
 
     name = "oracle_kv"
 
-    def __init__(self, window: int, cfg: ProxyConfig, size_aware: bool = False, bg_weight: float = 1.0, fresh: bool = False):
+    def __init__(self, window: int, cfg: ProxyConfig, size_aware: bool = False, bg_weight: float = 1.0, fresh: bool = False,
+                 queue_aware: bool = False, queue_window_s: float = 300.0):
         super().__init__(window, cfg, hold=False)
         self._eta = {}
         self.size_aware, self.bg_weight, self.fresh = size_aware, bg_weight, fresh
+        self.queue_aware, self.queue_window_s, self.last_queue_wait = queue_aware, queue_window_s, {}
         if size_aware:
             self.name = "oracle_kv_size"
         elif bg_weight != 1.0:
             self.name = "oracle_kv_cw"
         elif fresh:
             self.name = "oracle_kv_fresh"
+        elif queue_aware:
+            self.name = "oracle_kv_q"
 
     def kv_victims(self, sim, worker, candidates: list[str]) -> list[str]:
         if self.fresh:                                   # exact times at the eviction instant, not the last tick
@@ -112,10 +138,11 @@ class ForecastKvPolicy(_KvOrdering, ForecastPolicy):
     """Rules-only admission plus eviction by the predictor's median time-to-next-call per session."""
 
     def __init__(self, window: int, cfg: ProxyConfig, predictor, train_table: TraceTable | None, horizons: list[float],
-                 n: int = 64, size_aware: bool = False, bg_weight: float = 1.0):
+                 n: int = 64, size_aware: bool = False, bg_weight: float = 1.0, queue_aware: bool = False, queue_window_s: float = 300.0):
         super().__init__(window, cfg, predictor, train_table, horizons, n=n, hold=False)
         self.size_aware, self.bg_weight = size_aware, bg_weight
-        self.name = f"forecast_{predictor.name.split('_')[0]}_kv" + ("_size" if size_aware else "_cw" if bg_weight != 1.0 else "")
+        self.queue_aware, self.queue_window_s, self.last_queue_wait = queue_aware, queue_window_s, {}
+        self.name = f"forecast_{predictor.name.split('_')[0]}_kv" + ("_size" if size_aware else "_cw" if bg_weight != 1.0 else "_q" if queue_aware else "")
         self._eta = {}
         self._n = n
 
