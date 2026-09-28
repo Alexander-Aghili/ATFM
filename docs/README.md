@@ -25,6 +25,9 @@ contracts, use the developer guide and the source code together.
 
 ## Evaluation and evidence
 
+- [Large synthetic GDP stress tests](research/2026-09-27-gdp-stress.md): CPU and memory at 100,000 and one million sessions.
+- [Agent observability infrastructure](research/2026-09-27-agent-observability.md): existing analytics systems and proposed ATFM integrations.
+
 - [CPU scaling trials](research/2026-09-27-cpu-scaling.md): measured optimizations, complexity bounds, and Python/Rust assessment.
 
 - [Demonstration ladder](research/2026-09-22-demonstration-ladder.md): the roles of offline, simulated, and serving evaluations.

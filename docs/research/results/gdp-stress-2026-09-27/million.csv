@@ -1,0 +1,2 @@
+sessions,slots,draws,saturated,regime,cpu_median_s,process_peak_rss_mib,median_s,min_s,max_s,repeats,result_sha256
+1000000,300,128,True,saturated,15.907400232,2552.1328125,15.909952832000272,15.74097793799956,16.055210827000337,3,c0f8d6ade8babd2767765c7e2acdab6e76a7b42ce855b00a8ea79b74af4b0630

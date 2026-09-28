@@ -80,3 +80,8 @@ For independent GDP session/slot/sample sweeps, use
 The CPU driver also supports `--cases admission`, measuring one full-window
 release batch. See the [large-session study](../docs/research/2026-09-27-large-control-paths.md)
 for baseline revisions, open/saturated workloads, and the remaining limits.
+
+The [GDP stress study](../docs/research/2026-09-27-gdp-stress.md) supplies larger
+100,000- and one-million-session commands. Use `--regimes mixed` for varied
+ETAs, resource demands, and tenants. GDP results now include process CPU time
+and peak RSS; use one case per process to attribute the memory high-water mark.

@@ -80,6 +80,12 @@ every released request. See the [large-session study](../research/2026-09-27-lar
 for measured gains, a small-workload regression, remaining linear scans, and
 why neither result establishes that CPU cost is negligible compared with I/O.
 
+The [larger stress study](../research/2026-09-27-gdp-stress.md) found 7.32-second
+plans at 100,000 sessions and 10,000 slots, and 15.91-second plans at one million
+sessions and 300 slots under saturation. Those synthetic cases exceed a
+five-second serial control interval. They motivate further search/scope work;
+they do not establish deployed fleet capacity.
+
 ## A targeted Rust path
 
 If profiling shows a hot CPU kernel dominates forecasting or simulation, move

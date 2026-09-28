@@ -8,6 +8,7 @@ predate today's launchers. Use the [project README](../../README.md) and
 
 | Note | Role |
 | --- | --- |
+| [GDP stress tests](2026-09-27-gdp-stress.md) | 100,000- and one-million-session synthetic CPU/memory trials. |
 | [Agent observability infrastructure](2026-09-27-agent-observability.md) | Existing tool tracing/evaluation systems and proposed ATFM signal boundaries. |
 | [Large-session control paths](2026-09-27-large-control-paths.md) | Exact GDP threshold reuse, admission batching, and 8,192-session trials. |
 | [CPU scaling and Python/Rust](2026-09-27-cpu-scaling.md) | Measured CPU optimizations, asymptotic bounds, and language decision. |
