@@ -213,3 +213,9 @@ activity. Component times must not be added into an end-to-end cycle estimate.
 The [integrated HTTP load harness](load-testing.md) now exercises these components
 concurrently against a fake worker. Its [first baseline](../research/2026-09-27-http-load-baseline.md)
 preserves request/control evidence and separates pre-proxy delays from admission.
+
+The [repeated control attribution study](../research/2026-09-27-control-attribution.md)
+adds caller prediction outcomes, control-on/off pairs, and a 1,024-session
+workload. It distinguishes worker capacity, operating-system descriptor limits,
+and interference with prediction handling. These are operational measurements;
+control-off also removes refreshed board state and policy actuation.

@@ -147,7 +147,7 @@ cursor restores stream position, not the board's in-memory model/session state.
 | Board | `POST /predict` | Predict service and next-tool duration for `session_id`, `isl`, `osl`. |
 | Board | `POST /directives` | Plan once per snapshot; subsequent polls reuse the cached result. |
 | Proxy | `GET /healthz` | Process health. |
-| Proxy | `GET /state` | Queue and admission state. |
+| Proxy | `GET /state` | Queue/admission state and prediction outcome counters. |
 | Proxy | `POST /v1/chat/completions` | Forward admitted chat requests, including streaming responses. |
 | Proxy | `POST /directives` | Accept a session hold for subsequent submissions (legacy single-update endpoint). |
 | Proxy | `POST /directives/batch` | Validate up to 1,024 holds, apply nonexpired updates, then schedule once. |

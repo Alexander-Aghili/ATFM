@@ -130,3 +130,36 @@ or policy-quality results: the fake worker has fixed service delay and no model
 kernels, cache behavior, transfer cost, or token streaming. Exact configurations,
 source hashes, compressed raw evidence, and limitations are recorded in the
 repository's HTTP load-baseline report.
+
+\paragraph{Repeated control attribution.}
+A follow-up uses three paired seeds with periodic control enabled or disabled,
+alternating run order at 256 and 1,024 sessions. Proxy counters distinguish
+returned predictions from caller timeout fallback, other errors, and cancellation.
+Control-off also removes refreshed board state and policy actuation, so this is
+an operational ablation rather than an equal-information policy comparison.
+An inherited 1,024-file-descriptor limit caused socket-accept exhaustion in some
+large cases; those failed trials are retained separately. Repeating the large
+cases with a process-local limit of 8,192 completed all 18,432 calls.
+
+With eight fake-worker slots and 50\,ms service, measured throughput was
+147--151 calls/s, close to the ideal service bound of 160 calls/s.
+Client p95 across the three runs was 8.17--8.28\,s with control and
+8.27--8.69\,s without. Despite similar saturated throughput, pooled prediction
+timeouts were 37.47\% with control versus 10.88\% without; maximum sampled board
+event-loop lag was 197--214\,ms versus approximately 2\,ms.
+Control computation, populated state, policy actions, and changed request timing
+remain combined in this contrast.
+
+A separate series gives the fake worker 64 slots and 5\,ms service and sets the
+proxy window to 64. All 18,432 calls succeed, but finite-workload throughput is
+only 307--345 calls/s. No worker waiters are observed; proxy process CPU is
+9.08--10.17\,s during approximately 8.9--10.0\,s of workload, consistent with
+roughly one busy core, with slightly different accounting windows.
+Caller prediction timeouts remain 46.41\% without control and 56.98\% with it.
+Client p95 ranges overlap, and the sign of the paired latency difference varies.
+Generator lateness and transport costs are also material. These measurements
+motivate profiling the proxy request path and isolating deadline-sensitive
+prediction handling from control work; they do not identify a particular hot
+function, establish sustained serving capacity, or justify a language rewrite.
+The repository's repeated-control-attribution report retains configurations,
+source hashes, compressed raw evidence, and individual results for all 24 trials.

@@ -110,3 +110,6 @@ uv run python -m atfm_experiments.load \
 Keep output directories fresh; raw request, control, queue, process, and generator
 lag records accompany configuration/source hashes and summaries. These are
 integrated CPU/HTTP tests, not measurements of model-worker hardware capacity.
+
+For repeated control-on/off pairs and inherited descriptor limits, see the
+[attribution workflow](../docs/development/load-testing.md#repeated-control-attribution).

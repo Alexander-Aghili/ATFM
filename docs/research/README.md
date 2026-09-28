@@ -8,6 +8,7 @@ predate today's launchers. Use the [project README](../../README.md) and
 
 | Note | Role |
 | --- | --- |
+| [Repeated control attribution](2026-09-27-control-attribution.md) | Paired trials, prediction fallback counts, descriptor limits, and worker headroom. |
 | [HTTP load baseline](2026-09-27-http-load-baseline.md) | Real local service processes, fake worker, scheduled agent turns, burst scenarios, and raw evidence. |
 | [Control scaling implementation](../development/control-scaling.md) | Implemented fixes, design tradeoffs, parity tests, and before/after measurements. |
 | [Current bottleneck audit](2026-09-27-current-bottlenecks.md) | Fresh CPU profiles, history/queue trials, and whole-control-cycle priorities. |

@@ -1,0 +1,303 @@
+{
+  "config": {
+    "sessions": 1024,
+    "turns": 3,
+    "arrival_window_s": 2.0,
+    "pattern": "burst",
+    "tool_mean_s": 0.15,
+    "burst_period_s": 0.5,
+    "interactive_fraction": 0.25,
+    "worker_slots": 64,
+    "worker_service_s": 0.005,
+    "worker_fail_every": 0,
+    "proxy_window": 64,
+    "prediction_budget_s": 0.05,
+    "client_keepalive_connections": 0,
+    "request_timeout_s": 20.0,
+    "drain_timeout_s": 30.0,
+    "control_enabled": false,
+    "control_interval_s": 0.5,
+    "control_timeout_s": 2.0,
+    "monitor_interval_s": 0.2,
+    "draws": 128,
+    "slots": 10,
+    "slot_s": 0.25,
+    "max_hold_s": 0.5,
+    "capacity_kv_blocks": 1024.0,
+    "capacity_prefill_tokens": 16000.0,
+    "seed": 9
+  },
+  "wall_start": 1790562712.5511518,
+  "elapsed_s": 9.336469496000063,
+  "workload_elapsed_s": 9.333185337000032,
+  "cancelled_sessions": 0,
+  "proxy_traces_available": 3072,
+  "scheduled_session_rate_s": 512.0,
+  "sessions_started": 1024,
+  "maximum_requests": 3072,
+  "requests_attempted": 3072,
+  "requests_ok": 3072,
+  "status_counts": {
+    "200": 3072
+  },
+  "client_errors": {},
+  "drain_deadline_reached": false,
+  "session_errors": [],
+  "completed_request_rate_s": 329.1480763616159,
+  "client_duration_s": {
+    "count": 3072,
+    "p50": 1.5037072375016578,
+    "p95": 3.7545455955989384,
+    "p99": 4.088503724579532,
+    "max": 5.077491355001257
+  },
+  "client_to_headers_sent_s": {
+    "count": 3072,
+    "p50": 0.12894362499901035,
+    "p95": 0.3473819015009212,
+    "p99": 0.40272590680924614,
+    "max": 0.41895052900144947
+  },
+  "client_to_proxy_timestamp_s": {
+    "count": 3072,
+    "p50": 0.18128252029418945,
+    "p95": 0.397062885761261,
+    "p99": 0.4527000856399536,
+    "max": 0.4723994731903076
+  },
+  "proxy_upstream_s": {
+    "count": 3072,
+    "p50": 0.1128765344619751,
+    "p95": 0.6027393937110896,
+    "p99": 0.9497539949417112,
+    "max": 1.6163661479949951
+  },
+  "successful_client_duration_s": {
+    "count": 3072,
+    "p50": 1.5037072375016578,
+    "p95": 3.7545455955989384,
+    "p99": 4.088503724579532,
+    "max": 5.077491355001257
+  },
+  "proxy_arrival_to_release_s": {
+    "count": 3072,
+    "p50": 1.1128097772598267,
+    "p95": 3.181410813331604,
+    "p99": 3.374946348667145,
+    "max": 3.6039600372314453
+  },
+  "session_launch_lateness_s": {
+    "count": 1024,
+    "p50": 0.0066111220003222115,
+    "p95": 0.12754773735196062,
+    "p99": 0.14789285667244256,
+    "max": 0.15910865400292096
+  },
+  "tool_completion_lateness_s": {
+    "count": 2048,
+    "p50": 0.045803317001627875,
+    "p95": 0.10135250075036309,
+    "p99": 0.1194555700710407,
+    "max": 0.12992642300014268
+  },
+  "control_http_errors": 0,
+  "class_results": {
+    "interactive": {
+      "requests_ok": 828,
+      "client_duration_s": {
+        "count": 828,
+        "p50": 0.7845972494997113,
+        "p95": 1.340091874601603,
+        "p99": 1.6730585917900682,
+        "max": 2.2840662369999336
+      }
+    },
+    "background": {
+      "requests_ok": 2244,
+      "client_duration_s": {
+        "count": 2244,
+        "p50": 1.8676487684988388,
+        "p95": 3.7975336959012562,
+        "p99": 4.1274741054185515,
+        "max": 5.077491355001257
+      }
+    }
+  },
+  "control_steps": 0,
+  "control_errors": 0,
+  "holds_applied": 0,
+  "control_step_s": {
+    "count": 0,
+    "p50": null,
+    "p95": null,
+    "p99": null,
+    "max": null
+  },
+  "proxy_queue_peak_observed": 824,
+  "worker_waiting_peak_observed": 0,
+  "worker_active_peak": 7,
+  "probe_errors": 0,
+  "tool_publish_errors": 0,
+  "final_observations": {
+    "worker": {
+      "t": 1790562721.8848379,
+      "role": "worker",
+      "metrics": {
+        "uptime_s": 10.246188720997452,
+        "cpu_s": 1.143246055,
+        "rss_bytes": 126976000,
+        "peak_rss_native": 177680,
+        "in_flight_http": 0,
+        "event_loop_lag_s": {
+          "count": 202,
+          "p50": 0.0004890820011496516,
+          "p95": 0.0011164907509737503,
+          "p99": 0.0013874504389241318,
+          "max": 0.0016830199994728873
+        },
+        "endpoints": {
+          "/healthz": {
+            "total": 1,
+            "errors": 0,
+            "recent_duration_s": {
+              "count": 1,
+              "p50": 0.0005633139990095515,
+              "p95": 0.0005633139990095515,
+              "p99": 0.0005633139990095515,
+              "max": 0.0005633139990095515
+            }
+          },
+          "/v1/chat/completions": {
+            "total": 3072,
+            "errors": 0,
+            "recent_duration_s": {
+              "count": 3072,
+              "p50": 0.007714978999501909,
+              "p95": 0.013012235798487372,
+              "p99": 0.026932862671856118,
+              "max": 0.08614311500059557
+            }
+          }
+        },
+        "role": "worker",
+        "worker": {
+          "received": 3072,
+          "waiting": 0,
+          "active": 0,
+          "completed": 3072,
+          "failed": 0,
+          "max_active": 7
+        }
+      },
+      "probe_s": 0.0021542690010392107
+    },
+    "board": {
+      "t": 1790562721.8850806,
+      "role": "board",
+      "metrics": {
+        "uptime_s": 9.822048703998007,
+        "cpu_s": 1.5254583359999998,
+        "rss_bytes": 138498048,
+        "peak_rss_native": 177680,
+        "in_flight_http": 0,
+        "event_loop_lag_s": {
+          "count": 194,
+          "p50": 0.00030200999863154443,
+          "p95": 0.0012603833500179434,
+          "p99": 0.0017564413795116678,
+          "max": 0.001925384999776722
+        },
+        "endpoints": {
+          "/healthz": {
+            "total": 1,
+            "errors": 0,
+            "recent_duration_s": {
+              "count": 1,
+              "p50": 0.0005625079975288827,
+              "p95": 0.0005625079975288827,
+              "p99": 0.0005625079975288827,
+              "max": 0.0005625079975288827
+            }
+          },
+          "/predict": {
+            "total": 2951,
+            "errors": 0,
+            "recent_duration_s": {
+              "count": 2951,
+              "p50": 0.0007884749975346494,
+              "p95": 0.0019662794984469656,
+              "p99": 0.0029590534995804774,
+              "max": 0.023010787001112476
+            }
+          }
+        },
+        "role": "board",
+        "snapshot_t": null,
+        "snapshot_age_s": null,
+        "sessions": 0
+      },
+      "probe_s": 0.002320428000530228
+    },
+    "proxy": {
+      "t": 1790562721.8852549,
+      "role": "proxy",
+      "metrics": {
+        "uptime_s": 9.39891616299792,
+        "cpu_s": 9.564104186,
+        "rss_bytes": 166113280,
+        "peak_rss_native": 177680,
+        "in_flight_http": 0,
+        "event_loop_lag_s": {
+          "count": 145,
+          "p50": 0.005826673000410662,
+          "p95": 0.055288099002791524,
+          "p99": 0.11691368104162393,
+          "max": 0.15979602900115425
+        },
+        "endpoints": {
+          "/healthz": {
+            "total": 1,
+            "errors": 0,
+            "recent_duration_s": {
+              "count": 1,
+              "p50": 0.0005467980008688755,
+              "p95": 0.0005467980008688755,
+              "p99": 0.0005467980008688755,
+              "max": 0.0005467980008688755
+            }
+          },
+          "/v1/chat/completions": {
+            "total": 3072,
+            "errors": 0,
+            "recent_duration_s": {
+              "count": 3072,
+              "p50": 1.278373768001984,
+              "p95": 3.391950044399527,
+              "p99": 3.7704593606893466,
+              "max": 4.483333547999791
+            }
+          }
+        },
+        "role": "proxy",
+        "queue": {
+          "queued": 0,
+          "in_flight": 0,
+          "held": 0,
+          "caps": 0,
+          "alarms": 0,
+          "overflow": false
+        },
+        "predictions": {
+          "disabled": 0,
+          "attempted": 3072,
+          "used": 1723,
+          "timeout": 1349,
+          "error": 0,
+          "cancelled": 0,
+          "pending": 0
+        }
+      },
+      "probe_s": 0.0016191120012081228
+    }
+  }
+}
