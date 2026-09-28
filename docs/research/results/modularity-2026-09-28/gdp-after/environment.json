@@ -1,0 +1,27 @@
+{
+  "python": "3.12.13",
+  "platform": "Linux-6.17.0-1032-oem-x86_64-with-glibc2.39",
+  "numpy": "2.5.3",
+  "source_sha256": "c9251a8b2e05d7138a32abe9c78398da6fc85b398bfd3146531256eb83e23082",
+  "driver_sha256": "3ca2c3ee5d39479ed33ae0b3015397dd8654675edbbc61439c0c904d5f0f28eb",
+  "arguments": {
+    "sessions": [
+      100000
+    ],
+    "slots": [
+      300
+    ],
+    "draws": [
+      128
+    ],
+    "regimes": [
+      "open",
+      "saturated",
+      "mixed"
+    ],
+    "repeats": 3,
+    "out": "/home/alexsky2/Company/docs/research/results/modularity-2026-09-28/gdp-after"
+  },
+  "rss": "Process high-water RSS including imports, setup, results and hashing; cumulative across cases. Run one case per process for attribution.",
+  "setup": "excluded; one untimed warmup; three repeats by default; serialization excluded"
+}

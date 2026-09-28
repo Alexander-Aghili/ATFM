@@ -106,3 +106,18 @@ expiry, ordering, and fallback behavior before replacing the current path.
 A full rewrite now would duplicate scientific and integration validation without
 an established performance target. Neither Python nor Rust fixes duplicate
 network calls, repeated file scans, or an inefficient queue algorithm by itself.
+
+## Function-boundary refactor (28 September 2026)
+
+The repository now enforces a 20-physical-line function limit. This preserves
+algorithms and public behavior but adds Python call boundaries; exact timing
+equality is not assumed. See the [measured equivalence and timing record](../research/results/modularity-2026-09-28/).
+
+One measured regression was repeated GDP hold-window boundary lookup. The
+planner now memoizes the existing binary search by starting slot for each plan.
+The cache is cleared before every plan, including when configuration changes.
+It retains the original floating-point comparisons and never caches feasibility,
+which changes as demand is committed. For U distinct start slots, this boundary
+work changes from O(N log S) to O(U log S + N), with O(U) storage and U <= S.
+The chance-constraint thresholds, range index, assignment order, tenant caps,
+and scan fallback are unchanged.

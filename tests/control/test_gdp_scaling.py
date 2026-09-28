@@ -84,3 +84,19 @@ def test_large_index_preserves_capacity_rounding_and_fallback():
             options = dict(slot_s=1, horizon_s=100, max_hold_s=100)
             args = (0, snap, {'kv_blocks': capacity}, [Deferrable('a', 't', 0, need, 0), Deferrable('b', 't', 0, 0, 0)])
             assert GdpPlanner(**options).plan(*args) == reference_planner(**options).plan(*args)
+
+
+def test_slot_limits_are_cached_only_within_a_plan():
+    planner = GdpPlanner(slot_s=1., horizon_s=100., max_hold_s=100.)
+    samples = np.arange(1., 101.)[:, None] * 1000
+    snap = ForecastSnapshot(0., list(range(1, 101)), 'test',
+                            {r: {'interactive': samples} for r in ('kv_blocks', 'prefill_tokens')})
+    args = (0., snap, {'kv_blocks': 500., 'prefill_tokens': 500.},
+            [Deferrable(str(i), 't', 0., 10, 10) for i in range(20)])
+    first = planner.plan(*args)
+    assert planner._slot_stops == {0: 100}
+    planner.max_hold_s = 2.0
+    second = planner.plan(*args)
+    assert planner._slot_stops == {0: 3}
+    assert all(d.release_not_before == 100.0 for d in first)
+    assert all(d.release_not_before == 2.0 for d in second)

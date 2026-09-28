@@ -204,3 +204,17 @@ and event hashes; their 21-sample medians differ by +1.8\% for wrapped output an
 maintenance decision, not universal performance equivalence. The final suite
 passes 420 tests with five skips. The dated core-refactor report records the
 fixtures, intermediate revisions, raw timings, and validation limits.
+
+
+\paragraph{Implementation structure and equivalent execution.}
+The September 28 modularity pass separates application handlers, predictor
+fitting, event processing, simulation transitions, and experiment reporting into
+functions of at most 20 source lines. Explicit depth-first stacks replace recursive
+synthetic-family generation and cloning while preserving seeded draw order.
+The GDP implementation caches its exact hold-window boundary search by starting
+slot within each planning pass; feasibility itself remains uncached because
+committed demand changes. For $N$ sessions, $S$ slots, and $U\leq S$ distinct
+starting slots, boundary-search work is $O(U\log S+N)$ with $O(U)$ storage.
+This is an implementation change, not an additional forecast or policy claim.
+The reproducibility record in \texttt{docs/research/results/modularity-2026-09-28/}
+reports output equivalence and CPU timing limits.

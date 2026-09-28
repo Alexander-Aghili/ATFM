@@ -1,0 +1,27 @@
+{
+  "python": "3.12.13",
+  "platform": "Linux-6.17.0-1032-oem-x86_64-with-glibc2.39",
+  "numpy": "2.5.3",
+  "source_sha256": "74f6ecd73be0507e98392ae1832b09f5eccb219cbd51e1adead1e72229ab444e",
+  "driver_sha256": "3ca2c3ee5d39479ed33ae0b3015397dd8654675edbbc61439c0c904d5f0f28eb",
+  "arguments": {
+    "sessions": [
+      100000
+    ],
+    "slots": [
+      300
+    ],
+    "draws": [
+      128
+    ],
+    "regimes": [
+      "open",
+      "saturated",
+      "mixed"
+    ],
+    "repeats": 3,
+    "out": "docs/research/results/modularity-2026-09-28/gdp-cached"
+  },
+  "rss": "Process high-water RSS including imports, setup, results and hashing; cumulative across cases. Run one case per process for attribution.",
+  "setup": "excluded; one untimed warmup; three repeats by default; serialization excluded"
+}

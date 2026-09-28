@@ -90,6 +90,7 @@ class GdpPlanner:
         self.slot_s, self.horizon_s, self.eps, self.max_hold_s = slot_s, horizon_s, eps, max_hold_s
         self.last_assignment: dict[int, list[str]] = {}
         self.max_imposed_delay: dict[str, float] = {}
+        self._slot_stops: dict[int, int] = {}
 
     @property
     def n_slots(self) -> int:
@@ -154,6 +155,9 @@ class GdpPlanner:
         return int(slots[feasible[0]]) if len(feasible) else None
 
     def _slot_stop(self, start):
+        """Cache exact floating-point hold boundaries for this planning pass."""
+        if start in self._slot_stops:
+            return self._slot_stops[start]
         low, high = start, self.n_slots
         while low < high:
             middle = (low + high) // 2
@@ -161,8 +165,8 @@ class GdpPlanner:
                 high = middle
             else:
                 low = middle + 1
-        stop = low
-        return stop
+        self._slot_stops[start] = low
+        return low
 
     def _scan_first_slot(self, d, start, demand, committed, capacity):
         for k in range(start, self.n_slots):
@@ -182,6 +186,7 @@ class GdpPlanner:
                  and self.max_hold_s >= 64 * self.slot_s else None)
         self.last_assignment = {}
         self.max_imposed_delay = {}
+        self._slot_stops.clear()
         tenant_max_delay = tenant_max_delay or {}
         out = []
         for d in sorted(deferrable, key=lambda x: (x.eta_s, x.session_id)):
