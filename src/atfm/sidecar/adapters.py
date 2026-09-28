@@ -10,8 +10,8 @@ from __future__ import annotations
 import uuid
 from typing import Callable
 
-from atfm.schema.events import ToolData, ToolEnd, ToolProgress, ToolStart
-from atfm.sidecar.core import ToolContext, _safe_publish, classify_tool, command_signature, run_tool
+from atfm.schema.events import ToolEnd, ToolStart
+from atfm.sidecar.core import ToolContext, _ToolEvents, _safe_publish, classify_tool, command_signature, run_tool
 from atfm.sidecar.config import SidecarConfig
 from atfm.sidecar.parsers import default_parsers
 
@@ -41,62 +41,61 @@ class SidecarExecutor:
 
 def wrap_executor(fn: Callable, cfg: SidecarConfig, *, output_key="output", rc_key="returncode",
                   tuple_result: bool = False, extract: Callable | None = None) -> Callable:
-    """Wrap `fn(command, **kw) -> result`. With `tuple_result`, the result is `(output, returncode)`; `extract`
-    maps any other result shape to `(output, returncode)`. The result is returned unchanged whatever happens
-    after the executor returns (spec 10: the result path is a pass-through)."""
+    """Wrap a synchronous executor while preserving its result and exception semantics."""
+    return _ExecutorWrapper(fn, cfg, output_key, rc_key, tuple_result, extract)
 
-    def wrapped(command: str, *args, **kwargs):
-        cfg.wait_for_gate()
-        tool = classify_tool(command)
-        call_id = uuid.uuid4().hex[:16]
-        t0 = cfg.clock()
-        _safe_publish(cfg.bus, ToolStart(t=t0, session_id=cfg.session_id, turn_index=cfg.turn_index, call_id=call_id,
-                                         tool_name=tool, backend_id=cfg.backend_for(tool), args_hash=command_signature(command)))
-        cfg.turn_index += 1
+
+class _ExecutorWrapper:
+    def __init__(self, fn, cfg, output_key, rc_key, tuple_result, extract):
+        self.fn, self.cfg = fn, cfg
+        self.output_key, self.rc_key = output_key, rc_key
+        self.tuple_result, self.extract = tuple_result, extract
+
+    def __call__(self, command: str, *args, **kwargs):
+        call_id = self._start(command)
         try:
-            result = fn(command, *args, **kwargs)
+            result = self.fn(command, *args, **kwargs)
         except BaseException:
-            _safe_publish(cfg.bus, ToolEnd(t=cfg.clock(), session_id=cfg.session_id, call_id=call_id, exit_status=-1, output_chars=0))
+            self._end(call_id, self.cfg.clock(), -1, 0)
             raise
-        t1 = cfg.clock()
+        self._complete(call_id, result, self.cfg.clock())
+        return result
+
+    def _start(self, command):
+        cfg = self.cfg
+        cfg.wait_for_gate()
+        tool, call_id = classify_tool(command), uuid.uuid4().hex[:16]
+        _safe_publish(cfg.bus, ToolStart(t=cfg.clock(), session_id=cfg.session_id, turn_index=cfg.turn_index,
+                     call_id=call_id, tool_name=tool, backend_id=cfg.backend_for(tool), args_hash=command_signature(command)))
+        cfg.turn_index += 1
+        return call_id
+
+    def _result_fields(self, result):
+        if self.extract is not None:
+            output, rc = self.extract(result)
+        elif self.tuple_result:
+            output, rc = result[0], result[1]
+        else:
+            output, rc = result.get(self.output_key, ''), result.get(self.rc_key, 0)
+        text = output if isinstance(output, str) else bytes(output).decode('utf-8', errors='replace')
+        return text, rc
+
+    def _complete(self, call_id, result, now):
         try:
-            if extract is not None:
-                output, rc = extract(result)
-            elif tuple_result:
-                output, rc = result[0], result[1]
-            else:
-                output, rc = result.get(output_key, ""), result.get(rc_key, 0)
-            text = output if isinstance(output, str) else bytes(output).decode("utf-8", errors="replace")
-        except Exception:                          # unknown result shape: close the state path, hand the result back
-            _safe_publish(cfg.bus, ToolEnd(t=t1, session_id=cfg.session_id, call_id=call_id, exit_status=0, output_chars=0))
-            return result
-        parsers = default_parsers()
-        last = None
+            text, rc = self._result_fields(result)
+        except Exception:
+            self._end(call_id, now, 0, 0)
+            return
+        ctx = ToolContext(self.cfg.session_id, self.cfg.turn_index, '')
+        events = _ToolEvents(ctx, self.cfg.bus, call_id, default_parsers())
         for line in text.splitlines():
-            for p in parsers:
-                try:
-                    prog = p.feed(line, t1)
-                    if prog is not None:
-                        if prog.get("completed") != last:
-                            last = prog["completed"]
-                            total = prog.get("total")
-                            _safe_publish(cfg.bus, ToolProgress(t=t1, session_id=cfg.session_id, call_id=call_id,
-                                                                completed=float(prog["completed"]),
-                                                                total=None if total is None else float(total), phase=prog.get("phase")))
-                        break
-                    fd = getattr(p, "feed_data", None)
-                    if fd is not None:
-                        d = fd(line, t1)
-                        if d is not None:
-                            _safe_publish(cfg.bus, ToolData(t=t1, session_id=cfg.session_id, call_id=call_id,
-                                                            metric=d["metric"], value=float(d["value"])))
-                except Exception:
-                    continue
+            events.feed(line, now)
         try:
             exit_status = int(rc) if rc is not None else 0
         except (TypeError, ValueError):
             exit_status = 0
-        _safe_publish(cfg.bus, ToolEnd(t=t1, session_id=cfg.session_id, call_id=call_id, exit_status=exit_status, output_chars=len(text)))
-        return result
+        self._end(call_id, now, exit_status, len(text))
 
-    return wrapped
+    def _end(self, call_id, now, status, chars):
+        _safe_publish(self.cfg.bus, ToolEnd(t=now, session_id=self.cfg.session_id, call_id=call_id,
+                                           exit_status=status, output_chars=chars))

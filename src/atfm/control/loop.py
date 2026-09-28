@@ -7,7 +7,7 @@ import json
 import time
 from pathlib import Path
 
-from atfm.control.directives import HoldBatch, HoldUpdate, MAX_HOLD_BATCH
+from atfm.control.directives import HoldBatch, HoldUpdate, MAX_HOLD_BATCH, TierDirective, TouchDirective
 
 
 class ControlLoop:
@@ -45,6 +45,77 @@ class ControlLoop:
             self.totals["errors"] += 1
             self._log({"t": now, "error": "board unreachable"})
             return s
+        holds = self._valid_holds(d, now, s)
+        self._send_holds(holds, s)
+        self._apply_touches(d, now, s)
+        self._apply_tiers(d, now, s)
+        self._record_step(d, now, s)
+        return s
+
+
+    def _record_step(self, d, now, s):
+        rep = d.get("replica")
+        s["replica"] = int(rep["replicas_at_least"]) if rep else None
+        for k in ("holds", "touches", "touch_tokens", "errors"):
+            self.totals[k] += s[k]
+        self._log({"t": now, **s, "tier": d.get("tier", []), "replica": rep})
+
+
+    def _apply_tiers(self, d, now, s):
+        s["tier"] = len(d.get("tier", []))
+        if self.lmcache is not None:
+            for t in d.get("tier", []):
+                if self.lmcache.apply_tier(TierDirective(**{k: v for k, v in t.items() if k != "kind"}), now).get("ok"):
+                    s["tier_applied"] += 1
+            self.lmcache.release_expired(now)
+            s["errors"] += self.lmcache.errors - getattr(self, "_lm_err", 0)
+            self._lm_err = self.lmcache.errors
+
+
+    def _apply_touches(self, d, now, s):
+        for t in d.get("touches", []):
+            if t.get("expires_at") is not None and now >= float(t["expires_at"]):
+                continue
+            if self.lmcache is not None:
+                if self.lmcache.apply_touch(TouchDirective(**{k: v for k, v in t.items() if k != "kind"}), now).get("ok"):
+                    s["pins"] += 1
+                continue
+            self._proxy_touch(t, s)
+
+
+    def _proxy_touch(self, t, s):
+        try:
+            r = self.client.post(f"{self.proxy_url}/touch", json={"session_id": t["session_id"]})
+            if r.status_code == 200 and r.json().get("ok"):
+                s["touches"] += 1
+                s["touch_tokens"] += int(r.json().get("prompt_tokens", 0))
+        except Exception:
+            s["errors"] += 1
+
+
+    def _send_holds(self, holds, s):
+        for start in range(0, len(holds), self.hold_batch_size):
+            batch = HoldBatch(holds=holds[start:start + self.hold_batch_size])
+            try:
+                applied = self._apply_hold_batch(batch)
+                s["holds"] += applied
+            except Exception:
+                s["errors"] += 1
+
+
+    def _apply_hold_batch(self, batch):
+        response = self.client.post(f"{self.proxy_url}/directives/batch", json=batch.model_dump())
+        result = response.json()
+        applied = result.get("applied")
+        expired = result.get("expired")
+        if (response.status_code != 200 or result.get("ok") is not True
+                or type(applied) is not int or type(expired) is not int
+                or min(applied, expired) < 0 or applied + expired != len(batch.holds)):
+            raise ValueError("invalid hold-batch acknowledgement")
+        return applied
+
+
+    def _valid_holds(self, d, now, s):
         holds = []
         for h in d.get("holds", []):
             try:
@@ -54,49 +125,7 @@ class ControlLoop:
                 continue
             if hold.expires_at is None or now < hold.expires_at:
                 holds.append(hold)
-        for start in range(0, len(holds), self.hold_batch_size):
-            batch = HoldBatch(holds=holds[start:start + self.hold_batch_size])
-            try:
-                response = self.client.post(f"{self.proxy_url}/directives/batch", json=batch.model_dump())
-                result = response.json()
-                applied = result.get("applied")
-                expired = result.get("expired")
-                if (response.status_code != 200 or result.get("ok") is not True
-                        or type(applied) is not int or type(expired) is not int
-                        or min(applied, expired) < 0 or applied + expired != len(batch.holds)):
-                    raise ValueError("invalid hold-batch acknowledgement")
-                s["holds"] += applied
-            except Exception:
-                s["errors"] += 1
-        from atfm.control.directives import TierDirective, TouchDirective
-        for t in d.get("touches", []):
-            if t.get("expires_at") is not None and now >= float(t["expires_at"]):
-                continue
-            if self.lmcache is not None:
-                if self.lmcache.apply_touch(TouchDirective(**{k: v for k, v in t.items() if k != "kind"}), now).get("ok"):
-                    s["pins"] += 1
-                continue
-            try:
-                r = self.client.post(f"{self.proxy_url}/touch", json={"session_id": t["session_id"]})
-                if r.status_code == 200 and r.json().get("ok"):
-                    s["touches"] += 1
-                    s["touch_tokens"] += int(r.json().get("prompt_tokens", 0))
-            except Exception:
-                s["errors"] += 1
-        s["tier"] = len(d.get("tier", []))
-        if self.lmcache is not None:
-            for t in d.get("tier", []):
-                if self.lmcache.apply_tier(TierDirective(**{k: v for k, v in t.items() if k != "kind"}), now).get("ok"):
-                    s["tier_applied"] += 1
-            self.lmcache.release_expired(now)
-            s["errors"] += self.lmcache.errors - getattr(self, "_lm_err", 0)
-            self._lm_err = self.lmcache.errors
-        rep = d.get("replica")
-        s["replica"] = int(rep["replicas_at_least"]) if rep else None
-        for k in ("holds", "touches", "touch_tokens", "errors"):
-            self.totals[k] += s[k]
-        self._log({"t": now, **s, "tier": d.get("tier", []), "replica": rep})
-        return s
+        return holds
 
     def run(self, steps: int | None = None) -> None:
         n = 0
