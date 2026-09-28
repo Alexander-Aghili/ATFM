@@ -24,6 +24,7 @@ class LoadConfig(BaseModel):
     client_keepalive_connections: int = Field(default=0, ge=0)
     request_timeout_s: float = Field(default=20, gt=0)
     drain_timeout_s: float = Field(default=30, gt=0)
+    control_enabled: bool = True
     control_interval_s: float = Field(default=.5, gt=0)
     control_timeout_s: float = Field(default=2, gt=0)
     monitor_interval_s: float = Field(default=.2, gt=0)

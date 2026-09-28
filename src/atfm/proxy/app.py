@@ -62,6 +62,7 @@ def create_app(cfg: ProxyConfig, *, upstream_client: httpx.AsyncClient | None = 
     st.predictor = predictor
     st.last_index = {}
     st.pool = ThreadPoolExecutor(max_workers=4)
+    st.predictions = dict(disabled=0, attempted=0, used=0, timeout=0, error=0, cancelled=0, pending=0)
     st.turns = {}
     st.known = set()
     st.trace = open(cfg.trace_path, "a") if cfg.trace_path else None
@@ -69,6 +70,7 @@ def create_app(cfg: ProxyConfig, *, upstream_client: httpx.AsyncClient | None = 
     async def predict(meta: CallMeta) -> tuple[float, float]:
         e_service = service_time(meta, cfg)
         if st.predictor is None:
+            st.predictions["disabled"] += 1
             return e_service, 0.0
 
         def _call():
@@ -78,12 +80,26 @@ def create_app(cfg: ProxyConfig, *, upstream_client: httpx.AsyncClient | None = 
             return (float(st.predictor.expected_service(meta.session_id, meta.isl, meta.predicted_osl)),
                     float(st.predictor.expected_tool_next(meta.session_id)))
 
-        fut = st.pool.submit(_call)
+        st.predictions["attempted"] += 1
+        st.predictions["pending"] += 1
+        fut = None
         try:
-            return await asyncio.wait_for(asyncio.wrap_future(fut), cfg.board_timeout_s)
-        except Exception:
-            fut.cancel()
+            fut = st.pool.submit(_call)
+            result = await asyncio.wait_for(asyncio.wrap_future(fut), cfg.board_timeout_s)
+            st.predictions["used"] += 1
+            return result
+        except asyncio.CancelledError:
+            st.predictions["cancelled"] += 1
+            if fut is not None:
+                fut.cancel()
+            raise
+        except Exception as exc:
+            st.predictions["timeout" if isinstance(exc, TimeoutError) else "error"] += 1
+            if fut is not None:
+                fut.cancel()
             return e_service, 0.0
+        finally:
+            st.predictions["pending"] -= 1
 
     def emit(e) -> None:
         try:
@@ -112,7 +128,7 @@ def create_app(cfg: ProxyConfig, *, upstream_client: httpx.AsyncClient | None = 
 
     @app.get("/state")
     async def state():
-        return {**st.queue.stats(), "touches": st.touches, "touch_tokens": st.touch_tokens, "touch_failures": st.touch_failures}
+        return {**st.queue.stats(), "predictions": dict(st.predictions), "touches": st.touches, "touch_tokens": st.touch_tokens, "touch_failures": st.touch_failures}
 
     def apply_holds(holds: list[HoldUpdate]) -> dict:
         now = clock()

@@ -72,6 +72,8 @@ async def exercise(cfg: LoadConfig, endpoints: dict[str, str], directory: Path) 
                               interval_s=cfg.control_interval_s, log_path=directory / 'control.jsonl')
 
         async def control_task():
+            if not cfg.control_enabled:
+                return
             while not stop.is_set():
                 start = loop.time()
                 result = await asyncio.to_thread(control.step)

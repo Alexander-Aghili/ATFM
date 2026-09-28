@@ -175,3 +175,37 @@ Tests check configuration bounds, shared burst deadlines, worker concurrency,
 error injection, cancellation, actual HTTP agent/control flows, event counts,
 refusal to overwrite evidence, drain-deadline reporting, and child cleanup after
 startup failure. Timing thresholds are not used as performance assertions.
+
+### Repeated control attribution
+
+Run paired trials with fresh processes, identical seeds, and alternating order:
+
+```bash
+python -m atfm_experiments.load.attribution --out runs/control-attribution \
+  --sessions 256 1024 --repeats 3
+```
+
+The default is burst traffic. Use `--config` for other workloads. Each pair
+shares all settings except `control_enabled`; repeat seeds increase by one.
+Existing case directories are rejected before starting. Each completed case is
+persisted immediately, including failed runs; failure makes the command exit
+nonzero. Run sequentially on an otherwise idle host.
+
+Control-off leaves request predictions enabled but never ticks the board or
+applies directives. Its board therefore has no refreshed session registry or
+forecast. This is an operational ablation of the entire periodic control path,
+**not** a comparison with equally informed predictions or a measure of policy
+quality. Differences can include policy effects, state population, compute,
+and changed request timing.
+
+The proxy now exposes fixed-size `predictions` counters in `/state` and harness
+observations: `attempted`, `used`, `timeout`, `error`, `cancelled`,
+`pending`, and `disabled`. For enabled predictions,
+attempted = used + timeout + error + cancelled + pending.
+`used` means the caller received a result within its await budget.
+`timeout` includes TimeoutError raised by the predictor as well as the caller's
+deadline; `error` covers other exceptions. Neither counter represents worker
+thread occupancy. A timed-out synchronous HTTP call can continue after the
+caller has fallen back; `pending` counts awaiting callers, not those threads.
+Counters are process-local and reset on restart. No per-request history is
+retained in the production proxy.

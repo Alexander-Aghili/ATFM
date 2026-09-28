@@ -130,3 +130,27 @@ def test_drain_deadline_reports_incomplete_sessions_and_reaps_children(tmp_path)
     assert result['drain_deadline_reached'] and result['cancelled_sessions'] == 2
     assert result['requests_ok'] == 2 and result['maximum_requests'] == 4
     assert all(p['exit_code'] is not None for p in json.loads((directory / 'shutdown.json').read_text()).values())
+
+
+def test_attribution_pairs_seeds_and_alternates_order():
+    from atfm_experiments.load.attribution import cases
+
+    planned = list(cases(LoadConfig(seed=7), [4, 4], 2))
+    assert len({name for name, _ in planned}) == 4
+    assert [(c.seed, c.control_enabled) for _, c in planned] == [(7, True), (7, False), (8, False), (8, True)]
+    with pytest.raises(ValueError):
+        list(cases(LoadConfig(), [4], 0))
+
+
+def test_control_off_keeps_predictions_but_never_ticks_board(tmp_path):
+    require_servers()
+    from atfm_experiments.load.__main__ import run_case
+
+    result = run_case(LoadConfig(sessions=4, turns=2, arrival_window_s=.04, worker_service_s=.005,
+                                tool_mean_s=.02, draws=4, control_enabled=False), tmp_path / 'off')
+    assert result['requests_ok'] == 8
+    assert result['control_steps'] == result['holds_applied'] == result['control_http_errors'] == 0
+    assert result['final_observations']['board']['metrics']['snapshot_t'] is None
+    counts = result['final_observations']['proxy']['metrics']['predictions']
+    assert counts['attempted'] == 8 and counts['pending'] == 0
+    assert counts['used'] + counts['error'] + counts['timeout'] == 8

@@ -142,6 +142,7 @@ def build_app(role: str, payload: dict) -> FastAPI:
             result['worker'] = dict(app.state.worker)
         elif role == 'proxy':
             result['queue'] = app.state.queue.stats()
+            result['predictions'] = dict(app.state.predictions)
         else:
             snapshot = app.state.snapshot
             result['snapshot_t'] = None if snapshot is None else snapshot.t

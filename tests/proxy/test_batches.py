@@ -97,3 +97,43 @@ async def test_proxy_combines_board_calls_and_uses_local_fallback(status):
         assert len(calls) == 1
         app.state.pool.shutdown()
     await upstream.aclose()
+
+
+@pytest.mark.parametrize('outcome', ['used', 'error', 'timeout', 'disabled', 'cancelled'])
+async def test_prediction_outcomes_account_for_each_request(outcome):
+    import asyncio
+    import threading
+    from tests.proxy.test_hardening import _upstream
+
+    started, release = threading.Event(), threading.Event()
+    def predict(*args):
+        started.set()
+        if outcome in ('timeout', 'cancelled'):
+            release.wait(2)
+        if outcome == 'error':
+            raise ValueError('bad prediction')
+        return 2., 3.
+
+    upstream = httpx.AsyncClient(transport=httpx.ASGITransport(app=_upstream()), base_url='http://up')
+    app = create_app(ProxyConfig(upstream_url='http://up', board_timeout_s=.02 if outcome == 'timeout' else 1),
+                     upstream_client=upstream,
+                     predictor=None if outcome == 'disabled' else Mock(expected_times=predict))
+    try:
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url='http://proxy') as client:
+            task = asyncio.create_task(client.post('/v1/chat/completions', json={'messages': []}))
+            if outcome == 'cancelled':
+                assert await asyncio.to_thread(started.wait, 1)
+                task.cancel()
+                with pytest.raises(asyncio.CancelledError):
+                    await task
+            else:
+                assert (await task).status_code == 200
+            counts = (await client.get('/state')).json()['predictions']
+            assert counts[outcome] == 1
+            assert counts['pending'] == 0
+            assert counts['attempted'] == (outcome != 'disabled')
+            assert sum(counts[k] for k in ('used', 'error', 'timeout', 'cancelled')) == counts['attempted']
+    finally:
+        release.set()
+        app.state.pool.shutdown()
+        await upstream.aclose()
