@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
-from contextlib import asynccontextmanager, suppress
+from contextlib import asynccontextmanager, nullcontext, suppress
 import json
 from pathlib import Path
 import socket
@@ -24,6 +24,7 @@ from atfm.proxy.config import ProxyConfig
 from atfm.schema.trace import TraceRow, TraceTable
 from .config import LoadConfig
 from .metrics import Diagnostics, RequestTiming
+from .profiling import profile_event_loop
 
 
 def training_trace(cfg: LoadConfig) -> TraceTable:
@@ -122,7 +123,8 @@ def build_app(role: str, payload: dict) -> FastAPI:
         async with original_lifespan(application):
             task = asyncio.create_task(heartbeat())
             try:
-                yield
+                with profile_event_loop(directory) if role == 'proxy' and cfg.profile_proxy else nullcontext():
+                    yield
             finally:
                 task.cancel()
                 with suppress(asyncio.CancelledError):

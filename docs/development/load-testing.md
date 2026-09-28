@@ -224,3 +224,23 @@ not change it automatically. For an explicit local capacity experiment:
 
 Check server logs as well as client outcomes for resource exhaustion. Client
 transport failures retain exception type and message in the raw request record.
+
+### Profiling the proxy
+
+Set `"profile_proxy": true` in a load configuration to capture a cProfile
+profile of the proxy's serving thread. After graceful shutdown, the case
+directory contains `proxy.pstats`, a full function CSV, and text rankings by
+self and cumulative time. The run fails explicitly if the binary profile is
+missing (for example after a forced kill).
+
+Profiling starts in application lifespan and stops before shutdown cleanup.
+It includes serving/health/probe work, but excludes module imports and app
+construction. cProfile uses elapsed time and observes only this thread:
+selector waits are included, synchronous prediction worker threads are not.
+Async function call counts include coroutine resumes. Cumulative times overlap
+across callers and must not be summed as exclusive cost.
+
+Instrumentation changes scheduling and timeout frequency. Use profiles to locate
+work, then validate proposed changes in unprofiled runs with identical workload
+settings. Preserve failed or incomplete profile runs too; increasing timeouts
+creates a different workload and must be recorded.

@@ -161,3 +161,20 @@ def test_provenance_records_inherited_descriptor_limits():
     from atfm_experiments.load.runtime import provenance
 
     assert provenance()['rlimit_nofile'] == dict(zip(('soft', 'hard'), resource.getrlimit(resource.RLIMIT_NOFILE)))
+
+
+def test_profile_is_saved_after_real_http_shutdown(tmp_path):
+    import pstats
+    require_servers()
+    from atfm_experiments.load.__main__ import run_case
+
+    directory = tmp_path / 'profile'
+    result = run_case(LoadConfig(sessions=4, turns=1, arrival_window_s=.04,
+                                worker_service_s=.005, control_enabled=False, profile_proxy=True), directory)
+    assert result['requests_ok'] == 4
+    stats = pstats.Stats(str(directory / 'proxy.pstats'))
+    assert any(file.endswith('/atfm/proxy/app.py') and function == 'chat'
+               for file, _, function in stats.stats)
+    assert 'primitive_calls' in (directory / 'proxy-profile.csv').read_text()
+    assert 'function calls' in (directory / 'proxy-profile.txt').read_text()
+    assert not (directory / 'board.pstats').exists()
