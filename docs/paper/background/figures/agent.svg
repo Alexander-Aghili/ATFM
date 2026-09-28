@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="748" height="294" viewBox="0 0 748 294" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
+  <defs>
+    <marker id="r9ad953e6-arrow-333333" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/>
+    </marker>
+    <marker id="r9ad953e6-arrow-333333-back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="748" height="294" fill="#ffffff"/>
+  <path d="M94.5 40 H232.5 a8 8 0 0 1 8 8 V98 a8 8 0 0 1 -8 8 H94.5 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#e8eff6" stroke="#245b85"/>
+  <text x="163.5" y="68.4" fill="#000000" text-anchor="middle">LLM turn</text>
+  <text x="163.5" y="87.4" fill="#000000" text-anchor="middle">extends context</text>
+  <path d="M485.4 40 H665.4 a8 8 0 0 1 8 8 V98 a8 8 0 0 1 -8 8 H485.4 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#f6eee4" stroke="#a96522"/>
+  <text x="575.4" y="68.4" fill="#000000" text-anchor="middle">Tool execution</text>
+  <text x="575.4" y="87.4" fill="#000000" text-anchor="middle">uncertain completion</text>
+  <path d="M451.4 187.4 H699.4 a8 8 0 0 1 8 8 V245.4 a8 8 0 0 1 -8 8 H451.4 a8 8 0 0 1 -8 -8 V195.4 a8 8 0 0 1 8 -8 Z" fill="#e8eff6" stroke="#245b85"/>
+  <text x="575.4" y="215.8" fill="#000000" text-anchor="middle">Next LLM turn</text>
+  <text x="575.4" y="234.8" fill="#000000" text-anchor="middle">old prefix + new observation</text>
+  <path d="M48 162 H279 a8 8 0 0 1 8 8 V220 a8 8 0 0 1 -8 8 H48 a8 8 0 0 1 -8 -8 V170 a8 8 0 0 1 8 -8 Z" fill="#f6eee4" stroke="#a96522"/>
+  <text x="163.5" y="190.4" fill="#000000" text-anchor="middle">Retained state</text>
+  <text x="163.5" y="209.4" fill="#000000" text-anchor="middle">GPU, host, disk, or absent</text>
+  <path d="M 240.5 73 L 477.4 73" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#r9ad953e6-arrow-333333)"/>
+  <rect x="315.95" y="63.5" width="86" height="19" fill="#ffffff"/>
+  <text x="358.95" y="77.9" fill="#000000" text-anchor="middle">tool call</text>
+  <path d="M 575.4 106 L 575.4 187.4" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#r9ad953e6-arrow-333333)"/>
+  <rect x="544.9" y="137.2" width="61" height="19" fill="#ffffff"/>
+  <text x="575.4" y="151.6" fill="#000000" text-anchor="middle">result</text>
+  <path d="M 163.5 106 L 163.5 162" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#r9ad953e6-arrow-333333)"/>
+  <path d="M 287 195 L 352.5 195 C 359.51 195, 365.2 200.69, 365.2 207.7 L 365.2 207.7 C 365.2 214.71, 370.89 220.4, 377.9 220.4 L 443.4 220.4" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#r9ad953e6-arrow-333333)"/>
+  <rect x="279.1" y="185.5" width="94" height="19" fill="#ffffff"/>
+  <text x="326.1" y="199.9" fill="#000000" text-anchor="middle">reuse path</text>
+</svg>

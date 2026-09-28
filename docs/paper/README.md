@@ -97,3 +97,11 @@ and empirical-sampling choices. It distinguishes component CPU measurements from
 simulation outcomes and real-worker capacity. [Development decisions](../development/control-scaling.md)
 contain contracts, limitations, test coverage, and benchmark commands. The source
 bundle includes this file; regenerate with `python3 docs/paper/build_latex.py --bundle`.
+
+## Standalone LLM serving background
+
+The [background paper](background/README.md) explains inference serving from
+attention and KV-cache fundamentals through vLLM, LMCache, distributed serving,
+and agent scheduling. It includes mathematical derivations, original diagrams,
+a dated primary-source register, and an assessment of ATFM's incremental value.
+Its build and bibliography are independent of this research manuscript.

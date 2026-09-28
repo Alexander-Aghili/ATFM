@@ -4,6 +4,7 @@
 
 | Goal | Read |
 | --- | --- |
+| Learn LLM serving, KV caches, and ATFM's motivation | [Technical background paper](paper/background/README.md) |
 | Understand ATFM and run a CPU example | [Project README](../README.md) |
 | Distinguish implemented features from validated outcomes | [Implementation status](status.md) |
 | Start the proxy, board, and controller | [Local operations](operations.md) |

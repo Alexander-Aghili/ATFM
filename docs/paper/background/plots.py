@@ -13,7 +13,6 @@ plt.rcParams.update({'font.family':'DejaVu Sans','font.size':10,'axes.spines.top
 
 def save(fig,name):
     fig.savefig(OUT/f'{name}.pdf',bbox_inches='tight')
-    fig.savefig(OUT/f'{name}.png',dpi=160,bbox_inches='tight')
     plt.close(fig)
 
 

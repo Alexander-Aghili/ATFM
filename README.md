@@ -257,5 +257,6 @@ for concrete risks in the current implementation and what to measure first.
 - [Core developer guide](docs/development/core.md): extension points and behavioral contracts.
 - [Architecture design](docs/superpowers/specs/2026-09-22-atfm-architecture-design.md): detailed system design.
 - [Demonstration ladder](docs/research/2026-09-22-demonstration-ladder.md): what each evaluation stage establishes.
+- [LLM serving background](docs/paper/background/README.md): KV caches, inference engines, cache tiers, and ATFM's research rationale.
 - [Paper build guide](docs/paper/README.md): manuscript and figure artifacts.
 - [Master plan](detail.md): the longer research and implementation plan.

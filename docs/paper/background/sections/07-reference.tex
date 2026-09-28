@@ -132,6 +132,7 @@ implementation/evidence at the baseline revision. They are not upstream API
 contracts. The repository is available at
 \url{https://github.com/Alexander-Aghili/ATFM/tree/900d63b}.
 
+{\small
 \begin{longtable}{@{}p{0.43\linewidth}p{0.50\linewidth}@{}}
 \toprule Path & Responsibility or evidence\\\midrule\endfirsthead
 \toprule Path & Responsibility or evidence\\\midrule\endhead
@@ -149,6 +150,7 @@ contracts. The repository is available at
 \path{docs/research/2026-09-28-core-refactor.md} & Refactor decisions, parity hashes, timing limits, final tests\\
 \path{docs/paper/control-implementation.tex} & Main research paper's control implementation/evidence section\\\bottomrule
 \end{longtable}
+}
 
 The background paper intentionally has its own source, figures, and bibliography.
 It can be rebuilt without rewriting the main research manuscript or its frozen
@@ -165,11 +167,8 @@ for the direct agent-scheduling comparison. Read the relevant current project
 documentation before implementing an integration: a paper explains a design,
 but does not pin today's connector or controller API.
 
-Three questions deserve priority after the present documentation work.
-First, how much predictive information does tool progress add over age and tool
-identity at the precise lead times required by a real actuator? Second, can a
-pinned serving/cache stack turn that information into measurable ready-state
-advantages without increasing contention elsewhere? Third, after accounting for
-control overhead and fairness, is there a robust workload region where ATFM
-improves joint-SLO goodput or whole-job completion over strong simple policies?
-These questions connect the background directly to a falsifiable research plan.
+Three questions now connect this background to a falsifiable research plan:
+does progress improve forecasts at actionable lead times; can a real actuator
+convert those forecasts into ready-state advantages without displacing more
+valuable work; and does that advantage improve goodput or job completion over
+strong baselines after control costs and fairness are included?

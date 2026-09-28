@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="693" height="390" viewBox="0 0 693 390" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
+  <defs>
+    <marker id="r5a81f306-arrow-333333" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/>
+    </marker>
+    <marker id="r5a81f306-arrow-333333-back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="693" height="390" fill="#ffffff"/>
+  <path d="M48 40 H304 a8 8 0 0 1 8 8 V98 a8 8 0 0 1 -8 8 H48 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#e5f1e9" stroke="#32714b"/>
+  <text x="176" y="68.4" fill="#000000" text-anchor="middle">Sidecar signals</text>
+  <text x="176" y="87.4" fill="#000000" text-anchor="middle">starts, progress, completions</text>
+  <path d="M376 40 H624 a8 8 0 0 1 8 8 V98 a8 8 0 0 1 -8 8 H376 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#e5f1e9" stroke="#32714b"/>
+  <text x="500" y="68.4" fill="#000000" text-anchor="middle">Forecast board</text>
+  <text x="500" y="87.4" fill="#000000" text-anchor="middle">return time + demand samples</text>
+  <path d="M355 162 H645 a8 8 0 0 1 8 8 V220 a8 8 0 0 1 -8 8 H355 a8 8 0 0 1 -8 -8 V170 a8 8 0 0 1 8 -8 Z" fill="#f6eee4" stroke="#a96522"/>
+  <text x="500" y="190.4" fill="#000000" text-anchor="middle">Policy</text>
+  <text x="500" y="209.4" fill="#000000" text-anchor="middle">admission and placement proposals</text>
+  <path d="M60.5 162 H291.5 a8 8 0 0 1 8 8 V220 a8 8 0 0 1 -8 8 H60.5 a8 8 0 0 1 -8 -8 V170 a8 8 0 0 1 8 -8 Z" fill="#f6eee4" stroke="#a96522"/>
+  <text x="176" y="190.4" fill="#000000" text-anchor="middle">Proxy</text>
+  <text x="176" y="209.4" fill="#000000" text-anchor="middle">bounded holds and fallback</text>
+  <path d="M81.5 284 H270.5 a8 8 0 0 1 8 8 V342 a8 8 0 0 1 -8 8 H81.5 a8 8 0 0 1 -8 -8 V292 a8 8 0 0 1 8 -8 Z" fill="#ffffff" stroke="#000000"/>
+  <text x="176" y="312.4" fill="#000000" text-anchor="middle">Serving stack</text>
+  <text x="176" y="331.4" fill="#000000" text-anchor="middle">router, engine, cache</text>
+  <path d="M384.5 284 H615.5 a8 8 0 0 1 8 8 V342 a8 8 0 0 1 -8 8 H384.5 a8 8 0 0 1 -8 -8 V292 a8 8 0 0 1 8 -8 Z" fill="#ffffff" stroke="#000000"/>
+  <text x="500" y="312.4" fill="#000000" text-anchor="middle">Observed outcomes</text>
+  <text x="500" y="331.4" fill="#000000" text-anchor="middle">latency, residency, errors</text>
+  <path d="M 312 73 L 368 73" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#r5a81f306-arrow-333333)"/>
+  <path d="M 500 106 L 500 162" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#r5a81f306-arrow-333333)"/>
+  <path d="M 347 195 L 299.5 195" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#r5a81f306-arrow-333333)"/>
+  <path d="M 176 228 L 176 284" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#r5a81f306-arrow-333333)"/>
+  <path d="M 278.5 317 L 376.5 317" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#r5a81f306-arrow-333333)"/>
+  <path d="M 500 284 L 500 228" fill="none" stroke="#333333" stroke-width="1.6" stroke-dasharray="6.4 4.8" marker-end="url(#r5a81f306-arrow-333333)"/>
+</svg>

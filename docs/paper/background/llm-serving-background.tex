@@ -11,6 +11,9 @@
 \hypersetup{colorlinks=true,linkcolor=navy,citecolor=navy,urlcolor=navy,pdftitle={LLM Inference Serving: Foundations, Systems, and the Case for ATFM},pdfauthor={ATFM project}}
 \setlength{\headheight}{14pt}
 \pagestyle{fancy}\fancyhf{}\fancyhead[L]{\small LLM inference serving}\fancyhead[R]{\small Technical background}\fancyfoot[C]{\thepage}
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\textfraction}{0.08}
+\renewcommand{\floatpagefraction}{0.65}
 \setlength{\parskip}{4pt}\setlength{\parindent}{1em}
 \setlist{itemsep=3pt,topsep=5pt}
 \newcommand{\E}{\mathbb{E}}
@@ -70,5 +73,5 @@ was inspected at the cutoff date; deployment APIs must be pinned and tested.
 \input{sections/07-reference}
 \clearpage
 \phantomsection\addcontentsline{toc}{section}{References}
-\input{references}
+{\small\input{references}}
 \end{document}

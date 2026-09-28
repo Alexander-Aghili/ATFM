@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="567" height="512" viewBox="0 0 567 512" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
+  <defs>
+    <marker id="r2dae0fcb-arrow-333333" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/>
+    </marker>
+    <marker id="r2dae0fcb-arrow-333333-back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="567" height="512" fill="#ffffff"/>
+  <path d="M111 40 H233 a8 8 0 0 1 8 8 V98 a8 8 0 0 1 -8 8 H111 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#ffffff" stroke="#000000"/>
+  <text x="172" y="68.4" fill="#000000" text-anchor="middle">Application</text>
+  <text x="172" y="87.4" fill="#000000" text-anchor="middle">agent or user</text>
+  <path d="M82 162 H262 a8 8 0 0 1 8 8 V220 a8 8 0 0 1 -8 8 H82 a8 8 0 0 1 -8 -8 V170 a8 8 0 0 1 8 -8 Z" fill="#f6eee4" stroke="#a96522"/>
+  <text x="172" y="190.4" fill="#000000" text-anchor="middle">Gateway and router</text>
+  <text x="172" y="209.4" fill="#000000" text-anchor="middle">admission, placement</text>
+  <path d="M77.5 284 H266.5 a8 8 0 0 1 8 8 V342 a8 8 0 0 1 -8 8 H77.5 a8 8 0 0 1 -8 -8 V292 a8 8 0 0 1 8 -8 Z" fill="#e8eff6" stroke="#245b85"/>
+  <text x="172" y="312.4" fill="#000000" text-anchor="middle">Inference engine</text>
+  <text x="172" y="331.4" fill="#000000" text-anchor="middle">vLLM, SGLang, TRT-LLM</text>
+  <path d="M48 406 H296 a8 8 0 0 1 8 8 V464 a8 8 0 0 1 -8 8 H48 a8 8 0 0 1 -8 -8 V414 a8 8 0 0 1 8 -8 Z" fill="#e8eff6" stroke="#245b85"/>
+  <text x="172" y="434.4" fill="#000000" text-anchor="middle">GPU kernels</text>
+  <text x="172" y="453.4" fill="#000000" text-anchor="middle">attention, GEMM, collectives</text>
+  <path d="M338.5 284 H518.5 a8 8 0 0 1 8 8 V342 a8 8 0 0 1 -8 8 H338.5 a8 8 0 0 1 -8 -8 V292 a8 8 0 0 1 8 -8 Z" fill="#f6eee4" stroke="#a96522"/>
+  <text x="428.5" y="312.4" fill="#000000" text-anchor="middle">Cache service</text>
+  <text x="428.5" y="331.4" fill="#000000" text-anchor="middle">LMCache, other tiers</text>
+  <path d="M305 40 H494 a8 8 0 0 1 8 8 V98 a8 8 0 0 1 -8 8 H305 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#ffffff" stroke="#000000"/>
+  <text x="399.5" y="68.4" fill="#000000" text-anchor="middle">Tool runtime</text>
+  <text x="399.5" y="87.4" fill="#000000" text-anchor="middle">sandbox, search, APIs</text>
+  <path d="M 172 106 L 172 162" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#r2dae0fcb-arrow-333333)"/>
+  <path d="M 172 228 L 172 284" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#r2dae0fcb-arrow-333333)"/>
+  <path d="M 172 350 L 172 406" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#r2dae0fcb-arrow-333333)"/>
+  <path d="M 274.5 317 L 330.5 317" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#r2dae0fcb-arrow-333333)" marker-start="url(#r2dae0fcb-arrow-333333-back)"/>
+  <path d="M 241 73 L 297 73" fill="none" stroke="#333333" stroke-width="1.6" marker-end="url(#r2dae0fcb-arrow-333333)" marker-start="url(#r2dae0fcb-arrow-333333-back)"/>
+</svg>
