@@ -70,6 +70,10 @@ def test_real_http_stack_runs_agent_turns_and_control_and_stops_children(tmp_pat
     result = run_case(cfg, directory)
     assert result['requests_ok'] == result['requests_attempted'] == 8
     assert result['client_errors'] == {} and result['session_errors'] == []
+    assert result['client_to_headers_sent_s']['count'] == 8
+    assert result['client_to_proxy_timestamp_s']['count'] == 8
+    requests = [json.loads(line) for line in (directory / 'requests.jsonl').read_text().splitlines()]
+    assert all('http11.receive_response_headers.complete' in r['transport_s'] for r in requests)
     assert result['control_steps'] >= 2 and result['control_errors'] == 0
     assert result['worker_active_peak'] == 1
     assert result['tool_publish_errors'] == 0

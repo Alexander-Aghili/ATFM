@@ -119,12 +119,18 @@ async def exercise(cfg: LoadConfig, endpoints: dict[str, str], directory: Path) 
                 for turn in range(cfg.turns):
                     start = loop.time()
                     record = {'session_id': sid, 'turn': turn, 'class': cls, 't': time.time(),
-                              'status': None, 'error': None}
+                              'status': None, 'error': None, 'transport_s': {}}
+
+                    async def trace(name, info):
+                        if name.endswith(('.started', '.complete', '.failed')):
+                            record['transport_s'][name] = loop.time() - start
+
                     try:
                         response = await client.post(endpoints['proxy'] + '/v1/chat/completions',
                                                      json={'model': 'fake', 'messages': [{'role': 'user', 'content': 'x' * 1024}],
                                                            'max_tokens': 16, 'stream': False},
-                                                     headers={'x-atfm-session': sid, 'x-atfm-class': cls, 'x-atfm-tenant': 'load'})
+                                                     headers={'x-atfm-session': sid, 'x-atfm-class': cls, 'x-atfm-tenant': 'load'},
+                                                     extensions={'trace': trace})
                         record['status'] = response.status_code
                     except httpx.HTTPError as exc:
                         record['error'] = type(exc).__name__
@@ -179,6 +185,9 @@ async def exercise(cfg: LoadConfig, endpoints: dict[str, str], directory: Path) 
     write_json(directory / 'tools.json', tools)
     traces = [json.loads(line) for line in (directory / 'proxy-trace.jsonl').read_text().splitlines()]
     successful = [r for r in requests if r['status'] == 200]
+    by_request = {(t['session_id'], t['turn_index']): t for t in traces}
+    paired = [(r, by_request[(r['session_id'], r['turn'])]) for r in requests
+              if (r['session_id'], r['turn']) in by_request]
     metrics = [o for o in observations if 'metrics' in o]
     def maximum(role, section, key):
         return max((o['metrics'][section][key] for o in metrics if o['role'] == role), default=0)
@@ -193,6 +202,10 @@ async def exercise(cfg: LoadConfig, endpoints: dict[str, str], directory: Path) 
               'drain_deadline_reached': timed_out, 'session_errors': failures,
               'completed_request_rate_s': len(successful) / max(workload_elapsed, 1e-9),
               'client_duration_s': distribution(r['duration_s'] for r in requests),
+              'client_to_headers_sent_s': distribution(r['transport_s']['http11.send_request_headers.complete']
+                                                       for r in requests if 'http11.send_request_headers.complete' in r['transport_s']),
+              'client_to_proxy_timestamp_s': distribution(t['t_request'] - r['t'] for r, t in paired),
+              'proxy_upstream_s': distribution(t['t_last_token'] - t['t_release'] for t in traces),
               'successful_client_duration_s': distribution(r['duration_s'] for r in successful),
               'proxy_arrival_to_release_s': distribution(t['t_release'] - t['t_request'] for t in traces),
               'session_launch_lateness_s': distribution(r['lateness_s'] for r in arrivals),

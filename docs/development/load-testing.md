@@ -97,7 +97,7 @@ work duration plus the configured sleep interval.
 | File | Meaning |
 | --- | --- |
 | `config.json`, `environment.json` | Exact configuration, versions, CPU/platform, Git revision and source hashes, including uncommitted runner source. |
-| `requests.jsonl` | Every attempted client call, class/turn, HTTP status or error, and full-response duration. Timeout/cancel records remain present. |
+| `requests.jsonl` | Every attempted client call, class/turn, HTTP status or error, full-response duration, and HTTP transport timestamps. Timeout/cancel records remain present. |
 | `arrivals.json`, `tools.json` | Intended and actual session-launch/tool-completion times and lateness. |
 | `events.jsonl`, `proxy-trace.jsonl` | Core event stream and completed proxy traces; timed-out client work can still be pending at collection. |
 | `control-http.jsonl`, `control-steps.jsonl`, `control.jsonl` | HTTP phase timings/statuses, whole-step duration, applied counts, and normal controller log. |
@@ -114,6 +114,17 @@ cancellation need not instantly cancel work already executing in the server.
 Request completion throughput includes the arrival window and workload drain;
 `elapsed_s` additionally includes final control/probe collection. It is not a
 steady-state capacity estimate or the scheduled independent-request arrival rate.
+
+Client HTTP trace milestones record elapsed time from call start to TCP setup,
+request-header send, response-header receipt, and response closure. Reused
+connections have no new TCP events. They use HTTPX/httpcore's trace extension,
+whose event names are version-dependent; both package versions are recorded.
+These timestamps help identify delays before request headers are sent. They do
+not expose a dedicated connection-pool wait metric. Client-to-proxy timestamp
+joins use session/turn IDs and the shared machine's wall clock; the proxy timestamp
+is recorded after parsing the request body, not at TCP ingress. Those joins include
+only calls with available completed proxy traces. Wall-clock adjustments can
+invalidate cross-process timestamp subtraction; durations use monotonic clocks.
 
 Arrival-to-release time from proxy traces includes prediction, explicit holds,
 and queue waiting. It is not pure queue time. Probe observations may miss short
