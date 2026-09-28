@@ -124,7 +124,7 @@ def _diagnostics(app, role, cfg, directory):
             result['worker'] = dict(app.state.worker)
         elif role == 'proxy':
             result['queue'] = app.state.queue.stats()
-            result['predictions'] = dict(app.state.predictions)
+            result['predictions'] = app.state.prediction_runner.snapshot()
         else:
             snapshot = app.state.snapshot
             result['snapshot_t'] = None if snapshot is None else snapshot.t
@@ -148,7 +148,6 @@ def _lifespan(app, role, cfg, directory, diagnostics):
                 task.cancel()
                 with suppress(asyncio.CancelledError):
                     await task
-                await _close_proxy(app, role)
     app.router.lifespan_context = lifespan
 
 
@@ -165,7 +164,7 @@ def _heartbeat_task(diagnostics):
 
 def _proxy_app(cfg, directory, payload):
     app = create_app(ProxyConfig(upstream_url=payload['worker_url'], board_url=payload['board_url'],
-                                window=cfg.proxy_window, board_timeout_s=cfg.prediction_budget_s,
+                                window=cfg.proxy_window, board_timeout_s=cfg.prediction_budget_s, prediction_limit=cfg.prediction_limit,
                                 max_hold_s=cfg.max_hold_s, default_osl=16,
                                 events_path=str(directory / 'events.jsonl'), trace_path=str(directory / 'proxy-trace.jsonl')))
     return app
@@ -198,11 +197,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-async def _close_proxy(app, role):
-    if role == 'proxy':
-        app.state.pool.shutdown(wait=True, cancel_futures=True)
-        app.state.predictor.client.close()
-        await app.state.client.aclose()
-        app.state.trace.close()

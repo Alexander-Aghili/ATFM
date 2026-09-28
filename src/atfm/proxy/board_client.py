@@ -1,9 +1,8 @@
-"""The proxy's predictor when a board service is configured: synchronous HTTP calls to the board's
-`/predict`, run by the proxy inside its thread pool under the 50 ms budget. Fail-open: any error returns
-the proxy's defaults (0.0), which is what it would use without a board."""
+"""Synchronous board client; deadline-aware calls use the proxy's remaining wait budget."""
 from __future__ import annotations
 
 import math
+import time
 
 import httpx
 
@@ -23,11 +22,29 @@ class BoardClient:
     def expected_times(self, session_id: str, isl: int, osl: int) -> tuple[float, float]:
         """Fetch both estimates once; reject unavailable results for proxy fallback."""
         result = self._predict(session_id, isl, osl)
+        return self._validated(result)
+
+    @staticmethod
+    def _validated(result):
         service, tool = float(result["e_service_s"]), float(result["e_tool_next_s"])
         if (result.get("over_budget", False) or not math.isfinite(service)
                 or not math.isfinite(tool) or service < 0 or tool < 0):
             raise ValueError("unavailable board prediction")
         return service, tool
+
+    def expected_times_until(self, session_id: str, isl: int, osl: int, *, deadline: float):
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise TimeoutError('prediction expired before HTTP dispatch')
+        try:
+            response = self.client.post(f"{self.url}/predict", timeout=remaining,
+                                        json={"session_id": session_id, "isl": isl, "osl": osl})
+        except httpx.TimeoutException as exc:
+            raise TimeoutError("prediction transport timed out") from exc
+        response.raise_for_status()
+        if time.monotonic() >= deadline:
+            raise TimeoutError('prediction HTTP response exceeded deadline')
+        return self._validated(response.json())
 
     def expected_tool_next(self, session_id: str) -> float:
         return float(self._predict(session_id, 0, 0).get("e_tool_next_s", 0.0))

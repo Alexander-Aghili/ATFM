@@ -14,7 +14,8 @@ import asyncio
 import json
 import time
 import uuid
-from concurrent.futures import ThreadPoolExecutor
+from contextlib import asynccontextmanager
+from atfm.proxy.prediction import PredictionRunner
 
 import httpx
 from fastapi import FastAPI, Request
@@ -51,6 +52,7 @@ def create_app(cfg: ProxyConfig, *, upstream_client: httpx.AsyncClient | None = 
     app = FastAPI()
     runtime = ProxyRuntime(app, cfg=cfg, clock=clock, predictor=predictor, upstream_client=upstream_client, bus=bus)
     runtime.register(app)
+    app.router.lifespan_context = runtime.lifespan
     return app
 
 
@@ -58,6 +60,7 @@ class ProxyRuntime:
     def __init__(self, app, cfg, clock, predictor, upstream_client=None, bus=None):
         self.cfg, self.clock, self.st = cfg, clock, app.state
         st = self.st
+        self.owns_upstream = upstream_client is None
         st.cfg = cfg
         st.bus = bus if bus is not None else (JsonlBus(cfg.events_path) if cfg.events_path else InMemoryBus())
         st.client = upstream_client or httpx.AsyncClient(base_url=cfg.upstream_url, timeout=httpx.Timeout(600.0))
@@ -73,12 +76,29 @@ class ProxyRuntime:
         st.trace = open(self.cfg.trace_path, "a") if self.cfg.trace_path else None
 
     def _initialize_predictor(self, predictor):
-        if predictor is None and self.cfg.board_url:
+        self.owns_predictor = predictor is None and self.cfg.board_url is not None
+        if self.owns_predictor:
             from atfm.proxy.board_client import BoardClient
-            predictor = BoardClient(self.cfg.board_url, timeout_s=max(self.cfg.board_timeout_s, 0.5))
+            predictor = BoardClient(self.cfg.board_url, timeout_s=self.cfg.board_timeout_s)
         self.st.predictor = predictor
-        self.st.pool = ThreadPoolExecutor(max_workers=4)
-        self.st.predictions = dict(disabled=0, attempted=0, used=0, timeout=0, error=0, cancelled=0, pending=0)
+        self.st.prediction_runner = PredictionRunner(predictor, self.cfg.prediction_limit, self.cfg.board_timeout_s)
+        self.st.pool = self.st.prediction_runner.pool
+        self.st.predictions = self.st.prediction_runner.counts
+
+    @asynccontextmanager
+    async def lifespan(self, app):
+        try:
+            yield
+        finally:
+            await asyncio.to_thread(self.st.prediction_runner.close)
+            if self.owns_predictor:
+                self.st.predictor.client.close()
+            if self.owns_upstream:
+                await self.st.client.aclose()
+            if self.st.trace is not None:
+                self.st.trace.close()
+            if self.st.queue._timer is not None:
+                self.st.queue._timer.cancel()
 
     def register(self, app):
         app.get('/healthz')(self.healthz)
@@ -91,42 +111,7 @@ class ProxyRuntime:
         app.post('/v1/chat/completions')(self.chat)
 
     async def predict(self, meta: CallMeta) -> tuple[float, float]:
-        fallback = (service_time(meta, self.cfg), 0.0)
-        if self.st.predictor is None:
-            self.st.predictions['disabled'] += 1
-            return fallback
-        self.st.predictions['attempted'] += 1
-        self.st.predictions['pending'] += 1
-        try:
-            return await self._await_prediction(meta, fallback)
-        finally:
-            self.st.predictions['pending'] -= 1
-
-    def _predict_times(self, meta):
-        predictor = self.st.predictor
-        combined = getattr(predictor, 'expected_times', None)
-        if combined is not None:
-            return combined(meta.session_id, meta.isl, meta.predicted_osl)
-        return (float(predictor.expected_service(meta.session_id, meta.isl, meta.predicted_osl)),
-                float(predictor.expected_tool_next(meta.session_id)))
-
-    async def _await_prediction(self, meta, fallback):
-        fut = None
-        try:
-            fut = self.st.pool.submit(self._predict_times, meta)
-            result = await asyncio.wait_for(asyncio.wrap_future(fut), self.cfg.board_timeout_s)
-            self.st.predictions['used'] += 1
-            return result
-        except asyncio.CancelledError:
-            self.st.predictions['cancelled'] += 1
-            if fut is not None:
-                fut.cancel()
-            raise
-        except Exception as exc:
-            self.st.predictions['timeout' if isinstance(exc, TimeoutError) else 'error'] += 1
-            if fut is not None:
-                fut.cancel()
-            return fallback
+        return await self.st.prediction_runner.predict(meta, (service_time(meta, self.cfg), 0.0))
 
     def emit(self, e) -> None:
         try:
@@ -154,7 +139,7 @@ class ProxyRuntime:
         return {'ok': True}
 
     async def state(self):
-        return {**self.st.queue.stats(), 'predictions': dict(self.st.predictions), 'touches': self.st.touches,
+        return {**self.st.queue.stats(), 'predictions': self.st.prediction_runner.snapshot(), 'touches': self.st.touches,
                 'touch_tokens': self.st.touch_tokens, 'touch_failures': self.st.touch_failures}
 
     def apply_holds(self, holds: list[HoldUpdate]) -> dict:
