@@ -26,20 +26,7 @@ def run_case(config: LoadConfig, directory: Path) -> dict:
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--sessions', type=int, nargs='+', default=[16, 64, 256])
-    parser.add_argument('--patterns', nargs='+', choices=['staggered', 'burst'], default=['staggered', 'burst'])
-    parser.add_argument('--out', type=Path, required=True)
-    parser.add_argument('--config', type=Path, help='JSON overrides for LoadConfig; session/pattern sweep overrides these fields')
-    args = parser.parse_args()
-    if find_spec('uvicorn') is None:
-        parser.error('install serving dependencies with uv sync --extra dev --extra serve')
-    base = LoadConfig.model_validate_json(args.config.read_text()) if args.config else LoadConfig()
-    cases = [LoadConfig.model_validate(base.model_dump() | {'sessions': size, 'pattern': pattern})
-             for pattern in dict.fromkeys(args.patterns) for size in dict.fromkeys(args.sessions)]
-    paths = [args.out / f'{c.pattern}-{c.sessions}' for c in cases]
-    if any(path.exists() for path in paths):
-        parser.error('case directories already exist; choose a fresh --out to preserve evidence')
+    args, cases, paths = _planned_cases()
     results = []
     for config, directory in zip(cases, paths):
         result = run_case(config, directory)
@@ -54,6 +41,24 @@ def main():
            or r['tool_publish_errors'] or r['control_errors'] or r['control_http_errors']
            or r['probe_errors'] for r in results):
         raise SystemExit(1)
+
+
+def _planned_cases():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--sessions', type=int, nargs='+', default=[16, 64, 256])
+    parser.add_argument('--patterns', nargs='+', choices=['staggered', 'burst'], default=['staggered', 'burst'])
+    parser.add_argument('--out', type=Path, required=True)
+    parser.add_argument('--config', type=Path, help='JSON overrides for LoadConfig; session/pattern sweep overrides these fields')
+    args = parser.parse_args()
+    if find_spec('uvicorn') is None:
+        parser.error('install serving dependencies with uv sync --extra dev --extra serve')
+    base = LoadConfig.model_validate_json(args.config.read_text()) if args.config else LoadConfig()
+    cases = [LoadConfig.model_validate(base.model_dump() | {'sessions': size, 'pattern': pattern})
+             for pattern in dict.fromkeys(args.patterns) for size in dict.fromkeys(args.sessions)]
+    paths = [args.out / f'{c.pattern}-{c.sessions}' for c in cases]
+    if any(path.exists() for path in paths):
+        parser.error('case directories already exist; choose a fresh --out to preserve evidence')
+    return args, cases, paths
 
 
 if __name__ == '__main__':

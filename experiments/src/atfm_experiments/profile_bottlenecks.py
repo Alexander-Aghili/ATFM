@@ -25,34 +25,23 @@ def main():
     args = parser.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
     rows = []
-    for sessions, slots, draws in ([(100000, 10000, 1024), (1000000, 300, 128)] if "gdp" in args.cases else []):
-        run = workload(sessions, slots, draws, True)
-        profile = cProfile.Profile()
-        result = profile.runcall(run)
-        assert len(result) == sessions
-        with (args.out / f"gdp-{sessions}-profile.txt").open("w") as stream:
-            stats = pstats.Stats(profile, stream=stream).strip_dirs().sort_stats("cumulative")
-            stats.print_stats(25)
-        del result
-    for size in ((10000, 100000, 1000000) if "jsonl" in args.cases else []):
-        path = args.out / "events.jsonl"
-        line = json.dumps(event_to_dict(ToolProgress(t=1, session_id="s", call_id="c", completed=1))) + "\n"
-        with path.open("w") as stream:
-            for _ in range(size):
-                stream.write(line)
-        bus = JsonlBus(path)
-        assert len(bus.drain()) == size
-        timings = []
-        for _ in range(3):
-            start = time.perf_counter()
-            events = bus.drain()
-            timings.append(time.perf_counter() - start)
-            assert events == []
-            del events
-        rows.append(dict(case="unchanged_jsonl_drain", size=size, median_s=float(np.median(timings)),
-                         min_s=min(timings), max_s=max(timings), bytes=path.stat().st_size))
-        path.unlink()
-        print(rows[-1], flush=True)
+    _profile_gdp(args)
+    _profile_jsonl(args, rows)
+    _profile_queue(args, rows)
+    (args.out / "timings.json").write_text(json.dumps(rows, indent=2) + "\n")
+    _environment(args)
+
+
+def _environment(args):
+    paths = ["src/atfm/control/gdp.py", "src/atfm/proxy/queue.py", "src/atfm/bus/jsonl.py", __file__]
+    (args.out / "environment.json").write_text(json.dumps(dict(
+        python=platform.python_version(), platform=platform.platform(), numpy=np.__version__,
+        source_sha256={str(Path(p).relative_to(Path.cwd()) if Path(p).is_absolute() else p):
+                       hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in paths},
+        notes="GDP times are instrumented profiles, not repeated wall-time benchmarks. JSONL warmup + 3 runs; queue setup excluded, warmup + 3 runs."), indent=2) + "\n")
+
+
+def _profile_queue(args, rows):
     for size in ((1000, 4000, 100000) if "queue" in args.cases else []):
         timings = []
         for repeat in range(4):
@@ -69,13 +58,45 @@ def main():
         rows.append(dict(case="single_slot_queue_drain", size=size, median_s=float(np.median(timings)),
                          min_s=min(timings), max_s=max(timings)))
         print(rows[-1], flush=True)
-    (args.out / "timings.json").write_text(json.dumps(rows, indent=2) + "\n")
-    paths = ["src/atfm/control/gdp.py", "src/atfm/proxy/queue.py", "src/atfm/bus/jsonl.py", __file__]
-    (args.out / "environment.json").write_text(json.dumps(dict(
-        python=platform.python_version(), platform=platform.platform(), numpy=np.__version__,
-        source_sha256={str(Path(p).relative_to(Path.cwd()) if Path(p).is_absolute() else p):
-                       hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in paths},
-        notes="GDP times are instrumented profiles, not repeated wall-time benchmarks. JSONL warmup + 3 runs; queue setup excluded, warmup + 3 runs."), indent=2) + "\n")
+
+
+def _profile_jsonl(args, rows):
+    for size in ((10000, 100000, 1000000) if "jsonl" in args.cases else []):
+        path = args.out / "events.jsonl"
+        line = json.dumps(event_to_dict(ToolProgress(t=1, session_id="s", call_id="c", completed=1))) + "\n"
+        with path.open("w") as stream:
+            for _ in range(size):
+                stream.write(line)
+        bus = JsonlBus(path)
+        assert len(bus.drain()) == size
+        timings = _drain_timings(bus)
+        rows.append(dict(case="unchanged_jsonl_drain", size=size, median_s=float(np.median(timings)),
+                         min_s=min(timings), max_s=max(timings), bytes=path.stat().st_size))
+        path.unlink()
+        print(rows[-1], flush=True)
+
+
+def _drain_timings(bus):
+    timings = []
+    for _ in range(3):
+        start = time.perf_counter()
+        events = bus.drain()
+        timings.append(time.perf_counter() - start)
+        assert events == []
+        del events
+    return timings
+
+
+def _profile_gdp(args):
+    for sessions, slots, draws in ([(100000, 10000, 1024), (1000000, 300, 128)] if "gdp" in args.cases else []):
+        run = workload(sessions, slots, draws, True)
+        profile = cProfile.Profile()
+        result = profile.runcall(run)
+        assert len(result) == sessions
+        with (args.out / f"gdp-{sessions}-profile.txt").open("w") as stream:
+            stats = pstats.Stats(profile, stream=stream).strip_dirs().sort_stats("cumulative")
+            stats.print_stats(25)
+        del result
 
 
 if __name__ == "__main__":

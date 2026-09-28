@@ -47,45 +47,54 @@ def training_trace(cfg: LoadConfig) -> TraceTable:
 
 def fake_worker(cfg: LoadConfig) -> FastAPI:
     app = FastAPI()
-    semaphore = asyncio.Semaphore(cfg.worker_slots)
-    state = {'received': 0, 'waiting': 0, 'active': 0, 'completed': 0, 'failed': 0, 'max_active': 0}
-    app.state.worker = state
+    worker = _FakeWorker(cfg)
+    app.state.worker = worker.state
+    app.get('/healthz')(worker.health)
+    app.post('/v1/chat/completions')(worker.chat)
+    return app
 
-    @app.get('/healthz')
-    async def health():
+
+class _FakeWorker:
+    def __init__(self, cfg):
+        self.cfg, self.semaphore = cfg, asyncio.Semaphore(cfg.worker_slots)
+        self.state = dict(received=0, waiting=0, active=0, completed=0, failed=0, max_active=0)
+
+    async def health(self):
         return {'ok': True}
 
-    @app.post('/v1/chat/completions')
-    async def chat(request: Request):
+    async def chat(self, request: Request):
         body = await request.json()
         if body.get('stream'):
             return JSONResponse({'error': 'load worker supports nonstreaming requests only'}, status_code=400)
-        state['received'] += 1
-        sequence = state['received']
-        state['waiting'] += 1
+        self.state['received'] += 1
+        sequence = self.state['received']
+        self.state['waiting'] += 1
         acquired = False
         try:
-            await semaphore.acquire()
+            await self.semaphore.acquire()
             acquired = True
-            state['waiting'] -= 1
-            state['active'] += 1
-            state['max_active'] = max(state['max_active'], state['active'])
-            await asyncio.sleep(cfg.worker_service_s)
-            if cfg.worker_fail_every and sequence % cfg.worker_fail_every == 0:
-                state['failed'] += 1
-                return JSONResponse({'error': 'injected fake-worker failure'}, status_code=503)
-            state['completed'] += 1
-            return {'id': f'fake-{sequence}', 'object': 'chat.completion',
-                    'choices': [{'index': 0, 'message': {'role': 'assistant', 'content': 'synthetic response'},
-                                 'finish_reason': 'stop'}],
-                    'usage': {'prompt_tokens': 256, 'completion_tokens': 16, 'total_tokens': 272}}
+            return await self._serve(sequence)
         finally:
             if acquired:
-                state['active'] -= 1
-                semaphore.release()
+                self.state['active'] -= 1
+                self.semaphore.release()
             else:
-                state['waiting'] -= 1
-    return app
+                self.state['waiting'] -= 1
+
+    async def _serve(self, sequence):
+        state = self.state
+        state['waiting'] -= 1
+        state['active'] += 1
+        state['max_active'] = max(state['max_active'], state['active'])
+        await asyncio.sleep(self.cfg.worker_service_s)
+        if self.cfg.worker_fail_every and sequence % self.cfg.worker_fail_every == 0:
+            state['failed'] += 1
+            return JSONResponse({'error': 'injected fake-worker failure'}, status_code=503)
+        state['completed'] += 1
+        return {'id': f'fake-{sequence}', 'object': 'chat.completion',
+                'choices': [{'index': 0, 'message': {'role': 'assistant', 'content': 'synthetic response'},
+                             'finish_reason': 'stop'}],
+                'usage': {'prompt_tokens': 256, 'completion_tokens': 16, 'total_tokens': 272}}
 
 
 def build_app(role: str, payload: dict) -> FastAPI:
@@ -94,48 +103,19 @@ def build_app(role: str, payload: dict) -> FastAPI:
     if role == 'worker':
         app = fake_worker(cfg)
     elif role == 'board':
-        trace = training_trace(cfg)
-        horizons = sorted({cfg.slot_s, min(3, cfg.slots) * cfg.slot_s, cfg.slots * cfg.slot_s})
-        forecast = SessionForecaster(ProgressPredictor().fit(trace), ExogenousModel().fit(trace), horizons, n=cfg.draws)
-        board = LiveBoard(SessionRegistry(), forecast, tick_s=cfg.control_interval_s)
-        app = create_board_app(board, bus=JsonlBus(directory / 'events.jsonl'), rng=np.random.default_rng(cfg.seed),
-                               gdp=GdpPlanner(slot_s=cfg.slot_s, horizon_s=cfg.slot_s * cfg.slots, max_hold_s=cfg.max_hold_s),
-                               capacity={'kv_blocks': cfg.capacity_kv_blocks, 'prefill_tokens': cfg.capacity_prefill_tokens})
+        app = _board_app(cfg, directory)
     elif role == 'proxy':
-        app = create_app(ProxyConfig(upstream_url=payload['worker_url'], board_url=payload['board_url'],
-                                    window=cfg.proxy_window, board_timeout_s=cfg.prediction_budget_s,
-                                    max_hold_s=cfg.max_hold_s, default_osl=16,
-                                    events_path=str(directory / 'events.jsonl'), trace_path=str(directory / 'proxy-trace.jsonl')))
+        app = _proxy_app(cfg, directory, payload)
     else:
         raise ValueError(f'unknown role {role}')
+    _diagnostics(app, role, cfg, directory)
+    return app
+
+
+def _diagnostics(app, role, cfg, directory):
     diagnostics = Diagnostics()
     app.add_middleware(RequestTiming, diagnostics=diagnostics)
-    original_lifespan = app.router.lifespan_context
-
-    async def heartbeat():
-        while True:
-            start = time.perf_counter()
-            await asyncio.sleep(.05)
-            diagnostics.lag.append(max(0., time.perf_counter() - start - .05))
-
-    @asynccontextmanager
-    async def lifespan(application):
-        async with original_lifespan(application):
-            task = asyncio.create_task(heartbeat())
-            try:
-                with profile_serving(directory) if role == 'proxy' and cfg.profile_proxy else nullcontext():
-                    yield
-            finally:
-                task.cancel()
-                with suppress(asyncio.CancelledError):
-                    await task
-                if role == 'proxy':
-                    app.state.pool.shutdown(wait=True, cancel_futures=True)
-                    app.state.predictor.client.close()
-                    await app.state.client.aclose()
-                    app.state.trace.close()
-    app.router.lifespan_context = lifespan
-
+    _lifespan(app, role, cfg, directory, diagnostics)
     @app.get('/__load/metrics')
     async def metrics():
         result = diagnostics.snapshot()
@@ -151,6 +131,54 @@ def build_app(role: str, payload: dict) -> FastAPI:
             result['snapshot_age_s'] = None if snapshot is None else time.time() - snapshot.t
             result['sessions'] = len(app.state.board.registry.session_ids())
         return result
+
+
+def _lifespan(app, role, cfg, directory, diagnostics):
+    original_lifespan = app.router.lifespan_context
+
+    heartbeat = _heartbeat_task(diagnostics)
+    @asynccontextmanager
+    async def lifespan(application):
+        async with original_lifespan(application):
+            task = asyncio.create_task(heartbeat())
+            try:
+                with profile_serving(directory) if role == 'proxy' and cfg.profile_proxy else nullcontext():
+                    yield
+            finally:
+                task.cancel()
+                with suppress(asyncio.CancelledError):
+                    await task
+                await _close_proxy(app, role)
+    app.router.lifespan_context = lifespan
+
+
+def _heartbeat_task(diagnostics):
+    async def heartbeat():
+        while True:
+            start = time.perf_counter()
+            await asyncio.sleep(.05)
+            diagnostics.lag.append(max(0., time.perf_counter() - start - .05))
+
+    return heartbeat
+
+
+
+def _proxy_app(cfg, directory, payload):
+    app = create_app(ProxyConfig(upstream_url=payload['worker_url'], board_url=payload['board_url'],
+                                window=cfg.proxy_window, board_timeout_s=cfg.prediction_budget_s,
+                                max_hold_s=cfg.max_hold_s, default_osl=16,
+                                events_path=str(directory / 'events.jsonl'), trace_path=str(directory / 'proxy-trace.jsonl')))
+    return app
+
+
+def _board_app(cfg, directory):
+    trace = training_trace(cfg)
+    horizons = sorted({cfg.slot_s, min(3, cfg.slots) * cfg.slot_s, cfg.slots * cfg.slot_s})
+    forecast = SessionForecaster(ProgressPredictor().fit(trace), ExogenousModel().fit(trace), horizons, n=cfg.draws)
+    board = LiveBoard(SessionRegistry(), forecast, tick_s=cfg.control_interval_s)
+    app = create_board_app(board, bus=JsonlBus(directory / 'events.jsonl'), rng=np.random.default_rng(cfg.seed),
+                           gdp=GdpPlanner(slot_s=cfg.slot_s, horizon_s=cfg.slot_s * cfg.slots, max_hold_s=cfg.max_hold_s),
+                           capacity={'kv_blocks': cfg.capacity_kv_blocks, 'prefill_tokens': cfg.capacity_prefill_tokens})
     return app
 
 
@@ -170,3 +198,11 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+async def _close_proxy(app, role):
+    if role == 'proxy':
+        app.state.pool.shutdown(wait=True, cancel_futures=True)
+        app.state.predictor.client.close()
+        await app.state.client.aclose()
+        app.state.trace.close()

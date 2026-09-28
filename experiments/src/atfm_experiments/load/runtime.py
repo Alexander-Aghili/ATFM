@@ -61,42 +61,55 @@ def local_stack(cfg: LoadConfig, directory: Path):
     with ExitStack() as stack:
         try:
             for role in ('worker', 'board', 'proxy'):
-                path = directory / f'{role}-payload.json'
-                write_json(path, payload)
-                log = stack.enter_context((directory / f'{role}.log').open('w'))
-                with socket.socket() as listener:
-                    listener.bind(('127.0.0.1', 0))
-                    listener.listen(2048)
-                    url = f'http://127.0.0.1:{listener.getsockname()[1]}'
-                    process = subprocess.Popen(
-                        [sys.executable, '-m', 'atfm_experiments.load.server', '--role', role,
-                         '--payload', str(path), '--fd', str(listener.fileno())],
-                        pass_fds=(listener.fileno(),), stdout=log, stderr=subprocess.STDOUT, env=env)
+                process, url = _launch(role, directory, payload, env, stack)
                 processes[role] = process
                 payload[f'{role}_url'] = url
-                deadline = time.monotonic() + 30
-                with httpx.Client(timeout=.5, trust_env=False) as client:
-                    while True:
-                        if process.poll() is not None:
-                            raise RuntimeError(f'{role} exited during startup; see {directory / (role + ".log")}')
-                        try:
-                            if client.get(url + '/healthz').status_code == 200:
-                                break
-                        except httpx.TransportError:
-                            pass
-                        if time.monotonic() >= deadline:
-                            raise TimeoutError(f'{role} startup timed out; see its log')
-                        time.sleep(.03)
+                _wait_ready(role, directory, process, url)
             write_json(directory / 'stack.json', payload | {'pids': {k: p.pid for k, p in processes.items()}})
             yield {role: payload[f'{role}_url'] for role in processes}
         finally:
-            for process in reversed(list(processes.values())):
-                if process.poll() is None:
-                    process.terminate()
-                try:
-                    process.wait(timeout=5)
-                except subprocess.TimeoutExpired:
-                    process.kill()
-                    process.wait(timeout=5)
-            write_json(directory / 'shutdown.json', {role: {'pid': p.pid, 'exit_code': p.returncode}
-                                                     for role, p in processes.items()})
+            _shutdown(directory, processes)
+
+
+def _shutdown(directory, processes):
+    for process in reversed(list(processes.values())):
+        if process.poll() is None:
+            process.terminate()
+        try:
+            process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait(timeout=5)
+    write_json(directory / 'shutdown.json', {role: {'pid': p.pid, 'exit_code': p.returncode}
+                                             for role, p in processes.items()})
+
+
+def _wait_ready(role, directory, process, url):
+    deadline = time.monotonic() + 30
+    with httpx.Client(timeout=.5, trust_env=False) as client:
+        while True:
+            if process.poll() is not None:
+                raise RuntimeError(f'{role} exited during startup; see {directory / (role + ".log")}')
+            try:
+                if client.get(url + '/healthz').status_code == 200:
+                    break
+            except httpx.TransportError:
+                pass
+            if time.monotonic() >= deadline:
+                raise TimeoutError(f'{role} startup timed out; see its log')
+            time.sleep(.03)
+
+
+def _launch(role, directory, payload, env, stack):
+    path = directory / f'{role}-payload.json'
+    write_json(path, payload)
+    log = stack.enter_context((directory / f'{role}.log').open('w'))
+    with socket.socket() as listener:
+        listener.bind(('127.0.0.1', 0))
+        listener.listen(2048)
+        url = f'http://127.0.0.1:{listener.getsockname()[1]}'
+        process = subprocess.Popen(
+            [sys.executable, '-m', 'atfm_experiments.load.server', '--role', role,
+             '--payload', str(path), '--fd', str(listener.fileno())],
+            pass_fds=(listener.fileno(),), stdout=log, stderr=subprocess.STDOUT, env=env)
+    return process, url

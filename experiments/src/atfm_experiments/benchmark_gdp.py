@@ -43,6 +43,58 @@ def digest(result) -> str:
 
 
 def main():
+    args = _arguments()
+    args.out.mkdir(parents=True, exist_ok=True)
+    rows = []
+    for sessions in args.sessions:
+        for slots in args.slots:
+            for draws in args.draws:
+                for regime in args.regimes:
+                    row = _trial(sessions, slots, draws, regime, args)
+                    rows.append(row)
+                    pd.DataFrame(rows).to_csv(args.out / "timings.csv", index=False)
+                    print(row, flush=True)
+    _environment(args)
+
+
+def _environment(args):
+    source = Path("src/atfm/control/gdp.py")
+    (args.out / "environment.json").write_text(json.dumps(dict(
+        python=platform.python_version(), platform=platform.platform(), numpy=np.__version__,
+        source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),
+        driver_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        arguments=vars(args) | {"out": str(args.out)},
+        rss="Process high-water RSS including imports, setup, results and hashing; cumulative across cases. Run one case per process for attribution.",
+        setup="excluded; one untimed warmup; three repeats by default; serialization excluded"), indent=2))
+
+
+def _trial(sessions, slots, draws, regime, args):
+    saturated = regime == "saturated"
+    run = workload(sessions, slots, draws, saturated, mixed=regime == "mixed")
+    expected, times, cpu_times = _measure(run, args)
+    peak_rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    row = dict(sessions=sessions, slots=slots, draws=draws, saturated=saturated, regime=regime,
+               cpu_median_s=float(np.median(cpu_times)),
+               process_peak_rss_mib=peak_rss / (1024 ** 2 if sys.platform == "darwin" else 1024),
+               median_s=float(np.median(times)), min_s=min(times), max_s=max(times),
+               repeats=args.repeats, result_sha256=expected)
+    return row
+
+
+def _measure(run, args):
+    expected = digest(run())
+    times, cpu_times = [], []
+    for _ in range(args.repeats):
+        cpu_start = time.process_time()
+        start = time.perf_counter()
+        result = run()
+        times.append(time.perf_counter() - start)
+        cpu_times.append(time.process_time() - cpu_start)
+        assert digest(result) == expected
+    return expected, times, cpu_times
+
+
+def _arguments():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--sessions", type=int, nargs="+", default=[128, 1024])
     parser.add_argument("--slots", type=int, nargs="+", default=[30, 300])
@@ -53,40 +105,7 @@ def main():
     args = parser.parse_args()
     if min([args.repeats, *args.sessions, *args.slots, *args.draws]) < 1:
         parser.error("all dimensions and repeats must be positive")
-    args.out.mkdir(parents=True, exist_ok=True)
-    rows = []
-    for sessions in args.sessions:
-        for slots in args.slots:
-            for draws in args.draws:
-                for regime in args.regimes:
-                    saturated = regime == "saturated"
-                    run = workload(sessions, slots, draws, saturated, mixed=regime == "mixed")
-                    expected = digest(run())
-                    times, cpu_times = [], []
-                    for _ in range(args.repeats):
-                        cpu_start = time.process_time()
-                        start = time.perf_counter()
-                        result = run()
-                        times.append(time.perf_counter() - start)
-                        cpu_times.append(time.process_time() - cpu_start)
-                        assert digest(result) == expected
-                    peak_rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-                    row = dict(sessions=sessions, slots=slots, draws=draws, saturated=saturated, regime=regime,
-                               cpu_median_s=float(np.median(cpu_times)),
-                               process_peak_rss_mib=peak_rss / (1024 ** 2 if sys.platform == "darwin" else 1024),
-                               median_s=float(np.median(times)), min_s=min(times), max_s=max(times),
-                               repeats=args.repeats, result_sha256=expected)
-                    rows.append(row)
-                    pd.DataFrame(rows).to_csv(args.out / "timings.csv", index=False)
-                    print(row, flush=True)
-    source = Path("src/atfm/control/gdp.py")
-    (args.out / "environment.json").write_text(json.dumps(dict(
-        python=platform.python_version(), platform=platform.platform(), numpy=np.__version__,
-        source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),
-        driver_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
-        arguments=vars(args) | {"out": str(args.out)},
-        rss="Process high-water RSS including imports, setup, results and hashing; cumulative across cases. Run one case per process for attribution.",
-        setup="excluded; one untimed warmup; three repeats by default; serialization excluded"), indent=2))
+    return args
 
 
 if __name__ == "__main__":

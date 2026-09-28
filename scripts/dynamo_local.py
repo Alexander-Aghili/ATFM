@@ -23,13 +23,17 @@ def main(cmd: str) -> None:
                 pass
         print("down")
     elif cmd == "smoke":
-        with LocalDynamo(port=8790) as d:
-            r = d.chat([{"role": "user", "content": "hello"}], hints={"priority": 3, "strict_priority": 1, "osl": 8},
-                       session_id="smoke")
-            print(json.dumps(r, indent=1)[:800])
-            print((d.log_dir / "frontend.log").read_text()[-1500:])
+        _smoke()
     else:
         raise SystemExit("usage: dynamo_local.py up|down|smoke")
+
+
+def _smoke():
+    with LocalDynamo(port=8790) as d:
+        r = d.chat([{"role": "user", "content": "hello"}], hints={"priority": 3, "strict_priority": 1, "osl": 8},
+                   session_id="smoke")
+        print(json.dumps(r, indent=1)[:800])
+        print((d.log_dir / "frontend.log").read_text()[-1500:])
 
 
 if __name__ == "__main__":

@@ -11,12 +11,7 @@ from atfm_experiments.h1 import H1Config, run_h1
 
 
 def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("config")
-    ap.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2])
-    ap.add_argument("--rates", type=float, nargs="+", default=[None])
-    ap.add_argument("--out", default=None)
-    a = ap.parse_args()
+    a = _arguments()
     base = yaml.safe_load(open(a.config))
     frames = []
     for seed, rate in itertools.product(a.seeds, a.rates):
@@ -38,6 +33,16 @@ def main():
     summary.to_csv(out, index=False)
     print(summary.pivot_table(index=["class", "model", "rate"], columns="h", values="mean").round(1).to_string())
     print("written", out)
+
+
+def _arguments():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("config")
+    ap.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2])
+    ap.add_argument("--rates", type=float, nargs="+", default=[None])
+    ap.add_argument("--out", default=None)
+    a = ap.parse_args()
+    return a
 
 
 if __name__ == "__main__":

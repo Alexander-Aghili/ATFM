@@ -15,15 +15,7 @@ from atfm.traces.sidecar import events_to_trace_table
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser()
-    ap.add_argument("events", nargs="+")
-    ap.add_argument("--min-duration", type=float, default=30.0)
-    ap.add_argument("--offset", type=float, default=15.0, help="score every OFFSET seconds inside a phase")
-    ap.add_argument("--max-offset", type=float, default=3600.0)
-    ap.add_argument("--models", default="B2,M1,M2")
-    ap.add_argument("--families", default="", help="comma list: keep only these job families (default all)")
-    ap.add_argument("--out", default="")
-    a = ap.parse_args()
+    a = _arguments()
     events = [e for path in a.events for e in read_events(path)]
     table = events_to_trace_table(events)
     if a.families:
@@ -40,6 +32,19 @@ def main() -> None:
     print(df.groupby("model").agg(pinball90=("pinball90", "mean"), crps=("crps", "mean"), n=("n", "sum")).round(1).to_string())
     if a.out:
         df.to_csv(a.out, index=False)
+
+
+def _arguments():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("events", nargs="+")
+    ap.add_argument("--min-duration", type=float, default=30.0)
+    ap.add_argument("--offset", type=float, default=15.0, help="score every OFFSET seconds inside a phase")
+    ap.add_argument("--max-offset", type=float, default=3600.0)
+    ap.add_argument("--models", default="B2,M1,M2")
+    ap.add_argument("--families", default="", help="comma list: keep only these job families (default all)")
+    ap.add_argument("--out", default="")
+    a = ap.parse_args()
+    return a
 
 
 if __name__ == "__main__":

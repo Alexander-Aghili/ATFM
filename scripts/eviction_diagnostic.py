@@ -14,13 +14,7 @@ from atfm.sim.engine import EngineConfig
 
 
 def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("config")
-    ap.add_argument("--arms", nargs="+", default=["oracle_kv", "forecast_M2_kv", "proxy_rules"])
-    ap.add_argument("--duration", type=float, default=900.0)
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--out", default=None, help="write per-eviction rows (parquet)")
-    a = ap.parse_args()
+    a = _arguments()
     cfg = H2SimConfig(**yaml.safe_load(open(a.config)))
     cfg.duration_s = a.duration
     engines = [EngineConfig(**e) for e in cfg.engines]
@@ -34,6 +28,17 @@ def main():
     if a.out and frames:
         import pandas as pd
         pd.concat(frames, ignore_index=True).to_parquet(a.out, index=False)
+
+
+def _arguments():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("config")
+    ap.add_argument("--arms", nargs="+", default=["oracle_kv", "forecast_M2_kv", "proxy_rules"])
+    ap.add_argument("--duration", type=float, default=900.0)
+    ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--out", default=None, help="write per-eviction rows (parquet)")
+    a = ap.parse_args()
+    return a
 
 
 if __name__ == "__main__":

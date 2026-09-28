@@ -62,8 +62,12 @@ class RequestTiming:
         try:
             await self.app(scope, receive, measured_send)
         finally:
-            path = scope['path']
-            d.in_flight -= 1
-            d.counts[path] += 1
-            d.errors[path] += status >= 400
-            d.latencies[path].append(time.perf_counter() - start)
+            self._record(scope, d, status, start)
+
+
+    def _record(self, scope, d, status, start):
+        path = scope['path']
+        d.in_flight -= 1
+        d.counts[path] += 1
+        d.errors[path] += status >= 400
+        d.latencies[path].append(time.perf_counter() - start)

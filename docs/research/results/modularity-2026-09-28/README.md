@@ -39,3 +39,20 @@ retaining O(depth) traversal storage. New tests exercise 2,000-level families.
 
 Core-stage validation: the existing full suite passed (420 passed, five skipped,
 six existing warnings). All maintained core functions meet the 20-line limit.
+
+## Experiment and command-line boundaries
+
+The load harness now has an explicit trial object for owned clients, logs, tasks,
+and counters, with reporting in `load/report.py`. HTTP exchanges, tool delays,
+monitoring, workload draining, and task cleanup are separate operations. Server
+construction, inherited-socket startup, health polling, and profile persistence
+are independently readable. H1 separates calibration, tick event cursors,
+scoring, and reporting; H2 separates arm construction, paired runs, and summaries.
+Benchmark cases and command-line parsing are small functions with unchanged
+argument names and timing boundaries. Phoenix remains test-only infrastructure.
+
+Experiment stage: 43 passed, three optional tests skipped, four existing numeric
+warnings. Real HTTP load-harness tests cover shutdown, startup failure, worker
+cancellation, and transport metrics. All experiment and script functions are at
+most 20 lines. Reference algorithms in tests remain independent implementations;
+only function boundaries change, with no reuse of optimized production logic.

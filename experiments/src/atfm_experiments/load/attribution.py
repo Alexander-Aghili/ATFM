@@ -21,6 +21,21 @@ def cases(base: LoadConfig, sizes: list[int], repeats: int):
 
 
 def main():
+    args, planned = _planned_cases()
+    results = []
+    for name, cfg in planned:
+        result = run_case(cfg, args.out / name)
+        results.append(result)
+        write_json(args.out / 'summary.json', results)
+        print(f'{name}: {result["requests_ok"]}/{result["maximum_requests"]} '
+              f'p95={result["client_duration_s"]["p95"]}', flush=True)
+    if any(r['requests_ok'] != r['maximum_requests'] or r['session_errors']
+           or r['drain_deadline_reached'] or r['tool_publish_errors'] or r['control_errors']
+           or r['control_http_errors'] or r['probe_errors'] for r in results):
+        raise SystemExit(1)
+
+
+def _planned_cases():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--config', type=Path)
@@ -34,17 +49,7 @@ def main():
         parser.error(str(exc))
     if any((args.out / name).exists() for name, _ in planned):
         parser.error('case directories exist; choose a fresh --out')
-    results = []
-    for name, cfg in planned:
-        result = run_case(cfg, args.out / name)
-        results.append(result)
-        write_json(args.out / 'summary.json', results)
-        print(f'{name}: {result["requests_ok"]}/{result["maximum_requests"]} '
-              f'p95={result["client_duration_s"]["p95"]}', flush=True)
-    if any(r['requests_ok'] != r['maximum_requests'] or r['session_errors']
-           or r['drain_deadline_reached'] or r['tool_publish_errors'] or r['control_errors']
-           or r['control_http_errors'] or r['probe_errors'] for r in results):
-        raise SystemExit(1)
+    return args, planned
 
 
 if __name__ == '__main__':

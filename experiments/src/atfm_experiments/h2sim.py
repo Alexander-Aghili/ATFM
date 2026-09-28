@@ -105,6 +105,14 @@ def regime_spec(regime: str, duration_s: float = 3600.0, seed: int = 0, it_rate:
 
 def _arm(name: str, cfg: H2SimConfig, engines: list[EngineConfig], train_programs, rng):
     pcfg = ProxyConfig(upstream_url="sim", beta=cfg.beta, prefill_tps=engines[0].prefill_tps, decode_tps=engines[0].decode_tps)
+    for factory in (_basic_arm, _pin_arm, _touch_arm, _kv_arm, _forecast_arm):
+        policy = factory(name, cfg, pcfg, engines, train_programs, rng)
+        if policy is not None:
+            return policy
+    raise ValueError(f"unknown arm {name}; choose from {ARMS + ABLATIONS}")
+
+
+def _basic_arm(name, cfg, pcfg, engines, train_programs, rng):
     if name == "native":
         return NativePolicy(priority_by_class=True)
     if name == "proxy_rules":
@@ -113,6 +121,9 @@ def _arm(name: str, cfg: H2SimConfig, engines: list[EngineConfig], train_program
         return OraclePolicy(cfg.window, pcfg, hold=True)
     if name == "touch_random":
         return RandomTouchPolicy(cfg.window, pcfg, budget_per_s=cfg.touch_budget_per_s, retry=cfg.touch_retry)
+
+
+def _pin_arm(name, cfg, pcfg, engines, train_programs, rng):
     if name == "pin_random":
         return RandomPinPolicy(cfg.window, pcfg, horizon_s=cfg.pin_horizon_s, pin_budget_blocks=cfg.pin_budget_blocks)
     if name == "oracle_pin":
@@ -121,6 +132,9 @@ def _arm(name: str, cfg: H2SimConfig, engines: list[EngineConfig], train_program
         pred, table = fit_predictor_on_programs(name.split("_")[1], train_programs, engines, rng)
         return ForecastPinPolicy(cfg.window, pcfg, pred, table, horizons=[30.0, 120.0, 300.0], n=64,
                                  horizon_s=cfg.pin_horizon_s, pin_budget_blocks=cfg.pin_budget_blocks)
+
+
+def _touch_arm(name, cfg, pcfg, engines, train_programs, rng):
     if name == "oracle_touch":
         return OracleTouchPolicy(cfg.window, pcfg, horizon_s=cfg.touch_horizon_s, age_s=cfg.touch_age_s, budget_per_s=cfg.touch_budget_per_s,
                                  prefetch=cfg.touch_prefetch, retry=cfg.touch_retry, yield_to_requests=cfg.touch_yield)
@@ -129,6 +143,9 @@ def _arm(name: str, cfg: H2SimConfig, engines: list[EngineConfig], train_program
         return ForecastTouchPolicy(cfg.window, pcfg, pred, table, horizons=[30.0, 120.0, 300.0], n=64,
                                    horizon_s=cfg.touch_horizon_s, age_s=cfg.touch_age_s, budget_per_s=cfg.touch_budget_per_s,
                                    prefetch=cfg.touch_prefetch, retry=cfg.touch_retry, yield_to_requests=cfg.touch_yield)
+
+
+def _kv_arm(name, cfg, pcfg, engines, train_programs, rng):
     if name in ("oracle_kv", "oracle_kv_size", "oracle_kv_cw", "oracle_kv_fresh", "oracle_kv_q"):
         return OracleKvPolicy(cfg.window, pcfg, size_aware=name.endswith("_size"),
                               bg_weight=cfg.kv_bg_weight if name.endswith("_cw") else 1.0, fresh=name.endswith("_fresh"),
@@ -139,6 +156,9 @@ def _arm(name: str, cfg: H2SimConfig, engines: list[EngineConfig], train_program
         return ForecastKvPolicy(cfg.window, pcfg, pred, table, horizons=[30.0, 120.0, 300.0], n=64,
                                 size_aware=name.endswith("_size"), bg_weight=cfg.kv_bg_weight if name.endswith("_cw") else 1.0,
                                 queue_aware=name.endswith("_q"), queue_window_s=cfg.queue_window_s)
+
+
+def _forecast_arm(name, cfg, pcfg, engines, train_programs, rng):
     if name == "oracle_rule_noidx":
         return OracleRuleNoIdxPolicy(cfg.window, pcfg, horizons=[30.0, 120.0, 300.0], gdp=GdpLite(max_hold_s=cfg.max_hold_s))
     if name == "oracle_rule":
@@ -152,7 +172,6 @@ def _arm(name: str, cfg: H2SimConfig, engines: list[EngineConfig], train_program
                              gdp=GdpLite(max_hold_s=cfg.max_hold_s))
         pol.name = name
         return pol
-    raise ValueError(f"unknown arm {name}; choose from {ARMS + ABLATIONS}")
 
 
 def _sha256_file(path: str) -> str:
@@ -208,35 +227,17 @@ def run_h2sim(cfg: H2SimConfig) -> pd.DataFrame:
     engines = [EngineConfig(**e) for e in cfg.engines]
     rows, per_arm_sessions = [], {a: [] for a in cfg.arms}
     write_manifest(out, cfg, inputs=[{"path": cfg.trace_path, "sha256": _sha256_file(cfg.trace_path), "split": _TRACE_SPLIT}] if cfg.trace_path else [])
-    for seed in cfg.seeds:
-        train_programs = _programs_for(cfg, seed, train=True)
-        base_arrivals = None
-        for arm in cfg.arms:
-            programs = _programs_for(cfg, seed, train=False)  # identical programs for every arm
-            arrivals = [p.t_arrival for p in programs]
-            if base_arrivals is None:
-                base_arrivals = arrivals
-            assert arrivals == base_arrivals, "paired design broken: arrivals differ across arms"
-            policy = _arm(arm, cfg, engines, train_programs, np.random.default_rng(seed + 7))
-            sim = build_simulator(cfg, programs, engines, policy, seed)
-            log = sim.run()
-            log.to_parquet(out / f"log_{arm}_{seed}.parquet", index=False)
-            m = serving_metrics(log, sim.session_log, cfg.slo_ttft_s, cfg.duration_s, len(engines), makespan_s=sim.now)
-            m["caps"] = sim.caps
-            m["touches"], m["touch_hits"], m["touch_misses"], m["touch_fails"] = sim.touches, sim.touch_hits, sim.touch_misses, sim.touch_fails
-            m["touch_prefill_tokens"], m["touch_slot_s"], m["touch_retries"] = sim.touch_prefill_tokens, sim.touch_slot_s, sim.touch_retries
-            m["pins"] = sim.pins
-            m["max_imposed_delay_by_tenant"] = json.dumps(m["max_imposed_delay_by_tenant"])
-            rows.append({"arm": arm, "seed": seed, **m})
-            sess = pd.DataFrame(sim.session_log)
-            sess["session_id"] = sess["session_id"] + f"@{seed}"
-            it = log[(log["class"] == "interactive") & (log["turn_index"] > 0)].copy()
-            it["ttft"] = it["t_first_token"] - it["t_arrival"]
-            slo = it.groupby("session_id")["ttft"].apply(lambda s: float((s <= cfg.slo_ttft_s).mean())).rename("slo").reset_index()  # session-weighted
-            slo["session_id"] = slo["session_id"] + f"@{seed}"
-            per_arm_sessions[arm].append(sess.merge(slo, on="session_id", how="left"))
+    _run_seeds(cfg, engines, out, rows, per_arm_sessions)
     df = pd.DataFrame(rows)
     df.to_csv(out / "metrics.csv", index=False)
+    _paired_results(cfg, out, per_arm_sessions)
+    df[["arm", "seed", "queue_proxy_share", "queue_worker_share", "mean_held_s_background", "hold_kv_block_s",
+        "evictions_caused_by_holds"]].to_csv(out / "queue_location.csv", index=False)
+    (out / "config.json").write_text(cfg.model_dump_json(indent=2))
+    return df
+
+
+def _paired_results(cfg, out, per_arm_sessions):
     per = {a: pd.concat(v, ignore_index=True) for a, v in per_arm_sessions.items()}
     metric_fns = {
         "slo_attainment_sessions": MeanMetric(lambda d: d["slo"]),
@@ -249,6 +250,10 @@ def run_h2sim(cfg: H2SimConfig) -> pd.DataFrame:
         pb["metric"] = metric
         paired.append(pb)
     pd.concat(paired, ignore_index=True).to_csv(out / "paired.csv", index=False)
+    _contrasts(cfg, out, per, metric_fns)
+
+
+def _contrasts(cfg, out, per, metric_fns):
     pairs = [tuple(p) for p in cfg.contrasts] or default_contrasts(cfg.arms)
     if pairs:
         contrasts = []
@@ -257,7 +262,41 @@ def run_h2sim(cfg: H2SimConfig) -> pd.DataFrame:
             c["metric"] = metric
             contrasts.append(c)
         pd.concat(contrasts, ignore_index=True).to_csv(out / "contrasts.csv", index=False)
-    df[["arm", "seed", "queue_proxy_share", "queue_worker_share", "mean_held_s_background", "hold_kv_block_s",
-        "evictions_caused_by_holds"]].to_csv(out / "queue_location.csv", index=False)
-    (out / "config.json").write_text(cfg.model_dump_json(indent=2))
-    return df
+
+
+def _run_seeds(cfg, engines, out, rows, per_arm_sessions):
+    for seed in cfg.seeds:
+        train_programs = _programs_for(cfg, seed, train=True)
+        base_arrivals = None
+        for arm in cfg.arms:
+            programs = _programs_for(cfg, seed, train=False)  # identical programs for every arm
+            arrivals = [p.t_arrival for p in programs]
+            if base_arrivals is None:
+                base_arrivals = arrivals
+            assert arrivals == base_arrivals, "paired design broken: arrivals differ across arms"
+            _run_arm(arm, cfg, engines, train_programs, programs, seed, out, rows, per_arm_sessions)
+
+
+def _run_arm(arm, cfg, engines, train_programs, programs, seed, out, rows, per_arm_sessions):
+    policy = _arm(arm, cfg, engines, train_programs, np.random.default_rng(seed + 7))
+    sim = build_simulator(cfg, programs, engines, policy, seed)
+    log = sim.run()
+    log.to_parquet(out / f"log_{arm}_{seed}.parquet", index=False)
+    _record_metrics(log, sim, cfg, engines, rows, arm, seed)
+    sess = pd.DataFrame(sim.session_log)
+    sess["session_id"] = sess["session_id"] + f"@{seed}"
+    it = log[(log["class"] == "interactive") & (log["turn_index"] > 0)].copy()
+    it["ttft"] = it["t_first_token"] - it["t_arrival"]
+    slo = it.groupby("session_id")["ttft"].apply(lambda s: float((s <= cfg.slo_ttft_s).mean())).rename("slo").reset_index()  # session-weighted
+    slo["session_id"] = slo["session_id"] + f"@{seed}"
+    per_arm_sessions[arm].append(sess.merge(slo, on="session_id", how="left"))
+
+
+def _record_metrics(log, sim, cfg, engines, rows, arm, seed):
+    m = serving_metrics(log, sim.session_log, cfg.slo_ttft_s, cfg.duration_s, len(engines), makespan_s=sim.now)
+    m["caps"] = sim.caps
+    m["touches"], m["touch_hits"], m["touch_misses"], m["touch_fails"] = sim.touches, sim.touch_hits, sim.touch_misses, sim.touch_fails
+    m["touch_prefill_tokens"], m["touch_slot_s"], m["touch_retries"] = sim.touch_prefill_tokens, sim.touch_slot_s, sim.touch_retries
+    m["pins"] = sim.pins
+    m["max_imposed_delay_by_tenant"] = json.dumps(m["max_imposed_delay_by_tenant"])
+    rows.append({"arm": arm, "seed": seed, **m})
