@@ -274,6 +274,9 @@ observability = [
     { name = "opentelemetry-exporter-otlp-proto-http" },
     { name = "opentelemetry-sdk" },
 ]
+profiling = [
+    { name = "yappi" },
+]
 
 [package.metadata]
 requires-dist = [
@@ -285,8 +288,9 @@ requires-dist = [
     { name = "opentelemetry-sdk", marker = "extra == 'observability'", specifier = ">=1.45.0" },
     { name = "pandas", specifier = ">=2.1" },
     { name = "pydantic", specifier = ">=2.7" },
+    { name = "yappi", marker = "extra == 'profiling'", specifier = ">=1.7" },
 ]
-provides-extras = ["observability"]
+provides-extras = ["profiling", "observability"]
 
 [[package]]
 name = "attrs"
@@ -2761,6 +2765,23 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/c4/bd/b75d5c2312caec607ec995200fa1eb8453225fd869947ec743919c279544/xyzservices-2026.9.1.tar.gz", hash = "sha256:8d1a39bf6b192940cc5db5264eeefc1b20dd184f8b83b1303b078743744f5943", size = 1134047, upload-time = "2026-09-04T10:35:41.399Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a8/71/9219fe65ef32bddc0b5d14e1d98dfefe9d2c9c1b1d1e93efca1f29fcbd4d/xyzservices-2026.9.1-py3-none-any.whl", hash = "sha256:af4fddac0f1fa5f7951834e2c58e10109e722be548cb1fe4f1a8e8b18cef4c09", size = 98829, upload-time = "2026-09-04T10:35:40.08Z" },
+]
+
+[[package]]
+name = "yappi"
+version = "1.7.6"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/9f/47/f7ec7744dff1104560d6276f951a8182f5b805e8d86ece591aebd0512845/yappi-1.7.6.tar.gz", hash = "sha256:c94281936af77c00c6ac2306a0e7f85a67e354d717120df85fcc5dfb9243d4dd", size = 62639, upload-time = "2026-03-17T22:31:40.928Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1b/0e/948fdb5980494c50fcf4d24cfd1d5c2ea9c48d4dd151e6b9c032d7ac5fed/yappi-1.7.6-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:56fae31c4e09448a9919c1e6a4f976b2a49aa914f42e6e95355f6329c83003da", size = 33256, upload-time = "2026-03-17T22:30:57.871Z" },
+    { url = "https://files.pythonhosted.org/packages/3f/be/af330ad8ede549ecaa8b29d3a2185e2209b3a87056c05dbaaa7841497c6d/yappi-1.7.6-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:15ed0d845e30b35952d09dd4f70df81089db05b735d57c75e0924ebacda14a34", size = 33189, upload-time = "2026-03-17T22:30:58.733Z" },
+    { url = "https://files.pythonhosted.org/packages/7a/80/220c5a34e3a4949cea0e0ff1049afab3a67f1bfb348db89a16bb74c77621/yappi-1.7.6-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:2e878f63781761db7b62265468d78147b95df9ca2af9bc5140f94ad0faffe11c", size = 82799, upload-time = "2026-03-17T22:30:59.649Z" },
+    { url = "https://files.pythonhosted.org/packages/94/e0/e49b8e12140dba82767ee9fd8de1577be90a09a083aa6e0f02fdfc3e8ee9/yappi-1.7.6-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:5a88615e2b9817887f6d1addfd12466a8529f25acc58b656205ae3f641cd725b", size = 82322, upload-time = "2026-03-17T22:31:00.524Z" },
+    { url = "https://files.pythonhosted.org/packages/1f/95/fdcabc38a3e70e7c6394d07868ff25c9984a1ea97020cc65d8858c71aa62/yappi-1.7.6-cp312-cp312-musllinux_1_2_aarch64.whl", hash = "sha256:178b23a56a59ddd58a528848e9242040ecad6d2fe0bcfb439455eef02cd43b07", size = 79978, upload-time = "2026-03-17T22:31:01.456Z" },
+    { url = "https://files.pythonhosted.org/packages/83/e6/6e11c44a90725a6f1afa4bc308618b2efc07a90d4c06e1d5a3b0125f8e6c/yappi-1.7.6-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:62cbb47dffca45b906d52a3c8f02e508f67d657275fb9d897e1e736fe5afe25f", size = 80053, upload-time = "2026-03-17T22:31:02.366Z" },
+    { url = "https://files.pythonhosted.org/packages/a2/79/f056c72ba190d186fe52eb6a9181aab15dbd68a868ab5c7375e3b5796565/yappi-1.7.6-cp312-cp312-win32.whl", hash = "sha256:dbcf79ee2f1a96ec52e8291c07e27c0e38eead61a5c24d57eb467b5d9e6f2f9f", size = 32906, upload-time = "2026-03-17T22:31:03.29Z" },
+    { url = "https://files.pythonhosted.org/packages/0c/89/a9ee11f80482263b7268c8968a4e675393454167b20574831a357610afd4/yappi-1.7.6-cp312-cp312-win_amd64.whl", hash = "sha256:59bd23fb39a7b9027c5eecc94585042849cb36be9af2d35c31812be1408af356", size = 35204, upload-time = "2026-03-17T22:31:04.131Z" },
+    { url = "https://files.pythonhosted.org/packages/3b/72/711a33a5bf45e5af484a48001b75908dade76d4b8ed5d180f89dc62c5a5a/yappi-1.7.6-cp312-cp312-win_arm64.whl", hash = "sha256:0adc831b099a554831335819d7eb1643e189e4f3aa2db873ca5d584bd42dba01", size = 32836, upload-time = "2026-03-17T22:31:05.116Z" },
 ]
 
 [[package]]

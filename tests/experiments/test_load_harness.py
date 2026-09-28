@@ -165,6 +165,7 @@ def test_provenance_records_inherited_descriptor_limits():
 
 def test_profile_is_saved_after_real_http_shutdown(tmp_path):
     import pstats
+    pytest.importorskip('yappi')
     require_servers()
     from atfm_experiments.load.__main__ import run_case
 
@@ -176,5 +177,9 @@ def test_profile_is_saved_after_real_http_shutdown(tmp_path):
     assert any(file.endswith('/atfm/proxy/app.py') and function == 'chat'
                for file, _, function in stats.stats)
     assert 'primitive_calls' in (directory / 'proxy-profile.csv').read_text()
-    assert 'function calls' in (directory / 'proxy-profile.txt').read_text()
+    assert 'Thread' in (directory / 'proxy-profile.txt').read_text()
+    metadata = json.loads((directory / 'proxy-profile.json').read_text())
+    assert metadata['clock'] == 'cpu'
+    assert any(t['name'] == '_MainThread' for t in metadata['threads'])
+    assert any(t['name'] != '_MainThread' for t in metadata['threads'])
     assert not (directory / 'board.pstats').exists()

@@ -227,20 +227,28 @@ transport failures retain exception type and message in the raw request record.
 
 ### Profiling the proxy
 
-Set `"profile_proxy": true` in a load configuration to capture a cProfile
-profile of the proxy's serving thread. After graceful shutdown, the case
-directory contains `proxy.pstats`, a full function CSV, and text rankings by
-self and cumulative time. The run fails explicitly if the binary profile is
-missing (for example after a forced kill).
+Install the experiment-only profiler, then set `"profile_proxy": true` in a
+load configuration:
 
+```bash
+uv sync --all-packages --extra dev --extra serve --extra profiling
+```
+
+After graceful shutdown, the case directory contains `proxy.pstats` (merged
+functions), a per-thread function CSV, text rankings by self/cumulative CPU time,
+and JSON with profiler version and per-thread totals. Missing profile output
+makes the run fail explicitly, for example after a forced kill.
+
+[Yappi](https://github.com/sumerc/yappi) uses its CPU clock and separate thread
+contexts to distinguish the serving thread from synchronous prediction workers.
 Profiling starts in application lifespan and stops before shutdown cleanup.
-It includes serving/health/probe work, but excludes module imports and app
-construction. cProfile uses elapsed time and observes only this thread:
-selector waits are included, synchronous prediction worker threads are not.
-Async function call counts include coroutine resumes. Cumulative times overlap
-across callers and must not be summed as exclusive cost.
+It includes serving/health/probe work but excludes imports and app construction.
+CPU time excludes waiting; cumulative function times overlap and must not be
+summed as exclusive cost. The exported pstats format merges threads; use the CSV
+for thread attribution.
 
 Instrumentation changes scheduling and timeout frequency. Use profiles to locate
-work, then validate proposed changes in unprofiled runs with identical workload
-settings. Preserve failed or incomplete profile runs too; increasing timeouts
-creates a different workload and must be recorded.
+work, then validate changes in unprofiled runs with identical workload settings.
+The initial cProfile trials are retained as exploratory evidence only: on this
+Python 3.12.13 build, a minimal reproduction captured worker-thread calls in a
+single profile and produced ambiguous concurrent timing attribution.

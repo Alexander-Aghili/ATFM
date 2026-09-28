@@ -12,6 +12,8 @@ from .workload import exercise
 
 
 def run_case(config: LoadConfig, directory: Path) -> dict:
+    if config.profile_proxy and find_spec('yappi') is None:
+        raise RuntimeError('proxy profiling requires the atfm-experiments[profiling] extra')
     directory.mkdir(parents=True, exist_ok=False)
     write_json(directory / 'config.json', config.model_dump())
     write_json(directory / 'environment.json', provenance())

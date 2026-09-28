@@ -24,7 +24,7 @@ from atfm.proxy.config import ProxyConfig
 from atfm.schema.trace import TraceRow, TraceTable
 from .config import LoadConfig
 from .metrics import Diagnostics, RequestTiming
-from .profiling import profile_event_loop
+from .profiling import profile_serving
 
 
 def training_trace(cfg: LoadConfig) -> TraceTable:
@@ -123,7 +123,7 @@ def build_app(role: str, payload: dict) -> FastAPI:
         async with original_lifespan(application):
             task = asyncio.create_task(heartbeat())
             try:
-                with profile_event_loop(directory) if role == 'proxy' and cfg.profile_proxy else nullcontext():
+                with profile_serving(directory) if role == 'proxy' and cfg.profile_proxy else nullcontext():
                     yield
             finally:
                 task.cancel()
