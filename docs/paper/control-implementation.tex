@@ -187,7 +187,7 @@ effect includes changed request timing and prediction completion patterns.
 These results support removing redundant import work but do not demonstrate
 better scheduling quality or establish a universal speedup.
 The serving extra now supplies the detector explicitly; scheduling algorithms
-are unchanged. The next priority is bounded, deadline-aware prediction work.
+are unchanged. Those trials motivated the subsequent bounded prediction path described below.
 Thread-aware profiling remains an optional experiment dependency, and the
 repository's proxy-profiling report preserves all individual trials and
 measurement limitations.
@@ -218,3 +218,36 @@ starting slots, boundary-search work is $O(U\log S+N)$ with $O(U)$ storage.
 This is an implementation change, not an additional forecast or policy claim.
 The reproducibility record in \texttt{docs/research/results/modularity-2026-09-28/}
 reports output equivalence and CPU timing limits.
+
+
+\paragraph{Bounded prediction admission (September 28).}
+The proxy now admits at most $L$ unfinished prediction jobs ($L=4$ by default),
+with immediate local fallback when full. Its monotonic caller deadline includes
+executor dispatch and prediction; an expired job skips computation. A timeout or
+caller cancellation does not release capacity held by a running thread: only
+future completion does. Board HTTP phase timeouts use the remaining caller
+budget rather than a 500\,ms minimum. The caller also rejects results after its
+deadline. Event-loop stalls can delay timeout handling, and remote computation
+may outlive the HTTP request; neither hard real-time behavior nor server-side
+cancellation is claimed.
+
+Admission and accounting require $O(1)$ work per request and $O(L)$ unfinished
+jobs. Counters distinguish immediate rejection, caller timeout, prediction use,
+and outstanding/running/completed worker jobs. Shutdown drains the executor
+before closing owned clients. This preserves fallback estimates and scheduling
+formulas but can change which predictions are used and therefore request order.
+Board computation still runs synchronously in its service handlers; isolating
+that mutable state remains separate work. Paired CPU-only HTTP trials and their
+source hashes are retained in the September 28 prediction-overload study.
+
+In three paired fast-worker trials at each size, client p95 decreased in all six
+pairs: the three-run ranges changed from 0.503--0.825 to 0.427--0.557\,s at 256
+sessions and from 2.311--3.465 to 1.851--2.926\,s at 1,024 sessions. However,
+pooled timely prediction use fell from 58.42\% to 52.00\% and from 32.26\% to
+18.98\%, respectively; immediate rejection accounted for 36.98\% and 71.69\%
+of candidate attempts. All 23,040 planned calls completed, and candidate peak
+unfinished prediction work was four. This is a bounded-work result with a
+latency/coverage trade-off, not evidence of improved policy quality. Ranges are
+not confidence intervals. Baseline shutdown logs contain a pre-existing cleanup
+failure after measurement; the candidate lifecycle removes it. The study retains
+both versions' logs, configuration and source hashes.

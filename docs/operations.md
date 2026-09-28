@@ -217,3 +217,37 @@ process supervision outside these scripts.
 
 See [control scaling decisions](development/control-scaling.md) for batching, expiry,
 restart, and incremental JSONL consumption contracts.
+
+## Prediction overload protection
+
+The proxy bounds unfinished prediction jobs independently of its LLM admission
+window. Defaults are four jobs and a 50 ms caller budget:
+
+```bash
+uv run python scripts/run_proxy.py --board http://127.0.0.1:8081 \
+  --prediction-limit 4 --board-timeout 0.05
+```
+
+Python configuration uses `ProxyConfig.prediction_limit` and `board_timeout_s`.
+Both must be positive; the budget must be finite. Saturated prediction admission
+immediately uses the normal local service estimate and zero next-tool estimate.
+It does not reject the LLM request or consume a waiting prediction queue.
+
+Timeout and cancellation release the caller, but a running job retains capacity
+until its worker finishes. Board HTTP phases receive the remaining monotonic
+budget instead of a 500 ms minimum. The proxy checks the total caller deadline
+as well; event-loop stalls can delay handling, so this is not a hard real-time
+latency guarantee. Remote board computation may continue after disconnection.
+
+Inspect `GET /state` -> `predictions`. `rejected` means local overload/closed
+prediction admission, not an upstream HTTP rejection. `pending` counts waiting
+callers; `outstanding` includes jobs abandoned by those callers; `running`
+counts jobs executing predictor code. `peak_outstanding` must never exceed the
+configured limit. See [counter definitions](development/load-testing.md#prediction-work-accounting).
+Do not increase the limit merely to hide rejections: measure timely prediction
+coverage, tail latency and board CPU together.
+
+Application shutdown stops prediction admission, cancels work not yet started,
+waits for running jobs, and closes owned clients and trace output. Injected
+predictors and upstream clients remain caller-owned. A custom synchronous
+predictor must eventually return; Python cannot forcibly stop its thread.

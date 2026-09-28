@@ -29,6 +29,8 @@ contracts, use the developer guide and the source code together.
 
 ## Evaluation and evidence
 
+- [Prediction overload protection](research/2026-09-28-prediction-overload.md): bounded jobs, deadlines, and paired HTTP trials.
+
 - [Large synthetic GDP stress tests](research/2026-09-27-gdp-stress.md): CPU and memory at 100,000 and one million sessions.
 - [Agent observability infrastructure](research/2026-09-27-agent-observability.md): existing analytics systems and proposed ATFM integrations.
 

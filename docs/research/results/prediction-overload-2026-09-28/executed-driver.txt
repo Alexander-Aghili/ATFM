@@ -1,0 +1,16 @@
+import json, os, subprocess
+from pathlib import Path
+root=Path('/home/alexsky2/Company')
+python=root/'.venv/bin/python'
+out=root/'runs/prediction-overload-2026-09-28'
+out.mkdir(exist_ok=True)
+for size in [256,1024]:
+    for seed in [7,8,9]:
+        cfg={'sessions':size,'seed':seed,'pattern':'burst','worker_slots':64,'worker_service_s':.005,'proxy_window':64}
+        config=out/f'config-{size}-{seed}.json'; config.write_text(json.dumps(cfg))
+        for mode in (['before','after'] if seed%2 else ['after','before']):
+            cwd=root/'tmp/prediction-overload-baseline' if mode=='before' else root
+            env=dict(os.environ, PYTHONPATH=f'{cwd}/src:{cwd}/experiments/src')
+            name=f'{mode}-{size}-{seed}'
+            subprocess.run([str(python),'-m','atfm_experiments.load','--sessions',str(size),'--patterns','burst','--config',str(config),'--out',str(out/name)],cwd=cwd,env=env,check=True,stdout=subprocess.DEVNULL)
+            print(name, 'complete', flush=True)

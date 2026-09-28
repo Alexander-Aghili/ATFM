@@ -29,7 +29,7 @@ performance optimization.
 | Area | Current implementation | Scaling risk / first investigation |
 | --- | --- | --- |
 | Board ticks | `board/service.py` calls `board.step` synchronously inside an async endpoint. | Forecast computation blocks that event loop; measure tick duration and overlapping `/predict` latency. |
-| Per-request predictions | `proxy/board_client.py` retrieves service time and next-tool duration together. | One HTTP round trip; the four-worker pool can still remain occupied after caller timeout. |
+| Per-request predictions | `proxy/board_client.py` retrieves service time and next-tool duration together. | One HTTP round trip; unfinished work is bounded, including jobs whose callers timed out. |
 | Event ingestion | `JsonlBus.drain()` consumes complete appended records using a per-instance byte cursor. | O(new bytes) parsing; idle drains perform a metadata check. Restart replays once; downstream transactional recovery remains separate. |
 | Forecast aggregation | Per-session loops with streamlined empirical draws and `(horizons, draws)` NumPy operations. | Work grows with sessions, horizons, draws, and fan-out. Profile sampling versus aggregation and allocation. |
 | Admission queue | `HoldQueue` maintains ready, delayed, promotion, and FCFS heaps. | Admission release is amortized O(log Q); peer-rank queries and diagnostic counts remain O(Q). |
@@ -72,8 +72,10 @@ positional selection, and explicit `MeanMetric` statistics prepare their values
 once instead of rebuilding filtered DataFrames in every resample.
 
 See the [results and complexity table](../research/2026-09-27-cpu-scaling.md)
-for speedups and bounds. The live HTTP/JSONL concerns above remain separate,
-unfixed findings; CPU benchmark success is not a live-service load test.
+for speedups and bounds. The live HTTP concerns above require separate measurements. Incremental JSONL
+ingestion and bounded prediction admission are now implemented; synchronous
+board computation and logging remain investigation targets. CPU benchmark
+success is not a live-service load test.
 
 ## Large-session control paths
 
@@ -121,3 +123,12 @@ which changes as demand is committed. For U distinct start slots, this boundary
 work changes from O(N log S) to O(U log S + N), with O(U) storage and U <= S.
 The chance-constraint thresholds, range index, assignment order, tenant caps,
 and scan fallback are unchanged.
+
+## Bounded prediction work (28 September 2026)
+
+The proxy now admits at most `prediction_limit` unfinished jobs, defaults to four,
+and immediately falls back when full. This removes an unbounded executor waiting
+queue. Deadline-aware HTTP requests use the remaining caller budget, replacing
+the 500 ms minimum transport timeout. Accounting separates callers from worker
+lifetimes. These changes do not isolate synchronous board ticks or make arbitrary
+Python work cancellable. See the [implementation and paired load study](../research/2026-09-28-prediction-overload.md).

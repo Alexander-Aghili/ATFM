@@ -1,6 +1,6 @@
 # Implementation and evidence status
 
-Reviewed against the repository on 27 September 2026. This page describes the
+Prediction-path status updated on 28 September 2026. This page describes the
 implemented paths and the limits of the recorded evidence. Dated plans and
 research notes retain the assumptions and findings of their original runs.
 
@@ -9,6 +9,7 @@ research notes retain the assumptions and findings of their original runs.
 | Offline forecasting | Trace adapters; B0/B1 aggregate baselines; B2/M1/M2/M3 session models; Monte Carlo aggregation and calibration. | H1 and H1b results are recorded in dated research notes. Results depend on corpus, split, horizon, and signal quality. |
 | CPU simulation | Closed-loop workers, queues, KV eviction, trace replay, admission, touch/pin arms, paired comparisons. | Seeded and golden tests plus H2 run summaries. The engine remains a model of serving behavior. |
 | Live board and proxy | HTTP predictions, JSONL event ingestion, directive polling, holds, launch gates, and touches. | Mocker integration verifies wiring; it does not prove a serving-performance benefit. |
+| Prediction overload | Bounded executor admission, one caller deadline, remaining-budget board HTTP, worker/caller counters and owned-resource shutdown. | Overload regression tests and [paired HTTP trials](research/2026-09-28-prediction-overload.md); board CPU isolation remains separate. |
 | Controller capacity input | Prometheus worker-metrics parsing and configurable scraping. | The recorded Mocker frontend did not expose the required KV metrics, so the end-to-end run issued no holds or touches. |
 | LMCache placement | Tokenization/prompt lookup and configurable pin/move/lookup/unpin HTTP adapter. | Adapter tests exist. Compatibility and performance must be validated on the actual controller and real workers. |
 | Tier planning | Quantile-based tier recommendations; optional LMCache actuation. | Without LMCache, the runtime logs tier recommendations. No general hardware tier-placement result is claimed here. |

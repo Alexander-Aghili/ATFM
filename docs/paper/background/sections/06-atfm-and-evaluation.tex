@@ -177,8 +177,15 @@ removed it by supplying a missing serving dependency. Its paired fake-worker
 trials improved latency/CPU in that configuration, but prediction timeout rates
 increased. That result is recorded in the proxy-profiling report. It demonstrates
 why a lower CPU total is not sufficient evidence of a healthier control loop.
-Deadline-aware prediction and remaining linear rank work are still important
-investigation targets.
+The September 28 implementation bounds unfinished proxy prediction jobs (four
+by default), falls back immediately at capacity, and keeps abandoned running
+jobs counted until completion. A monotonic deadline spans dispatch and execution;
+board HTTP phases use its remaining budget instead of a 500\,ms minimum.
+Caller outcomes and actual unfinished work are counted separately. This bounds
+local work, not remote computation or hard real-time response. It can exchange
+timeouts for immediate rejection, so timely prediction use must be measured
+alongside request latency. Synchronous board computation and remaining linear
+rank work are still investigation targets.
 
 Python is currently appropriate for orchestration and numerical experimentation,
 with bulk numerical work handled by compiled libraries. Rust becomes attractive

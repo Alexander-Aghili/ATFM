@@ -116,3 +116,6 @@ For repeated control-on/off pairs and inherited descriptor limits, see the
 
 Opt-in [proxy CPU profiling](../docs/development/load-testing.md#profiling-the-proxy)
 uses the experiments-only `profiling` extra and retains per-thread results.
+
+Prediction load tests support `prediction_limit` and distinguish immediate
+admission fallback from timed-out work. See [overload accounting and trials](../docs/development/load-testing.md#prediction-work-accounting).

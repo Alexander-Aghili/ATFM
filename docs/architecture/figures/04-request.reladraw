@@ -6,7 +6,7 @@ style evidence fill: #f0eafa border: #8060a5 text: (color: #38244d)
 style external fill: #f1f3f5 border: #78838d text: (color: #29333c)
 
 node receive "1. Receive and remember / Parse body and session headers / Update turn and bounded prompt LRU" (wrap: 39) style: runtime gap: wide
-node predict "2. Predict expected times / BoardClient or local fallback / Budgeted executor; record outcomes" (wrap: 39) style: runtime gap: wide right of receive
+node predict "2. Predict expected times / Bounded outstanding jobs or fallback / One deadline; worker-lifetime accounting" (wrap: 39) style: runtime gap: wide right of receive
 node rank "3. Compute scheduling metadata / proxy/index.py: CallMeta / Class, tier, index, promotion time" (wrap: 39) style: runtime gap: wide right of predict
 node forward "6. Forward when released / Session header + nvext.agent_hints / Upstream streaming or JSON response" (wrap: 39) style: runtime gap: wide below receive
 node release "5. Release eligible entries / Admission window and hold cap / Timer handles delay and promotion" (wrap: 39) style: control gap: wide right of forward

@@ -86,6 +86,8 @@ def _assert_trial_metrics(result, directory):
     assert result['tool_publish_errors'] == 0
     assert result['final_observations']['proxy']['metrics']['queue']['in_flight'] == 0
     assert len(json.loads((directory / 'tools.json').read_text())) == 4
+    counts = result['final_observations']['proxy']['metrics']['predictions']
+    assert counts['peak_outstanding'] <= 4 and counts['accepted'] == counts['completed'] + counts['outstanding']
 
 
 def _assert_lifecycle(directory):
@@ -97,6 +99,8 @@ def _assert_lifecycle(directory):
     shutdown = json.loads((directory / 'shutdown.json').read_text())
     assert set(shutdown) == {'worker', 'board', 'proxy'}
     assert all(p['exit_code'] is not None for p in shutdown.values())
+    for role in shutdown:
+        assert 'Application shutdown failed' not in (directory / f'{role}.log').read_text()
 
 
 def test_startup_failure_still_reaps_started_children(tmp_path, monkeypatch):

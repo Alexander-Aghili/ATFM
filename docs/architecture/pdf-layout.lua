@@ -1,9 +1,9 @@
 local section = ''
-local root = 'https://github.com/Alexander-Aghili/ATFM/blob/ba51c55/'
+local root = 'https://github.com/Alexander-Aghili/ATFM/blob/40602f3/'
 
 function Link(link)
   if link.target == 'atfm-architecture.pdf' then
-    link.target = root:gsub('ba51c55', 'main') .. 'docs/architecture/atfm-architecture.pdf'
+    link.target = root:gsub('40602f3', 'main') .. 'docs/architecture/atfm-architecture.pdf'
     return link
   end
   if not link.target:match('^https?://') and not link.target:match('^#') then

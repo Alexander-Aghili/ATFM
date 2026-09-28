@@ -105,3 +105,7 @@ attention and KV-cache fundamentals through vLLM, LMCache, distributed serving,
 and agent scheduling. It includes mathematical derivations, original diagrams,
 a dated primary-source register, and an assessment of ATFM's incremental value.
 Its build and bibliography are independent of this research manuscript.
+
+The implementation appendix also documents bounded prediction admission and
+worker-lifetime accounting; see the [paired overload study](../research/2026-09-28-prediction-overload.md)
+for the workload, rejection/timeout trade-off, and retained evidence.

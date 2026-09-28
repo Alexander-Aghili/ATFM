@@ -198,16 +198,9 @@ forecast. This is an operational ablation of the entire periodic control path,
 quality. Differences can include policy effects, state population, compute,
 and changed request timing.
 
-The proxy now exposes fixed-size `predictions` counters in `/state` and harness
-observations: `attempted`, `used`, `timeout`, `error`, `cancelled`,
-`pending`, and `disabled`. For enabled predictions,
-attempted = used + timeout + error + cancelled + pending.
-`used` means the await returned a result without raising. Event-loop stalls
-can delay timeout handling, so this is not a hard wall-clock deadline guarantee.
-`timeout` includes TimeoutError raised by the predictor as well as the caller's
-deadline; `error` covers other exceptions. Neither counter represents worker
-thread occupancy. A timed-out synchronous HTTP call can continue after the
-caller has fallen back; `pending` counts awaiting callers, not those threads.
+The proxy exposes caller outcomes and bounded worker activity in `/state` and
+harness observations. See [prediction work accounting](#prediction-work-accounting)
+for current definitions; archived trials retain their original counter set.
 Counters are process-local and reset on restart. No per-request history is
 retained in the production proxy.
 
@@ -258,3 +251,34 @@ missing-`sniffio` searches in HTTPcore 1.0.9. The serving extra now supplies it
 explicitly. Compare environments as well as source: provenance records AnyIO,
 HTTPcore, sniffio (including absence), and Yappi versions. Faster HTTP processing
 can change prediction fallback frequency even when all requests succeed.
+
+## Prediction work accounting
+
+Set `prediction_limit` (default 4) and `prediction_budget_s` (default 0.05) in
+`LoadConfig`. Service configuration calls the latter `board_timeout_s`.
+
+| Counter | Meaning |
+| --- | --- |
+| `attempted` | Enabled prediction requests, including admission rejection. |
+| `used`, `timeout`, `error`, `cancelled` | Mutually exclusive terminal caller outcomes for admitted/submitted work; submission failures count as errors. |
+| `rejected` | Immediate fallback because prediction capacity is full or admission is closed. |
+| `pending` | Callers still awaiting an outcome. |
+| `disabled` | Requests with no predictor configured; excluded from attempts. |
+| `accepted` | Successfully submitted jobs. |
+| `outstanding`, `peak_outstanding` | Current/maximum unfinished admitted jobs, including abandoned work. |
+| `running` | Jobs inside the predictor invocation. |
+| `completed` | Finished futures, including failures and cancellation before dispatch. |
+| `cancelled_before_start` | Submitted futures cancelled without running. |
+| `expired_before_start` | Dispatched jobs whose deadline already passed; predictor was skipped. |
+| `late_completed` | Non-cancelled futures whose completion callback observed an expired deadline. |
+
+In a coherent snapshot, `attempted = used + timeout + error + cancelled + rejected
++ pending`, and `accepted = completed + outstanding`. Worker completion is not
+prediction use. A cancelled caller's job can complete before its deadline and
+still be unused; `late_completed` is not a count of all unused results.
+
+Compare old/new runs using `used / attempted`, every fallback outcome, request
+p95, CPU, and errors. A lower timeout percentage alone can hide increased
+rejection. Bounded admission promises bounded work, not more prediction coverage
+or a policy-quality improvement. The [overload study](../research/2026-09-28-prediction-overload.md)
+records paired trials and limitations.

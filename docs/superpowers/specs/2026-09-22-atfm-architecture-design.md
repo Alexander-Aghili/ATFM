@@ -286,3 +286,14 @@ Company/
 Items 1 to 3 are built and evidenced (`docs/research/`). The simulator's H2 batches (2026-09-24 to 27) were negative for admission holds and positive for forecast-driven KV placement, which changes item 4's primary question to placement; the study design is `docs/research/2026-09-27-l2-h100-study-design.md`. Every remaining v1 component was then built test-first without new experiments (`docs/superpowers/plans/2026-09-27-v1-completion.md`): the `atfm.control` package (GDP planner of 6.2 on samples with the cap and per-tenant fairness; the tier logger of 6.3; the replica floor of 6.4 behind a virtual connector; a placement *touch* controller), the control loop runtime, a Redis Streams bus, the worker-metrics scraper and board HTTP service, proxy overflow-to-FCFS with alarms and directive expiry, a `/touch` endpoint, the rows/stage/training parsers and the OpenHands and Harbor adapters of 7, and in the simulator the keep-alive touch arms, trace replay, a golden test and run provenance.
 
 **The deployable form of placement (amends 6.3).** No shipped engine exposes pin or evict for one session's KV, but every prefix cache is an LRU: a minimal request sharing a session's prefix (`max_tokens` 1, lowest priority) makes its blocks most-recently used. The touch controller issues such touches for sessions forecast to return within a short horizon whose blocks are near the eviction frontier, within a per-second budget; its costs (a batch slot for one step, the prefix hit, and a full recompute moved earlier when the prefix was already gone) are recorded per touch. This is what the H100 study tests, with a random-touch ablation to separate the mechanism from the forecast. **Amended 2026-09-27:** with LMCache in the stack the primary actuator is its controller's `pin`/`move` (D3); the touch remains the fallback, and the study runs both.
+
+### Prediction admission implementation update (2026-09-28)
+
+The proxy limits all unfinished prediction jobs, including running work whose
+caller timed out, to `prediction_limit` (default four). At capacity it immediately
+uses local estimates. One monotonic caller deadline spans dispatch and prediction;
+board HTTP phases receive the remaining budget. Job completion, not caller
+abandonment, returns capacity. Counters distinguish rejection, caller outcomes
+and worker lifetime. Board state ownership and synchronous tick computation
+remain unchanged. See the [implementation study](../../research/2026-09-28-prediction-overload.md)
+for tests, paired latency/coverage results and limitations.

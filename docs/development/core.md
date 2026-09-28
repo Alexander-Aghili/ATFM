@@ -283,3 +283,29 @@ historical decisions and the [subsequent modularity results](../research/results
 for the later shared-parser implementation and output/performance comparisons.
 The [implementation architecture](../architecture/03-code-and-documentation.md)
 maps these contracts to runtime flows and module ownership.
+
+## Prediction admission and deadlines
+
+`proxy/prediction.py:PredictionRunner` owns the executor, admission limit,
+monotonic deadlines and accounting. `ProxyRuntime` supplies request metadata and
+the existing fallback. This boundary does not change the queue/index formulas.
+
+Admission is nonblocking. At most `prediction_limit` futures are unfinished;
+there is no separately admitted waiting backlog. A future's completion callback
+returns its permit, including cancellation before dispatch. Caller timeout or
+cancellation only attempts to cancel that future; already running work remains
+counted. A lock protects cross-thread counters and admission, and readers use
+`snapshot()` for coherent observations. Ordinary admission/accounting is O(1),
+with O(limit) unfinished jobs and fixed-size counters.
+
+A deadline starts before submission. Dispatch and legacy two-call predictors
+check expiry before additional work; `BoardClient.expected_times_until` receives
+the same deadline and sets HTTP phase timeouts to its remaining duration.
+The async caller also checks expiry before using a result. Standalone legacy
+`BoardClient` methods and injected synchronous predictor interfaces remain
+supported. The deadline-aware method is an explicit class-level extension.
+
+Shutdown belongs to the application lifespan, not the load harness. The executor
+is drained before closing an owned board client; injected clients are not closed.
+Board registry/model/RNG ownership is unchanged. Board-computation isolation and
+remote cancellation are separate work, not guarantees of this admission bound.

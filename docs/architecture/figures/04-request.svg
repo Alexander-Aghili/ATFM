@@ -1,83 +1,84 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1412" height="555" viewBox="0 0 1412 555" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
+<svg xmlns="http://www.w3.org/2000/svg" width="1412" height="565" viewBox="0 0 1412 565" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
   <defs>
-    <marker id="rd803a22f-arrow-5c5c7c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="r1eb00ecb-arrow-5c5c7c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#5c5c7c"/>
     </marker>
-    <marker id="rd803a22f-arrow-5c5c7c-back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="r1eb00ecb-arrow-5c5c7c-back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#5c5c7c"/>
     </marker>
   </defs>
-  <rect x="0" y="0" width="1412" height="555" fill="#111111"/>
-  <path d="M60.5 40 H358.5 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H60.5 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
-  <text x="209.5" y="68.4" fill="#172c42" text-anchor="middle">1. Receive and remember</text>
-  <text x="209.5" y="87.4" fill="#172c42" text-anchor="middle">Parse body and session headers</text>
-  <text x="209.5" y="106.4" fill="#172c42" text-anchor="middle">Update turn and bounded prompt LRU</text>
-  <path d="M504.9 40 H802.9 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H504.9 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
-  <text x="653.9" y="68.4" fill="#172c42" text-anchor="middle">2. Predict expected times</text>
-  <text x="653.9" y="87.4" fill="#172c42" text-anchor="middle">BoardClient or local fallback</text>
-  <text x="653.9" y="106.4" fill="#172c42" text-anchor="middle">Budgeted executor; record outcomes</text>
-  <path d="M978.3 40 H1276.3 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H978.3 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
-  <text x="1127.3" y="68.4" fill="#172c42" text-anchor="middle">3. Compute scheduling metadata</text>
-  <text x="1127.3" y="87.4" fill="#172c42" text-anchor="middle">proxy/index.py: CallMeta</text>
-  <text x="1127.3" y="106.4" fill="#172c42" text-anchor="middle">Class, tier, index, promotion time</text>
-  <path d="M56.5 235 H362.5 a8 8 0 0 1 8 8 V312 a8 8 0 0 1 -8 8 H56.5 a8 8 0 0 1 -8 -8 V243 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
-  <text x="209.5" y="263.4" fill="#172c42" text-anchor="middle">6. Forward when released</text>
-  <text x="209.5" y="282.4" fill="#172c42" text-anchor="middle">Session header + nvext.agent_hints</text>
-  <text x="209.5" y="301.4" fill="#172c42" text-anchor="middle">Upstream streaming or JSON response</text>
-  <path d="M551.9 235 H841.9 a8 8 0 0 1 8 8 V312 a8 8 0 0 1 -8 8 H551.9 a8 8 0 0 1 -8 -8 V243 a8 8 0 0 1 8 -8 Z" fill="#fff0df" stroke="#af702f"/>
-  <text x="696.9" y="263.4" fill="#513416" text-anchor="middle">5. Release eligible entries</text>
-  <text x="696.9" y="282.4" fill="#513416" text-anchor="middle">Admission window and hold cap</text>
-  <text x="696.9" y="301.4" fill="#513416" text-anchor="middle">Timer handles delay and promotion</text>
-  <path d="M1031.3 235 H1363.3 a8 8 0 0 1 8 8 V312 a8 8 0 0 1 -8 8 H1031.3 a8 8 0 0 1 -8 -8 V243 a8 8 0 0 1 8 -8 Z" fill="#eaf5ed" stroke="#50815c"/>
-  <text x="1197.3" y="263.4" fill="#203d28" text-anchor="middle">4. Enqueue in HoldQueue</text>
-  <text x="1197.3" y="282.4" fill="#203d28" text-anchor="middle">Ready, arrival, delay, promotion heaps</text>
-  <text x="1197.3" y="301.4" fill="#203d28" text-anchor="middle">Entry identity and stable tie ordering</text>
-  <path d="M48 430 H371 a8 8 0 0 1 8 8 V507 a8 8 0 0 1 -8 8 H48 a8 8 0 0 1 -8 -8 V438 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
-  <text x="209.5" y="458.4" fill="#172c42" text-anchor="middle">7. Complete or cancel</text>
-  <text x="209.5" y="477.4" fill="#172c42" text-anchor="middle">Finish once; return window capacity</text>
-  <text x="209.5" y="496.4" fill="#172c42" text-anchor="middle">Preserve response and clean resources</text>
-  <path d="M531.4 430 H854.4 a8 8 0 0 1 8 8 V507 a8 8 0 0 1 -8 8 H531.4 a8 8 0 0 1 -8 -8 V438 a8 8 0 0 1 8 -8 Z" fill="#eaf5ed" stroke="#50815c"/>
-  <text x="692.9" y="458.4" fill="#203d28" text-anchor="middle">Lifecycle records throughout</text>
-  <text x="692.9" y="477.4" fill="#203d28" text-anchor="middle">Request and first token before finish</text>
-  <text x="692.9" y="496.4" fill="#203d28" text-anchor="middle">Done and trace on completion</text>
-  <path d="M980.4 430 H1278.4 a8 8 0 0 1 8 8 V507 a8 8 0 0 1 -8 8 H980.4 a8 8 0 0 1 -8 -8 V438 a8 8 0 0 1 8 -8 Z" fill="#fff0df" stroke="#af702f"/>
-  <text x="1129.4" y="458.4" fill="#513416" text-anchor="middle">Separate keep-alive path</text>
-  <text x="1129.4" y="477.4" fill="#513416" text-anchor="middle">POST /touch uses remembered prompt</text>
-  <text x="1129.4" y="496.4" fill="#513416" text-anchor="middle">One output token; lowest priority</text>
-  <path d="M 366.5 82.5 L 496.9 82.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rd803a22f-arrow-5c5c7c)"/>
-  <rect x="397.7" y="74.5" width="68" height="16" fill="#111111"/>
+  <rect x="0" y="0" width="1412" height="565" fill="#111111"/>
+  <path d="M60.5 49.5 H358.5 a8 8 0 0 1 8 8 V126.5 a8 8 0 0 1 -8 8 H60.5 a8 8 0 0 1 -8 -8 V57.5 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
+  <text x="209.5" y="77.9" fill="#172c42" text-anchor="middle">1. Receive and remember</text>
+  <text x="209.5" y="96.9" fill="#172c42" text-anchor="middle">Parse body and session headers</text>
+  <text x="209.5" y="115.9" fill="#172c42" text-anchor="middle">Update turn and bounded prompt LRU</text>
+  <path d="M504.9 40 H819.9 a8 8 0 0 1 8 8 V136 a8 8 0 0 1 -8 8 H504.9 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
+  <text x="662.4" y="68.4" fill="#172c42" text-anchor="middle">2. Predict expected times</text>
+  <text x="662.4" y="87.4" fill="#172c42" text-anchor="middle">Bounded outstanding jobs or fallback</text>
+  <text x="662.4" y="106.4" fill="#172c42" text-anchor="middle">One deadline; worker-lifetime</text>
+  <text x="662.4" y="125.4" fill="#172c42" text-anchor="middle">accounting</text>
+  <path d="M995.3 49.5 H1293.3 a8 8 0 0 1 8 8 V126.5 a8 8 0 0 1 -8 8 H995.3 a8 8 0 0 1 -8 -8 V57.5 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
+  <text x="1144.3" y="77.9" fill="#172c42" text-anchor="middle">3. Compute scheduling metadata</text>
+  <text x="1144.3" y="96.9" fill="#172c42" text-anchor="middle">proxy/index.py: CallMeta</text>
+  <text x="1144.3" y="115.9" fill="#172c42" text-anchor="middle">Class, tier, index, promotion time</text>
+  <path d="M56.5 244.5 H362.5 a8 8 0 0 1 8 8 V321.5 a8 8 0 0 1 -8 8 H56.5 a8 8 0 0 1 -8 -8 V252.5 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
+  <text x="209.5" y="272.9" fill="#172c42" text-anchor="middle">6. Forward when released</text>
+  <text x="209.5" y="291.9" fill="#172c42" text-anchor="middle">Session header + nvext.agent_hints</text>
+  <text x="209.5" y="310.9" fill="#172c42" text-anchor="middle">Upstream streaming or JSON response</text>
+  <path d="M551.9 244.5 H841.9 a8 8 0 0 1 8 8 V321.5 a8 8 0 0 1 -8 8 H551.9 a8 8 0 0 1 -8 -8 V252.5 a8 8 0 0 1 8 -8 Z" fill="#fff0df" stroke="#af702f"/>
+  <text x="696.9" y="272.9" fill="#513416" text-anchor="middle">5. Release eligible entries</text>
+  <text x="696.9" y="291.9" fill="#513416" text-anchor="middle">Admission window and hold cap</text>
+  <text x="696.9" y="310.9" fill="#513416" text-anchor="middle">Timer handles delay and promotion</text>
+  <path d="M1031.3 244.5 H1363.3 a8 8 0 0 1 8 8 V321.5 a8 8 0 0 1 -8 8 H1031.3 a8 8 0 0 1 -8 -8 V252.5 a8 8 0 0 1 8 -8 Z" fill="#eaf5ed" stroke="#50815c"/>
+  <text x="1197.3" y="272.9" fill="#203d28" text-anchor="middle">4. Enqueue in HoldQueue</text>
+  <text x="1197.3" y="291.9" fill="#203d28" text-anchor="middle">Ready, arrival, delay, promotion heaps</text>
+  <text x="1197.3" y="310.9" fill="#203d28" text-anchor="middle">Entry identity and stable tie ordering</text>
+  <path d="M48 439.5 H371 a8 8 0 0 1 8 8 V516.5 a8 8 0 0 1 -8 8 H48 a8 8 0 0 1 -8 -8 V447.5 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
+  <text x="209.5" y="467.9" fill="#172c42" text-anchor="middle">7. Complete or cancel</text>
+  <text x="209.5" y="486.9" fill="#172c42" text-anchor="middle">Finish once; return window capacity</text>
+  <text x="209.5" y="505.9" fill="#172c42" text-anchor="middle">Preserve response and clean resources</text>
+  <path d="M531.4 439.5 H854.4 a8 8 0 0 1 8 8 V516.5 a8 8 0 0 1 -8 8 H531.4 a8 8 0 0 1 -8 -8 V447.5 a8 8 0 0 1 8 -8 Z" fill="#eaf5ed" stroke="#50815c"/>
+  <text x="692.9" y="467.9" fill="#203d28" text-anchor="middle">Lifecycle records throughout</text>
+  <text x="692.9" y="486.9" fill="#203d28" text-anchor="middle">Request and first token before finish</text>
+  <text x="692.9" y="505.9" fill="#203d28" text-anchor="middle">Done and trace on completion</text>
+  <path d="M980.4 439.5 H1278.4 a8 8 0 0 1 8 8 V516.5 a8 8 0 0 1 -8 8 H980.4 a8 8 0 0 1 -8 -8 V447.5 a8 8 0 0 1 8 -8 Z" fill="#fff0df" stroke="#af702f"/>
+  <text x="1129.4" y="467.9" fill="#513416" text-anchor="middle">Separate keep-alive path</text>
+  <text x="1129.4" y="486.9" fill="#513416" text-anchor="middle">POST /touch uses remembered prompt</text>
+  <text x="1129.4" y="505.9" fill="#513416" text-anchor="middle">One output token; lowest priority</text>
+  <path d="M 366.5 92 L 496.9 92" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r1eb00ecb-arrow-5c5c7c)"/>
+  <rect x="397.7" y="84" width="68" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="431.7" y="86.7" fill="#d9d9d9" text-anchor="middle">metadata</text>
+  <text x="431.7" y="96.2" fill="#d9d9d9" text-anchor="middle">metadata</text>
   </g>
-  <path d="M 810.9 82.5 L 970.3 82.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rd803a22f-arrow-5c5c7c)"/>
-  <rect x="842.1" y="74.5" width="97" height="16" fill="#111111"/>
+  <path d="M 827.9 92 L 987.3 92" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r1eb00ecb-arrow-5c5c7c)"/>
+  <rect x="859.1" y="84" width="97" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="890.6" y="86.7" fill="#d9d9d9" text-anchor="middle">expectations</text>
+  <text x="907.6" y="96.2" fill="#d9d9d9" text-anchor="middle">expectations</text>
   </g>
-  <path d="M 1127.3 125 L 1127.3 160 C 1127.3 171.05, 1136.25 180, 1147.3 180 L 1177.3 180 C 1188.35 180, 1197.3 188.95, 1197.3 200 L 1197.3 235" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rd803a22f-arrow-5c5c7c)"/>
-  <rect x="1139.3" y="172" width="46" height="16" fill="#111111"/>
+  <path d="M 1144.3 134.5 L 1144.3 169.5 C 1144.3 180.55, 1153.25 189.5, 1164.3 189.5 L 1177.3 189.5 C 1188.35 189.5, 1197.3 198.45, 1197.3 209.5 L 1197.3 244.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r1eb00ecb-arrow-5c5c7c)"/>
+  <rect x="1121.3" y="154" width="46" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="1162.3" y="184.2" fill="#d9d9d9" text-anchor="middle">Entry</text>
+  <text x="1144.3" y="166.2" fill="#d9d9d9" text-anchor="middle">Entry</text>
   </g>
-  <path d="M 1023.3 277.5 L 849.9 277.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rd803a22f-arrow-5c5c7c)"/>
-  <rect x="881.1" y="269.5" width="111" height="16" fill="#111111"/>
+  <path d="M 1023.3 287 L 849.9 287" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r1eb00ecb-arrow-5c5c7c)"/>
+  <rect x="881.1" y="279" width="111" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="936.6" y="281.7" fill="#d9d9d9" text-anchor="middle">eligible heads</text>
+  <text x="936.6" y="291.2" fill="#d9d9d9" text-anchor="middle">eligible heads</text>
   </g>
-  <path d="M 543.9 277.5 L 370.5 277.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rd803a22f-arrow-5c5c7c)"/>
-  <rect x="401.7" y="269.5" width="111" height="16" fill="#111111"/>
+  <path d="M 543.9 287 L 370.5 287" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r1eb00ecb-arrow-5c5c7c)"/>
+  <rect x="401.7" y="279" width="111" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="457.2" y="281.7" fill="#d9d9d9" text-anchor="middle">release signal</text>
+  <text x="457.2" y="291.2" fill="#d9d9d9" text-anchor="middle">release signal</text>
   </g>
-  <path d="M 209.5 320 L 209.5 430" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rd803a22f-arrow-5c5c7c)"/>
-  <rect x="175.5" y="359" width="68" height="32" fill="#111111"/>
+  <path d="M 209.5 329.5 L 209.5 439.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r1eb00ecb-arrow-5c5c7c)"/>
+  <rect x="175.5" y="368.5" width="68" height="32" fill="#111111"/>
   <g font-size="12px">
-  <text x="209.5" y="371.2" fill="#d9d9d9" text-anchor="middle">response</text>
-  <text x="209.5" y="387.2" fill="#d9d9d9" text-anchor="middle">error</text>
+  <text x="209.5" y="380.7" fill="#d9d9d9" text-anchor="middle">response</text>
+  <text x="209.5" y="396.7" fill="#d9d9d9" text-anchor="middle">error</text>
   </g>
-  <path d="M 379 472.5 L 523.4 472.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rd803a22f-arrow-5c5c7c)"/>
-  <rect x="410.2" y="464.5" width="82" height="16" fill="#111111"/>
+  <path d="M 379 482 L 523.4 482" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r1eb00ecb-arrow-5c5c7c)"/>
+  <rect x="410.2" y="474" width="82" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="451.2" y="476.7" fill="#d9d9d9" text-anchor="middle">accounting</text>
+  <text x="451.2" y="486.2" fill="#d9d9d9" text-anchor="middle">accounting</text>
   </g>
 </svg>

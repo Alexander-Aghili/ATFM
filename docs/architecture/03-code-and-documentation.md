@@ -2,7 +2,7 @@
 
 [Download the PDF edition](atfm-architecture.pdf), with landscape diagram pages and clickable source links.
 
-This guide maps the implementation at **`cb102b0` (28 September 2026)**. It explains where state lives, how a request becomes evidence and a control decision, and which documents describe each layer. The diagrams describe current code boundaries; the older [context](01-context.md) and [container](02-container.md) views describe broader design intent.
+This guide maps the implementation at **28 September 2026**, including bounded prediction admission. It explains where state lives, how a request becomes evidence and a control decision, and which documents describe each layer. The diagrams describe current code boundaries; the older [context](01-context.md) and [container](02-container.md) views describe broader design intent.
 
 ATFM is a forecasting and admission layer around an LLM serving system. It observes agents during their tool phases, estimates when they will resume using the model, and uses that information to order or delay eligible work. The serving engine owns token generation and the actual KV tensors. ATFM owns observations, predictions, scheduling state, and control requests.
 
@@ -47,20 +47,18 @@ Routes are registered by per-application `ProxyRuntime` and `BoardRuntime` insta
 | Proxy | `POST /gate` | Check whether a deferrable tool/spawn should wait. |
 | Proxy | `POST /touch` | Replay a remembered prompt with one generated token at lowest priority. |
 | Proxy | `GET /session/{session_id}/prompt` | Retrieve remembered prompt for optional cache actuation. |
-| Proxy | `GET /state`, `GET /healthz` | Scheduling/diagnostic state and health. |
+| Proxy | `GET /state`, `GET /healthz` | Queue state, caller outcomes, outstanding/running prediction work, and health. |
 | Board | `POST /tick` | Drain observations and produce the next forecast snapshot. |
 | Board | `POST /predict` | Return per-request expectations under a time budget. |
 | Board | `GET /snapshot` | Expose forecast quantiles and metadata. |
 | Board | `POST /directives` | Plan once for the current snapshot, then return its cached decisions. |
 | Board | `GET /healthz` | Health response. |
 
-Use [operations](../operations.md) for actual launch commands and configuration. These diagrams do not establish compatibility with every release of an external serving or cache system.
-
 ## 2. Request lifecycle and queue ownership
 
 ![Request lifecycle: receive, predict, rank, enqueue, release, forward, finish and record; touches use a separate path.](figures/04-request.svg)
 
-`ProxyRuntime` parses the request, assigns session/turn metadata, remembers the prompt, and obtains expectations. Prediction failure or a missed budget falls back to local estimates. A timeout bounds the caller's wait; it does not necessarily stop work already executing in a thread.
+`ProxyRuntime` parses the request, assigns session/turn metadata, remembers the prompt, and obtains expectations. Prediction failure or a missed budget falls back to local estimates. The monotonic budget includes dispatch and execution. `proxy/prediction.py` admits at most `prediction_limit` unfinished jobs (four by default); excess calls immediately use fallback. A timed-out or cancelled caller leaves its running job counted until completion. Board HTTP phases use the remaining budget. Event-loop stalls can delay timeout handling; remote computation is not forcibly cancelled.
 
 [CallMeta and index calculation](../../src/atfm/proxy/index.py) translate request metadata into scheduling fields. [HoldQueue](../../src/atfm/proxy/queue.py) owns those fields while the request waits. The application waits on an entry's release event and then forwards upstream. Completion and cancellation return admission capacity exactly once, including streaming cleanup.
 

@@ -8,6 +8,7 @@ predate today's launchers. Use the [project README](../../README.md) and
 
 | Note | Role |
 | --- | --- |
+| [Prediction overload protection](2026-09-28-prediction-overload.md) | Bounded prediction work, deadline semantics, and paired load evidence. |
 | [LLM inference serving background](../paper/background/README.md) | Foundations, current systems, agent scheduling, and ATFM rationale; primary-source survey dated 28 September 2026. |
 | [Core refactor validation](2026-09-28-core-refactor.md) | Shared boundaries, exact output parity, retained timings, and rejected parser extraction. |
 | [Proxy CPU profiling](2026-09-27-proxy-profiling.md) | Thread-aware profiles, redundant import searches, and paired dependency optimization trials. |
