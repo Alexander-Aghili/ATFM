@@ -297,3 +297,15 @@ abandonment, returns capacity. Counters distinguish rejection, caller outcomes
 and worker lifetime. Board state ownership and synchronous tick computation
 remain unchanged. See the [implementation study](../../research/2026-09-28-prediction-overload.md)
 for tests, paired latency/coverage results and limitations.
+
+
+### Implementation update: board isolation (28 September 2026)
+
+A single bounded control worker now owns registry/model/RNG/controller mutation.
+Prediction reads use a scalar immutable projection atomically published after a
+successful tick with its version, capture timestamp and pre-encoded forecast.
+New events become visible at publication; a monotonic age limit causes fallback
+when ticks fail or lag. No deep copy of model or session histories is required.
+Overlapping control calls receive 503; cancellation retains worker ownership.
+See the [implementation/evidence record](../../research/2026-09-28-board-isolation.md)
+for complexity, legacy custom predictor limits, GIL contention, and paired results.

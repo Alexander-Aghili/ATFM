@@ -3,7 +3,7 @@
 Read [the paper](llm-serving-background.pdf) for a tutorial and research survey
 covering attention/KV memory, vLLM and other engines, LMCache and cache tiers,
 disaggregated serving, agent scheduling, and ATFM's specific research hypothesis.
-The source cutoff is **28 September 2026**; the ATFM code baseline is `900d63b`, with the prediction-overload implementation updated through `40602f3`.
+The source cutoff is **28 September 2026**; the ATFM code baseline is `900d63b`, with the prediction-overload implementation updated through `40602f3` and board isolation through `2bc3f8b`.
 
 This is a separate background paper, not a replacement for the main ATFM research
 manuscript. It distinguishes published mechanisms, derived examples, local

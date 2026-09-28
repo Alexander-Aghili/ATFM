@@ -2,7 +2,7 @@
 
 [Download the PDF edition](atfm-architecture.pdf), with landscape diagram pages and clickable source links.
 
-This guide maps the implementation at **28 September 2026**, including bounded prediction admission. It explains where state lives, how a request becomes evidence and a control decision, and which documents describe each layer. The diagrams describe current code boundaries; the older [context](01-context.md) and [container](02-container.md) views describe broader design intent.
+This guide maps the implementation at **28 September 2026**, including bounded prediction admission and isolated board computation. It explains where state lives, how a request becomes evidence and a control decision, and which documents describe each layer. The diagrams describe current code boundaries; the older [context](01-context.md) and [container](02-container.md) views describe broader design intent.
 
 ATFM is a forecasting and admission layer around an LLM serving system. It observes agents during their tool phases, estimates when they will resume using the model, and uses that information to order or delay eligible work. The serving engine owns token generation and the actual KV tensors. ATFM owns observations, predictions, scheduling state, and control requests.
 
@@ -50,7 +50,7 @@ Routes are registered by per-application `ProxyRuntime` and `BoardRuntime` insta
 | Proxy | `GET /state`, `GET /healthz` | Queue state, caller outcomes, outstanding/running prediction work, and health. |
 | Board | `POST /tick` | Drain observations and produce the next forecast snapshot. |
 | Board | `POST /predict` | Return per-request expectations under a time budget. |
-| Board | `GET /snapshot` | Expose forecast quantiles and metadata. |
+| Board | `GET /snapshot`, `GET /state` | Published quantiles; prediction freshness and stage timings. |
 | Board | `POST /directives` | Plan once for the current snapshot, then return its cached decisions. |
 | Board | `GET /healthz` | Health response. |
 
@@ -90,11 +90,29 @@ A wrapped external executor may expose output only after completion. Those obser
 
 ### State and transport
 
-[SessionRegistry](../../src/atfm/board/state.py) owns current session phase, tool state, context size, activity/expiry bookkeeping and newly observed starts. [LiveBoard](../../src/atfm/board/live.py) consumes the appropriate start interval and advances the forecaster. Neither is a durable fleet database. The design assumes an owner of mutable live state; replicating the service requires an explicit state/ownership strategy.
+[SessionRegistry](../../src/atfm/board/live.py) owns current session phase, tool state, context size, activity/expiry bookkeeping and newly observed starts. [LiveBoard](../../src/atfm/board/live.py) consumes the appropriate start interval and advances the forecaster. Neither is a durable fleet database. The design assumes an owner of mutable live state; replicating the service requires an explicit state/ownership strategy.
 
 The [JSONL reader](../../src/atfm/bus/jsonl.py) tracks file identity and byte offset. A drain reads newly appended complete records up to its observed file-size boundary. Malformed complete records are consumed and counted; incomplete trailing records wait for a later drain. Rotation and observed truncation reset the cursor. This removes repeated historical file parsing, but does not supply transactional acknowledgement or exactly-once processing.
 
 The [Redis implementation](../../src/atfm/bus/redis.py) is a usable library alternative with a stream cursor and optional cursor file. It is not selected automatically by the shipped launch commands. Stream retention, cursor persistence and application of events remain separate concerns. [InMemoryBus](../../src/atfm/bus/memory.py) serves local composition and tests.
+
+### Board worker and published reads
+
+[ControlWorker](../../src/atfm/board/execution.py) owns one unfinished control job.
+Ticks, planning, and metrics updates share that owner; extra HTTP control requests
+receive 503. A successful tick publishes a complete [Publication](../../src/atfm/board/publication.py):
+version, monotonic capture time, scalar prediction view, forecast, and encoded
+snapshot. [BoardReader](../../src/atfm/board/serving.py) serves the previous complete
+view during computation. Publication/read locks cover only a reference swap/read.
+Request prediction is an expected O(1) session lookup; per-tick projection is
+O(S + D) for S sessions and D duration samples visited across distinct means.
+
+Prediction age includes computation and defaults to at most three tick intervals
+(minimum one second). Expired views trigger proxy fallback. New events are not
+visible until publication. Cancellation retains control ownership until completion;
+shutdown drains accepted work. `/state` exposes freshness, admission and stage
+timings. Thread isolation still shares the GIL. The [execution diagram](figures/09-board-isolation.svg)
+and [paired study](../research/2026-09-28-board-isolation.md) detail the boundary and evidence.
 
 ### Prediction and aggregation
 

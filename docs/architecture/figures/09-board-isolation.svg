@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1397" height="360" viewBox="0 0 1397 360" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
+  <defs>
+    <marker id="r65320121-arrow-5c5c7c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#5c5c7c"/>
+    </marker>
+    <marker id="r65320121-arrow-5c5c7c-back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#5c5c7c"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1397" height="360" fill="#111111"/>
+  <path d="M77.5 40 H299.5 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H77.5 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#fff0df" stroke="#af702f"/>
+  <text x="188.5" y="68.4" fill="#513416" text-anchor="middle">Control callers</text>
+  <text x="188.5" y="87.4" fill="#513416" text-anchor="middle">Tick, directives, metrics</text>
+  <text x="188.5" y="106.4" fill="#513416" text-anchor="middle">Busy: reject or skip</text>
+  <path d="M517.9 40 H815.9 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H517.9 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#fff0df" stroke="#af702f"/>
+  <text x="666.9" y="68.4" fill="#513416" text-anchor="middle">One control worker</text>
+  <text x="666.9" y="87.4" fill="#513416" text-anchor="middle">Own registry, model, RNG, planners</text>
+  <text x="666.9" y="106.4" fill="#513416" text-anchor="middle">No overlapping mutation</text>
+  <path d="M1020.3 40 H1293.3 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H1020.3 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#eaf5ed" stroke="#50815c"/>
+  <text x="1156.8" y="68.4" fill="#203d28" text-anchor="middle">Construct complete publication</text>
+  <text x="1156.8" y="87.4" fill="#203d28" text-anchor="middle">Tool means + service rates</text>
+  <text x="1156.8" y="106.4" fill="#203d28" text-anchor="middle">Forecast samples + encoded JSON</text>
+  <path d="M48 235 H329 a8 8 0 0 1 8 8 V312 a8 8 0 0 1 -8 8 H48 a8 8 0 0 1 -8 -8 V243 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
+  <text x="188.5" y="263.4" fill="#172c42" text-anchor="middle">HTTP event loop</text>
+  <text x="188.5" y="282.4" fill="#172c42" text-anchor="middle">Health, predict, snapshot, state</text>
+  <text x="188.5" y="301.4" fill="#172c42" text-anchor="middle">No forecast or planning</text>
+  <path d="M576.4 235 H857.4 a8 8 0 0 1 8 8 V312 a8 8 0 0 1 -8 8 H576.4 a8 8 0 0 1 -8 -8 V243 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
+  <text x="716.9" y="263.4" fill="#172c42" text-anchor="middle">Prediction reader</text>
+  <text x="716.9" y="282.4" fill="#172c42" text-anchor="middle">Session lookup + service formula</text>
+  <text x="716.9" y="301.4" fill="#172c42" text-anchor="middle">Stale: local proxy fallback</text>
+  <path d="M1075.8 235 H1348.8 a8 8 0 0 1 8 8 V312 a8 8 0 0 1 -8 8 H1075.8 a8 8 0 0 1 -8 -8 V243 a8 8 0 0 1 8 -8 Z" fill="#eaf5ed" stroke="#50815c"/>
+  <text x="1212.3" y="263.4" fill="#203d28" text-anchor="middle">Latest completed version</text>
+  <text x="1212.3" y="282.4" fill="#203d28" text-anchor="middle">Immutable request-facing values</text>
+  <text x="1212.3" y="301.4" fill="#203d28" text-anchor="middle">Age measured from tick start</text>
+  <path d="M 307.5 82.5 L 509.9 82.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r65320121-arrow-5c5c7c)"/>
+  <rect x="338.7" y="74.5" width="140" height="16" fill="#111111"/>
+  <g font-size="12px">
+  <text x="408.7" y="86.7" fill="#d9d9d9" text-anchor="middle">one unfinished job</text>
+  </g>
+  <path d="M 823.9 82.5 L 1012.3 82.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r65320121-arrow-5c5c7c)"/>
+  <rect x="855.1" y="74.5" width="126" height="16" fill="#111111"/>
+  <g font-size="12px">
+  <text x="918.1" y="86.7" fill="#d9d9d9" text-anchor="middle">compute + encode</text>
+  </g>
+  <path d="M 1156.8 125 L 1156.8 160 C 1156.8 171.05, 1165.75 180, 1176.8 180 L 1192.3 180 C 1203.35 180, 1212.3 188.95, 1212.3 200 L 1212.3 235" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r65320121-arrow-5c5c7c)"/>
+  <rect x="1086.8" y="144.5" width="140" height="16" fill="#111111"/>
+  <g font-size="12px">
+  <text x="1156.8" y="156.7" fill="#d9d9d9" text-anchor="middle">atomic publication</text>
+  </g>
+  <path d="M 1067.8 277.5 L 865.4 277.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r65320121-arrow-5c5c7c)"/>
+  <rect x="896.6" y="269.5" width="140" height="16" fill="#111111"/>
+  <g font-size="12px">
+  <text x="966.6" y="281.7" fill="#d9d9d9" text-anchor="middle">brief pointer read</text>
+  </g>
+  <path d="M 568.4 277.5 L 337 277.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r65320121-arrow-5c5c7c)"/>
+  <rect x="368.2" y="269.5" width="169" height="16" fill="#111111"/>
+  <g font-size="12px">
+  <text x="452.7" y="281.7" fill="#d9d9d9" text-anchor="middle">version + age + result</text>
+  </g>
+</svg>

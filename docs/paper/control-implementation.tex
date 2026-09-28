@@ -236,8 +236,8 @@ jobs. Counters distinguish immediate rejection, caller timeout, prediction use,
 and outstanding/running/completed worker jobs. Shutdown drains the executor
 before closing owned clients. This preserves fallback estimates and scheduling
 formulas but can change which predictions are used and therefore request order.
-Board computation still runs synchronously in its service handlers; isolating
-that mutable state remains separate work. Paired CPU-only HTTP trials and their
+At that revision, board computation still ran synchronously in its service
+handlers; the following implementation isolates that work. Paired CPU-only HTTP trials and their
 source hashes are retained in the September 28 prediction-overload study.
 
 In three paired fast-worker trials at each size, client p95 decreased in all six
@@ -251,3 +251,39 @@ latency/coverage trade-off, not evidence of improved policy quality. Ranges are
 not confidence intervals. Baseline shutdown logs contain a pre-existing cleanup
 failure after measurement; the candidate lifecycle removes it. The study retains
 both versions' logs, configuration and source hashes.
+
+\paragraph{Board execution isolation and freshness (September 28).}
+The next implementation gives one bounded control worker ownership of event
+application, registry/model state, random draws, forecast construction and
+controller planning. Extra control requests receive HTTP 503; cancellation does
+not release a running mutation. A successful tick atomically publishes a scalar
+prediction view, version, monotonic capture time and pre-encoded forecast JSON.
+HTTP prediction reads use the last complete view while the next tick runs.
+A failed tick retains that publication, without claiming transactional rollback
+of consumed events. This avoids copying mutable session histories or the model.
+
+For $S$ sessions and $D$ duration observations visited across distinct tool means,
+projection takes $O(S+D)$ time and $O(S)$ storage. Built-in request prediction
+uses expected $O(1)$ lookup and the unchanged service-time formula. Forecast and
+planning algorithms retain their complexity and seeded draw order. Snapshot
+quantiles and directive JSON are computed on the worker. The publication lock
+covers a reference read/swap, not numerical work. Custom overridden prediction
+methods retain a separate bounded legacy runner; their arbitrary state is not
+projected. Threads still share the Python GIL.
+
+For monotonic capture time $c$, request time $t$ and age limit $A$, the view is
+unavailable when $t-c>A$. Capture starts before ingestion, so computation counts
+toward age. The default is $A=\max(1\,\mathrm{s},3\Delta)$ for tick interval
+$\Delta$; operators can override it. Stale results trigger existing local fallback.
+
+Fresh paired trials compare \texttt{a651518} with \texttt{2bc3f8b}, with three
+seeds at each of 256 and 1,024 sessions. Timely prediction coverage rises from
+55.82\% to 63.80\% and from 24.59\% to 31.61\%, respectively. At 1,024 sessions,
+board heartbeat p95 delay falls from 88.935--92.318\,ms to 1.053--1.566\,ms,
+but client p95 rises from 2.183--2.730\,s to 3.100--3.190\,s in all three pairs.
+Three additional pairs with zero imposed hold delay also regress in client p95.
+All 41,472 calls succeed across both experiments. This establishes improved
+board responsiveness and availability, not an end-to-end latency win. Different
+enqueue timing, prediction transaction counts and later control inputs prevent
+attributing the regression to one cause. The dated board-isolation study retains
+all raw evidence, source hashes, stage timings, test results and host limitations.

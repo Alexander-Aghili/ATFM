@@ -1,9 +1,9 @@
 local section = ''
-local root = 'https://github.com/Alexander-Aghili/ATFM/blob/40602f3/'
+local root = 'https://github.com/Alexander-Aghili/ATFM/blob/2bc3f8b/'
 
 function Link(link)
   if link.target == 'atfm-architecture.pdf' then
-    link.target = root:gsub('40602f3', 'main') .. 'docs/architecture/atfm-architecture.pdf'
+    link.target = root:gsub('2bc3f8b', 'main') .. 'docs/architecture/atfm-architecture.pdf'
     return link
   end
   if not link.target:match('^https?://') and not link.target:match('^#') then
@@ -12,13 +12,18 @@ function Link(link)
       if part == '..' then table.remove(parts)
       elseif part ~= '.' then table.insert(parts, part) end
     end
-    link.target = root .. table.concat(parts, '/')
+    local target = table.concat(parts, '/')
+    local base = target:match('^docs/') and root:gsub('2bc3f8b', 'main') or root
+    link.target = base .. target
   end
   return link
 end
 
 function Header(header)
   if header.level == 1 then return {} end
+  if header.level == 3 and pandoc.utils.stringify(header) == 'Planning and delivery' then
+    return {pandoc.RawBlock('latex', '\\Needspace{12\\baselineskip}'), header}
+  end
   if header.level == 2 and pandoc.utils.stringify(header):match('^%d') then
     section = pandoc.write(pandoc.Pandoc({header}), 'latex')
     return {}

@@ -119,3 +119,6 @@ uses the experiments-only `profiling` extra and retains per-thread results.
 
 Prediction load tests support `prediction_limit` and distinguish immediate
 admission fallback from timed-out work. See [overload accounting and trials](../docs/development/load-testing.md#prediction-work-accounting).
+
+[Board isolation study](../docs/research/2026-09-28-board-isolation.md) records worker ownership, prediction freshness,
+concurrency tests, and paired HTTP measurements.

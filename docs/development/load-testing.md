@@ -282,3 +282,16 @@ p95, CPU, and errors. A lower timeout percentage alone can hide increased
 rejection. Bounded admission promises bounded work, not more prediction coverage
 or a policy-quality improvement. The [overload study](../research/2026-09-28-prediction-overload.md)
 records paired trials and limitations.
+
+## Board isolation diagnostics
+
+`prediction_max_age_s` optionally overrides the board view's freshness limit;
+`null` uses `max(1, 3 * control_interval_s)`. Board observations now include
+`board_state` (version, age, limit, sessions, prediction outcomes, read/compute/
+serialization timings), `control` (busy/closed/accepted/rejected/completed), and
+`control_stages` (ingestion, projection, forecast, snapshot serialization,
+directive planning and serialization). Each timing has count, total, max and last
+seconds; these are aggregates, not latency quantiles. Existing middleware endpoint
+histograms and heartbeat lag remain separate. Prediction-stage times cannot see
+socket backlog or event-loop delay before dispatch. `/state` is also available
+outside the harness. See the [paired isolation study](../research/2026-09-28-board-isolation.md).

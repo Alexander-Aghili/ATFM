@@ -6,9 +6,9 @@ style evidence fill: #f0eafa border: #8060a5 text: (color: #38244d)
 style external fill: #f1f3f5 border: #78838d text: (color: #29333c)
 
 node input "Event ingestion / schema/events.py + bus drain / Session, LLM, tool and spawn events" (wrap: 39) style: data gap: wide
-node registry "SessionRegistry / board/state.py / Mutable states, expiry, new starts" (wrap: 39) style: data gap: wide right of input
+node registry "SessionRegistry / board/live.py; control worker owns / Mutable states, expiry, new starts" (wrap: 39) style: data gap: wide right of input
 node live "LiveBoard / board/live.py / Consume starts and advance forecast" (wrap: 39) style: runtime gap: wide right of registry
-node snapshot "ForecastSnapshot / schema/forecast.py / Target -> class -> horizon x draw" (wrap: 39) style: data gap: wide below input
+node snapshot "ForecastSnapshot / Published with prediction view + JSON / Target -> class -> horizon x draw" (wrap: 39) style: data gap: wide below input
 node aggregate "SessionForecaster / board/forecaster.py / First return + children + new arrivals" (wrap: 39) style: runtime gap: wide right of snapshot
 node predictors "Session predictor ladder / History, survival, progress, backend / Fit on training traces; draw resumptions" (wrap: 39) style: runtime gap: wide right of aggregate
 node plans "Controller planning / GDP slots; touch credit; tier; replicas / Cached once per snapshot identity" (wrap: 39) style: control gap: wide below snapshot

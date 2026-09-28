@@ -15,7 +15,7 @@ Agents spend much of their time running tests, builds, and other tools. Their ne
 ## Features
 
 - **Demand forecasts:** history, survival, progress, and backend-aware models; Monte Carlo KV-block and prefill-token demand with calibration.
-- **Request control:** OpenAI-compatible proxy, priority queues, bounded holds, admission windows, tool launch gates, and [prediction overload protection](docs/operations.md#prediction-overload-protection).
+- **Request control:** OpenAI-compatible proxy, priority queues, bounded holds, admission windows, tool launch gates, [prediction overload protection](docs/operations.md#prediction-overload-protection), and [isolated board computation](docs/operations.md#board-computation-and-prediction-freshness).
 - **Cache-aware actions:** budgeted touches and optional LMCache actuation; tier and replica recommendations have explicit integration limits.
 - **Agent instrumentation:** tool sidecars, harness adapters, and JSONL, in-memory, or Redis Streams event transport.
 - **Reproducible evaluation:** closed-loop simulation, paired policy comparisons, CPU/load benchmarks, and optional Phoenix tool-call tracing.

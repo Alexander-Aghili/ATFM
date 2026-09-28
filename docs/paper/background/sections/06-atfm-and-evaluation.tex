@@ -184,8 +184,23 @@ board HTTP phases use its remaining budget instead of a 500\,ms minimum.
 Caller outcomes and actual unfinished work are counted separately. This bounds
 local work, not remote computation or hard real-time response. It can exchange
 timeouts for immediate rejection, so timely prediction use must be measured
-alongside request latency. Synchronous board computation and remaining linear
-rank work are still investigation targets.
+alongside request latency. At that revision, synchronous board computation and remaining linear
+rank work remained investigation targets.
+
+
+The subsequent board-isolation implementation moves ingestion, forecasting and
+planning to one bounded worker and publishes complete scalar prediction views.
+Built-in HTTP predictions use expected $O(1)$ lookup; a per-tick projection costs
+$O(S+D)$ for $S$ sessions and $D$ duration observations visited across distinct
+means. A monotonic age limit includes computation time and triggers fallback
+when the last completed view is too old. Quantiles and directive JSON are
+prepared on the worker; numerical algorithms and seeded draw order are unchanged.
+Threads still share the GIL. In three fresh paired 1,024-session trials, timely
+prediction use rises from 24.59\% to 31.61\% and board heartbeat p95 delay falls
+from roughly 90\,ms to 1--2\,ms. However, client p95 increases in every pair,
+including three further pairs with zero hold delay. This is evidence for board
+responsiveness and availability, not a serving-latency improvement. The dated
+board-isolation report preserves the regression, raw evidence and host limits.
 
 Python is currently appropriate for orchestration and numerical experimentation,
 with bulk numerical work handled by compiled libraries. Rust becomes attractive

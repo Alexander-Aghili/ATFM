@@ -28,7 +28,8 @@ and [performance assessment](performance.md) for Python/Rust tradeoffs.
 | Tick orchestration | `board/live.py:LiveBoard` | Feed arrivals once, expire inactive sessions, forecast. |
 | Placement summaries | `board/resumption.py` | Convert finite return-time draws into q10/q50/q90. |
 | Controllers | `control/` | Convert predictions and capacity into expiring directives. |
-| Serving boundary | `board/service.py` | Ingest events, enforce prediction budgets, cache directives. |
+| Serving boundary | `board/service.py`, `execution.py` | Serialize mutable board/control work on one bounded worker. |
+| Prediction publication | `board/publication.py`, `serving.py` | Publish complete immutable request values; check monotonic age on reads. |
 | Simulation | `sim/` | Execute policies against workers and a simulated clock. |
 
 `ForecastPolicy` composes a `LiveBoard`; it does not implement a second arrival
@@ -309,3 +310,31 @@ Shutdown belongs to the application lifespan, not the load harness. The executor
 is drained before closing an owned board client; injected clients are not closed.
 Board registry/model/RNG ownership is unchanged. Board-computation isolation and
 remote cancellation are separate work, not guarantees of this admission bound.
+
+## Board execution ownership
+
+The HTTP runtime gives one `ControlWorker` ownership of ingestion, registry/model
+updates, RNG draws, forecast construction, directive planning and metrics updates.
+HTTP prediction handlers never read that live registry. A successful tick builds
+`PredictionView` with scalar per-session tool means and throughput parameters,
+serializes forecast quantiles, then swaps one `Publication` reference under a
+short lock. A failed tick leaves that reference intact; this is publication
+atomicity, not rollback of consumed events or intermediate model state.
+
+A detached projection avoids copying progress/history arrays or the fitted model.
+For S sessions and D duration observations visited across distinct tool means,
+projection costs O(S + D) time and O(S) space. Built-in request prediction then
+uses O(1) expected dictionary lookup plus fixed-size arithmetic/serialization.
+Forecast complexity and random draw order are unchanged. Snapshot JSON is built
+once per tick; transferring B bytes still costs O(B). Old/new publications can
+coexist briefly while a reader retains the old reference.
+
+The control worker admits one unfinished job and rejects additional HTTP control
+requests with 503. Caller cancellation does not cancel an accepted mutation or
+free its slot. No registry lock spans a forecast; the only shared read lock swaps
+or reads the publication pointer. Controller configuration is a startup operation.
+A metrics scrape skips a busy worker instead of mutating shared state concurrently.
+Prediction views expire by monotonic age measured before ingestion, including
+calculation time. New events, expiry, and updated tool means become visible only
+on publication. See [operations](../operations.md#board-computation-and-prediction-freshness)
+for configuration, legacy custom predictor behavior, and shutdown guarantees.

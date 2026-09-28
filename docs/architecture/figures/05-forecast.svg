@@ -1,38 +1,38 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1481" height="555" viewBox="0 0 1481 555" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
+<svg xmlns="http://www.w3.org/2000/svg" width="1498" height="555" viewBox="0 0 1498 555" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
   <defs>
-    <marker id="r4ce9e97b-arrow-5c5c7c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="rdca0546e-arrow-5c5c7c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#5c5c7c"/>
     </marker>
-    <marker id="r4ce9e97b-arrow-5c5c7c-back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="rdca0546e-arrow-5c5c7c-back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#5c5c7c"/>
     </marker>
   </defs>
-  <rect x="0" y="0" width="1481" height="555" fill="#111111"/>
+  <rect x="0" y="0" width="1498" height="555" fill="#111111"/>
   <path d="M65 40 H371 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H65 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#eaf5ed" stroke="#50815c"/>
   <text x="218" y="68.4" fill="#203d28" text-anchor="middle">Event ingestion</text>
   <text x="218" y="87.4" fill="#203d28" text-anchor="middle">schema/events.py + bus drain</text>
   <text x="218" y="106.4" fill="#203d28" text-anchor="middle">Session, LLM, tool and spawn events</text>
   <path d="M497 40 H795 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H497 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#eaf5ed" stroke="#50815c"/>
   <text x="646" y="68.4" fill="#203d28" text-anchor="middle">SessionRegistry</text>
-  <text x="646" y="87.4" fill="#203d28" text-anchor="middle">board/state.py</text>
+  <text x="646" y="87.4" fill="#203d28" text-anchor="middle">board/live.py; control worker owns</text>
   <text x="646" y="106.4" fill="#203d28" text-anchor="middle">Mutable states, expiry, new starts</text>
   <path d="M977.4 40 H1283.4 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H977.4 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
   <text x="1130.4" y="68.4" fill="#172c42" text-anchor="middle">LiveBoard</text>
   <text x="1130.4" y="87.4" fill="#172c42" text-anchor="middle">board/live.py</text>
   <text x="1130.4" y="106.4" fill="#172c42" text-anchor="middle">Consume starts and advance forecast</text>
-  <path d="M73 235 H363 a8 8 0 0 1 8 8 V312 a8 8 0 0 1 -8 8 H73 a8 8 0 0 1 -8 -8 V243 a8 8 0 0 1 8 -8 Z" fill="#eaf5ed" stroke="#50815c"/>
+  <path d="M56.5 235 H379.5 a8 8 0 0 1 8 8 V312 a8 8 0 0 1 -8 8 H56.5 a8 8 0 0 1 -8 -8 V243 a8 8 0 0 1 8 -8 Z" fill="#eaf5ed" stroke="#50815c"/>
   <text x="218" y="263.4" fill="#203d28" text-anchor="middle">ForecastSnapshot</text>
-  <text x="218" y="282.4" fill="#203d28" text-anchor="middle">schema/forecast.py</text>
+  <text x="218" y="282.4" fill="#203d28" text-anchor="middle">Published with prediction view + JSON</text>
   <text x="218" y="301.4" fill="#203d28" text-anchor="middle">Target -&gt; class -&gt; horizon x draw</text>
-  <path d="M574.4 235 H906.4 a8 8 0 0 1 8 8 V312 a8 8 0 0 1 -8 8 H574.4 a8 8 0 0 1 -8 -8 V243 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
-  <text x="740.4" y="263.4" fill="#172c42" text-anchor="middle">SessionForecaster</text>
-  <text x="740.4" y="282.4" fill="#172c42" text-anchor="middle">board/forecaster.py</text>
-  <text x="740.4" y="301.4" fill="#172c42" text-anchor="middle">First return + children + new arrivals</text>
-  <path d="M1117.8 225.5 H1432.8 a8 8 0 0 1 8 8 V321.5 a8 8 0 0 1 -8 8 H1117.8 a8 8 0 0 1 -8 -8 V233.5 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
-  <text x="1275.3" y="253.9" fill="#172c42" text-anchor="middle">Session predictor ladder</text>
-  <text x="1275.3" y="272.9" fill="#172c42" text-anchor="middle">History, survival, progress, backend</text>
-  <text x="1275.3" y="291.9" fill="#172c42" text-anchor="middle">Fit on training traces; draw</text>
-  <text x="1275.3" y="310.9" fill="#172c42" text-anchor="middle">resumptions</text>
+  <path d="M590.9 235 H922.9 a8 8 0 0 1 8 8 V312 a8 8 0 0 1 -8 8 H590.9 a8 8 0 0 1 -8 -8 V243 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
+  <text x="756.9" y="263.4" fill="#172c42" text-anchor="middle">SessionForecaster</text>
+  <text x="756.9" y="282.4" fill="#172c42" text-anchor="middle">board/forecaster.py</text>
+  <text x="756.9" y="301.4" fill="#172c42" text-anchor="middle">First return + children + new arrivals</text>
+  <path d="M1134.3 225.5 H1449.3 a8 8 0 0 1 8 8 V321.5 a8 8 0 0 1 -8 8 H1134.3 a8 8 0 0 1 -8 -8 V233.5 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
+  <text x="1291.8" y="253.9" fill="#172c42" text-anchor="middle">Session predictor ladder</text>
+  <text x="1291.8" y="272.9" fill="#172c42" text-anchor="middle">History, survival, progress, backend</text>
+  <text x="1291.8" y="291.9" fill="#172c42" text-anchor="middle">Fit on training traces; draw</text>
+  <text x="1291.8" y="310.9" fill="#172c42" text-anchor="middle">resumptions</text>
   <path d="M48 430 H388 a8 8 0 0 1 8 8 V507 a8 8 0 0 1 -8 8 H48 a8 8 0 0 1 -8 -8 V438 a8 8 0 0 1 8 -8 Z" fill="#fff0df" stroke="#af702f"/>
   <text x="218" y="458.4" fill="#513416" text-anchor="middle">Controller planning</text>
   <text x="218" y="477.4" fill="#513416" text-anchor="middle">GDP slots; touch credit; tier; replicas</text>
@@ -45,42 +45,42 @@
   <text x="1154.9" y="458.4" fill="#172c42" text-anchor="middle">Alternative history-only branch</text>
   <text x="1154.9" y="477.4" fill="#172c42" text-anchor="middle">SeriesForecaster + B0/B1</text>
   <text x="1154.9" y="496.4" fill="#172c42" text-anchor="middle">Use truth only after horizon elapses</text>
-  <path d="M 379 82.5 L 489 82.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r4ce9e97b-arrow-5c5c7c)"/>
+  <path d="M 379 82.5 L 489 82.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rdca0546e-arrow-5c5c7c)"/>
   <rect x="411" y="74.5" width="46" height="16" fill="#111111"/>
   <g font-size="12px">
   <text x="434" y="86.7" fill="#d9d9d9" text-anchor="middle">apply</text>
   </g>
-  <path d="M 803 82.5 L 969.4 82.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r4ce9e97b-arrow-5c5c7c)"/>
+  <path d="M 803 82.5 L 969.4 82.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rdca0546e-arrow-5c5c7c)"/>
   <rect x="834.2" y="74.5" width="104" height="16" fill="#111111"/>
   <g font-size="12px">
   <text x="886.2" y="86.7" fill="#d9d9d9" text-anchor="middle">active states</text>
   </g>
-  <path d="M 1130.4 125 L 1130.4 155.25 C 1130.4 166.3, 1139.35 175.25, 1150.4 175.25 L 1255.3 175.25 C 1266.35 175.25, 1275.3 184.2, 1275.3 195.25 L 1275.3 225.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r4ce9e97b-arrow-5c5c7c)"/>
-  <rect x="1154.35" y="167.25" width="97" height="16" fill="#111111"/>
+  <path d="M 1130.4 125 L 1130.4 155.25 C 1130.4 166.3, 1139.35 175.25, 1150.4 175.25 L 1271.8 175.25 C 1282.85 175.25, 1291.8 184.2, 1291.8 195.25 L 1291.8 225.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rdca0546e-arrow-5c5c7c)"/>
+  <rect x="1162.6" y="167.25" width="97" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="1202.85" y="179.45" fill="#d9d9d9" text-anchor="middle">state + time</text>
+  <text x="1211.1" y="179.45" fill="#d9d9d9" text-anchor="middle">state + time</text>
   </g>
-  <path d="M 1109.8 277.5 L 914.4 277.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r4ce9e97b-arrow-5c5c7c)"/>
-  <rect x="945.6" y="269.5" width="133" height="16" fill="#111111"/>
+  <path d="M 1126.3 277.5 L 930.9 277.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rdca0546e-arrow-5c5c7c)"/>
+  <rect x="962.1" y="269.5" width="133" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="1012.1" y="281.7" fill="#d9d9d9" text-anchor="middle">Monte Carlo draws</text>
+  <text x="1028.6" y="281.7" fill="#d9d9d9" text-anchor="middle">Monte Carlo draws</text>
   </g>
-  <path d="M 566.4 277.5 L 371 277.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r4ce9e97b-arrow-5c5c7c)"/>
-  <rect x="402.2" y="269.5" width="133" height="16" fill="#111111"/>
+  <path d="M 582.9 277.5 L 387.5 277.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rdca0546e-arrow-5c5c7c)"/>
+  <rect x="418.7" y="269.5" width="133" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="468.7" y="281.7" fill="#d9d9d9" text-anchor="middle">aggregate samples</text>
+  <text x="485.2" y="281.7" fill="#d9d9d9" text-anchor="middle">aggregate samples</text>
   </g>
-  <path d="M 210 320 L 210 371 C 210 373.21, 211.79 375, 214 375 L 214 375 C 216.21 375, 218 376.79, 218 379 L 218 430" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r4ce9e97b-arrow-5c5c7c)"/>
+  <path d="M 210 320 L 210 371 C 210 373.21, 211.79 375, 214 375 L 214 375 C 216.21 375, 218 376.79, 218 379 L 218 430" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rdca0546e-arrow-5c5c7c)"/>
   <rect x="183" y="339.5" width="54" height="16" fill="#111111"/>
   <g font-size="12px">
   <text x="210" y="351.7" fill="#d9d9d9" text-anchor="middle">demand</text>
   </g>
-  <path d="M 548.4 472.5 L 396 472.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r4ce9e97b-arrow-5c5c7c)"/>
+  <path d="M 548.4 472.5 L 396 472.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rdca0546e-arrow-5c5c7c)"/>
   <rect x="427.2" y="464.5" width="90" height="16" fill="#111111"/>
   <g font-size="12px">
   <text x="472.2" y="476.7" fill="#d9d9d9" text-anchor="middle">constraints</text>
   </g>
-  <path d="M 1154.9 430 L 1154.9 395 C 1154.9 383.95, 1145.95 375, 1134.9 375 L 246 375 C 234.95 375, 226 366.05, 226 355 L 226 320" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r4ce9e97b-arrow-5c5c7c)"/>
+  <path d="M 1154.9 430 L 1154.9 395 C 1154.9 383.95, 1145.95 375, 1134.9 375 L 246 375 C 234.95 375, 226 366.05, 226 355 L 226 320" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rdca0546e-arrow-5c5c7c)"/>
   <rect x="645.45" y="367" width="90" height="16" fill="#111111"/>
   <g font-size="12px">
   <text x="690.45" y="379.2" fill="#d9d9d9" text-anchor="middle">same schema</text>

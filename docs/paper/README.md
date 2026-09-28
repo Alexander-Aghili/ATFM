@@ -109,3 +109,6 @@ Its build and bibliography are independent of this research manuscript.
 The implementation appendix also documents bounded prediction admission and
 worker-lifetime accounting; see the [paired overload study](../research/2026-09-28-prediction-overload.md)
 for the workload, rejection/timeout trade-off, and retained evidence.
+
+[Board isolation study](../research/2026-09-28-board-isolation.md) records worker ownership, prediction freshness,
+concurrency tests, and paired HTTP measurements.

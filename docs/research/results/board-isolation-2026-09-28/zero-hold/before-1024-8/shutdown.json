@@ -1,0 +1,14 @@
+{
+  "worker": {
+    "pid": 1887874,
+    "exit_code": -15
+  },
+  "board": {
+    "pid": 1887949,
+    "exit_code": -15
+  },
+  "proxy": {
+    "pid": 1888024,
+    "exit_code": -15
+  }
+}

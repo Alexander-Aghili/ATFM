@@ -52,3 +52,6 @@ about all workloads or the current working tree.
 The [paper guide](paper/README.md) covers the manuscript and build artifacts.
 The [visuals guide](paper/VISUALS.md) describes the paper's figures. Paper rendering
 has its own tooling and is separate from running the Python test suite.
+
+[Board isolation study](research/2026-09-28-board-isolation.md) records worker ownership, prediction freshness,
+concurrency tests, and paired HTTP measurements.

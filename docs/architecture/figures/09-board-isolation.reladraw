@@ -1,0 +1,15 @@
+default edge line: (path: square, corners: rounded)
+style runtime fill: #e8f1fa border: #37618a text: (color: #172c42)
+style control fill: #fff0df border: #af702f text: (color: #513416)
+style data fill: #eaf5ed border: #50815c text: (color: #203d28)
+node callers "Control callers / Tick, directives, metrics / Busy: reject or skip" (wrap: 34) style: control gap: wide
+node worker "One control worker / Own registry, model, RNG, planners / No overlapping mutation" (wrap: 36) style: control gap: wide right of callers
+node build "Construct complete publication / Tool means + service rates / Forecast samples + encoded JSON" (wrap: 36) style: data gap: wide right of worker
+node http "HTTP event loop / Health, predict, snapshot, state / No forecast or planning" (wrap: 34) style: runtime gap: wide below callers
+node reader "Prediction reader / Session lookup + service formula / Stale: local proxy fallback" (wrap: 36) style: runtime gap: wide right of http
+node view "Latest completed version / Immutable request-facing values / Age measured from tick start" (wrap: 36) style: data gap: wide right of reader
+edge callers -> worker "one unfinished job" (size: small) from: right to: left
+edge worker -> build "compute + encode" (size: small) from: right to: left
+edge build -> view "atomic publication" (size: small) from: bottom to: top
+edge view -> reader "brief pointer read" (size: small) from: left to: right
+edge reader -> http "version + age + result" (size: small) from: left to: right

@@ -28,7 +28,7 @@ performance optimization.
 
 | Area | Current implementation | Scaling risk / first investigation |
 | --- | --- | --- |
-| Board ticks | `board/service.py` calls `board.step` synchronously inside an async endpoint. | Forecast computation blocks that event loop; measure tick duration and overlapping `/predict` latency. |
+| Board ticks | `board/service.py` submits forecasting and planning to one bounded worker. | Prediction reads use a published view; measure GIL contention, view age, stage timings and event-loop lag. |
 | Per-request predictions | `proxy/board_client.py` retrieves service time and next-tool duration together. | One HTTP round trip; unfinished work is bounded, including jobs whose callers timed out. |
 | Event ingestion | `JsonlBus.drain()` consumes complete appended records using a per-instance byte cursor. | O(new bytes) parsing; idle drains perform a metadata check. Restart replays once; downstream transactional recovery remains separate. |
 | Forecast aggregation | Per-session loops with streamlined empirical draws and `(horizons, draws)` NumPy operations. | Work grows with sessions, horizons, draws, and fan-out. Profile sampling versus aggregation and allocation. |
@@ -73,8 +73,8 @@ once instead of rebuilding filtered DataFrames in every resample.
 
 See the [results and complexity table](../research/2026-09-27-cpu-scaling.md)
 for speedups and bounds. The live HTTP concerns above require separate measurements. Incremental JSONL
-ingestion and bounded prediction admission are now implemented; synchronous
-board computation and logging remain investigation targets. CPU benchmark
+ingestion, bounded prediction admission, and board worker isolation are implemented;
+GIL contention, freshness, and logging remain investigation targets. CPU benchmark
 success is not a live-service load test.
 
 ## Large-session control paths
@@ -130,5 +130,17 @@ The proxy now admits at most `prediction_limit` unfinished jobs, defaults to fou
 and immediately falls back when full. This removes an unbounded executor waiting
 queue. Deadline-aware HTTP requests use the remaining caller budget, replacing
 the 500 ms minimum transport timeout. Accounting separates callers from worker
-lifetimes. These changes do not isolate synchronous board ticks or make arbitrary
-Python work cancellable. See the [implementation and paired load study](../research/2026-09-28-prediction-overload.md).
+lifetimes. That admission change alone did not isolate board ticks or make arbitrary
+Python work cancellable. The subsequent isolation work is described below. See the [implementation and paired load study](../research/2026-09-28-prediction-overload.md).
+
+## Isolated board computation (28 September 2026)
+
+The [board isolation study](../research/2026-09-28-board-isolation.md) measures the
+follow-up change: one owner of mutable control state, atomic prediction views,
+monotonic freshness, and worker-side JSON preparation. It retains the proxy's
+four-job cap and 50 ms caller budget. Request prediction is O(1) in session count
+and duration training samples after a per-tick O(S + D) projection. This trades
+an extra O(S) view for detached request reads; it does not reduce Monte Carlo or
+GDP planning complexity. CPU-bound Python in the worker still contends for the
+GIL. Judge improvement using timely prediction use and view age, not timeout
+counts alone; a stale result is deliberately unavailable.

@@ -271,7 +271,9 @@ state stays with that worker; configure controllers before starting requests.
 
 `--prediction-max-age SECONDS` sets the maximum age of a prediction view. The
 default is `max(1, 3 * tick_s)`: 15 seconds with the board launcher's default
-five-second tick. Match this to the actual control-loop cadence. Age uses a
+five-second tick. This is an operational allowance for cadence plus calculation
+and scheduling delay, not a calibrated forecast-validity guarantee. Match it to
+the actual control-loop cadence and acceptable stale-state risk. Age uses a
 monotonic clock starting **before ingestion**, so calculation time counts toward
 the limit. `/predict` adds `prediction_version`, `prediction_age_s`, and `stale`.
 An expired view returns zero estimates with `over_budget: true`, which makes the

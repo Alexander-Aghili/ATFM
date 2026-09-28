@@ -1,0 +1,21 @@
+import json, os, resource, subprocess
+from pathlib import Path
+root = Path('/home/alexsky2/Company')
+python = root / '.venv/bin/python'
+out = root / 'runs/board-isolation-no-holds-2026-09-28'
+out.mkdir(exist_ok=True)
+soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
+resource.setrlimit(resource.RLIMIT_NOFILE, (min(8192, hard), hard))
+for size in [1024]:
+    for seed in [7, 8, 9]:
+        cfg = dict(sessions=size, seed=seed, pattern='burst', worker_slots=64, worker_service_s=.005, proxy_window=64, max_hold_s=0.)
+        config = out / f'config-{size}-{seed}.json'
+        config.write_text(json.dumps(cfg))
+        for mode in (['before', 'after'] if seed % 2 else ['after', 'before']):
+            cwd = Path('/tmp/atfm-board-isolation-before') if mode == 'before' else root
+            env = dict(os.environ, PYTHONPATH=f'{cwd}/src:{cwd}/experiments/src')
+            name = f'{mode}-{size}-{seed}'
+            subprocess.run([str(python), '-m', 'atfm_experiments.load', '--sessions', str(size), '--patterns', 'burst',
+                            '--config', str(config), '--out', str(out/name)], cwd=cwd, env=env, check=True,
+                           stdout=subprocess.DEVNULL)
+            print(name, 'complete', flush=True)

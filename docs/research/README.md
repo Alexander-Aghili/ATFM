@@ -8,6 +8,7 @@ predate today's launchers. Use the [project README](../../README.md) and
 
 | Note | Role |
 | --- | --- |
+| [Board computation isolation](2026-09-28-board-isolation.md) | Versioned prediction views, bounded control worker, freshness and paired load evidence. |
 | [Prediction overload protection](2026-09-28-prediction-overload.md) | Bounded prediction work, deadline semantics, and paired load evidence. |
 | [LLM inference serving background](../paper/background/README.md) | Foundations, current systems, agent scheduling, and ATFM rationale; primary-source survey dated 28 September 2026. |
 | [Core refactor validation](2026-09-28-core-refactor.md) | Shared boundaries, exact output parity, retained timings, and rejected parser extraction. |
