@@ -5,6 +5,8 @@ import argparse
 import hashlib
 import json
 import platform
+import resource
+import sys
 import time
 from pathlib import Path
 
@@ -15,15 +17,29 @@ from atfm.control.gdp import Deferrable, GdpPlanner
 from atfm.schema.forecast import ForecastSnapshot
 
 
-def workload(sessions: int, slots: int, draws: int, saturated: bool):
+def workload(sessions: int, slots: int, draws: int, saturated: bool, mixed: bool = False):
     rng = np.random.default_rng(7)
     samples = np.cumsum(rng.uniform(800, 1000, (slots, draws)), axis=0)
     snap = ForecastSnapshot(0.0, list(np.arange(1, slots + 1, dtype=float)), "benchmark",
                             {r: {"interactive": samples} for r in ("kv_blocks", "prefill_tokens")})
     planner = GdpPlanner(slot_s=1.0, horizon_s=float(slots), max_hold_s=float(slots))
     defs = [Deferrable(str(i), "t", 0.0, 10, 10) for i in range(sessions)]
-    cap = {r: 500.0 if saturated else 1e9 for r in snap.samples}
+    if mixed:
+        defs = [Deferrable(str(i), f"t{i % 16}", float(rng.integers(0, slots)),
+                           int(rng.integers(1, 100)), int(rng.integers(1, 100))) for i in range(sessions)]
+    cap = {r: (1000.0 if mixed else 500.0 if saturated else 1e9) for r in snap.samples}
     return lambda: planner.plan(0.0, snap, cap, defs)
+
+
+def digest(result) -> str:
+    """Hash the canonical JSON list without allocating a second full result tree."""
+    checksum = hashlib.sha256(b"[")
+    for i, directive in enumerate(result):
+        if i:
+            checksum.update(b", ")
+        checksum.update(json.dumps(directive.__dict__, sort_keys=True).encode())
+    checksum.update(b"]")
+    return checksum.hexdigest()
 
 
 def main():
@@ -31,6 +47,7 @@ def main():
     parser.add_argument("--sessions", type=int, nargs="+", default=[128, 1024])
     parser.add_argument("--slots", type=int, nargs="+", default=[30, 300])
     parser.add_argument("--draws", type=int, nargs="+", default=[128, 1024])
+    parser.add_argument("--regimes", nargs="+", choices=["open", "saturated", "mixed"], default=["open", "saturated"])
     parser.add_argument("--repeats", type=int, default=3)
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
@@ -41,18 +58,22 @@ def main():
     for sessions in args.sessions:
         for slots in args.slots:
             for draws in args.draws:
-                for saturated in (False, True):
-                    run = workload(sessions, slots, draws, saturated)
-                    def digest(result):
-                        return hashlib.sha256(json.dumps([d.__dict__ for d in result], sort_keys=True).encode()).hexdigest()
+                for regime in args.regimes:
+                    saturated = regime == "saturated"
+                    run = workload(sessions, slots, draws, saturated, mixed=regime == "mixed")
                     expected = digest(run())
-                    times = []
+                    times, cpu_times = [], []
                     for _ in range(args.repeats):
+                        cpu_start = time.process_time()
                         start = time.perf_counter()
                         result = run()
                         times.append(time.perf_counter() - start)
+                        cpu_times.append(time.process_time() - cpu_start)
                         assert digest(result) == expected
-                    row = dict(sessions=sessions, slots=slots, draws=draws, saturated=saturated,
+                    peak_rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+                    row = dict(sessions=sessions, slots=slots, draws=draws, saturated=saturated, regime=regime,
+                               cpu_median_s=float(np.median(cpu_times)),
+                               process_peak_rss_mib=peak_rss / (1024 ** 2 if sys.platform == "darwin" else 1024),
                                median_s=float(np.median(times)), min_s=min(times), max_s=max(times),
                                repeats=args.repeats, result_sha256=expected)
                     rows.append(row)
@@ -62,6 +83,9 @@ def main():
     (args.out / "environment.json").write_text(json.dumps(dict(
         python=platform.python_version(), platform=platform.platform(), numpy=np.__version__,
         source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),
+        driver_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        arguments=vars(args) | {"out": str(args.out)},
+        rss="Process high-water RSS including imports, setup, results and hashing; cumulative across cases. Run one case per process for attribution.",
         setup="excluded; one untimed warmup; three repeats by default; serialization excluded"), indent=2))
 
 
