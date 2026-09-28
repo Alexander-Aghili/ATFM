@@ -12,7 +12,7 @@ from dataclasses import dataclass
 
 from atfm.schema.events import ToolEnd, ToolStart
 
-from .events import ProgressEmitter, _safe_publish
+from .events import publish_progress, _safe_publish
 
 from .parsers import default_parsers
 
@@ -104,7 +104,7 @@ def run_tool(cmd, ctx: ToolContext, bus, *, cwd=None, env=None, timeout: float |
 
     threading.Thread(target=_reader, daemon=True).start()
     chunks: list[bytes] = []
-    progress = ProgressEmitter(bus, ctx.session_id, call_id, parsers)
+    last_completed = None
     timed_out = False
     deadline = None if timeout is None else t_start + timeout
     try:
@@ -122,7 +122,7 @@ def run_tool(cmd, ctx: ToolContext, bus, *, cwd=None, env=None, timeout: float |
             chunks.append(line)
             now = clock()
             text = line.decode("utf-8", errors="replace").rstrip("\n")
-            progress.feed(text, now)
+            last_completed = publish_progress(text, now, parsers, bus, ctx.session_id, call_id, last_completed)
     finally:
         if timed_out:
             try:

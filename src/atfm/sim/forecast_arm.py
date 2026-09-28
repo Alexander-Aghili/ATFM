@@ -9,14 +9,13 @@ from atfm.board.forecaster import CLASSES, TARGETS, ExogenousModel, SessionForec
 from atfm.board.live import LiveBoard, SessionRegistry
 from atfm.board.predictors import ProgressPredictor, SurvivalPredictor
 from atfm.proxy.config import ProxyConfig
-from atfm.proxy.index import compute_index, service_time, tier
 from atfm.schema.forecast import ForecastSnapshot
 from atfm.schema.trace import TraceTable
 from atfm.traces.sidecar import events_to_trace_table
 
 from .core import Simulator
 from .engine import EngineConfig
-from .policies import NativePolicy, OraclePolicy, _meta
+from .policies import NativePolicy, OraclePolicy, ProxyRulesPolicy
 
 
 class GdpLite:
@@ -83,10 +82,11 @@ def forecast_hold_until(
     )
 
 
-class ForecastPolicy:
+class ForecastPolicy(ProxyRulesPolicy):
     def __init__(self, window: int, cfg: ProxyConfig, predictor, train_table: TraceTable | None, horizons: list[float],
                  n: int = 128, hold: bool = True, gdp: GdpLite | None = None):
-        self._window, self.cfg, self.predictor = window, cfg, predictor
+        super().__init__(window, cfg)
+        self.predictor = predictor
         self.registry = SessionRegistry()
         exo = ExogenousModel()
         if train_table is not None:
@@ -96,12 +96,8 @@ class ForecastPolicy:
         self.name = f"forecast_{predictor.name.split('_')[0]}"
         self.snapshot: ForecastSnapshot | None = None
         self.snapshots = 0
-        self.last_hold_reason = ""
         self.board = LiveBoard(self.registry, self.forecaster)
         self._isl_sum, self._isl_n = 0.0, 0
-
-    def window(self, sim) -> int | None:
-        return self._window
 
     def _ingest(self, sim) -> None:
         for e in sim.events.drain():
@@ -124,11 +120,6 @@ class ForecastPolicy:
         (current tool if running, else the last one); pooled mean when nothing is known."""
         return float(self.board.expected_tool_next(call.session.program.session_id))
 
-    def tier_and_index(self, sim, call) -> tuple[int, float]:
-        m = _meta(call, sim.now)
-        e_s = service_time(m, self.cfg)
-        return tier(m, self.cfg, sim.now, e_s), compute_index(m, self.cfg, e_s, self.e_tool_next(sim, call))
-
     def on_arrival(self, sim, call) -> float | None:
         if not self.hold or call.session.program.cls != "background" or self.snapshot is None:
             return None
@@ -137,9 +128,6 @@ class ForecastPolicy:
         if t is not None:
             self.last_hold_reason = "forecast_surge"
         return t
-
-    def on_tool_end(self, sim, session, now: float) -> None:
-        return None
 
 
 def next_call_of(sim, kind: str, payload) -> tuple[str, str, int] | None:

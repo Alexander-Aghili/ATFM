@@ -217,11 +217,12 @@ owns command classification, turn advancement, launch, and result conversion.
 The mini-SWE-agent mixin delegates there, then calls its harness-specific
 `_check_finished` hook exactly once, including launch failures.
 
-`sidecar/events.py:ProgressEmitter` is the shared parser chain for subprocess
+`sidecar/events.py:publish_progress` is the shared parser chain for subprocess
 lines and completed executor output. A progress match stops the chain even
 when its completed count duplicates the previous match. Data matches allow
 later parsers to run; parser/publication exceptions remain best-effort.
-Each execution owns its parser state. Live output retains per-line timestamps;
+Each execution owns its parser state and passes the previous completed value;
+the helper returns the new value. Live output retains per-line timestamps;
 wrapped output retains completion timestamps. Byte output, text conversion,
 and timeout termination still belong to their original execution paths.
 
@@ -229,3 +230,10 @@ Keep subprocess timeout/drain handling separate from wrapped-executor error
 handling: only the subprocess owner can terminate a process group. Consolidating
 parsing must not change which errors reach the caller or invent live progress
 for an executor whose output is available only at completion.
+
+
+Simulation policies share inert event callbacks through `_PolicyHooks`.
+`ForecastPolicy` extends `ProxyRulesPolicy` for window and tier/index behavior,
+overriding expected next-tool duration and forecast/hold handling. Placement
+mixins still override the duration term to zero. Sharing these methods must not
+change method-resolution order for placement, event draining, or RNG consumption.

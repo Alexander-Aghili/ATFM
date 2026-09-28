@@ -13,7 +13,8 @@ from typing import Callable
 from atfm.schema.events import ToolEnd, ToolStart
 from atfm.sidecar.core import ToolContext, _safe_publish, classify_tool, command_signature, run_tool
 from atfm.sidecar.config import SidecarConfig
-from atfm.sidecar.events import ProgressEmitter
+from atfm.sidecar.events import publish_progress
+from atfm.sidecar.parsers import default_parsers
 
 
 class SidecarExecutor:
@@ -70,9 +71,9 @@ def wrap_executor(fn: Callable, cfg: SidecarConfig, *, output_key="output", rc_k
         except Exception:                          # unknown result shape: close the state path, hand the result back
             _safe_publish(cfg.bus, ToolEnd(t=t1, session_id=cfg.session_id, call_id=call_id, exit_status=0, output_chars=0))
             return result
-        progress = ProgressEmitter(cfg.bus, cfg.session_id, call_id)
+        parsers, last_completed = default_parsers(), None
         for line in text.splitlines():
-            progress.feed(line, t1)
+            last_completed = publish_progress(line, t1, parsers, cfg.bus, cfg.session_id, call_id, last_completed)
         try:
             exit_status = int(rc) if rc is not None else 0
         except (TypeError, ValueError):

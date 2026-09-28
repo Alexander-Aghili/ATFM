@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from typing import Protocol
 
+from atfm.proxy.config import ProxyConfig
+from atfm.proxy.index import CallMeta, compute_index, service_time, tier
+
 
 class Policy(Protocol):
     name: str
@@ -19,7 +22,20 @@ class Policy(Protocol):
     def on_tool_end(self, sim, session, now: float) -> None: ...
 
 
-class NativePolicy:
+class _PolicyHooks:
+    """Optional simulation callbacks default to no action."""
+
+    def on_arrival(self, sim, call) -> float | None:
+        return None
+
+    def on_tick(self, sim, now: float) -> None:
+        return None
+
+    def on_tool_end(self, sim, session, now: float) -> None:
+        return None
+
+
+class NativePolicy(_PolicyHooks):
     """Arm 1: no proxy queue; requests go straight to the engine, which may order by class priority."""
 
     name = "native"
@@ -34,19 +50,6 @@ class NativePolicy:
     def tier_and_index(self, sim, call) -> tuple[int, float]:
         return (1 if (self.priority_by_class and call.session.program.cls == "interactive") else 0), 0.0
 
-    def on_arrival(self, sim, call) -> float | None:
-        return None
-
-    def on_tick(self, sim, now: float) -> None:
-        return None
-
-    def on_tool_end(self, sim, session, now: float) -> None:
-        return None
-
-
-from atfm.proxy.config import ProxyConfig  # noqa: E402
-from atfm.proxy.index import CallMeta, compute_index, service_time, tier  # noqa: E402
-
 
 def _meta(call, now: float) -> CallMeta:
     p = call.session.program
@@ -54,7 +57,7 @@ def _meta(call, now: float) -> CallMeta:
                     turn_index=call.turn_index, isl=call.isl_total, predicted_osl=call.osl, t_arrival=now)
 
 
-class ProxyRulesPolicy:
+class ProxyRulesPolicy(_PolicyHooks):
     """Arm 2: global window, class and deadline tiers, service-time index, no forecast, no holds."""
 
     name = "proxy_rules"
@@ -73,15 +76,6 @@ class ProxyRulesPolicy:
         m = _meta(call, sim.now)
         e_s = service_time(m, self.cfg)
         return tier(m, self.cfg, sim.now, e_s), compute_index(m, self.cfg, e_s, self.e_tool_next(sim, call))
-
-    def on_arrival(self, sim, call) -> float | None:
-        return None
-
-    def on_tick(self, sim, now: float) -> None:
-        return None
-
-    def on_tool_end(self, sim, session, now: float) -> None:
-        return None
 
 
 def _event_session_cls(sim, kind: str, payload) -> str | None:
@@ -127,7 +121,7 @@ class OraclePolicy(ProxyRulesPolicy):
         return None
 
 
-class WorkingSetPolicy:
+class WorkingSetPolicy(_PolicyHooks):
     """Arm 6 (ThunderAgent-style): pause background programs at tool boundaries while the resident working
     set is over budget; resume smallest-context-first once it falls under the low watermark. Reactive, no forecast."""
 
@@ -189,6 +183,3 @@ class WorkingSetPolicy:
         else:
             for c in waiting:
                 c.release_not_before = min(c.release_not_before, now)
-
-    def on_tool_end(self, sim, session, now: float) -> None:
-        return None
