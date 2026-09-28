@@ -25,10 +25,6 @@ def profile_serving(directory: Path):
         yappi.stop()
         yappi.get_func_stats().save(str(directory / 'proxy.pstats'), type='pstat')
         threads = yappi.get_thread_stats()
-        write_json(directory / 'proxy-profile.json', {
-            'profiler': 'yappi', 'version': version('yappi'), 'clock': yappi.get_clock_type(),
-            'threads': [{'id': t.id, 'name': t.name, 'cpu_s': t.ttot, 'schedules': t.sched_count}
-                        for t in threads]})
         with (directory / 'proxy-profile.txt').open('w') as text, \
              (directory / 'proxy-profile.csv').open('w', newline='') as stream:
             writer = csv.writer(stream, lineterminator='\n')
@@ -43,4 +39,8 @@ def profile_serving(directory: Path):
                 for stat in stats:
                     writer.writerow([thread.id, thread.name, stat.module, stat.lineno, stat.name,
                                      stat.nactualcall, stat.ncall, stat.tsub, stat.ttot])
+        write_json(directory / 'proxy-profile.json', {
+            'profiler': 'yappi', 'version': version('yappi'), 'clock': yappi.get_clock_type(),
+            'threads': [{'id': t.id, 'name': t.name, 'cpu_s': t.ttot, 'schedules': t.sched_count}
+                        for t in threads]})
         yappi.clear_stats()

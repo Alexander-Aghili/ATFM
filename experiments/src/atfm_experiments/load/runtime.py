@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from contextlib import contextmanager, ExitStack
 import hashlib
-from importlib.metadata import version
+from importlib.metadata import PackageNotFoundError, version
 import json
 import os
 from pathlib import Path
@@ -23,6 +23,13 @@ def write_json(path: Path, value) -> None:
     path.write_text(json.dumps(value, indent=2, allow_nan=False) + '\n')
 
 
+def package_version(name: str) -> str | None:
+    try:
+        return version(name)
+    except PackageNotFoundError:
+        return None
+
+
 def provenance() -> dict:
     root = Path.cwd()
     paths = sorted((root / 'src/atfm').rglob('*.py')) + sorted(Path(__file__).parent.glob('*.py'))
@@ -35,7 +42,8 @@ def provenance() -> dict:
     return {'cpu': cpu, 'python': sys.version, 'platform': platform.platform(), 'cpu_count': os.cpu_count(),
             'git_commit': git('rev-parse', 'HEAD'),
             'rlimit_nofile': dict(zip(('soft', 'hard'), resource.getrlimit(resource.RLIMIT_NOFILE))),
-            'packages': {name: version(name) for name in ('atfm', 'atfm-experiments', 'numpy', 'httpx', 'httpcore', 'uvicorn')},
+            'packages': {name: package_version(name) for name in ('atfm', 'atfm-experiments', 'numpy', 'httpx', 'httpcore',
+                                                               'anyio', 'sniffio', 'uvicorn', 'yappi')},
             'source_sha256': {str(p.relative_to(root) if p.is_relative_to(root) else p):
                               hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}}
 

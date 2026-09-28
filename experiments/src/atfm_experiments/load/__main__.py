@@ -19,7 +19,8 @@ def run_case(config: LoadConfig, directory: Path) -> dict:
     write_json(directory / 'environment.json', provenance())
     with local_stack(config, directory) as endpoints:
         result = asyncio.run(exercise(config, endpoints, directory))
-    if config.profile_proxy and not (directory / 'proxy.pstats').is_file():
+    if config.profile_proxy and not all((directory / name).is_file() for name in
+                                        ('proxy.pstats', 'proxy-profile.json', 'proxy-profile.txt', 'proxy-profile.csv')):
         raise RuntimeError(f'proxy profile was not saved; inspect shutdown and server logs in {directory}')
     return result
 
