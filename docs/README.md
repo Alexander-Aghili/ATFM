@@ -16,7 +16,7 @@
 
 ## Architecture and design
 
-- [Detailed code and documentation architecture](architecture/03-code-and-documentation.md): six diagrams, module ownership, endpoints, data flow, evaluation and publication pipelines.
+- [Detailed code and documentation architecture](architecture/03-code-and-documentation.md): [PDF edition](architecture/atfm-architecture.pdf), six diagrams, module ownership, endpoints, data flow, evaluation and publication pipelines.
 
 - [System context](architecture/01-context.md) and [container view](architecture/02-container.md).
 - [Architecture design specification](superpowers/specs/2026-09-22-atfm-architecture-design.md).

@@ -1,5 +1,7 @@
 # ATFM: code and documentation architecture
 
+[Download the PDF edition](atfm-architecture.pdf), with landscape diagram pages and clickable source links.
+
 This guide maps the implementation at **`cb102b0` (28 September 2026)**. It explains where state lives, how a request becomes evidence and a control decision, and which documents describe each layer. The diagrams describe current code boundaries; the older [context](01-context.md) and [container](02-container.md) views describe broader design intent.
 
 ATFM is a forecasting and admission layer around an LLM serving system. It observes agents during their tool phases, estimates when they will resume using the model, and uses that information to order or delay eligible work. The serving engine owns token generation and the actual KV tensors. ATFM owns observations, predictions, scheduling state, and control requests.
@@ -220,3 +222,13 @@ done
 ```
 
 Review the rendered output after editing. Check labels against the module/endpoint tables, distinguish process boundaries from logical modules, and keep optional or advisory paths explicitly labeled. Link a new module to its owning view rather than growing a single diagram until it is unreadable.
+
+### PDF edition
+
+Run `docs/architecture/build_pdf.sh` from the repository root. It requires Pandoc,
+XeLaTeX with the standard LaTeX packages, Inkscape and DejaVu fonts. The build
+uses this Markdown file and the checked-in SVGs, preserves vector artwork,
+and writes `docs/architecture/atfm-architecture.pdf` plus a delivery copy under
+`output/pdf/`. `pdf-layout.lua` supplies landscape figure pages and resolves
+source links against the documented Git revision; `pdf-layout.tex` controls
+typography and page furniture. Review rendered pages after content changes.
