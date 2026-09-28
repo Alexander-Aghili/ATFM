@@ -42,7 +42,7 @@ uv build --package atfm
 uv build --package atfm-experiments
 ```
 
-See the [experiment overview](../README.md#experiments),
+See the [experiment guide](guide.md),
 [core development guide](../docs/development/core.md), and
 [research index](../docs/research/README.md) for model contracts and evidence.
 
