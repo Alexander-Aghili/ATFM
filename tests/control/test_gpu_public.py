@@ -37,3 +37,19 @@ def test_bfcl_check_rejects_unknown_tool_and_truncated_output():
     assert not tool_calls.inspect(result, body, minimum_calls=2)['passed']
     result['choices'][0]['finish_reason'] = 'length'
     assert not tool_calls.inspect(result, body)['passed']
+
+
+def test_tool_summary_propagates_case_failure(tmp_path, monkeypatch):
+    import hashlib
+    import json
+
+    source = tmp_path / 'source'
+    source.mkdir()
+    data = b'[{"id": "sample"}]'
+    (source / 'simple_python.json').write_bytes(data)
+    (source / 'manifest.json').write_text(json.dumps({
+        'simple_python': {'selected_sha256': hashlib.sha256(data).hexdigest()}}))
+    monkeypatch.setattr(tool_calls, 'CATEGORIES', ('simple_python',))
+    monkeypatch.setattr(tool_calls, 'one', lambda *args: {'passed': False})
+    summary = tool_calls.run(source, tmp_path / 'result', 'test-model')
+    assert summary['passed'] is False

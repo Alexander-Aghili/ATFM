@@ -85,9 +85,9 @@ def run(venv, client, source, output):
                                  selection=selection, aiperf=version, atfm_control_enabled=False))
     with server(cache, output, 'lmcache', CACHE + '/status', 900):
         with server(engine, output, 'vllm', INFERENCE + '/health', 900):
-            run_tools(source / 'bfcl', output / 'bfcl', MODEL)
+            tools = run_tools(source / 'bfcl', output / 'bfcl', MODEL)
             results = run_cases(client, source, output, selection)
-    save(output, 'summary', dict(passed=all(r['passed'] for r in results.values()), cases=results,
+    save(output, 'summary', dict(passed=tools['passed'] and all(r['passed'] for r in results.values()), cases=results,
                                 servers_stopped=True, scope='selected public serving traces; no task-quality score'))
 
 

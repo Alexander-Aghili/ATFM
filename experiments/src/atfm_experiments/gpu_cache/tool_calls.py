@@ -89,6 +89,6 @@ def run(source, output, model):
                 raise ValueError(f'BFCL source hash mismatch: {category}')
             items = json.loads(data)
             results[category] = [one(client, item, output, model) for item in items]
-    return save(output, 'summary', dict(results=results,
+    return save(output, 'summary', dict(results=results, passed=all(r['passed'] for rows in results.values() for r in rows),
                 provenance=provenance,
                 scope='BFCL-derived tool-call API sample; no tools executed or official benchmark score'))
