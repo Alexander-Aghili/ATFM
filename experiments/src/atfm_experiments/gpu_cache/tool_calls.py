@@ -13,16 +13,16 @@ BFCL_REVISION = '58f57e9124ea981403792dd51e00a6577e621fae'
 CATEGORIES = ('simple_python', 'multiple', 'parallel')
 
 
-def prepare(output):
+def prepare(output, limit=3, categories=CATEGORIES):
     output.mkdir()
     provenance = {}
     base = f'https://raw.githubusercontent.com/ShishirPatil/gorilla/{BFCL_REVISION}/berkeley-function-call-leaderboard/bfcl_eval/data'
     with httpx.Client(timeout=60, follow_redirects=True) as client:
-        for category in CATEGORIES:
+        for category in categories:
             url = f'{base}/BFCL_v4_{category}.json'
             response = client.get(url)
             response.raise_for_status()
-            rows = [json.loads(line) for line in response.content.splitlines() if line.strip()][:3]
+            rows = [json.loads(line) for line in response.content.splitlines() if line.strip()][:limit]
             save(output, category, rows)
             provenance[category] = dict(url=url, source_sha256=hashlib.sha256(response.content).hexdigest(),
                                        selected_ids=[row['id'] for row in rows],
@@ -83,7 +83,7 @@ def run(source, output, model):
     results = {}
     provenance = json.loads((source / 'manifest.json').read_text())
     with httpx.Client(timeout=120) as client:
-        for category in CATEGORIES:
+        for category in provenance:
             data = (source / f'{category}.json').read_bytes()
             if hashlib.sha256(data).hexdigest() != provenance[category]['selected_sha256']:
                 raise ValueError(f'BFCL source hash mismatch: {category}')

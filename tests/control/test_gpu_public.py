@@ -4,11 +4,12 @@ from atfm_experiments.gpu_cache.trace_selection import describe
 
 
 def test_public_replay_preserves_sizes_and_schedule(tmp_path):
-    command = replay.command(tmp_path / 'aiperf', tmp_path / 'trace', tmp_path, 21)
+    command = replay.command(tmp_path / 'aiperf', tmp_path / 'trace', tmp_path)
     assert '--no-fixed-schedule' in command and '--tokenizer-revision' in command
     assert '--ignore-trace-delays' not in command
     assert '--synthesis-max-osl' not in command and '--synthesis-max-isl' not in command
-    assert command[command.index('--request-count') + 1] == '21'
+    assert command[command.index('--num-sessions') + 1] == '1'
+    assert '--request-count' not in command
 
 
 def test_trace_statistics_include_nested_requests():

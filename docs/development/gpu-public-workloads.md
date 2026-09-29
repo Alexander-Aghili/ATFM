@@ -37,7 +37,10 @@ new model's response time affects total session duration. Subagent branches
 remain in the dataset. The initial fixed-schedule attempt failed configuration
 validation because AIPerf did not detect timing inside nested Weka roots; its
 logs are retained. AIPerf's request-rate strategy explicitly honors continuation
-delays for both root and child turns.
+delays for both root and child turns. Each case uses `--num-sessions 1`,
+which admits one root and lets its children finish. A request-count bound alone
+repeated roots and truncated children in the first closed-loop attempt, even
+though the exported request total matched; branch checks correctly rejected it.
 `ignore_eos:true` requests the recorded output length rather than stopping early
 on EOS. The client tokenizer revision matches the server. Each case is bounded
 to 1,200 seconds, with a 2,700-second aggregate replay deadline. A timed-out,
@@ -86,3 +89,13 @@ argument semantics or replace BFCL's official evaluator. They are API integratio
 samples, not an official BFCL score or evidence that the model completes tasks.
 
 The [synthetic matrix](gpu-workloads.md) remains a separate diagnostic option.
+
+## Broader tool-call matrix
+
+`python -m atfm_experiments.gpu_cache.tool_matrix --output runs/tool-matrix`
+starts an isolated stack and takes the first ten cases of each original category
+plus `parallel_multiple`: 40 pinned BFCL cases in total. Parallel-multiple cases
+exercise multiple emitted calls with several offered function schemas. The same
+syntax, offered-name and minimum-call checks apply. This is a larger convenience
+sample, not a random sample or an official accuracy score. Do not run it alongside
+a latency measurement; it owns the same serving ports.
