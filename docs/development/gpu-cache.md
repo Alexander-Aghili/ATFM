@@ -19,9 +19,11 @@ template's toolkit can differ from the locked runtime. The locked NVIDIA package
 provide CUDA headers and `nvcc` under the GPU environment's
 `lib/python3.12/site-packages/nvidia/cu13`; set `CUDA_HOME` to that directory when
 the template's toolkit is older. Keep this environment setting with the run evidence.
-The compiler and NVVM are pinned to 13.0.88 to match the CUDA 13.0 runtime
+The compiler, CRT headers and NVVM are pinned to 13.0.88 to match the CUDA 13.0 runtime
 headers. The original snapshot's 13.4 compiler failed FlashInfer's compiler/header
 compatibility check on H100; Python dependency compatibility alone did not catch it.
+Setup also supplies the `lib64` and unversioned `libcudart.so` links expected by
+FlashInfer's native linker, pointing to the locked wheel's existing libraries.
 The [local evidence report](../research/2026-09-28-gpu-cache.md) records successful
 fresh-cache and rebuilt-environment runs.
 
