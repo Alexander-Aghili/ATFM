@@ -73,3 +73,10 @@ def test_public_case_validates_export_and_records_verdict(tmp_path, monkeypatch)
     result = replay.run_case(tmp_path / 'client', tmp_path, output, 'trace', {'requests': 21}, 60)
     assert result['passed'] and result['requests'] == result['expected_requests'] == 21
     assert json.loads((output / 'result.json').read_text()) == result
+
+
+def test_public_retry_runs_only_selected_complete_roots(tmp_path, monkeypatch):
+    monkeypatch.setattr(replay, 'run_case', lambda *args: {'name': args[3]})
+    selection = {'cases': {'short-branch': {}, 'sequential': {}, 'multi-branch': {}}}
+    result = replay.run_cases(tmp_path, tmp_path, tmp_path, selection, cases=('multi-branch',))
+    assert result == {'multi-branch': {'name': 'multi-branch'}}
