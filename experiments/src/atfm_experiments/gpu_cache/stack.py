@@ -24,17 +24,17 @@ def check_ports():
             sock.bind(('127.0.0.1', port))
 
 
-def commands(venv, output):
+def commands(venv, output, model=MODEL, revision=REVISION, context=2048, cpu_gb=.5):
     cache = [str(venv / 'bin/lmcache'), 'server', '--host', '127.0.0.1', '--port', '15555',
-             '--http-host', '127.0.0.1', '--http-port', '18181', '--l1-size-gb', '0.5',
+             '--http-host', '127.0.0.1', '--http-port', '18181', '--l1-size-gb', str(cpu_gb),
              '--chunk-size', '16', '--eviction-policy', 'LRU', '--l2-adapter',
              json.dumps(dict(type='fs', base_path=str(output / 'l2')))]
     connector = dict(kv_connector='LMCacheMPConnector', kv_role='kv_both',
                      kv_connector_module_path='lmcache.integration.vllm.lmcache_mp_connector',
                      kv_connector_extra_config={'lmcache.mp.host': '127.0.0.1', 'lmcache.mp.port': 15555})
-    inference = [str(venv / 'bin/vllm'), 'serve', MODEL, '--revision', REVISION,
-                 '--tokenizer-revision', REVISION, '--host', '127.0.0.1', '--port', '18180',
-                 '--max-model-len', '2048', '--max-num-seqs', '2', '--gpu-memory-utilization', '0.55',
+    inference = [str(venv / 'bin/vllm'), 'serve', model, '--revision', revision,
+                 '--tokenizer-revision', revision, '--host', '127.0.0.1', '--port', '18180',
+                 '--max-model-len', str(context), '--max-num-seqs', '2', '--gpu-memory-utilization', '0.55',
                  '--enforce-eager', '--no-enable-prefix-caching', '--kv-transfer-config', json.dumps(connector)]
     return cache, inference
 
@@ -82,14 +82,14 @@ def server(command, output, name, url, startup_timeout=360):
             stop(process)
 
 
-def manifest(venv, output):
+def manifest(venv, output, model=MODEL, model_revision=REVISION):
     code = "import importlib.metadata as m; print('\\n'.join(sorted(d.metadata['Name']+'=='+d.version for d in m.distributions())))"
     versions = subprocess.check_output([str(venv / 'bin/python'), '-c', code], text=True)
     gpu = subprocess.check_output(['nvidia-smi', '--query-gpu=name,driver_version,memory.total', '--format=csv'], text=True)
     revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
     (output / 'installed.txt').write_text(versions)
     environment = {key: os.environ[key] for key in ('CUDA_HOME', 'HF_HOME') if key in os.environ}
-    return dict(model=MODEL, model_revision=REVISION, gpu=gpu, git_revision=revision,
+    return dict(model=model, model_revision=model_revision, gpu=gpu, git_revision=revision,
                 source_sha256=fingerprints(), environment=environment)
 
 

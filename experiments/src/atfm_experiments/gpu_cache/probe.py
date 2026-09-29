@@ -44,10 +44,10 @@ def prompt(client, output):
     return tokens
 
 
-def inference(client, output, name, tokens):
+def inference(client, output, name, tokens, max_tokens=8):
     start = time.monotonic()
     result = request(client, 'POST', INFERENCE + '/v1/completions', json={
-        'model': MODEL, 'prompt': tokens, 'max_tokens': 8, 'temperature': 0, 'seed': 7})
+        'model': MODEL, 'prompt': tokens, 'max_tokens': max_tokens, 'temperature': 0, 'seed': 7})
     save(output, name, result)
     return dict(text=result['choices'][0]['text'], elapsed_s=time.monotonic() - start,
                 external_hits=metrics(client, output, name))
@@ -61,7 +61,7 @@ def idle_storage(client, output, name, objects):
         l1, store = storage['l1_manager'], storage['store_controller']
         busy = sum(l1[k] for k in ('write_locked_count', 'read_locked_count', 'temporary_count'))
         busy += store['pending_keys_count'] + store['in_flight_task_count']
-        if not busy and l1['total_object_count'] == objects:
+        if not busy and (objects is None or l1['total_object_count'] == objects):
             save(output, name, status)
             return l1
         time.sleep(.1)
@@ -72,6 +72,12 @@ def warm(client, output, tokens):
     idle_storage(client, output, 'before-clear', len(tokens) // 16)
     save(output, 'clear', request(client, 'POST', CACHE + '/cache/clear', json={'tier': 'l1', 'force': True}))
     idle_storage(client, output, 'after-clear', 0)
+    result = prefetch(output, tokens)
+    idle_storage(client, output, 'after-prefetch', len(tokens) // 16)
+    return result
+
+
+def prefetch(output, tokens):
     source = PromptTokens(lambda _: tokens, lambda _: [{'content': 'synthetic-probe'}])
     actuator = LMCacheActuator(LMCacheConfig(CACHE, MODEL, chunk_size=16, completion_timeout_s=10), tokens=source)
     directive = TierDirective(session_id='probe', action='prefetch', tier='cpu', eta_q10=0, eta_q90=1, expires_at=time.time() + 30)
@@ -81,7 +87,6 @@ def warm(client, output, tokens):
         actuator.close()
     if result.get('ok') is not True:
         raise RuntimeError(f'prefetch did not complete: {result}')
-    idle_storage(client, output, 'after-prefetch', len(tokens) // 16)
     return result
 
 
