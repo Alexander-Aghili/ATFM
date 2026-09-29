@@ -7,6 +7,7 @@ from pathlib import Path
 
 from atfm_experiments.local_cluster.workload import requests
 from .probe import save
+from .tool_calls import prepare
 
 SELECTED = {'short-branch': 'bbdcb12440a7ab3496b9fac8b5f9824b1672',
             'sequential': '5c5e408b76e5e22747853915f67be3c491a4',
@@ -63,6 +64,7 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     select(args.source, args.output)
+    prepare(args.output / 'bfcl')
 
 
 if __name__ == '__main__':

@@ -52,7 +52,8 @@ export CUDA_HOME="$PWD/tmp/venvs/gpu/lib/python3.12/site-packages/nvidia/cu13"
   --source runs/public-selection --output runs/public-replay
 ```
 
-The selection directory must also contain the BFCL samples described below.
+The selector also downloads the pinned BFCL samples described below and hashes
+both their complete source files and selected rows.
 Both serving processes are owned and cleaned up. The Pod itself must be stopped
 separately. Keep raw AIPerf exports, server metrics, source manifests and failed
 attempts alongside any summary.
@@ -62,9 +63,9 @@ attempts alongside any summary.
 Three cases each from `simple_python`, `multiple` and `parallel` in
 [BFCL V4](https://github.com/ShishirPatil/gorilla/tree/58f57e9124ea981403792dd51e00a6577e621fae/berkeley-function-call-leaderboard/bfcl_eval/data)
 exercise real OpenAI-compatible tool schemas and generated `tool_calls`.
-Use the first three JSONL rows of each category from that pinned commit, retaining
-source hashes and IDs in `bfcl/manifest.json`; save the selected arrays as
-`bfcl/{category}.json`. Question text and function descriptions remain unchanged.
+The selector takes the first three JSONL rows of each category from that pinned
+commit, retaining source hashes and IDs in `bfcl/manifest.json`; selected arrays
+are saved as `bfcl/{category}.json`. Question text and function descriptions remain unchanged.
 The adapter converts BFCL's `dict`/`float`/`list` schema types to JSON Schema and
 normalizes dots in function names to underscores, rejecting name collisions.
 
