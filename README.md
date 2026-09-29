@@ -92,3 +92,5 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, tests, reproducibility, and re
 ## License
 
 A project-wide license has not yet been declared. Reproduced paper artwork retains its original attribution and licenses; see the [artwork manifest](docs/paper/background/figures/papers/manifest.json).
+
+For CPU-only deployment preparation, run the [local Dynamo + AIPerf smoke](docs/development/local-cluster.md) with an existing AgentX trace before renting GPUs.

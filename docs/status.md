@@ -36,3 +36,5 @@ H2's manifest records the current Git SHA and configuration/input hashes; it
 does not capture uncommitted source changes. Preserve the actual source revision
 and inputs when releasing a result. H1 writes resolved configuration and scores,
 but its runner does not currently emit the same provenance manifest as H2.
+
+Local GPU-rental preparation now has a [version-pinned Dynamo/AIPerf recipe](development/local-cluster.md). It exercises public AgentX replay on CPU Mocker workers; real LMCache compatibility and ATFM policy benefit remain unvalidated.

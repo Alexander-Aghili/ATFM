@@ -38,3 +38,5 @@ When extending a study, retain the original workload and uncertainty definitions
 Identify added runs explicitly rather than silently replacing earlier results.
 Link the configuration, preserve input provenance, distinguish illustrative
 calculations from observations, and report action costs alongside benefits.
+
+- [Local cluster preparation, 28 September](2026-09-28-local-cluster.md): public AgentX replay through AIPerf and two/four Dynamo Mocker workers; integration evidence only.

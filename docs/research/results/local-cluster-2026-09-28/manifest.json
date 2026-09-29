@@ -1,0 +1,133 @@
+{
+  "implementation": "321159e",
+  "files": {
+    "final-two/result.json": {
+      "sha256": "dad62f6a52bbb8bf4379bd3c3876809e909d5d87ca0d77bdc3cc20e5515206e8",
+      "bytes": 478
+    },
+    "final-two/trace.json.gz": {
+      "sha256": "90fb080cf79614c66993e5799401b3915e34fbc3487b56bd17157b87f97d4ef9",
+      "bytes": 53084
+    },
+    "final-two/aiperf.log.gz": {
+      "sha256": "4614eb0d5862467f9e92ac228a272b644c275a48f58d449dee52de95af2376f7",
+      "bytes": 35770
+    },
+    "final-two/manifest.json": {
+      "sha256": "9b5f0592b3e4bda80e2b4e1db5df8909b54b29eaa368429c46f65bf2f8da1a75",
+      "bytes": 11689
+    },
+    "final-two/command.json": {
+      "sha256": "f8ca618d83cf4f7cfdb881f65eaf711af82dd923c66bce9a3b426e6008fa6c16",
+      "bytes": 645
+    },
+    "final-two/aiperf/profile_export_aiperf.json": {
+      "sha256": "86da6fac00f302d2fe6b3cf1bd014de2ba42f55a826c159690bd0b9151b30f1a",
+      "bytes": 22390
+    },
+    "final-two/aiperf/profile_export.jsonl.gz": {
+      "sha256": "7c82677479d33d872045fe7edc0f5de67f6f284b4f8f059b16d3b192cf12bf74",
+      "bytes": 57105
+    },
+    "final-two/aiperf/server_metrics_export.json": {
+      "sha256": "fe8614924ed568cb15bd586d7777564156e8ff1f67d136304c078b73ca92cf8d",
+      "bytes": 163914
+    },
+    "final-two/aiperf/profile_export_aiperf.csv.gz": {
+      "sha256": "7c47ba9be795b2299a5e4544c95f3c93652585c21719754c4ef27b8321e3004f",
+      "bytes": 6616
+    },
+    "final-two/aiperf/.aiperf_results_ready.json": {
+      "sha256": "5f316f75c5c0e5022c2e63b118b85856efbcd8d8887ee55fc98db893b6a5351e",
+      "bytes": 52
+    },
+    "final-two/aiperf/server_metrics_export.csv.gz": {
+      "sha256": "15324b9237c07f6606d1f89336432d192eb444a2ce02c74ba579f3c926811751",
+      "bytes": 65376
+    },
+    "final-two/dynamo/frontend.log.gz": {
+      "sha256": "5d62ec6e0761528b66435a51feb48c97fbd5a590d81c22e9fae3493cc2145abd",
+      "bytes": 100051
+    },
+    "final-two/dynamo/mocker.log.gz": {
+      "sha256": "455a3037d4da95784cab6416dfdd8092be39f4acad84345486e8fcd0ac7155e8",
+      "bytes": 53597
+    },
+    "final-two/aiperf/logs/aiperf.log.gz": {
+      "sha256": "06842c332e0f6123216e0620ed33a2a0a532aed75326e922d911b1019499f2cf",
+      "bytes": 16803
+    },
+    "final-four/result.json": {
+      "sha256": "dad62f6a52bbb8bf4379bd3c3876809e909d5d87ca0d77bdc3cc20e5515206e8",
+      "bytes": 478
+    },
+    "final-four/trace.json.gz": {
+      "sha256": "90fb080cf79614c66993e5799401b3915e34fbc3487b56bd17157b87f97d4ef9",
+      "bytes": 53084
+    },
+    "final-four/aiperf.log.gz": {
+      "sha256": "c04f6f41cb40bd8e93b24c5ea6042065e5f1953db8bc8accbad9b4c2b1d674fd",
+      "bytes": 32083
+    },
+    "final-four/manifest.json": {
+      "sha256": "9605d892011eeb08b8cdcedb9ee6473c065b7156c61e0c6efbc0f8c2984f3ab4",
+      "bytes": 11689
+    },
+    "final-four/command.json": {
+      "sha256": "43d8bd18fbb815f186edb18a9f116d947a81eb2df18773334c263d1c932f31e2",
+      "bytes": 647
+    },
+    "final-four/aiperf/profile_export_aiperf.json": {
+      "sha256": "5f6db182035fe985ac5b1b6d339cdebdee5949d08d19f8d8951044e3c8666f74",
+      "bytes": 22295
+    },
+    "final-four/aiperf/profile_export.jsonl.gz": {
+      "sha256": "e493c686e447e30b8d111045552a62baaa63f0db33223ceb79f31a00d36696ee",
+      "bytes": 56649
+    },
+    "final-four/aiperf/server_metrics_export.json": {
+      "sha256": "2b4c27c496bcf432f6bae8bf03801480de90d15ec3543788841d79e958a3f871",
+      "bytes": 171618
+    },
+    "final-four/aiperf/profile_export_aiperf.csv.gz": {
+      "sha256": "f9731ef4ef51e5fbe3c7fa16a5f282cad9ff015e6739d8fc54138bfaef44e393",
+      "bytes": 6615
+    },
+    "final-four/aiperf/.aiperf_results_ready.json": {
+      "sha256": "5f316f75c5c0e5022c2e63b118b85856efbcd8d8887ee55fc98db893b6a5351e",
+      "bytes": 52
+    },
+    "final-four/aiperf/server_metrics_export.csv.gz": {
+      "sha256": "7f356809b73cab807135ce8ebe4684f0d489e132443512865f8e1746babf064d",
+      "bytes": 68862
+    },
+    "final-four/dynamo/frontend.log.gz": {
+      "sha256": "d96b8671ac1c2fa8ac4afef9a78b0e89a09b40c3d964d69e288cd406520b6d13",
+      "bytes": 104757
+    },
+    "final-four/dynamo/mocker.log.gz": {
+      "sha256": "c74d21770bbed0b9dc112042ac783eda73168a678f26823b86b9314fc927403c",
+      "bytes": 82383
+    },
+    "final-four/aiperf/logs/aiperf.log.gz": {
+      "sha256": "5817397259dbe3f5be76b5cda6f8ac87414d91f6f543bd4fc73cccf38e089c7c",
+      "bytes": 12845
+    },
+    "corpus-selection.json": {
+      "sha256": "49588a06472d72d0f8155277dfec81d28487d0aabe2c89a0ed51e94507ae5adc",
+      "bytes": 11300
+    },
+    "pytest.log.gz": {
+      "sha256": "8ef1aa3731f50a5a72dc311a90f9309e66b20b228857c8df36c116256fbbff14",
+      "bytes": 2226
+    },
+    "final-two/aiperf/profile_export_console.txt.gz": {
+      "sha256": "5901cef0fa01f2d0f43a07a6bc4114fc4edc108577c6eb9cf94f17835082e58d",
+      "bytes": 18881
+    },
+    "final-four/aiperf/profile_export_console.txt.gz": {
+      "sha256": "627030cc5f4e67a082bab0c7468be31b3662399db10a43e8320d2bd98ba2027d",
+      "bytes": 18881
+    }
+  }
+}

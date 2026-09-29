@@ -134,3 +134,7 @@ to exercise constrained settings selection and independent validation. The smoke
 suite is deliberately small; see the [protocol](../docs/development/policy-tuning.md)
 for objectives, workload contexts, bounded trials, Pareto results, uncertainty,
 manual application and future Bayesian/contextual search. No core defaults change.
+
+## Local serving preparation
+
+The [local cluster recipe](../docs/development/local-cluster.md) runs AIPerf against Dynamo Mocker with a public AgentX root. The isolated client lock lives in `local-cluster/`; the runner lives in `src/atfm_experiments/local_cluster/`. This is CPU integration evidence only.

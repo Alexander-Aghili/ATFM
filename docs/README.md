@@ -61,3 +61,5 @@ concurrency tests, and paired HTTP measurements.
 [Upstream transport study](research/2026-09-28-sharded-transport.md) records focused HTTP trials, bounded pool sharding, response ownership and integrated measurements.
 
 [Policy tuning](development/policy-tuning.md) describes constrained search, independent validation, Pareto tradeoffs and the path toward context-dependent policies.
+
+- [Local cluster preparation](development/local-cluster.md): pinned AIPerf/Dynamo smoke, evidence scope and LMCache integration gaps.

@@ -341,3 +341,7 @@ separate holdout decision. A search winner is not a validated recommendation;
 automatically. Existing defaults, including the small-window transport heuristic,
 are starting behavior rather than a claim of universal optimality. Production
 use still needs representative backend/streaming tests and monitored validation.
+
+### Prepare locally before GPU rental
+
+Use the [Dynamo/AIPerf recipe](development/local-cluster.md) to validate the workload client and simulated workers. The existing LMCache adapter targets the legacy controller and still needs completion tracking, exact pin-release ownership and verified backend locations before hardware policy evaluation. A Mocker pass does not validate LMCache actuation.

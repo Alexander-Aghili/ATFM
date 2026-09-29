@@ -1,0 +1,20 @@
+{
+  "status": "passed",
+  "requests": 20.0,
+  "branches": {
+    "children_spawned": 4,
+    "children_completed": 4,
+    "children_errored": 0,
+    "children_truncated": 0,
+    "children_delayed": 0,
+    "parents_suspended": 2,
+    "parents_resumed": 2,
+    "parents_failed_due_to_child_error": 0,
+    "joins_suppressed": 0,
+    "graphs_admitted": 0,
+    "graphs_completed_to_end": 0
+  },
+  "hardware_evidence": false,
+  "lmcache_tested": false,
+  "atfm_control_tested": false
+}

@@ -200,3 +200,5 @@ Retune when the workload, hardware, backend or relevant software changes; retain
 those fingerprints with the result. None of this live adaptation is enabled by
 the offline workflow. The next step is to define representative contexts and an
 actual service objective, then improve search efficiency against this evaluator.
+
+Before substituting hardware measurements for the fake-worker adapter, complete the [local cluster preparation and backend contract checks](local-cluster.md). Its accelerated smoke results are not policy-selection measurements.
