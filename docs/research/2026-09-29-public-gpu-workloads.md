@@ -1,5 +1,7 @@
 # Public agentic and tool-call GPU workloads: 29 September 2026
 
+A detailed [results PDF](gpu-results-report/atfm-gpu-results-2026-09-29.pdf) consolidates these results, compatibility checks, and caching tradeoffs with nine visualizations. See the [report source and build instructions](gpu-results-report/README.md).
+
 This follows the [H100 compatibility check](2026-09-29-h100-cache.md).
 The purpose is to exercise public workload structure on real vLLM/LMCache,
 validate the replay machinery, and establish a serving baseline. ATFM control

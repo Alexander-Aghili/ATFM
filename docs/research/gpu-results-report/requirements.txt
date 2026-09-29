@@ -1,0 +1,4 @@
+matplotlib==3.11.2
+pillow==12.3.0
+pypdf==6.19.0
+reportlab==5.0.1

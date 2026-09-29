@@ -8,6 +8,7 @@ predate today's launchers. Use the [project README](../../README.md) and
 
 | Note | Role |
 | --- | --- |
+| [GPU results and caching tradeoffs](gpu-results-report/README.md) | Detailed [PDF](gpu-results-report/atfm-gpu-results-2026-09-29.pdf): completed and incomplete runs, nine figures, capacity and transfer analysis. |
 | [Public H100 workloads](2026-09-29-public-gpu-workloads.md) | BFCL tool-call API cases, complete Weka sessions, cache pressure and retained replay failures. |
 | [H100 cache compatibility](2026-09-29-h100-cache.md) | Native deployment fixes, completed CPU warming and real external-cache reuse. |
 | [Real GPU cache validation](2026-09-28-gpu-cache.md) | Pinned vLLM/LMCache, completed CPU warming, real external reuse and rental handoff. |

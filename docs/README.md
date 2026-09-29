@@ -1,5 +1,7 @@
 # Documentation
 
+[GPU results and caching tradeoffs (PDF)](research/gpu-results-report/atfm-gpu-results-2026-09-29.pdf): detailed measurements, nine figures, capacity analysis, and next experiments.
+
 ## Start here
 
 | Goal | Read |
