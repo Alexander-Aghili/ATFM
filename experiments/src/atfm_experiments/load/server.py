@@ -169,7 +169,7 @@ def _heartbeat_task(diagnostics):
 
 def _proxy_app(cfg, directory, payload):
     app = create_app(ProxyConfig(upstream_url=payload['worker_url'], board_url=payload['board_url'],
-                                window=cfg.proxy_window, board_timeout_s=cfg.prediction_budget_s, prediction_limit=cfg.prediction_limit,
+                                window=cfg.proxy_window, upstream_pool_shards=cfg.upstream_pool_shards, board_timeout_s=cfg.prediction_budget_s, prediction_limit=cfg.prediction_limit,
                                 max_hold_s=cfg.max_hold_s, default_osl=16,
                                 events_path=str(directory / 'events.jsonl'), trace_path=str(directory / 'proxy-trace.jsonl')))
     return app
