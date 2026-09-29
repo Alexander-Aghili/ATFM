@@ -162,3 +162,27 @@ def test_failed_holdout_never_exports_a_recommendation(tmp_path):
     assert result['selection']['selected'] == 'other'
     assert result['validation']['status'] == 'validation_failed'
     assert result['recommendation'] is None
+
+
+def test_bootstrap_preserves_pairing_under_large_shared_run_noise():
+    p = plan()
+    records = rows(p, 'validation')
+    for record in records:
+        noise = {11: 1., 12: 100., 13: 1000.}[record['seed']]
+        record['metrics']['p95_s'] = noise * (.8 if record['candidate'] == 'other' else 1.)
+    result = validate(p, 'other', records)
+    assert result['objective_change_upper'] == pytest.approx(-.2)
+    assert result['worst_context_change_upper'] == pytest.approx(-.2)
+    assert result['status'] == 'validated_candidate'
+
+
+def test_changed_source_fingerprint_invalidates_measurements(tmp_path, monkeypatch):
+    fingerprint = {'source_sha256': {'runtime.py': 'before'}}
+    monkeypatch.setattr('atfm_experiments.load.tune._environment', lambda: fingerprint.copy())
+    def evaluate(cfg, directory):
+        fingerprint['source_sha256'] = {'runtime.py': 'after'}
+        return summary()
+    result = TuningRun(plan(), tmp_path / 'changed-source', evaluate).run()
+    assert result['validation']['status'] == 'no_feasible_candidate'
+    trials = json.loads((tmp_path / 'changed-source/trials.json').read_text())
+    assert all('fingerprint changed' in row['error'] for row in trials)

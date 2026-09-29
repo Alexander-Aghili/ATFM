@@ -19,8 +19,8 @@ class TuningRun:
         self.plan, self.directory, self.evaluator = plan, directory, evaluator
         directory.mkdir(parents=True, exist_ok=False)
         write_json(directory / 'plan.json', plan.model_dump())
-        environment = provenance() | {'http_proxy_configured': any(k != 'no' and v for k, v in getproxies().items())}
-        write_json(directory / 'environment.json', environment)
+        self.environment = _environment()
+        write_json(directory / 'environment.json', self.environment)
         self.rows = []
 
     def run(self):
@@ -51,7 +51,9 @@ class TuningRun:
         directory = self.directory / phase / context / str(seed) / candidate
         row = dict(phase=phase, context=context, seed=seed, candidate=candidate, directory=str(directory))
         try:
+            self.check_environment()
             summary = self.evaluator(LoadConfig.model_validate(cfg), directory)
+            self.check_environment()
             row['metrics'] = measurements(summary)
             row['violations'] = violations(summary, row['metrics'], self.plan.constraints)
         except Exception as exc:
@@ -60,6 +62,16 @@ class TuningRun:
         write_json(self.directory / 'trials.json', self.rows)
         print(f'{phase} {context} seed={seed} candidate={candidate}: {row["violations"] or "feasible"}', flush=True)
         return row
+
+    def check_environment(self):
+        actual = {k: v for k, v in _environment().items() if k != 'git_commit'}
+        expected = {k: v for k, v in self.environment.items() if k != 'git_commit'}
+        if actual != expected:
+            raise RuntimeError('source or environment fingerprint changed during the study')
+
+
+def _environment():
+    return provenance() | {'http_proxy_configured': any(k != 'no' and v for k, v in getproxies().items())}
 
 
 def _schedule(plan, seeds, names):
