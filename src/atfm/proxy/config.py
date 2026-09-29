@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 class ProxyConfig(BaseModel):
     upstream_url: str
     window: int = 8
-    upstream_pool_shards: int = Field(default=16, ge=1, le=100, strict=True)
+    upstream_pool_shards: int | None = Field(default=None, ge=1, le=100, strict=True)
     w_interactive: float = 10.0
     w_background: float = 1.0
     beta: float = 0.0

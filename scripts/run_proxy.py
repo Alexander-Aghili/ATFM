@@ -17,7 +17,7 @@ def main():
     ap.add_argument("--max-queue", type=int, default=None)
     ap.add_argument("--prediction-limit", type=int, default=4, help="maximum unfinished prediction jobs")
     ap.add_argument("--board-timeout", type=float, default=.05, help="total prediction wait budget in seconds")
-    ap.add_argument("--upstream-pool-shards", type=int, default=16, help="upstream pool count; 1 uses stock HTTPX")
+    ap.add_argument("--upstream-pool-shards", type=int, default=None, help="pool count; auto above 20 admission slots, 1 uses stock HTTPX")
     a = ap.parse_args()
     cfg = ProxyConfig(upstream_url=a.upstream, window=a.window, events_path=a.events, trace_path=a.trace,
                       board_url=a.board, max_queue_size=a.max_queue, upstream_pool_shards=a.upstream_pool_shards,

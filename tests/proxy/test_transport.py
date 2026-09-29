@@ -159,3 +159,16 @@ async def test_failed_stream_close_releases_occupancy_once(monkeypatch):
     await response.aclose()
     assert transport.active == [0]
     await transport.aclose()
+
+
+@pytest.mark.parametrize('window,shards', [(8, 1), (20, 1), (21, 16), (64, 16)])
+async def test_automatic_transport_keeps_small_windows_on_stock_httpx(monkeypatch, window, shards):
+    from atfm.proxy.config import ProxyConfig
+    from atfm.proxy.transport import upstream_client
+    monkeypatch.setattr('atfm.proxy.transport.getproxies', lambda: {})
+    async with upstream_client(ProxyConfig(upstream_url='http://worker', window=window)) as client:
+        if shards == 1:
+            assert isinstance(client._transport, httpx.AsyncHTTPTransport)
+        else:
+            assert isinstance(client._transport, ShardedTransport)
+            assert len(client._transport.pools) == shards

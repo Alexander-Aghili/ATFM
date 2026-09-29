@@ -68,5 +68,6 @@ class _TrackedStream(httpx.AsyncByteStream):
 def upstream_client(cfg):
     """Keep HTTPX proxy discovery intact; custom pools apply only to direct traffic."""
     proxies = any(key != 'no' and value for key, value in getproxies().items())
-    transport = ShardedTransport(cfg.upstream_pool_shards) if cfg.upstream_pool_shards > 1 and not proxies else None
+    shards = cfg.upstream_pool_shards or (16 if cfg.window > 20 else 1)
+    transport = ShardedTransport(shards) if shards > 1 and not proxies else None
     return httpx.AsyncClient(base_url=cfg.upstream_url, timeout=httpx.Timeout(600.0), transport=transport)
