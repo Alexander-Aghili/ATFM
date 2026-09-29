@@ -356,3 +356,27 @@ in expected O(1); memory is O(U) across tiers. Worst-case query time remains O(Q
 Scheduling heaps, holds and release order are independent of this hint lookup.
 The old `tier_indices` snapshot and list-based `priority_bucket` remain supported.
 Randomized scan-reference tests compare both scheduling and rank semantics.
+
+## Upstream transport ownership
+
+`proxy/transport.py` balances direct requests across small independent HTTPX
+pools. For P shards and connection budget C=100, each pool receives floor(C/P)
+slots plus one for the first C mod P pools. Selection minimizes open-response
+count divided by that pool's capacity. This scans O(P) counters; the automatic policy selects 16 shards for initial
+admission windows above 20 and stock HTTPX otherwise. Explicit P is bounded by C. It changes the scope of HTTPcore's internal list scans,
+not the admission policy or the asymptotic worst case of peer ranking.
+
+The counter starts immediately before dispatch and ends on response close.
+`_TrackedStream` forwards bytes unchanged and returns occupancy exactly once,
+including close failures. Pre-header errors/cancellation return it directly.
+The selection/count update has no await and is owned by one event loop. Do not
+share a transport across loops or threads. Pool close attempts all child pools
+before propagating an error. Shutdown prevents new transport requests.
+
+One shared TLS context retains certificate and hostname verification. The outer
+HTTPX client still owns cookies, request construction, redirects and timeouts.
+Default redirects remain disabled. Standard proxy discovery or an explicit
+one-shard setting retains stock HTTPX. The wrapper uses public transport APIs;
+it does not patch HTTPcore. Highly uneven streaming lifetimes and real remote
+TLS workloads still need workload-specific performance validation. Requests
+already queued inside a shard are not migrated to another shard.

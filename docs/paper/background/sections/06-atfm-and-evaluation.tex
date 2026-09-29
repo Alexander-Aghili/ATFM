@@ -292,3 +292,26 @@ one instrumented pool trial was incomplete and is identified separately.
 The repository's dated proxy-ranking report preserves source revisions and raw
 evidence. These measurements concern CPU and HTTP overhead with a fake worker,
 not inference throughput, GPU memory movement, or production capacity.
+
+
+\paragraph{Transport isolation and bounded pools.}
+The subsequent local study isolates HTTP transport from the board and admission
+queue, then balances unfinished response lifetimes across 16 smaller pools with
+a combined 100-connection cap. Selection costs $O(P)$ for $P$ pools; internal
+HTTP scans remain, and requests are not migrated between shards. The aggregate
+idle cap rises from 20 to 100 with unchanged expiry. One shared verifying TLS
+context and stock fallback for HTTP proxy discovery preserve operational choices.
+The small-load fixture regressed latency, so automatic selection retains stock
+HTTPX for initial admission windows of 20 or fewer; larger windows select shards.
+
+All six full-proxy pairs improved client p95 and proxy CPU. At 1,024 sessions,
+p95 ranges changed from 2.462--2.654\,s to 1.422--1.465\,s. Timely prediction use
+fell from 35.50\% to 31.93\%, with substantially more caller timeouts, so improved
+transport latency is not evidence of improved forecasting or control quality.
+All 23,040 full-proxy and 82,944 formal component requests succeeded. These short
+localhost nonstreaming trials exclude real inference and network/TLS costs;
+real-socket lifecycle tests do not establish streaming performance. The dated
+sharded-transport study retains measured revisions, unfavorable small-case
+results, the final automatic-selection distinction and raw evidence.
+
+\clearpage

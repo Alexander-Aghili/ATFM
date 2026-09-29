@@ -310,3 +310,29 @@ Wall-clock adjustments can affect timestamp differences. Older traces have no
 phase samples rather than invented zero durations.
 
 The [proxy ranking study](../research/2026-09-28-proxy-ranking.md) applies these phase metrics and preserves both a rejected pool adjustment and a retained exact-rank index. Profiled latency is not used as performance evidence.
+
+## Focused upstream transport trials
+
+Run the closed-loop real-HTTP fixture with only a fake worker and load client:
+
+```bash
+uv run python -m atfm_experiments.load.transport_benchmark \
+  --concurrency 64 --turns 48 --repeats 3 --out runs/transport-comparison
+```
+
+It compares stock HTTPX, one pool retaining 100 connections, and 8/16 balanced
+pools sharing a total 100-connection cap. Each lane issues sequential requests;
+there is no board, admission queue, tool timing or open-loop arrival schedule.
+A fresh client is constructed per variant, and order reverses on alternate
+repetitions. The fake worker persists across variants. Request durations include
+cold connections but exclude client construction, startup and final close.
+Client process CPU includes trace bookkeeping; it excludes worker CPU. The
+service time is 5 ms and the worker's slot count equals offered concurrency.
+
+The fixture records every status/error and TCP-connect event, per-variant latency,
+CPU/wall duration, source hashes, configuration and worker shutdown. Each lane
+continues after transport/HTTP failure so failed calls remain explicit in the
+planned count. A failed comparison returns nonzero. Output directories cannot
+already exist. This is a transport component test, not full-proxy or production
+throughput evidence. The [transport study](../research/2026-09-28-sharded-transport.md)
+compares it with separate full-stack pairs and retains small-workload regressions.

@@ -114,3 +114,5 @@ for the workload, rejection/timeout trade-off, and retained evidence.
 concurrency tests, and paired HTTP measurements.
 
 The implementation appendix now records [exact peer ranking and transport trials](../research/2026-09-28-proxy-ranking.md), including the rejected pool tuning and separated request phases.
+
+The implementation appendix also covers [bounded upstream pool sharding](../research/2026-09-28-sharded-transport.md), response-lifetime ownership, transport fixtures and full-proxy measurements.

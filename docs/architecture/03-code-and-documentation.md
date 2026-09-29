@@ -2,7 +2,7 @@
 
 [Download the PDF edition](atfm-architecture.pdf), with landscape diagram pages and clickable source links.
 
-This guide maps the implementation at **28 September 2026**, including bounded prediction admission, isolated board computation and exact peer-rank counts. It explains where state lives, how a request becomes evidence and a control decision, and which documents describe each layer. The diagrams describe current code boundaries; the older [context](01-context.md) and [container](02-container.md) views describe broader design intent.
+This guide maps the implementation at **28 September 2026**, including bounded prediction admission, isolated board computation, exact peer-rank counts and bounded upstream pool sharding. It explains where state lives, how a request becomes evidence and a control decision, and which documents describe each layer. The diagrams describe current code boundaries; the older [context](01-context.md) and [container](02-container.md) views describe broader design intent.
 
 ATFM is a forecasting and admission layer around an LLM serving system. It observes agents during their tool phases, estimates when they will resume using the model, and uses that information to order or delay eligible work. The serving engine owns token generation and the actual KV tensors. ATFM owns observations, predictions, scheduling state, and control requests.
 
@@ -82,11 +82,18 @@ with expected O(1) count updates and O(U) additional space across tiers. It avoi
 building a list and array per release; worst-case U equals Q. Strict ties, held
 peers and empty-tier behavior match the former scan. Diagnostic snapshots still
 scan entries. The [paired study](../research/2026-09-28-proxy-ranking.md) also records
-a rejected connection-pool change; transport defaults remain unchanged.
+a rejected single-pool change; the subsequent sharded transport is described below.
 
 Trace phases distinguish prediction wait, admission wait and handler dispatch
 following slot release. Holds are included in admission wait; separate percentile
 values do not add up to a request percentile.
+
+[Upstream transport](../../src/atfm/proxy/transport.py) balances open responses
+across 16 HTTPX pools for initial windows above 20; smaller windows keep stock
+HTTPX. The connection caps sum to 100. Streaming close or pre-header failure
+returns occupancy exactly once. Pools share a verifying TLS context; proxy
+settings select stock HTTPX, and injected clients remain caller-owned. See the
+[transport study](../research/2026-09-28-sharded-transport.md) for limits and rollback.
 
 The bounded prompt LRU is a record of request inputs, not a tensor cache. A touch consumes real serving work and records success only when the upstream call succeeds. Keeping it separate from the main request lifecycle makes its cost visible.
 

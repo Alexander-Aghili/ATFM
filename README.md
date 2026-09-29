@@ -83,7 +83,7 @@ uv run python scripts/run_h2sim.py experiments/h2sim_loaded_kv.yaml
 
 H1 measures prediction quality; H2 measures policy effects under a simulated worker model. HTTP load tests measure runtime overhead with a fake worker. None substitutes for real-GPU validation.
 
-The [experiment guide](experiments/guide.md) lists model and policy families, outputs, and interpretation. For the latest measured bottleneck work, see the [proxy ranking and transport study](docs/research/2026-09-28-proxy-ranking.md). For scaling and diagnostics, see [CPU benchmarks](experiments/README.md#cpu-scaling-trials), [HTTP load testing](docs/development/load-testing.md), and [Phoenix tracing](docs/development/observability-tests.md). Corpora and run outputs live in ignored `data/` and `runs/` directories.
+The [experiment guide](experiments/guide.md) lists model and policy families, outputs, and interpretation. For the latest measured bottleneck work, see the [upstream transport study](docs/research/2026-09-28-sharded-transport.md). For scaling and diagnostics, see [CPU benchmarks](experiments/README.md#cpu-scaling-trials), [HTTP load testing](docs/development/load-testing.md), and [Phoenix tracing](docs/development/observability-tests.md). Corpora and run outputs live in ignored `data/` and `runs/` directories.
 
 ## Contributing
 

@@ -1,0 +1,6 @@
+{
+  "concurrency": 64,
+  "turns": 48,
+  "service_s": 0.005,
+  "repeats": 3
+}

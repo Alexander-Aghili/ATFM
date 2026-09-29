@@ -1,0 +1,8 @@
+import os,resource,subprocess
+from pathlib import Path
+root=Path('/home/alexsky2/Company');python=root/'.venv/bin/python'
+soft,hard=resource.getrlimit(resource.RLIMIT_NOFILE)
+resource.setrlimit(resource.RLIMIT_NOFILE,(min(8192,hard),hard))
+env=dict(os.environ,PYTHONPATH=f'{root}/src:{root}/experiments/src')
+subprocess.run([str(python),'-m','atfm_experiments.load.transport_benchmark','--concurrency','256','--turns','12','--out',str(root/'runs/transport-shards-2026-09-28/concurrency-256')],cwd=root,env=env,check=True)
+subprocess.run([str(python),'-m','atfm_experiments.load','--sessions','1024','--patterns','burst','--config',str(root/'runs/proxy-transport-2026-09-28/profile-config.json'),'--out',str(root/'runs/transport-shards-2026-09-28/profile')],cwd=root,env=env,check=True)

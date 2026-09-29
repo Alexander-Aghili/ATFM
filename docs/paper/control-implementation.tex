@@ -335,3 +335,60 @@ profile still spent 2.550\,CPU seconds in pool assignment. The dated
 \texttt{2026-09-28-proxy-ranking.md} study archives all trials, profiles, source
 hashes, phase results and tests, including unfavorable results. The full retained
 suite passes 496 tests with three skips; Python functions remain at most 20 lines.
+
+
+\paragraph{Bounded upstream pool sharding (28 September 2026).}
+A follow-up transport-only fixture separates HTTP work from forecasting and
+admission. The retained implementation at \texttt{0425a58} balances requests
+across $P=16$ independent HTTPX pools sharing a total connection budget $C=100$.
+Pool $i$ receives $\lfloor C/P\rfloor$ slots plus one when $i<C\bmod P$.
+Selection minimizes unfinished response count divided by pool capacity, scanning
+$O(P)$ counters. Counts include waits for headers and open streaming bodies;
+pre-header failures or response close return occupancy exactly once. One shared
+TLS context retains certificate and hostname verification. Standard HTTP proxy
+discovery retains stock HTTPX routing. The wrapper uses public transport APIs,
+without patching HTTPcore, changing admission priority or adding retries.
+
+The aggregate idle cap increases from 20 to 100 with the same five-second expiry;
+no connections are opened eagerly. Each smaller pool still performs internal
+scans and assignment retries. With fixed $P$ and $C$, this is a constant-factor
+optimization, not a new fleet-size complexity bound. Requests already assigned
+to one pool are not migrated when another pool becomes available. Imbalanced
+stream lifetimes and overload can therefore leave local queueing. Setting
+\texttt{upstream\_pool\_shards=1} restores the stock transport.
+
+The focused fixture uses only a load client and fake worker with 5\,ms service,
+three reversed-order repetitions and fresh clients. At 64 concurrent requests
+and 3,072 calls per variant, stock client CPU was 1.979--2.052\,s with per-run p95
+56.52--59.29\,ms; 16 shards used 1.278--1.305\,s with p95 40.19--45.70\,ms.
+Client construction and close are outside timing; TCP setup and trace recording
+are included. At eight concurrent calls, sharding reduced CPU but increased p95
+from 7.66--8.32 to 8.54--9.08\,ms. Thus \texttt{321bf59} adds automatic stock
+selection for initial admission windows of 20 or fewer; larger windows select
+16 shards unless explicitly overridden. This threshold follows the stock idle
+cap and is not a universally calibrated crossover. A lightly used large window
+may still incur the small-load cost. Across 8, 64 and 256 concurrency, all 82,944
+formal component requests succeeded, including demand above the connection cap.
+
+Six fresh full-proxy pairs compare \texttt{bb2a561} with \texttt{0425a58}, using
+three seeds at 256 and 1,024 sessions and the previous 64-slot burst workload.
+All 23,040 requests succeeded. CPU and client p95 improved in every pair. At
+1,024 sessions, p95 changed from 2.462--2.654\,s to 1.422--1.465\,s, and proxy CPU
+from 6.840--7.099\,s to 4.459--4.750\,s. Timely prediction use fell from 35.50\%
+to 31.93\%; caller timeouts rose from 78 to 1,485 across the three large runs,
+while immediate rejections fell. Prediction-wait p95 increased to
+0.108--0.136\,s despite the unchanged 50\,ms caller budget, exposing event-loop
+resumption delay rather than a hard deadline guarantee. The fixture's
+$\beta=0$ and identical service/fallback rates do not establish the policy cost
+of lower prediction coverage. That tradeoff requires prediction-sensitive trials.
+
+A separate candidate CPU profile completed 3,072 calls, opened 64 upstream TCP
+connections and spent 0.798\,CPU seconds in HTTPcore connection assignment.
+Instrumented timings are diagnostic, not paired latency evidence. The final
+small-window policy retains the measured 16-shard selection for the 64-slot
+workload; these numbers remain attributed to the measured revision. All 528
+tests pass with three skips, including real-socket partial-stream cleanup,
+connection reuse, cancellation, close failures, proxy fallback and capacity
+boundaries. The dated \texttt{2026-09-28-sharded-transport.md} study preserves
+all configurations, hashes, raw evidence and limitations. Remote TLS/streaming
+performance, GPU benefits and production capacity remain unvalidated.

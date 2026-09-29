@@ -1,0 +1,37 @@
+{
+  "profiler": "yappi",
+  "version": "1.7.6",
+  "clock": "cpu",
+  "threads": [
+    {
+      "id": 0,
+      "name": "_MainThread",
+      "cpu_s": 15.861045154000001,
+      "schedules": 1959
+    },
+    {
+      "id": 2,
+      "name": "Thread",
+      "cpu_s": 0.7021061310000001,
+      "schedules": 1131
+    },
+    {
+      "id": 4,
+      "name": "Thread",
+      "cpu_s": 0.6325285740000001,
+      "schedules": 1128
+    },
+    {
+      "id": 3,
+      "name": "Thread",
+      "cpu_s": 0.559546428,
+      "schedules": 1116
+    },
+    {
+      "id": 1,
+      "name": "Thread",
+      "cpu_s": 0.542317942,
+      "schedules": 1052
+    }
+  ]
+}

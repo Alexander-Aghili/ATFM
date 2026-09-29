@@ -8,6 +8,7 @@ predate today's launchers. Use the [project README](../../README.md) and
 
 | Note | Role |
 | --- | --- |
+| [Bounded upstream pool sharding](2026-09-28-sharded-transport.md) | Isolated transport trials, response-lifetime balancing, cleanup contracts and full-proxy validation. |
 | [Proxy ranks and transport](2026-09-28-proxy-ranking.md) | Exact peer counts, request phases, paired trials and a rejected connection-pool change. |
 | [Board computation isolation](2026-09-28-board-isolation.md) | Versioned prediction views, bounded control worker, freshness and paired load evidence. |
 | [Prediction overload protection](2026-09-28-prediction-overload.md) | Bounded prediction work, deadline semantics, and paired load evidence. |

@@ -1,9 +1,9 @@
 local section = ''
-local root = 'https://github.com/Alexander-Aghili/ATFM/blob/3084f34/'
+local root = 'https://github.com/Alexander-Aghili/ATFM/blob/321bf59/'
 
 function Link(link)
   if link.target == 'atfm-architecture.pdf' then
-    link.target = root:gsub('3084f34', 'main') .. 'docs/architecture/atfm-architecture.pdf'
+    link.target = root:gsub('321bf59', 'main') .. 'docs/architecture/atfm-architecture.pdf'
     return link
   end
   if not link.target:match('^https?://') and not link.target:match('^#') then
@@ -13,7 +13,7 @@ function Link(link)
       elseif part ~= '.' then table.insert(parts, part) end
     end
     local target = table.concat(parts, '/')
-    local base = target:match('^docs/') and root:gsub('3084f34', 'main') or root
+    local base = target:match('^docs/') and root:gsub('321bf59', 'main') or root
     link.target = base .. target
   end
   return link

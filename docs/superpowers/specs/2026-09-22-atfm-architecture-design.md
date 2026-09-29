@@ -318,3 +318,14 @@ a peer list. Strict-less-than ties, held peers and empty tiers preserve the old
 rank formula. Admission heaps and hold semantics remain unchanged. See the
 [profile and trial record](../../research/2026-09-28-proxy-ranking.md) for O(U)
 queries, worst-case O(Q), and why a tested larger upstream pool was reverted.
+
+### Implementation update: bounded upstream pools (28 September 2026)
+
+Direct upstream requests with initial admission windows above 20 now balance
+across 16 independent HTTPX pools with a combined 100-connection limit. Smaller
+windows retain stock HTTPX by default after a measured light-load latency cost. Response close, rather than header receipt,
+releases balancing occupancy. Shared verifying TLS context, stock fallback for
+proxy discovery and an explicit one-shard rollback preserve operational choices.
+Admission priority/holds remain separate from transport. The
+[transport study](../../research/2026-09-28-sharded-transport.md) records component
+and end-to-end trials, including limits and the earlier rejected shared-pool tuning.

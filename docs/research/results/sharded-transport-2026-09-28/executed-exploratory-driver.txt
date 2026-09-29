@@ -1,0 +1,37 @@
+import asyncio, json, os, time
+from contextlib import ExitStack
+from pathlib import Path
+import httpx
+from atfm_experiments.load.config import LoadConfig
+from atfm_experiments.load.runtime import _launch, _wait_ready, _shutdown
+from atfm_experiments.load.metrics import distribution
+
+async def trial(url, shards, keepalive, concurrency=64, turns=48):
+    clients=[httpx.AsyncClient(base_url=url, trust_env=False, timeout=30, limits=httpx.Limits(max_connections=100, max_keepalive_connections=keepalive)) for _ in range(shards)]
+    durations=[]; connects=0
+    async def trace(name, info):
+        nonlocal connects
+        if name=='connection.connect_tcp.complete': connects+=1
+    async def lane(index):
+        for _ in range(turns):
+            t=time.perf_counter()
+            r=await clients[index%shards].post('/v1/chat/completions',json={},extensions={'trace':trace})
+            r.raise_for_status();durations.append(time.perf_counter()-t)
+    try:
+        cpu=time.process_time();wall=time.perf_counter()
+        await asyncio.gather(*(lane(i) for i in range(concurrency)))
+        return dict(shards=shards,keepalive=keepalive,concurrency=concurrency,requests=len(durations),cpu_s=time.process_time()-cpu,wall_s=time.perf_counter()-wall,connects=connects,latency_s=distribution(durations))
+    finally:
+        await asyncio.gather(*(c.aclose() for c in clients))
+
+out=Path('/home/alexsky2/Company/runs/transport-probe-2026-09-28');out.mkdir(exist_ok=True)
+with ExitStack() as stack:
+    cfg=LoadConfig(worker_slots=64,worker_service_s=.005)
+    process,url=_launch('worker',out,dict(config=cfg.model_dump(),directory=str(out)),dict(os.environ),stack)
+    try:
+        _wait_ready('worker',out,process,url)
+        rows=[]
+        for shards,keepalive in [(1,20),(1,64),(8,8),(16,4),(64,1),(1,20)]:
+            r=asyncio.run(trial(url,shards,keepalive));rows.append(r);print(json.dumps(r),flush=True)
+        (out/'probe.json').write_text(json.dumps(rows,indent=2)+'\n')
+    finally: _shutdown(out,{'worker':process})

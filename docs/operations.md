@@ -306,9 +306,27 @@ holds; it is not only CPU scheduling overhead. Older traces lack these fields an
 are omitted from phase samples. Wall-clock changes can invalidate timestamp
 differences; phase percentiles must not be added together.
 
-The owned upstream HTTPX client retains its existing defaults (20 idle keep-alive
-connections, 100 total in the measured HTTPX version). Increasing retained
-connections to the admission window regressed the tested 1,024-session workload
-and was reverted. Do not infer an optimal pool size from connection counts alone.
-See the [measured transport and rank study](research/2026-09-28-proxy-ranking.md)
-before changing pool settings or attributing long waits to prediction computation.
+The owned upstream client automatically uses 16 small HTTPX pools when its
+initial admission window exceeds 20; smaller windows retain stock HTTPX. The
+shards retain at most 100 connections in total. `--upstream-pool-shards N` (or
+`ProxyConfig.upstream_pool_shards`) explicitly accepts integers 1 through 100;
+leaving it unset selects the automatic policy, while 1 restores the
+stock HTTPX transport, with its measured defaults of 100 total and 20 idle
+connections. All shards use the existing five-second idle expiry and 600-second
+request timeout. They share one certificate-verifying TLS context, including
+HTTPX's certificate environment settings. The admission window remains separate
+from the transport connection limit.
+
+The balance counter includes a request until its response stream closes, not just
+until headers arrive. Touch requests share this transport with ordinary and
+streaming requests. Cancelling a request before headers or closing a response
+returns its shard occupancy; no new retry policy is added. Pools are owned and
+closed by the proxy lifespan. An injected upstream client remains caller-owned.
+
+If standard environment or system HTTP proxy discovery reports a proxy, the
+factory conservatively uses stock HTTPX, even if `NO_PROXY` might bypass it for
+this upstream. This preserves existing routing instead of silently bypassing a
+corporate proxy. A `NO_PROXY` entry alone does not disable sharding. The setting
+is read at client construction; changing the admission window does not resize
+pools. See the [transport study](research/2026-09-28-sharded-transport.md) for
+measurements, limits, and why one larger shared pool was rejected.

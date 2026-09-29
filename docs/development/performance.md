@@ -160,3 +160,22 @@ pool-management CPU and large-case latency. Fewer TCP connections alone did not
 make the request path faster. The retained HTTPX defaults and the prediction
 executor are unchanged. Use unprofiled paired runs for latency comparisons;
 Yappi instrumentation changes scheduling and timeout behavior.
+
+## Bounded upstream pool sharding (28 September 2026)
+
+The follow-up [transport study](../research/2026-09-28-sharded-transport.md) isolates
+HTTP work without the board or admission queue. Direct upstream traffic uses
+16 smaller HTTPX pools when the initial admission window exceeds 20, with a
+combined 100-connection cap. Smaller windows keep stock HTTPX by default because
+the focused 8-concurrency fixture regressed latency despite lower CPU. This preserves reuse
+while reducing the size of each internal pool scan. Selection is O(P) over P
+shards; internal HTTPcore scans and reassignment remain. With fixed C=100 this is
+a measured constant-factor optimization, not a new fleet-size complexity bound.
+
+Response lifetimes drive load balancing, including streaming and error cleanup.
+The shared TLS context avoids loading one certificate store per shard. A setting
+of one shard or detected environment/system HTTP proxies preserves stock HTTPX.
+The retained idle connection cap increases from 20 to 100 across shards, so
+connection reuse trades additional idle sockets for less setup work. Idle expiry
+remains five seconds. Compare CPU, latency, connection counts and workload shape;
+a connection-count decrease alone did not justify the earlier single-pool change.
