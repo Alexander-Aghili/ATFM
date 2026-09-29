@@ -10,7 +10,7 @@ from .probe import save
 
 SELECTED = {'short-branch': 'bbdcb12440a7ab3496b9fac8b5f9824b1672',
             'sequential': '5c5e408b76e5e22747853915f67be3c491a4',
-            'multi-branch': '2a2da059b7425d9dc1f999fca1177bc1cdb9'}
+            'multi-branch': '07dd40536557a1d6440a923557c3129dc929'}
 
 
 def verified(source):

@@ -79,7 +79,7 @@ def run(venv, client, source, output):
     if version != '0.13.0':
         raise ValueError('public replay requires AIPerf 0.13.0')
     selection = verified(source)
-    cache, engine = commands(venv, output, MODEL, REVISION, 131072, 16)
+    cache, engine = commands(venv, output, MODEL, REVISION, 131072, 24)
     engine += ['--enable-auto-tool-choice', '--tool-call-parser', 'hermes']
     save(output, 'manifest', dict(**manifest(venv, output, MODEL, REVISION), commands=[cache, engine],
                                  selection=selection, aiperf=version, atfm_control_enabled=False))

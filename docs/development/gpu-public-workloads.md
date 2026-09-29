@@ -3,7 +3,7 @@
 The public-workload follow-up uses Qwen/Qwen3-4B-Instruct-2507 at revision
 `cdbee75f17c01a7cc42f958dc650907174af0554`, a 131,072-token serving window,
 two sequences, eager execution, 55% GPU memory utilization, LMCache MP with
-16 GiB CPU cache, and filesystem L2. The model's pinned configuration supports
+24 GiB CPU cache, and filesystem L2. The model's pinned configuration supports
 262,144 positions natively; no context extension or input truncation is applied.
 This differs from the 0.6B compatibility probe and must be reported separately.
 
@@ -19,11 +19,12 @@ Selection is a small, feasibility-driven sample, not representative sampling.
 | --- | --- | ---: | ---: | ---: |
 | Short branch | bbdcb12440a7ab3496b9fac8b5f9824b1672 | 21 | 1 | 54,926 |
 | Sequential | 5c5e408b76e5e22747853915f67be3c491a4 | 24 | 0 | 93,675 |
-| Multiple branches | 2a2da059b7425d9dc1f999fca1177bc1cdb9 | 30 | 6 | 102,783 |
+| Multiple branches | 07dd40536557a1d6440a923557c3129dc929 | 119 | 3 | 118,677 |
 
 The first two have short recorded spans within their topology class; the last
-offers six groups and a comparatively small total token workload among the
-short multi-group sessions inspected. All roots are copied unchanged, including
+offers three groups and 37,635 recorded output tokens. The initially considered
+six-group root had 231,817 output tokens and was replaced before execution to
+fit the rental budget without shortening any requests. All roots are copied unchanged, including
 nested requests, timing, output sizes and block hashes. The selector saves source
 and individual hashes; replay rejects modified selected files.
 
