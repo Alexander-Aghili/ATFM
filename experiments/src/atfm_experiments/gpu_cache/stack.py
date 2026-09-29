@@ -88,7 +88,9 @@ def manifest(venv, output):
     gpu = subprocess.check_output(['nvidia-smi', '--query-gpu=name,driver_version,memory.total', '--format=csv'], text=True)
     revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
     (output / 'installed.txt').write_text(versions)
-    return dict(model=MODEL, model_revision=REVISION, gpu=gpu, git_revision=revision, source_sha256=fingerprints())
+    environment = {key: os.environ[key] for key in ('CUDA_HOME', 'HF_HOME') if key in os.environ}
+    return dict(model=MODEL, model_revision=REVISION, gpu=gpu, git_revision=revision,
+                source_sha256=fingerprints(), environment=environment)
 
 
 def fingerprints():
