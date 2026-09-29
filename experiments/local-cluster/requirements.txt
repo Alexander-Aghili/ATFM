@@ -1,0 +1,2 @@
+# Isolated benchmark client; install separately from the ATFM runtime.
+aiperf==0.13.0
