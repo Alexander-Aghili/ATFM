@@ -61,9 +61,9 @@ def run_case(client, source, output, name, details, timeout):
     return save(output, 'result', dict(**result, elapsed_s=time.monotonic() - started, workload=details))
 
 
-def run_cases(client, source, output, selection):
+def run_cases(client, source, output, selection, cases=SELECTED):
     deadline, results = time.monotonic() + 2700, {}
-    for name in SELECTED:
+    for name in cases:
         remaining = int(deadline - time.monotonic())
         if remaining < 60:
             results[name] = dict(passed=False, error='total replay deadline reached')
@@ -72,7 +72,7 @@ def run_cases(client, source, output, selection):
     return results
 
 
-def run(venv, client, source, output):
+def run(venv, client, source, output, cases=SELECTED):
     check_ports()
     output.mkdir(parents=True, exist_ok=False)
     version = subprocess.check_output([str(client), '--version'], text=True).strip()
@@ -82,11 +82,11 @@ def run(venv, client, source, output):
     cache, engine = commands(venv, output, MODEL, REVISION, 131072, 24)
     engine += ['--enable-auto-tool-choice', '--tool-call-parser', 'hermes']
     save(output, 'manifest', dict(**manifest(venv, output, MODEL, REVISION), commands=[cache, engine],
-                                 selection=selection, aiperf=version, atfm_control_enabled=False))
+                                 selection=selection, cases=list(cases), aiperf=version, atfm_control_enabled=False))
     with server(cache, output, 'lmcache', CACHE + '/status', 900):
         with server(engine, output, 'vllm', INFERENCE + '/health', 900):
             tools = run_tools(source / 'bfcl', output / 'bfcl', MODEL)
-            results = run_cases(client, source, output, selection)
+            results = run_cases(client, source, output, selection, cases)
     save(output, 'summary', dict(passed=tools['passed'] and all(r['passed'] for r in results.values()), cases=results,
                                 servers_stopped=True, scope='selected public serving traces; no task-quality score'))
 
@@ -97,8 +97,9 @@ def main():
     parser.add_argument('--client', type=Path, default=Path('tmp/venvs/aiperf/bin/aiperf'))
     parser.add_argument('--source', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--case', choices=SELECTED, action='append', dest='cases')
     args = parser.parse_args()
-    run(args.venv.resolve(), args.client.resolve(), args.source.resolve(), args.output.resolve())
+    run(args.venv.resolve(), args.client.resolve(), args.source.resolve(), args.output.resolve(), args.cases or SELECTED)
 
 
 if __name__ == '__main__':

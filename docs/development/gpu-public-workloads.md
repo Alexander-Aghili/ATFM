@@ -68,6 +68,17 @@ export CUDA_HOME="$PWD/tmp/venvs/gpu/lib/python3.12/site-packages/nvidia/cu13"
 
 The selector also downloads the pinned BFCL samples described below and hashes
 both their complete source files and selected rows.
+Use `--case multi-branch` (or repeat `--case` for other names) to run selected
+complete roots in isolation. The manifest records the requested cases; file
+hashes are still verified. A fresh process/cache changes the initial cache state
+and must be labeled separately from the shared-stack sequence.
+
+Reserve workspace headroom for model weights, package-download caches, and L2
+KV objects. The Runpod shared-filesystem `df` reports host-wide free space, not
+the Pod quota. Save measurement output on the container disk when practical.
+An installation cache consumed 18 GiB and contributed to a 100 GB quota failure
+in the first large shared-stack replay; that partial run is not accepted.
+
 Both serving processes are owned and cleaned up. The Pod itself must be stopped
 separately. Keep raw AIPerf exports, server metrics, source manifests and failed
 attempts alongside any summary.
