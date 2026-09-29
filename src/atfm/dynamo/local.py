@@ -25,23 +25,30 @@ class LocalDynamo:
         return f"http://127.0.0.1:{self.port}"
 
     def _spawn(self, name: str, args: list[str]) -> subprocess.Popen:
-        log = open(self.log_dir / f"{name}.log", "a")
-        p = subprocess.Popen([sys.executable, "-m", *args], stdout=log, stderr=subprocess.STDOUT,
-                             start_new_session=True, env={**os.environ, "DYN_HTTP_PORT": str(self.port), **self.env_extra})
+        with open(self.log_dir / f"{name}.log", "a") as log:
+            p = subprocess.Popen([sys.executable, "-m", *args], stdout=log, stderr=subprocess.STDOUT,
+                                 start_new_session=True, env={**os.environ, "DYN_HTTP_PORT": str(self.port), **self.env_extra})
         self.procs.append(p)
         return p
 
     def start(self, timeout_s: float = 120.0) -> None:
+        try:
+            self._launch()
+            self._wait_ready(timeout_s)
+        except BaseException:
+            self.stop()
+            raise
+
+    def _launch(self):
         self._spawn("mocker", ["dynamo.mocker", "--model-path", self.model, "--discovery-backend", "file",
                                "--num-workers", str(self.workers), "--num-gpu-blocks-override", str(self.blocks),
                                "--speedup-ratio", str(self.speedup)])
         self._spawn("frontend", ["dynamo.frontend", "--discovery-backend", "file", "--http-port", str(self.port),
                                  "--router-mode", "kv"])
-        self._wait_ready(timeout_s)
 
     def _wait_ready(self, timeout_s):
-        t0 = time.time()
-        while time.time() - t0 < timeout_s:
+        t0 = time.monotonic()
+        while time.monotonic() - t0 < timeout_s:
             if any(p.poll() is not None for p in self.procs):
                 self.stop()
                 raise RuntimeError(f"a dynamo process exited early; see {self.log_dir}")
@@ -62,15 +69,16 @@ class LocalDynamo:
                 os.killpg(p.pid, signal.SIGTERM)
             except Exception:
                 pass
-        deadline = time.time() + 10
+        deadline = time.monotonic() + 10
         for p in self.procs:
-            while p.poll() is None and time.time() < deadline:
+            while p.poll() is None and time.monotonic() < deadline:
                 time.sleep(0.2)
             if p.poll() is None:
                 try:
                     os.killpg(p.pid, signal.SIGKILL)
                 except Exception:
                     pass
+            p.wait()
         self.procs = []
 
     def chat(self, messages: list[dict], max_tokens: int = 8, hints: dict | None = None,
