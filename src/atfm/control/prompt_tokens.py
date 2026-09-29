@@ -25,4 +25,3 @@ class PromptTokens:
         toks = list(self.tokenize(messages))
         self._cache[session_id] = (key, toks)
         return toks
-
