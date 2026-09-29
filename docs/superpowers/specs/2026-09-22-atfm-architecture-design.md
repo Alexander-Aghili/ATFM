@@ -309,3 +309,12 @@ when ticks fail or lag. No deep copy of model or session histories is required.
 Overlapping control calls receive 503; cancellation retains worker ownership.
 See the [implementation/evidence record](../../research/2026-09-28-board-isolation.md)
 for complexity, legacy custom predictor limits, GIL contention, and paired results.
+
+### Implementation update: exact peer counts (28 September 2026)
+
+Outgoing priority hints now use a per-tier histogram of queued indices. Queue
+mutations maintain counts; rank queries scan distinct indices without materializing
+a peer list. Strict-less-than ties, held peers and empty tiers preserve the old
+rank formula. Admission heaps and hold semantics remain unchanged. See the
+[profile and trial record](../../research/2026-09-28-proxy-ranking.md) for O(U)
+queries, worst-case O(Q), and why a tested larger upstream pool was reverted.

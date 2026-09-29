@@ -50,9 +50,9 @@ individual backlog drainage from $O(Q^2)$ to $O(Q\log Q)$; simultaneous due even
 still require processing each affected request. Overflow transitions retain the
 original hold-dropping and FCFS policy and can cost $O(Q)$. A single wake-up timer
 tracks holds and promotions. Randomized differential tests compare release order
-and state with the former scan implementation. Diagnostic counts and peer-rank
-queries still scan the backlog, so this is not a logarithmic bound on the whole
-HTTP request path. The simulator's worker queue is a separate implementation.
+and state with the former scan implementation. Diagnostic counts still scan
+the backlog. The later peer-rank histogram scans distinct indices, retaining a
+linear worst case, so this is not a logarithmic bound on the whole HTTP path. The simulator's worker queue is a separate implementation.
 
 \paragraph{Planner search and forecast sampling.}
 GDP search now bounds candidate slots before allocation using the original delay
@@ -287,3 +287,51 @@ board responsiveness and availability, not an end-to-end latency win. Different
 enqueue timing, prediction transaction counts and later control inputs prevent
 attributing the regression to one cause. The dated board-isolation study retains
 all raw evidence, source hashes, stage timings, test results and host limitations.
+
+
+\paragraph{Proxy request phases and exact peer ranks (28 September 2026).}
+The follow-up profile at \texttt{36f0860} identified upstream HTTP pool maintenance
+and peer-list construction as larger main-thread costs than anticipated.
+Completed traces now distinguish monotonic prediction waiting, enqueue-to-admit
+waiting (including holds), and admit-to-handler-dispatch delay. Missing phase
+fields in older traces are omitted. Wall-clock differences can be invalidated
+by clock adjustments; separate phase percentiles are not additive.
+
+The retained implementation at \texttt{3084f34} maintains exact per-tier counts
+of queued index values. With $n$ queued peers and $b$ indices strictly below the
+outgoing request, the hint is $\min(3,\lfloor 4b/n\rfloor)$, or 3 for an empty
+tier. Held peers count and released peers do not. Submission, cancellation,
+release and promotion update counts in expected constant time. A query scans
+$U_t$ distinct values in its tier instead of materializing a full peer list and
+NumPy array; additional storage is $O(U)$ across tiers. Rebuilds remain $O(Q)$.
+When priorities are all unique, $U_t$ may equal backlog $Q$, so ranking an entire
+drain can still cost $O(Q^2)$. Scheduling heaps and hold semantics are unchanged.
+
+A query microbenchmark with 100,000 peers measured 6.21\,ms for the old list/NumPy
+path versus 2.10\,ms for the histogram when all indices differ, and 6.24\,ms versus
+0.72\,$\mu$s with 16 distinct values. These are medians of seven repetitions,
+excluding construction and mutation. In a separate instrumented 1,024-session
+run, all 3,072 requests completed; histogram queries used 0.029\,CPU seconds,
+compared with 1.278\,seconds for peer-list collection alone in the discovery
+profile. Instrumentation changes scheduling and is not latency evidence.
+
+Two separate paired studies used three seeds at 256 and 1,024 sessions, 64-slot
+proxy and fake worker, 5\,ms service, and identical phase instrumentation at
+baseline \texttt{f180401}. All 46,080 unprofiled requests succeeded. The retained
+rank change reduced proxy CPU in six of six pairs; client p95 improved in four
+and regressed in two. At 1,024 sessions the per-run p95 range changed from
+2.564--4.067\,s to 1.823--2.630\,s, but baseline variability prevents a robust
+single speedup estimate. The seed-7 pair regressed from 2.564 to 2.630\,s.
+These short localhost trials use no GPU, KV transfers or token streaming.
+
+The other candidate increased upstream idle connection retention from 20 to 64.
+Despite passing real-HTTP reuse tests, its large-case client p95 increased from
+2.681--2.743\,s to 4.087--4.466\,s. A diagnostic profile opened 70 rather than
+3,072 upstream connections, but HTTPcore pool-assignment CPU increased from
+2.674 to 11.836\,s. That profile had one failed request and two unissued turns;
+it is retained as incomplete diagnostic evidence. The pool change was reverted
+in \texttt{880b232}; transport defaults remain unchanged. The retained rank
+profile still spent 2.550\,CPU seconds in pool assignment. The dated
+\texttt{2026-09-28-proxy-ranking.md} study archives all trials, profiles, source
+hashes, phase results and tests, including unfavorable results. The full retained
+suite passes 496 tests with three skips; Python functions remain at most 20 lines.

@@ -158,7 +158,7 @@ model-specific setup and external IO unless named.}
 Operation & Principal scaling & Remaining qualification\\\midrule
 Incremental log drain & $O(\Delta E)$ newly read bytes/records & First read and restart still replay retained history\\
 Heap admission updates & Amortized $O(\log Q)$ per heap operation & Due timers and compaction can cause bursts\\
-Peer rank diagnostics & $O(Q)$ collection & Still appears in the HTTP priority path\\
+Peer rank hints & $O(U)$ distinct-index scan & Expected $O(1)$ count updates; $U \leq Q$\\
 Batched hold transport & $\lceil D/B\rceil$ RPCs, $O(D)$ payload & No whole-plan distributed transaction\\
 Monte Carlo aggregation & Depends on $N,K,H$; typically at least $O(NK)$ sample work & Vectorization does not eliminate samples or output arrays\\
 GDP slot search & Range pruning; worst-case linear in eligible slots per job & Resource minima can occur in different slots\\\bottomrule
@@ -273,3 +273,22 @@ A negative result is informative if simple TTL or native policies match the
 benefit, useful lead time is scarce, prediction deadlines are missed, or cache
 movement dominates savings. The project remains useful only if the value of
 extra information survives the full path from observation to completed action.
+
+
+\paragraph{Measured proxy follow-up.}
+The next implementation study separates prediction, admission and dispatch
+waiting and replaces per-release peer-list construction with exact per-tier
+index counts. A rank query scans $U_t$ distinct queued indices; updates are
+expected $O(1)$ and storage is $O(U)$ across tiers. The worst case still has
+$U_t=Q$, so this does not eliminate quadratic total rank work across a unique
+backlog. Strict ties and the admission policy are preserved.
+Six paired local trials reduced proxy CPU in every pair, while client p95
+improved in four and regressed in two. At 1,024 sessions, the per-run p95 ranges
+were 2.564--4.067\,s before and 1.823--2.630\,s after; variability precludes a
+single reliable speedup claim. A separate larger-connection-pool experiment
+regressed large-case latency and was reverted, despite opening fewer TCP
+connections. All 46,080 unprofiled calls across the two studies succeeded;
+one instrumented pool trial was incomplete and is identified separately.
+The repository's dated proxy-ranking report preserves source revisions and raw
+evidence. These measurements concern CPU and HTTP overhead with a fake worker,
+not inference throughput, GPU memory movement, or production capacity.

@@ -1,0 +1,22 @@
+import json, statistics, timeit
+from pathlib import Path
+import numpy as np
+from atfm.proxy.queue import Entry, HoldQueue
+
+rows = []
+for size in (1000, 10000, 100000):
+    for distinct in (1, 16, size):
+        q = HoldQueue(0, clock=lambda: 0.)
+        q.pending = [Entry(str(i), 0, float(i % distinct), 0.) for i in range(size)]
+        index = distinct / 2
+        def before():
+            values = q.tier_indices(0)
+            return min(3, int(float(np.mean(np.asarray(values) < index))*4))
+        def after():
+            return q.priority_bucket(0, index)
+        assert before() == after()
+        count = max(5, 1000000 // size)
+        timings = {name: statistics.median(timeit.repeat(fn, number=count, repeat=7))/count
+                   for name, fn in [('scan', before), ('histogram', after)]}
+        rows.append(dict(queued=size, distinct=distinct, repeats=7, calls=count, **timings))
+print(json.dumps(rows, indent=2))

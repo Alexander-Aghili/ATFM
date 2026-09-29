@@ -112,11 +112,12 @@ there is no unnecessary session-to-waiting-request index because queued requests
 are not retimed by directives. `pending` is an O(Q) diagnostic snapshot, with a
 bulk setter for benchmark fixtures; hot loops use the O(1) `queued` count.
 
-Remaining scans are explicit: `stats()` counts held entries and `tier_indices()`
-collects peer indices for priority-bucket ranking, both O(Q). The HTTP request
-path therefore still has a linear rank query even though admission completion no
-longer scans the queue. An order-statistics tree could address this separately;
-it is not necessary for preserving admission priority semantics.
+Remaining diagnostic scans are explicit: `stats()` counts held entries and
+`tier_indices()` collects indices, both O(Q). The HTTP path now uses exact per-tier
+counts in `proxy/peers.py`, scanning only U distinct indices in the requested tier
+with expected O(1) count updates. Worst-case U equals Q; an order-statistics tree
+would be separate work. See the [rank study](../research/2026-09-28-proxy-ranking.md)
+for parity tests, component timing and end-to-end results.
 
 Randomized differential tests compare 8,000 operations against the previous
 scheduler, including duplicate session IDs, hold caps/expiry, promotions,

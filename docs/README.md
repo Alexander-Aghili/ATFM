@@ -55,3 +55,5 @@ has its own tooling and is separate from running the Python test suite.
 
 [Board isolation study](research/2026-09-28-board-isolation.md) records worker ownership, prediction freshness,
 concurrency tests, and paired HTTP measurements.
+
+[Proxy ranking and transport study](research/2026-09-28-proxy-ranking.md) records exact peer counts, phase timing, profiles, and retained/rejected optimization evidence.

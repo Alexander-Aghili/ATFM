@@ -295,3 +295,20 @@ runner and their caller budget; their arbitrary internal state is not converted
 into immutable prediction views. Thread isolation does not remove Python GIL
 contention or provide hard real-time deadlines. Forecast/controller algorithms
 and their random-number order are unchanged.
+
+## Request timing and upstream pool tuning
+
+Completed proxy traces include `prediction_s` (monotonic elapsed prediction wait),
+`t_enqueued` (after prediction), `t_admitted` (the queue grants a slot), and
+`t_release` (the handler resumes to forward). The load report separates prediction
+wait, admission wait and release-to-dispatch delay. Admission wait includes imposed
+holds; it is not only CPU scheduling overhead. Older traces lack these fields and
+are omitted from phase samples. Wall-clock changes can invalidate timestamp
+differences; phase percentiles must not be added together.
+
+The owned upstream HTTPX client retains its existing defaults (20 idle keep-alive
+connections, 100 total in the measured HTTPX version). Increasing retained
+connections to the admission window regressed the tested 1,024-session workload
+and was reverted. Do not infer an optimal pool size from connection counts alone.
+See the [measured transport and rank study](research/2026-09-28-proxy-ranking.md)
+before changing pool settings or attributing long waits to prediction computation.

@@ -1,0 +1,6 @@
+import os, resource, subprocess
+from pathlib import Path
+root = Path('/home/alexsky2/Company')
+soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
+resource.setrlimit(resource.RLIMIT_NOFILE, (min(8192, hard), hard))
+subprocess.run([str(root/'.venv/bin/python'), '-m', 'atfm_experiments.load', '--sessions', '1024', '--patterns', 'burst', '--config', str(root/'runs/proxy-transport-2026-09-28/profile-config.json'), '--out', str(root/'runs/proxy-transport-2026-09-28/profile-ranks')], cwd=root, env=dict(os.environ, PYTHONPATH=f'{root}/src:{root}/experiments/src'), check=True)

@@ -338,3 +338,21 @@ Prediction views expire by monotonic age measured before ingestion, including
 calculation time. New events, expiry, and updated tool means become visible only
 on publication. See [operations](../operations.md#board-computation-and-prediction-freshness)
 for configuration, legacy custom predictor behavior, and shutdown guarantees.
+
+## Queued peer ranks
+
+`proxy/peers.py` owns the exact histogram used for outgoing coarse priority hints.
+`HoldQueue` updates it on submission, cancellation, release, tier promotion and
+rebuild. Only still-queued entries count, including held entries; a released
+request is already removed before its hint is calculated. Ties use strict
+`peer_index < request_index`, and an empty tier returns bucket 3. NaN comparisons
+retain the former NumPy behavior. Queue-owned tier/index fields must not be
+mutated by callers; replacing a benchmark `pending` snapshot rebuilds all indices.
+
+For n peers and b strictly smaller indices, the bucket is
+`min(3, floor(4 * b / n))`, or 3 when n is zero. Duplicate values share a counter,
+so queries cost O(U) for U distinct indices in the requested tier. Counts update
+in expected O(1); memory is O(U) across tiers. Worst-case query time remains O(Q).
+Scheduling heaps, holds and release order are independent of this hint lookup.
+The old `tier_indices` snapshot and list-based `priority_bucket` remain supported.
+Randomized scan-reference tests compare both scheduling and rank semantics.

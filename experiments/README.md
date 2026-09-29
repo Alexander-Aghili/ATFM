@@ -122,3 +122,5 @@ admission fallback from timed-out work. See [overload accounting and trials](../
 
 [Board isolation study](../docs/research/2026-09-28-board-isolation.md) records worker ownership, prediction freshness,
 concurrency tests, and paired HTTP measurements.
+
+The [proxy ranking and transport study](../docs/research/2026-09-28-proxy-ranking.md) retains paired burst trials, thread-aware profiles, exact-rank microbenchmarks and a rejected HTTP pool change.

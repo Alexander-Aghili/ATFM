@@ -1,0 +1,74 @@
+[
+  {
+    "queued": 1000,
+    "distinct": 1,
+    "repeats": 7,
+    "calls": 1000,
+    "scan": 5.171902199799661e-05,
+    "histogram": 4.5197500730864705e-07
+  },
+  {
+    "queued": 1000,
+    "distinct": 16,
+    "repeats": 7,
+    "calls": 1000,
+    "scan": 5.179277800198179e-05,
+    "histogram": 7.997810025699437e-07
+  },
+  {
+    "queued": 1000,
+    "distinct": 1000,
+    "repeats": 7,
+    "calls": 1000,
+    "scan": 5.105774399999063e-05,
+    "histogram": 2.0912830004817808e-05
+  },
+  {
+    "queued": 10000,
+    "distinct": 1,
+    "repeats": 7,
+    "calls": 100,
+    "scan": 0.0005185651499778032,
+    "histogram": 4.237699613440782e-07
+  },
+  {
+    "queued": 10000,
+    "distinct": 16,
+    "repeats": 7,
+    "calls": 100,
+    "scan": 0.0005144955900323111,
+    "histogram": 7.407199882436544e-07
+  },
+  {
+    "queued": 10000,
+    "distinct": 10000,
+    "repeats": 7,
+    "calls": 100,
+    "scan": 0.0005152548100159038,
+    "histogram": 0.00020293764988309703
+  },
+  {
+    "queued": 100000,
+    "distinct": 1,
+    "repeats": 7,
+    "calls": 10,
+    "scan": 0.006153076200280339,
+    "histogram": 4.4909975258633496e-07
+  },
+  {
+    "queued": 100000,
+    "distinct": 16,
+    "repeats": 7,
+    "calls": 10,
+    "scan": 0.006238120699708816,
+    "histogram": 7.223003194667399e-07
+  },
+  {
+    "queued": 100000,
+    "distinct": 100000,
+    "repeats": 7,
+    "calls": 10,
+    "scan": 0.0062127571989549326,
+    "histogram": 0.002103205099410843
+  }
+]

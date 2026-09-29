@@ -112,3 +112,5 @@ for the workload, rejection/timeout trade-off, and retained evidence.
 
 [Board isolation study](../research/2026-09-28-board-isolation.md) records worker ownership, prediction freshness,
 concurrency tests, and paired HTTP measurements.
+
+The implementation appendix now records [exact peer ranking and transport trials](../research/2026-09-28-proxy-ranking.md), including the rejected pool tuning and separated request phases.

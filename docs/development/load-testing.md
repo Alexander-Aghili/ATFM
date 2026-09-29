@@ -308,3 +308,5 @@ includes both directives and the admission window; dispatch delay measures when
 a released coroutine actually resumes. These are elapsed times, not CPU costs.
 Wall-clock adjustments can affect timestamp differences. Older traces have no
 phase samples rather than invented zero durations.
+
+The [proxy ranking study](../research/2026-09-28-proxy-ranking.md) applies these phase metrics and preserves both a rejected pool adjustment and a retained exact-rank index. Profiled latency is not used as performance evidence.

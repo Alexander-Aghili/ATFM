@@ -2,7 +2,7 @@
 
 [Download the PDF edition](atfm-architecture.pdf), with landscape diagram pages and clickable source links.
 
-This guide maps the implementation at **28 September 2026**, including bounded prediction admission and isolated board computation. It explains where state lives, how a request becomes evidence and a control decision, and which documents describe each layer. The diagrams describe current code boundaries; the older [context](01-context.md) and [container](02-container.md) views describe broader design intent.
+This guide maps the implementation at **28 September 2026**, including bounded prediction admission, isolated board computation and exact peer-rank counts. It explains where state lives, how a request becomes evidence and a control decision, and which documents describe each layer. The diagrams describe current code boundaries; the older [context](01-context.md) and [container](02-container.md) views describe broader design intent.
 
 ATFM is a forecasting and admission layer around an LLM serving system. It observes agents during their tool phases, estimates when they will resume using the model, and uses that information to order or delay eligible work. The serving engine owns token generation and the actual KV tensors. ATFM owns observations, predictions, scheduling state, and control requests.
 
@@ -71,10 +71,22 @@ The queue has several coordinated indexes rather than repeatedly sorting the ent
 | Arrival heap | Support arrival ordering for overflow behavior. |
 | Delayed heap | Wake requests whose `not_before` time has arrived. |
 | Promotion heap | Raise eligible interactive requests when their slack expires. |
+| Peer histogram | Count distinct priority values per tier for exact outgoing rank hints; excludes released entries. |
 | Directive map | Store per-session release time, reason and expiry. |
 | Timer and release event | Connect time-based eligibility to asynchronous request handlers. |
 
 Ordinary heap insertions/removals cost `O(log Q)` for `Q` queued entries. This does **not** make every queue operation logarithmic: directive batches, diagnostic snapshots, stale-record cleanup and index rebuilds have additional work. Batched updates avoid repeating a full backlog pass for every individual hold. The queue also caps holds and has overflow behavior; it is a scheduling mechanism with explicit escape paths.
+
+[Peer ranking](../../src/atfm/proxy/peers.py) scans U distinct indices in the requested tier,
+with expected O(1) count updates and O(U) additional space across tiers. It avoids
+building a list and array per release; worst-case U equals Q. Strict ties, held
+peers and empty-tier behavior match the former scan. Diagnostic snapshots still
+scan entries. The [paired study](../research/2026-09-28-proxy-ranking.md) also records
+a rejected connection-pool change; transport defaults remain unchanged.
+
+Trace phases distinguish prediction wait, admission wait and handler dispatch
+following slot release. Holds are included in admission wait; separate percentile
+values do not add up to a request percentile.
 
 The bounded prompt LRU is a record of request inputs, not a tensor cache. A touch consumes real serving work and records success only when the upstream call succeeds. Keeping it separate from the main request lifecycle makes its cost visible.
 

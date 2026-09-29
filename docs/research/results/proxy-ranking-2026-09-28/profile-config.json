@@ -1,0 +1,1 @@
+{"sessions":1024,"seed":7,"pattern":"burst","worker_slots":64,"worker_service_s":0.005,"proxy_window":64,"profile_proxy":true,"request_timeout_s":120,"drain_timeout_s":120,"control_timeout_s":20}

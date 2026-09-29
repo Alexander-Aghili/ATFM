@@ -32,7 +32,7 @@ performance optimization.
 | Per-request predictions | `proxy/board_client.py` retrieves service time and next-tool duration together. | One HTTP round trip; unfinished work is bounded, including jobs whose callers timed out. |
 | Event ingestion | `JsonlBus.drain()` consumes complete appended records using a per-instance byte cursor. | O(new bytes) parsing; idle drains perform a metadata check. Restart replays once; downstream transactional recovery remains separate. |
 | Forecast aggregation | Per-session loops with streamlined empirical draws and `(horizons, draws)` NumPy operations. | Work grows with sessions, horizons, draws, and fan-out. Profile sampling versus aggregation and allocation. |
-| Admission queue | `HoldQueue` maintains ready, delayed, promotion, and FCFS heaps. | Admission release is amortized O(log Q); peer-rank queries and diagnostic counts remain O(Q). |
+| Admission queue | `HoldQueue` maintains ready, delayed, promotion, and FCFS heaps. | Admission release is amortized O(log Q); exact peer ranks scan U distinct indices in the tier, while diagnostic counts remain O(Q). |
 | Logging | Request completion writes and flushes a trace; JSONL publishing opens/appends a file. | Synchronous disk work can delay the request handler. Measure event-loop lag and buffered/asynchronous alternatives. |
 | Simulation sweeps | Python event loop and worker/policy logic across many arms and seeds. | CPU cost affects experiment throughput, not automatically live request latency. Parallelize independent runs or optimize measured kernels. |
 
@@ -144,3 +144,19 @@ an extra O(S) view for detached request reads; it does not reduce Monte Carlo or
 GDP planning complexity. CPU-bound Python in the worker still contends for the
 GIL. Judge improvement using timely prediction use and view age, not timeout
 counts alone; a stale result is deliberately unavailable.
+
+## Exact peer ranking and HTTP transport (28 September 2026)
+
+The [proxy ranking and transport study](../research/2026-09-28-proxy-ranking.md)
+profiles the next request-path costs. `proxy/peers.py` maintains per-tier counts
+of queued indices. Each release queries O(U) distinct indices instead of building
+an O(Q) peer list and NumPy array. Insert/remove/promotion bookkeeping is expected
+O(1), with O(U) additional storage. U can equal Q: this is not a logarithmic rank
+index or a removal of the worst-case quadratic cost across Q releases. An
+order-statistics tree remains a possible follow-up for diverse priorities.
+
+A larger upstream keep-alive pool was tested and reverted after it increased
+pool-management CPU and large-case latency. Fewer TCP connections alone did not
+make the request path faster. The retained HTTPX defaults and the prediction
+executor are unchanged. Use unprofiled paired runs for latency comparisons;
+Yappi instrumentation changes scheduling and timeout behavior.
