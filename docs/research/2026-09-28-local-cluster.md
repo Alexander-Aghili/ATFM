@@ -58,3 +58,5 @@ AIPerf exports and full-suite test output. SHA-256 values are over uncompressed
 bytes. The two-worker source was uncommitted at execution but the runner hashes
 identify its content; the four-worker run records commit `321159e`. Both used
 the final runner implementation. Runtime defaults and policy settings are unchanged.
+
+Subsequent work completed the separate [real GPU cache compatibility check](2026-09-28-gpu-cache.md). It does not change the CPU-only scope of the runs above.

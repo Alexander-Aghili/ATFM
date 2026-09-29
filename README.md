@@ -16,7 +16,7 @@ Agents spend much of their time running tests, builds, and other tools. Their ne
 
 - **Demand forecasts:** history, survival, progress, and backend-aware models; Monte Carlo KV-block and prefill-token demand with calibration.
 - **Request control:** OpenAI-compatible proxy, priority queues, bounded holds, admission windows, tool launch gates, [prediction overload protection](docs/operations.md#prediction-overload-protection), and [isolated board computation](docs/operations.md#board-computation-and-prediction-freshness).
-- **Cache-aware actions:** budgeted touches and optional LMCache actuation; tier and replica recommendations have explicit integration limits.
+- **Cache-aware actions:** budgeted touches and verified LMCache MP CPU warming; tier and replica recommendations have explicit integration limits.
 - **Agent instrumentation:** tool sidecars, harness adapters, and JSONL, in-memory, or Redis Streams event transport.
 - **Reproducible evaluation:** simulation, paired comparisons, CPU/load benchmarks, [constrained policy tuning](docs/development/policy-tuning.md), and optional Phoenix tracing.
 
@@ -94,3 +94,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, tests, reproducibility, and re
 A project-wide license has not yet been declared. Reproduced paper artwork retains its original attribution and licenses; see the [artwork manifest](docs/paper/background/figures/papers/manifest.json).
 
 For CPU-only deployment preparation, run the [local Dynamo + AIPerf smoke](docs/development/local-cluster.md) with an existing AgentX trace before renting GPUs.
+
+Before renting GPUs, run the [real GPU cache check](docs/development/gpu-cache.md).
+The pinned vLLM/LMCache stack passed on an RTX 4060: [results and limits](docs/research/2026-09-28-gpu-cache.md).

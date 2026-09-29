@@ -62,4 +62,6 @@ concurrency tests, and paired HTTP measurements.
 
 [Policy tuning](development/policy-tuning.md) describes constrained search, independent validation, Pareto tradeoffs and the path toward context-dependent policies.
 
-- [Local cluster preparation](development/local-cluster.md): pinned AIPerf/Dynamo smoke, evidence scope and LMCache integration gaps.
+- [Local cluster preparation](development/local-cluster.md): pinned AIPerf/Dynamo smoke and evidence scope.
+
+- [Real GPU cache validation](development/gpu-cache.md): pinned setup, CPU warming contract, real inference reuse and rental handoff.

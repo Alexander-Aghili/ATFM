@@ -13,6 +13,8 @@ RTX 4060 Laptop, and 30 GiB host RAM. Allow substantial disk space for the
 PyTorch/CUDA environment, model download and build cache (50 GiB is a practical
 starting allocation). LMCache's native extension may require a C++ build toolchain.
 An H100 is the next target; the H100 result is not yet measured.
+The [local evidence report](../research/2026-09-28-gpu-cache.md) records successful
+fresh-cache and rebuilt-environment runs.
 
 From the repository root, with `uv` installed:
 

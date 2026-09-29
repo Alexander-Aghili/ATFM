@@ -28,3 +28,27 @@ def test_launch_pins_model_and_disables_gpu_prefix_cache(tmp_path):
     assert engine.count(REVISION) == 2
     assert '--no-enable-prefix-caching' in engine
     assert '--host' in cache and '127.0.0.1' in cache
+
+
+def test_runner_refuses_an_occupied_port(monkeypatch):
+    import socket
+    from atfm_experiments.gpu_cache import stack
+    with socket.socket() as occupied:
+        occupied.bind(('127.0.0.1', 0))
+        monkeypatch.setattr(stack, 'PORTS', (occupied.getsockname()[1],))
+        with pytest.raises(OSError):
+            stack.check_ports()
+
+
+def test_failed_startup_cleans_up_owned_process(tmp_path, monkeypatch):
+    import sys
+    from atfm_experiments.gpu_cache import stack
+    processes = []
+    def fail_ready(process, url):
+        processes.append(process)
+        raise RuntimeError('test startup failure')
+    monkeypatch.setattr(stack, 'ready', fail_ready)
+    with pytest.raises(RuntimeError, match='test startup failure'):
+        with stack.server([sys.executable, '-c', 'import time; time.sleep(30)'], tmp_path, 'failed', 'unused'):
+            pytest.fail('startup must not succeed')
+    assert len(processes) == 1 and processes[0].poll() is not None

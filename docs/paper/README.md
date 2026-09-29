@@ -118,3 +118,14 @@ The implementation appendix now records [exact peer ranking and transport trials
 The implementation appendix also covers [bounded upstream pool sharding](../research/2026-09-28-sharded-transport.md), response-lifetime ownership, transport fixtures and full-proxy measurements.
 
 The implementation appendix now describes [offline policy selection](../development/policy-tuning.md): context-specific objectives, feasibility, Pareto tradeoffs, independent validation and the limits of finite noisy search.
+
+## September 28 real-GPU compatibility evidence
+
+The [GPU integration report](../research/2026-09-28-gpu-cache.md) supersedes the
+September 27 statement above that all backend actuation is unvalidated. ATFM
+now validates LMCache MP 0.5.5 disk-to-CPU warming and subsequent vLLM inference
+reuse on an RTX 4060. It does not validate pin leases, direct GPU placement,
+automatic board policy selection, multi-node operation or a performance benefit.
+The paper's simulated policy findings remain separate; its existing integration
+figures describe the earlier design. See the [current contract](../development/gpu-cache.md)
+for executable commands and exact limitations.

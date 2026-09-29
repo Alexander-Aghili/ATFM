@@ -138,3 +138,9 @@ manual application and future Bayesian/contextual search. No core defaults chang
 ## Local serving preparation
 
 The [local cluster recipe](../docs/development/local-cluster.md) runs AIPerf against Dynamo Mocker with a public AgentX root. The isolated client lock lives in `local-cluster/`; the runner lives in `src/atfm_experiments/local_cluster/`. This is CPU integration evidence only.
+
+## Real GPU integration
+
+[GPU cache validation](../docs/development/gpu-cache.md) runs pinned vLLM and LMCache
+with real inference. `gpu-cache/requirements.lock` isolates the serving environment;
+`atfm_experiments.gpu_cache` validates ATFM CPU warming, records evidence and cleans up.

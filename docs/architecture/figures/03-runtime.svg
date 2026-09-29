@@ -1,13 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1426" height="555" viewBox="0 0 1426 555" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
+<svg xmlns="http://www.w3.org/2000/svg" width="1384" height="565" viewBox="0 0 1384 565" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
   <defs>
-    <marker id="rd6e7382b-arrow-5c5c7c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="re110d14b-arrow-5c5c7c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#5c5c7c"/>
     </marker>
-    <marker id="rd6e7382b-arrow-5c5c7c-back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="re110d14b-arrow-5c5c7c-back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#5c5c7c"/>
     </marker>
   </defs>
-  <rect x="0" y="0" width="1426" height="555" fill="#111111"/>
+  <rect x="0" y="0" width="1384" height="565" fill="#111111"/>
   <path d="M48 40 H338 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H48 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#f1f3f5" stroke="#78838d"/>
   <text x="193" y="68.4" fill="#29333c" text-anchor="middle">Agent harness</text>
   <text x="193" y="87.4" fill="#29333c" text-anchor="middle">mini-SWE-agent, OpenHands, Harbor</text>
@@ -41,56 +41,57 @@
   <text x="682.9" y="458.4" fill="#513416" text-anchor="middle">Control-loop process</text>
   <text x="682.9" y="477.4" fill="#513416" text-anchor="middle">control/loop.py: ControlLoop</text>
   <text x="682.9" y="496.4" fill="#513416" text-anchor="middle">Tick, fetch, validate, batch, apply</text>
-  <path d="M1054.3 430 H1377.3 a8 8 0 0 1 8 8 V507 a8 8 0 0 1 -8 8 H1054.3 a8 8 0 0 1 -8 -8 V438 a8 8 0 0 1 8 -8 Z" fill="#f1f3f5" stroke="#78838d"/>
-  <text x="1215.8" y="458.4" fill="#29333c" text-anchor="middle">Optional LMCache endpoint</text>
-  <text x="1215.8" y="477.4" fill="#29333c" text-anchor="middle">control/lmcache.py adapter</text>
-  <text x="1215.8" y="496.4" fill="#29333c" text-anchor="middle">Pin and move requests; verify effects</text>
-  <path d="M 346 82.5 L 505.4 82.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rd6e7382b-arrow-5c5c7c)"/>
+  <path d="M1054.3 420.5 H1335.3 a8 8 0 0 1 8 8 V516.5 a8 8 0 0 1 -8 8 H1054.3 a8 8 0 0 1 -8 -8 V428.5 a8 8 0 0 1 8 -8 Z" fill="#f1f3f5" stroke="#78838d"/>
+  <text x="1194.8" y="448.9" fill="#29333c" text-anchor="middle">Optional LMCache endpoint</text>
+  <text x="1194.8" y="467.9" fill="#29333c" text-anchor="middle">control/lmcache.py adapter</text>
+  <text x="1194.8" y="486.9" fill="#29333c" text-anchor="middle">MP 0.5.5 CPU warm prefetch; poll</text>
+  <text x="1194.8" y="505.9" fill="#29333c" text-anchor="middle">completion</text>
+  <path d="M 346 82.5 L 505.4 82.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#re110d14b-arrow-5c5c7c)"/>
   <rect x="377.2" y="74.5" width="97" height="16" fill="#111111"/>
   <g font-size="12px">
   <text x="425.7" y="86.7" fill="#d9d9d9" text-anchor="middle">chat request</text>
   </g>
-  <path d="M 836.4 82.5 L 995.8 82.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rd6e7382b-arrow-5c5c7c)"/>
+  <path d="M 836.4 82.5 L 995.8 82.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#re110d14b-arrow-5c5c7c)"/>
   <rect x="867.6" y="74.5" width="97" height="16" fill="#111111"/>
   <g font-size="12px">
   <text x="916.1" y="86.7" fill="#d9d9d9" text-anchor="middle">HTTP + hints</text>
   </g>
-  <path d="M 193 125 L 193 235" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rd6e7382b-arrow-5c5c7c)"/>
+  <path d="M 193 125 L 193 235" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#re110d14b-arrow-5c5c7c)"/>
   <rect x="144.5" y="172" width="97" height="16" fill="#111111"/>
   <g font-size="12px">
   <text x="193" y="184.2" fill="#d9d9d9" text-anchor="middle">execute tool</text>
   </g>
-  <path d="M 337.5 277.5 L 489.9 277.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rd6e7382b-arrow-5c5c7c)"/>
+  <path d="M 337.5 277.5 L 489.9 277.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#re110d14b-arrow-5c5c7c)"/>
   <rect x="368.7" y="269.5" width="90" height="16" fill="#111111"/>
   <g font-size="12px">
   <text x="413.7" y="281.7" fill="#d9d9d9" text-anchor="middle">tool events</text>
   </g>
-  <path d="M 670.9 125 L 670.9 172.25 C 670.9 176.53, 667.43 180, 663.15 180 L 663.15 180 C 658.87 180, 655.4 183.47, 655.4 187.75 L 655.4 235" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rd6e7382b-arrow-5c5c7c)"/>
+  <path d="M 670.9 125 L 670.9 172.25 C 670.9 176.53, 667.43 180, 663.15 180 L 663.15 180 C 658.87 180, 655.4 183.47, 655.4 187.75 L 655.4 235" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#re110d14b-arrow-5c5c7c)"/>
   <rect x="629.9" y="144.5" width="82" height="16" fill="#111111"/>
   <g font-size="12px">
   <text x="670.9" y="156.7" fill="#d9d9d9" text-anchor="middle">LLM events</text>
   </g>
-  <path d="M 820.9 277.5 L 987.3 277.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rd6e7382b-arrow-5c5c7c)"/>
+  <path d="M 820.9 277.5 L 987.3 277.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#re110d14b-arrow-5c5c7c)"/>
   <rect x="852.1" y="269.5" width="104" height="16" fill="#111111"/>
   <g font-size="12px">
   <text x="904.1" y="281.7" fill="#d9d9d9" text-anchor="middle">drain on tick</text>
   </g>
-  <path d="M 1161.3 125 L 1161.3 160.5 C 1161.3 168.65, 1154.7 175.25, 1146.55 175.25 L 1146.55 175.25 C 1138.4 175.25, 1131.8 181.85, 1131.8 190 L 1131.8 225.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rd6e7382b-arrow-5c5c7c)"/>
+  <path d="M 1161.3 125 L 1161.3 160.5 C 1161.3 168.65, 1154.7 175.25, 1146.55 175.25 L 1146.55 175.25 C 1138.4 175.25, 1131.8 181.85, 1131.8 190 L 1131.8 225.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#re110d14b-arrow-5c5c7c)"/>
   <rect x="1105.8" y="142.13" width="111" height="16" fill="#111111"/>
   <g font-size="12px">
   <text x="1161.3" y="154.32" fill="#d9d9d9" text-anchor="middle">worker metrics</text>
   </g>
-  <path d="M 682.9 430 L 682.9 399.75 C 682.9 388.7, 691.85 379.75, 702.9 379.75 L 1111.8 379.75 C 1122.85 379.75, 1131.8 370.8, 1131.8 359.75 L 1131.8 329.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rd6e7382b-arrow-5c5c7c)"/>
+  <path d="M 682.9 430 L 682.9 399.75 C 682.9 388.7, 691.85 379.75, 702.9 379.75 L 1111.8 379.75 C 1122.85 379.75, 1131.8 370.8, 1131.8 359.75 L 1131.8 329.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#re110d14b-arrow-5c5c7c)"/>
   <rect x="840.85" y="371.75" width="133" height="16" fill="#111111"/>
   <g font-size="12px">
   <text x="907.35" y="383.95" fill="#d9d9d9" text-anchor="middle">tick + directives</text>
   </g>
-  <path d="M 521.9 472.5 L 341.5 472.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rd6e7382b-arrow-5c5c7c)"/>
+  <path d="M 521.9 472.5 L 341.5 472.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#re110d14b-arrow-5c5c7c)"/>
   <rect x="372.7" y="464.5" width="118" height="16" fill="#111111"/>
   <g font-size="12px">
   <text x="431.7" y="476.7" fill="#d9d9d9" text-anchor="middle">holds via proxy</text>
   </g>
-  <path d="M 843.9 472.5 L 1046.3 472.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rd6e7382b-arrow-5c5c7c)"/>
+  <path d="M 843.9 472.5 L 1046.3 472.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#re110d14b-arrow-5c5c7c)"/>
   <rect x="875.1" y="464.5" width="140" height="16" fill="#111111"/>
   <g font-size="12px">
   <text x="945.1" y="476.7" fill="#d9d9d9" text-anchor="middle">optional actuation</text>

@@ -34,7 +34,7 @@ The deployed composition has three ATFM service roles: the proxy, board, and con
 | Proxy → board | [proxy/board_client.py](../../src/atfm/proxy/board_client.py) | Budgeted expected service and next-tool duration used in request scoring. |
 | Board → worker metrics | [board/metrics.py](../../src/atfm/board/metrics.py), [board/service.py](../../src/atfm/board/service.py) | Configured Prometheus endpoint supplies worker capacity and cache-related signals. A frontend-only metrics page may not contain these. |
 | Loop → board → proxy | [control/loop.py](../../src/atfm/control/loop.py), [directives.py](../../src/atfm/control/directives.py) | Tick, fetch decisions, validate/expire holds, send bounded batches, validate acknowledgements. |
-| Loop → optional cache actuator | [control/lmcache.py](../../src/atfm/control/lmcache.py) | Pin/move requests using remembered prompt tokens. Endpoint acceptance is not proof of GPU residency or completed transfer. |
+| Loop → optional cache actuator | [control/lmcache.py](../../src/atfm/control/lmcache.py) | MP 0.5.5 CPU warm-prefetch requests with exact token snapshots and verified completion. Pinning and GPU placement are unsupported. |
 
 ### HTTP surface
 
@@ -215,6 +215,16 @@ Synthetic families support large fleets without collecting an equivalently large
 [CPU benchmarks](../../experiments/src/atfm_experiments/benchmark_cpu.py), [GDP benchmarks](../../experiments/src/atfm_experiments/benchmark_gdp.py) and [profiling](../../experiments/src/atfm_experiments/profile_bottlenecks.py) separate setup from the measured operations. [Performance guidance](../development/performance.md) explains why Python remains appropriate for orchestration and where native kernels might be justified by profiles. Moving code to Rust does not eliminate repeated scans, unnecessary HTTP calls or unfavorable scaling.
 
 [Tool trace export](../../experiments/src/atfm_experiments/tool_traces.py) and the [Phoenix smoke workflow](../development/observability-tests.md) are optional experiment infrastructure. They export completed event records for agent-level inspection using OpenInference/OTLP. They are not required runtime dependencies or replacements for queue/CPU measurements.
+
+
+### Real GPU compatibility check
+
+The [GPU validation runner](../development/gpu-cache.md) owns isolated vLLM and
+LMCache processes, clears only its own idle CPU cache, verifies completed disk-to-CPU
+warming, and requires real external-cache reuse with identical generated output.
+It keeps the serving dependencies outside the core package. The
+[recorded RTX 4060 results](../research/2026-09-28-gpu-cache.md) establish this
+contract, not an end-to-end board policy or H100 performance benefit.
 
 ### Verification map
 

@@ -15,7 +15,7 @@ research notes retain the assumptions and findings of their original runs.
 | Upstream transport | Response-lifetime balancing across bounded HTTPX pools; stock fallback for proxy discovery. | [Focused and paired trials](research/2026-09-28-sharded-transport.md), lifecycle tests; remote TLS and production streaming performance remain unvalidated. |
 | Peer ranking | Exact per-tier index counts, maintained with queue mutations. | [Profiles and paired trials](research/2026-09-28-proxy-ranking.md); O(U) queries, still O(Q) when all priorities differ. |
 | Controller capacity input | Prometheus worker-metrics parsing and configurable scraping. | The recorded Mocker frontend did not expose the required KV metrics, so the end-to-end run issued no holds or touches. |
-| LMCache placement | Tokenization/prompt lookup and configurable pin/move/lookup/unpin HTTP adapter. | Adapter tests exist. Compatibility and performance must be validated on the actual controller and real workers. |
+| LMCache CPU warming | Pinned MP 0.5.5 prefetch with immutable token snapshots, bounded pending jobs and verified completion. | [Real RTX 4060 inference](research/2026-09-28-gpu-cache.md) proves disk-to-CPU warming and subsequent external reuse. Pin/unpin and GPU placement are unsupported; no policy benefit is established. |
 | Tier planning | Quantile-based tier recommendations; optional LMCache actuation. | Without LMCache, the runtime logs tier recommendations. No general hardware tier-placement result is claimed here. |
 | Replica floor | Forecast-based minimum-replica proposals and a virtual connector. | The default runtime logs proposals; no external autoscaler is wired by the launcher. |
 | Redis Streams | Library bus with resumable consumer cursor and malformed-event handling. | Local launch scripts use JSONL. Cursor persistence is not a checkpoint of board/model state. |
@@ -37,4 +37,4 @@ does not capture uncommitted source changes. Preserve the actual source revision
 and inputs when releasing a result. H1 writes resolved configuration and scores,
 but its runner does not currently emit the same provenance manifest as H2.
 
-Local GPU-rental preparation now has a [version-pinned Dynamo/AIPerf recipe](development/local-cluster.md). It exercises public AgentX replay on CPU Mocker workers; real LMCache compatibility and ATFM policy benefit remain unvalidated.
+GPU-rental preparation includes a [version-pinned Dynamo/AIPerf CPU recipe](development/local-cluster.md) and a [real vLLM/LMCache GPU check](development/gpu-cache.md). The latter validates CPU warming and inference reuse locally; H100 behavior and ATFM policy benefit remain unvalidated.

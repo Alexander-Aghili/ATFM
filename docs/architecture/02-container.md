@@ -7,7 +7,7 @@
 > **Diagram type**: Container
 > **Scope**: the independently deployable parts of ATFM and how they exchange data with each other, the agent harness and the Dynamo pool.
 > **Audience**: the engineering team building and operating ATFM.
-> **Status**: draft v1.1, generated from the architecture spec (2026-09-23); diagrams moved from Mermaid C4 to reladraw on 2026-09-27; LMCache added as the placement actuator (D3 amendment); historical design view; see current implementation diagrams.
+> **Status**: draft v1.1, generated from the architecture spec (2026-09-23); diagrams moved from Mermaid C4 to reladraw on 2026-09-27; LMCache added as the placement actuator (D3 amendment); historical design view; its pin/move labels describe the old design. The current adapter supports MP CPU warming only; see current implementation diagrams.
 
 ## Overview
 

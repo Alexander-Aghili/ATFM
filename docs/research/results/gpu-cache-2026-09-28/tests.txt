@@ -1,0 +1,30 @@
+........................................................................ [ 12%]
+........................................................................ [ 24%]
+......................................................ss................ [ 36%]
+...........................................s............................ [ 48%]
+........................................................................ [ 60%]
+........................................................................ [ 73%]
+........................................................................ [ 85%]
+........................................................................ [ 97%]
+...............                                                          [100%]
+=============================== warnings summary ===============================
+tests/board/test_shared_live.py::test_jsonl_ticks_do_not_reapply_events_and_prune_consumed_starts
+  /home/alexsky2/Company/.venv/lib/python3.12/site-packages/starlette/testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+
+tests/experiments/test_provenance.py::test_trace_regime_replays_a_parquet_table_and_records_its_hash
+tests/experiments/test_provenance.py::test_trace_regime_replays_a_parquet_table_and_records_its_hash
+  /home/alexsky2/Company/.venv/lib/python3.12/site-packages/numpy/lib/_nanfunctions_impl.py:1573: RuntimeWarning: All-NaN slice encountered
+    return _nanquantile_unchecked(
+
+tests/experiments/test_provenance.py::test_trace_regime_replays_a_parquet_table_and_records_its_hash
+tests/experiments/test_provenance.py::test_trace_regime_replays_a_parquet_table_and_records_its_hash
+  /home/alexsky2/Company/src/atfm/eval/serving.py:141: RuntimeWarning: Mean of empty slice
+    "ci_hi": float(np.nanquantile(d, 0.975)), "diff_mean": float(np.nanmean(diff)),
+
+tests/sim/test_review_fixes.py::test_serving_metrics_use_makespan
+  /home/alexsky2/Company/.venv/lib/python3.12/site-packages/numpy/lib/_nanfunctions_impl.py:1396: RuntimeWarning: All-NaN slice encountered
+    return _nanquantile_unchecked(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+588 passed, 3 skipped, 6 warnings in 41.23s

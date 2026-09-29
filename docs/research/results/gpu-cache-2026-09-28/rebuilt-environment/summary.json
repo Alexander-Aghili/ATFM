@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "prompt_tokens": 352,
+  "external_reused_tokens": 351.0,
+  "cold": {
+    "text": " Explain how a cache reuses stored information",
+    "elapsed_s": 0.13178394798887894,
+    "external_hits": 0.0
+  },
+  "warm": {
+    "text": " Explain how a cache reuses stored information",
+    "elapsed_s": 0.10893130200565793,
+    "external_hits": 351.0
+  },
+  "scope": "single-request compatibility; not a policy benchmark",
+  "prefetch": {
+    "ok": true,
+    "status": "completed",
+    "request_id": "fac06be6a7264ee6bdd524c60229f4fb",
+    "found_keys": 22,
+    "total_keys": 22,
+    "target": "cpu_l1"
+  },
+  "servers_stopped": true
+}

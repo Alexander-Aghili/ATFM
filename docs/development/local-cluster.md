@@ -70,30 +70,20 @@ The first rental should run a small model on one H100 with sufficient host RAM:
 1. Establish ordinary vLLM inference and streaming before enabling cache control.
 2. Pin a compatible vLLM/LMCache release or container digest and record the model,
    tokenizer revision, drivers, GPU, host RAM, cache sizes and transfer settings.
-3. Prove cold fill, lookup, retention/release, transfer completion and subsequent
-   cache reuse on real workers. Record observed residency and reused tokens.
+3. Prove cold fill, supported transfer completion and subsequent cache reuse.
+   Record observed residency, lock state and reused tokens; test leases only
+   if the selected backend actually exposes them.
 4. Replay a representative, dependency-aware workload subset with original timing
    semantics. Do not reuse the smoke's delay/output overrides for policy results.
 5. Compare normal LMCache policy, ATFM in observation-only mode, then one enabled
    ATFM mechanism, at identical resource limits. Keep validation workloads separate.
 
-This document deliberately does not provide an unverified GPU launch command.
-The current ATFM adapter targets the legacy in-process controller. Upstream now
-labels that API deprecated and points to multiprocess mode. Verify the selected
-release's actual request/response schemas before renting for a policy study.
-
-The code audit identifies specific remaining gaps:
-
-- `LocalGPUBackend` is an assumed location in our defaults, not proof that the
-  deployment exposes vLLM's active GPU cache through that controller.
-- Pin/move submissions currently update local state without waiting for the
-  controller's completion event. Accepted work is not completed placement.
-- `prefetch` currently maps to pin; pinning existing data is not GPU prefetch.
-- Expiry resolves the current prompt instead of retaining the originally pinned
-  tokens, and forgets the lease even if release fails. Release semantics need repair.
-
-Resolve these against a pinned backend contract, then add integration tests. A
-successful Mocker replay must never be used to waive these hardware requirements.
+The next local stage is now implemented: [real GPU validation and rental
+handoff](gpu-cache.md) pins vLLM 0.30.0 and LMCache MP 0.5.5 and verifies CPU
+warming followed by real inference reuse on an RTX 4060. It replaces the old
+assumed legacy pin/move contract. MP warm prefetch holds no leases; pinning,
+unpinning and direct GPU placement are explicitly unsupported. The H100 study
+and representative policy comparisons remain future measurements.
 
 ## Upstream references
 

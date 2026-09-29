@@ -13,7 +13,7 @@ node bus "Event transport / bus/jsonl.py in shipped launchers / Redis library or
 node board "Board process / board/service.py: BoardRuntime / Registry, forecasts, controller planning" (wrap: 39) style: runtime gap: wide right of bus
 node gate "Proxy control endpoints / /directives/batch, /gate, /touch / Hold delivery and launch checks" (wrap: 39) style: control gap: wide below sidecar
 node loop "Control-loop process / control/loop.py: ControlLoop / Tick, fetch, validate, batch, apply" (wrap: 39) style: control gap: wide right of gate
-node actuator "Optional LMCache endpoint / control/lmcache.py adapter / Pin and move requests; verify effects" (wrap: 39) style: external gap: wide right of loop
+node actuator "Optional LMCache endpoint / control/lmcache.py adapter / MP 0.5.5 CPU warm prefetch; poll completion" (wrap: 39) style: external gap: wide right of loop
 edge agent -> proxy "chat request" (size: small) from: right to: left
 edge proxy -> engine "HTTP + hints" (size: small) from: right to: left
 edge agent -> sidecar "execute tool" (size: small) from: bottom to: top
