@@ -40,15 +40,17 @@ def test_runner_refuses_an_occupied_port(monkeypatch):
             stack.check_ports()
 
 
-def test_failed_startup_cleans_up_owned_process(tmp_path, monkeypatch):
+@pytest.mark.parametrize('timeout', [360, 900])
+def test_failed_startup_cleans_up_owned_process(tmp_path, monkeypatch, timeout):
     import sys
     from atfm_experiments.gpu_cache import stack
     processes = []
-    def fail_ready(process, url):
+    def fail_ready(process, url, **kwargs):
+        assert kwargs['timeout'] == timeout
         processes.append(process)
         raise RuntimeError('test startup failure')
     monkeypatch.setattr(stack, 'ready', fail_ready)
     with pytest.raises(RuntimeError, match='test startup failure'):
-        with stack.server([sys.executable, '-c', 'import time; time.sleep(30)'], tmp_path, 'failed', 'unused'):
+        with stack.server([sys.executable, '-c', 'import time; time.sleep(30)'], tmp_path, 'failed', 'unused', timeout):
             pytest.fail('startup must not succeed')
     assert len(processes) == 1 and processes[0].poll() is not None

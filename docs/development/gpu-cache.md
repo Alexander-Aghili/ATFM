@@ -29,8 +29,11 @@ LMCache and PyTorch 2.13.0. It is a Linux/Python 3.12 package-version snapshot,
 not a container digest or a portable ABI guarantee. The runner pins both model
 and tokenizer to Qwen/Qwen3-0.6B revision
 `c1899de289a04d12100db370d81485cdf75e47ca`.
-Initial startup downloads weights and compiles kernels. Readiness allows six
-minutes per service. Both services bind loopback; ports 18180, 18181 and 15555
+Initial startup downloads weights and compiles kernels. Readiness defaults to six
+minutes per service. For slow cold starts, set `--startup-timeout 900` to allow
+15 minutes per service; the manifest records the selected limit. This changes
+only readiness waiting, not request deadlines or correctness checks. It does not
+stop a rented Pod or limit billing. Both services bind loopback; ports 18180, 18181 and 15555
 must be free. Output directories must be new. Usage reporting is disabled.
 
 ## What a passing check proves

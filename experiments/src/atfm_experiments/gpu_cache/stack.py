@@ -69,13 +69,13 @@ def ready(process, url, timeout=360):
 
 
 @contextmanager
-def server(command, output, name, url):
+def server(command, output, name, url, startup_timeout=360):
     env = dict(os.environ, PYTHONHASHSEED='0', DO_NOT_TRACK='1', VLLM_NO_USAGE_STATS='1')
     with (output / f'{name}.log').open('w') as log:
         process = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT,
                                    env=env, start_new_session=True)
         try:
-            ready(process, url)
+            ready(process, url, timeout=startup_timeout)
             yield process
         finally:
             stop(process)
