@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "requests": 24.0,
+  "expected_requests": 24,
+  "branches": {},
+  "error_summary": [],
+  "is_complete": true,
+  "elapsed_s": 304.6601174045354,
+  "workload": {
+    "trace_id": "5c5e408b76e5e22747853915f67be3c491a4",
+    "requests": 24,
+    "subagent_groups": 0,
+    "max_context": 93675,
+    "input_tokens": 1557440,
+    "output_tokens": 10202,
+    "input_type_signals": {},
+    "sha256": "4aaddde2e7710b8b5d4ca91a1ebc15561f0cb1b321683a0464ad5ad173e5c9bf"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "requests": 21.0,
+  "expected_requests": 21,
+  "branches": {
+    "children_spawned": 1,
+    "children_completed": 1,
+    "children_errored": 0,
+    "children_truncated": 0,
+    "children_delayed": 0,
+    "parents_suspended": 0,
+    "parents_resumed": 0,
+    "parents_failed_due_to_child_error": 0,
+    "joins_suppressed": 0,
+    "graphs_admitted": 0,
+    "graphs_completed_to_end": 0
+  },
+  "error_summary": [],
+  "is_complete": true,
+  "elapsed_s": 155.92159637622535,
+  "workload": {
+    "trace_id": "bbdcb12440a7ab3496b9fac8b5f9824b1672",
+    "requests": 21,
+    "subagent_groups": 1,
+    "max_context": 54926,
+    "input_tokens": 818752,
+    "output_tokens": 3949,
+    "input_type_signals": {},
+    "sha256": "2b46fc38faf30610e44560aeae37d5bb34a4bdf6bcf0bf1badbd05d809fbbfdd"
+  }
+}

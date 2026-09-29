@@ -1,0 +1,50 @@
+{
+  "id": "chatcmpl-94f8621c5984a616",
+  "object": "chat.completion",
+  "created": 1790656056,
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": null,
+        "refusal": null,
+        "annotations": null,
+        "audio": null,
+        "function_call": null,
+        "tool_calls": [
+          {
+            "id": "chatcmpl-tool-a5ec34ef1c6eca28",
+            "type": "function",
+            "function": {
+              "name": "find_movie_showing",
+              "arguments": "{\"location\": \"San Diego, CA\", \"movie\": [\"Tenet\", \"No Time To Die\"], \"time\": [\"5 pm\", \"7:30 pm\"]}"
+            }
+          }
+        ],
+        "reasoning": null
+      },
+      "logprobs": null,
+      "finish_reason": "tool_calls",
+      "stop_reason": null,
+      "token_ids": null,
+      "routed_experts": null
+    }
+  ],
+  "service_tier": null,
+  "system_fingerprint": "vllm-0.30.0-nohash",
+  "usage": {
+    "prompt_tokens": 278,
+    "total_tokens": 331,
+    "completion_tokens": 53,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+  },
+  "prompt_logprobs": null,
+  "prompt_token_ids": null,
+  "prompt_text": null,
+  "kv_transfer_params": null,
+  "ec_transfer_params": null,
+  "metrics": null
+}

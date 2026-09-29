@@ -99,4 +99,4 @@ Before renting GPUs, run the [real GPU cache check](docs/development/gpu-cache.m
 The pinned vLLM/LMCache stack passed on an RTX 4060: [results and limits](docs/research/2026-09-28-gpu-cache.md).
 The [H100 NVL follow-up](docs/research/2026-09-29-h100-cache.md) also passed cache reuse.
 Use the [public tool-call and agentic workload recipe](docs/development/gpu-public-workloads.md)
-for BFCL API samples and complete Weka sessions; these are distinct from policy-performance claims.
+for BFCL API samples and complete Weka sessions. See the [measured results and limits](docs/research/2026-09-29-public-gpu-workloads.md); these are distinct from policy-performance claims.

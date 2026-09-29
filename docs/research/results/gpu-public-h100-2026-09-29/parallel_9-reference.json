@@ -1,0 +1,53 @@
+{
+  "source": "https://raw.githubusercontent.com/ShishirPatil/gorilla/58f57e9124ea981403792dd51e00a6577e621fae/berkeley-function-call-leaderboard/bfcl_eval/data/possible_answer/BFCL_v4_parallel.json",
+  "source_sha256": "3af54bf04e5b7640b03a9b6a82440f52474feb24b398f94435fd2b155c7727de",
+  "reference": {
+    "id": "parallel_9",
+    "ground_truth": [
+      {
+        "find_movie_showing": {
+          "location": [
+            "San Diego",
+            "San Diego, CA",
+            "CA"
+          ],
+          "movie": [
+            [
+              "Tenet"
+            ]
+          ],
+          "time": [
+            [
+              "5 pm"
+            ],
+            [
+              "17:00"
+            ]
+          ]
+        }
+      },
+      {
+        "find_movie_showing": {
+          "location": [
+            "San Diego",
+            "San Diego, CA",
+            "CA"
+          ],
+          "movie": [
+            [
+              "No Time To Die"
+            ]
+          ],
+          "time": [
+            [
+              "7:30 pm"
+            ],
+            [
+              "19:30"
+            ]
+          ]
+        }
+      }
+    ]
+  }
+}

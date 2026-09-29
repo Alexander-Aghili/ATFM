@@ -8,6 +8,8 @@ predate today's launchers. Use the [project README](../../README.md) and
 
 | Note | Role |
 | --- | --- |
+| [Public H100 workloads](2026-09-29-public-gpu-workloads.md) | BFCL tool-call API cases, complete Weka sessions, cache pressure and retained replay failures. |
+| [H100 cache compatibility](2026-09-29-h100-cache.md) | Native deployment fixes, completed CPU warming and real external-cache reuse. |
 | [Real GPU cache validation](2026-09-28-gpu-cache.md) | Pinned vLLM/LMCache, completed CPU warming, real external reuse and rental handoff. |
 | [Offline policy-selection workflow](2026-09-28-policy-tuning.md) | Constrained selection, held-out uncertainty, reproducible smoke validation and limits. |
 | [Bounded upstream pool sharding](2026-09-28-sharded-transport.md) | Isolated transport trials, response-lifetime balancing, cleanup contracts and full-proxy validation. |

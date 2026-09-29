@@ -1,6 +1,6 @@
 # Implementation and evidence status
 
-Prediction-path status updated on 28 September 2026. This page describes the
+Prediction-path status updated on 28 September 2026; GPU evidence updated on 29 September. This page describes the
 implemented paths and the limits of the recorded evidence. Dated plans and
 research notes retain the assumptions and findings of their original runs.
 
@@ -15,12 +15,12 @@ research notes retain the assumptions and findings of their original runs.
 | Upstream transport | Response-lifetime balancing across bounded HTTPX pools; stock fallback for proxy discovery. | [Focused and paired trials](research/2026-09-28-sharded-transport.md), lifecycle tests; remote TLS and production streaming performance remain unvalidated. |
 | Peer ranking | Exact per-tier index counts, maintained with queue mutations. | [Profiles and paired trials](research/2026-09-28-proxy-ranking.md); O(U) queries, still O(Q) when all priorities differ. |
 | Controller capacity input | Prometheus worker-metrics parsing and configurable scraping. | The recorded Mocker frontend did not expose the required KV metrics, so the end-to-end run issued no holds or touches. |
-| LMCache CPU warming | Pinned MP 0.5.5 prefetch with immutable token snapshots, bounded pending jobs and verified completion. | [Real RTX 4060 inference](research/2026-09-28-gpu-cache.md) proves disk-to-CPU warming and subsequent external reuse. Pin/unpin and GPU placement are unsupported; no policy benefit is established. |
+| LMCache CPU warming | Pinned MP 0.5.5 prefetch with immutable token snapshots, bounded pending jobs and verified completion. | [RTX 4060](research/2026-09-28-gpu-cache.md) and [H100 NVL inference](research/2026-09-29-h100-cache.md) prove disk-to-CPU warming and subsequent external reuse. Pin/unpin and GPU placement are unsupported; no policy benefit is established. |
 | Tier planning | Quantile-based tier recommendations; optional LMCache actuation. | Without LMCache, the runtime logs tier recommendations. No general hardware tier-placement result is claimed here. |
 | Replica floor | Forecast-based minimum-replica proposals and a virtual connector. | The default runtime logs proposals; no external autoscaler is wired by the launcher. |
 | Redis Streams | Library bus with resumable consumer cursor and malformed-event handling. | Local launch scripts use JSONL. Cursor persistence is not a checkpoint of board/model state. |
 | Sidecar adapters | Tool wrappers, progress parsers, mini-SWE-agent, OpenHands, and Harbor adapters. | Tests cover adapters and byte-preserving execution; coverage depends on available tool signals. |
-| GPU study | Study design and experiment configurations. | The repository's local integration evidence is not a completed H100 performance study. |
+| GPU study | Pinned serving runners, public tool-call samples and complete agentic trace replay. | [H100 public-workload evidence](research/2026-09-29-public-gpu-workloads.md) records integration results, cache pressure and replay limitations. A paired ATFM policy-performance study remains outstanding. |
 
 ## Which document is authoritative?
 
@@ -37,4 +37,4 @@ does not capture uncommitted source changes. Preserve the actual source revision
 and inputs when releasing a result. H1 writes resolved configuration and scores,
 but its runner does not currently emit the same provenance manifest as H2.
 
-GPU-rental preparation includes a [version-pinned Dynamo/AIPerf CPU recipe](development/local-cluster.md) and a [real vLLM/LMCache GPU check](development/gpu-cache.md). The latter validates CPU warming and inference reuse locally; H100 behavior and ATFM policy benefit remain unvalidated.
+GPU-rental preparation includes a [version-pinned Dynamo/AIPerf CPU recipe](development/local-cluster.md) and a [real vLLM/LMCache GPU check](development/gpu-cache.md). The latter validates CPU warming and inference reuse on RTX 4060 and H100 NVL. The [public-workload recipe](development/gpu-public-workloads.md) adds BFCL API samples and Weka session replay; ATFM policy benefit remains unvalidated.

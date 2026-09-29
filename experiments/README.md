@@ -144,3 +144,8 @@ The [local cluster recipe](../docs/development/local-cluster.md) runs AIPerf aga
 [GPU cache validation](../docs/development/gpu-cache.md) runs pinned vLLM and LMCache
 with real inference. `gpu-cache/requirements.lock` isolates the serving environment;
 `atfm_experiments.gpu_cache` validates ATFM CPU warming, records evidence and cleans up.
+
+The [public GPU workload recipe](../docs/development/gpu-public-workloads.md)
+adds complete Weka sessions and an isolated 40-case BFCL tool-call API matrix.
+See the [H100 results](../docs/research/2026-09-29-public-gpu-workloads.md) for
+accepted measurements, failed replay attempts and interpretation limits.

@@ -1,0 +1,37 @@
+{
+  "source_sha256": "29b6a19e751ff5230771519aab755f80a0f43a4ba9cf96b72d3a6a437ec99276",
+  "cases": {
+    "multi-branch": {
+      "trace_id": "07dd40536557a1d6440a923557c3129dc929",
+      "requests": 119,
+      "subagent_groups": 3,
+      "max_context": 118677,
+      "input_tokens": 9906624,
+      "output_tokens": 37635,
+      "input_type_signals": {},
+      "sha256": "8c8e3c4b0f2803549ad862cd840a0e8cc786a9d2a0e3fca4dfb7ada3199bee09"
+    },
+    "sequential": {
+      "trace_id": "5c5e408b76e5e22747853915f67be3c491a4",
+      "requests": 24,
+      "subagent_groups": 0,
+      "max_context": 93675,
+      "input_tokens": 1557440,
+      "output_tokens": 10202,
+      "input_type_signals": {},
+      "sha256": "4aaddde2e7710b8b5d4ca91a1ebc15561f0cb1b321683a0464ad5ad173e5c9bf"
+    },
+    "short-branch": {
+      "trace_id": "bbdcb12440a7ab3496b9fac8b5f9824b1672",
+      "requests": 21,
+      "subagent_groups": 1,
+      "max_context": 54926,
+      "input_tokens": 818752,
+      "output_tokens": 3949,
+      "input_type_signals": {},
+      "sha256": "2b46fc38faf30610e44560aeae37d5bb34a4bdf6bcf0bf1badbd05d809fbbfdd"
+    }
+  },
+  "source": "https://huggingface.co/datasets/semianalysisai/cc-traces-weka-062126",
+  "modified": false
+}

@@ -1,0 +1,724 @@
+{
+  "results": {
+    "simple_python": [
+      {
+        "id": "simple_python_0",
+        "elapsed_s": 0.7965050227940083,
+        "passed": true,
+        "tool_calls": 1,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 236,
+          "total_tokens": 264,
+          "completion_tokens": 28,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "simple_python_1",
+        "elapsed_s": 0.5336355557665229,
+        "passed": true,
+        "tool_calls": 1,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 173,
+          "total_tokens": 194,
+          "completion_tokens": 21,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "simple_python_2",
+        "elapsed_s": 0.6964872069656849,
+        "passed": true,
+        "tool_calls": 1,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 260,
+          "total_tokens": 288,
+          "completion_tokens": 28,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "simple_python_3",
+        "elapsed_s": 0.8845341689884663,
+        "passed": true,
+        "tool_calls": 1,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 234,
+          "total_tokens": 270,
+          "completion_tokens": 36,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "simple_python_4",
+        "elapsed_s": 0.8437153520062566,
+        "passed": true,
+        "tool_calls": 1,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 223,
+          "total_tokens": 258,
+          "completion_tokens": 35,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "simple_python_5",
+        "elapsed_s": 0.954413540661335,
+        "passed": true,
+        "tool_calls": 1,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 324,
+          "total_tokens": 365,
+          "completion_tokens": 41,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "simple_python_6",
+        "elapsed_s": 0.780087879858911,
+        "passed": true,
+        "tool_calls": 1,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 224,
+          "total_tokens": 257,
+          "completion_tokens": 33,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "simple_python_7",
+        "elapsed_s": 0.6915638251230121,
+        "passed": true,
+        "tool_calls": 1,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 212,
+          "total_tokens": 241,
+          "completion_tokens": 29,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "simple_python_8",
+        "elapsed_s": 0.5491331582888961,
+        "passed": true,
+        "tool_calls": 1,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 206,
+          "total_tokens": 228,
+          "completion_tokens": 22,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "simple_python_9",
+        "elapsed_s": 0.5625168494880199,
+        "passed": true,
+        "tool_calls": 1,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 207,
+          "total_tokens": 230,
+          "completion_tokens": 23,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      }
+    ],
+    "multiple": [
+      {
+        "id": "multiple_0",
+        "elapsed_s": 1.269173481501639,
+        "passed": true,
+        "tool_calls": 1,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 550,
+          "total_tokens": 605,
+          "completion_tokens": 55,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "multiple_1",
+        "elapsed_s": 0.913018099963665,
+        "passed": true,
+        "tool_calls": 1,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 438,
+          "total_tokens": 476,
+          "completion_tokens": 38,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "multiple_2",
+        "elapsed_s": 0.5482065742835402,
+        "passed": true,
+        "tool_calls": 1,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 307,
+          "total_tokens": 329,
+          "completion_tokens": 22,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "multiple_3",
+        "elapsed_s": 0.9014534559100866,
+        "passed": true,
+        "tool_calls": 1,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 407,
+          "total_tokens": 445,
+          "completion_tokens": 38,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "multiple_4",
+        "elapsed_s": 0.967563034966588,
+        "passed": true,
+        "tool_calls": 1,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 505,
+          "total_tokens": 545,
+          "completion_tokens": 40,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "multiple_5",
+        "elapsed_s": 1.288843585178256,
+        "passed": true,
+        "tool_calls": 1,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 534,
+          "total_tokens": 590,
+          "completion_tokens": 56,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "multiple_6",
+        "elapsed_s": 1.0311612440273166,
+        "passed": true,
+        "tool_calls": 1,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 506,
+          "total_tokens": 550,
+          "completion_tokens": 44,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "multiple_7",
+        "elapsed_s": 1.941241038031876,
+        "passed": true,
+        "tool_calls": 2,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 418,
+          "total_tokens": 504,
+          "completion_tokens": 86,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "multiple_8",
+        "elapsed_s": 1.5550715513527393,
+        "passed": true,
+        "tool_calls": 1,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 497,
+          "total_tokens": 563,
+          "completion_tokens": 66,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "multiple_9",
+        "elapsed_s": 1.122191172093153,
+        "passed": true,
+        "tool_calls": 1,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 373,
+          "total_tokens": 420,
+          "completion_tokens": 47,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      }
+    ],
+    "parallel": [
+      {
+        "id": "parallel_0",
+        "elapsed_s": 1.3347577434033155,
+        "passed": true,
+        "tool_calls": 2,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 228,
+          "total_tokens": 286,
+          "completion_tokens": 58,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "parallel_1",
+        "elapsed_s": 1.6974483309313655,
+        "passed": true,
+        "tool_calls": 2,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 295,
+          "total_tokens": 366,
+          "completion_tokens": 71,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "parallel_2",
+        "elapsed_s": 1.8042920995503664,
+        "passed": true,
+        "tool_calls": 2,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 270,
+          "total_tokens": 348,
+          "completion_tokens": 78,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "parallel_3",
+        "elapsed_s": 2.561937963590026,
+        "passed": true,
+        "tool_calls": 3,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 229,
+          "total_tokens": 343,
+          "completion_tokens": 114,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "parallel_4",
+        "elapsed_s": 1.4162025973200798,
+        "passed": true,
+        "tool_calls": 2,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 231,
+          "total_tokens": 289,
+          "completion_tokens": 58,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "parallel_5",
+        "elapsed_s": 2.119319438934326,
+        "passed": true,
+        "tool_calls": 2,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 286,
+          "total_tokens": 377,
+          "completion_tokens": 91,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "parallel_6",
+        "elapsed_s": 2.686054330319166,
+        "passed": true,
+        "tool_calls": 3,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 264,
+          "total_tokens": 380,
+          "completion_tokens": 116,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "parallel_7",
+        "elapsed_s": 1.576506894081831,
+        "passed": true,
+        "tool_calls": 3,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 178,
+          "total_tokens": 243,
+          "completion_tokens": 65,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "parallel_8",
+        "elapsed_s": 3.089178306981921,
+        "passed": true,
+        "tool_calls": 4,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 252,
+          "total_tokens": 412,
+          "completion_tokens": 160,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "parallel_9",
+        "elapsed_s": 0.8474757419899106,
+        "passed": false,
+        "tool_calls": 1,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 278,
+          "total_tokens": 331,
+          "completion_tokens": 53,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      }
+    ],
+    "parallel_multiple": [
+      {
+        "id": "parallel_multiple_0",
+        "elapsed_s": 1.7331348275765777,
+        "passed": true,
+        "tool_calls": 2,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 347,
+          "total_tokens": 419,
+          "completion_tokens": 72,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "parallel_multiple_1",
+        "elapsed_s": 1.2315857503563166,
+        "passed": true,
+        "tool_calls": 2,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 388,
+          "total_tokens": 439,
+          "completion_tokens": 51,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "parallel_multiple_2",
+        "elapsed_s": 1.1567693445831537,
+        "passed": true,
+        "tool_calls": 2,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 371,
+          "total_tokens": 420,
+          "completion_tokens": 49,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "parallel_multiple_3",
+        "elapsed_s": 1.682943188585341,
+        "passed": true,
+        "tool_calls": 2,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 400,
+          "total_tokens": 472,
+          "completion_tokens": 72,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "parallel_multiple_4",
+        "elapsed_s": 1.5092527773231268,
+        "passed": true,
+        "tool_calls": 2,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 340,
+          "total_tokens": 401,
+          "completion_tokens": 61,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "parallel_multiple_5",
+        "elapsed_s": 1.411922037601471,
+        "passed": true,
+        "tool_calls": 2,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 408,
+          "total_tokens": 468,
+          "completion_tokens": 60,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "parallel_multiple_6",
+        "elapsed_s": 1.3200809294357896,
+        "passed": true,
+        "tool_calls": 2,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 366,
+          "total_tokens": 421,
+          "completion_tokens": 55,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "parallel_multiple_7",
+        "elapsed_s": 1.524897513911128,
+        "passed": true,
+        "tool_calls": 2,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 362,
+          "total_tokens": 428,
+          "completion_tokens": 66,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "parallel_multiple_8",
+        "elapsed_s": 1.7699132794514298,
+        "passed": true,
+        "tool_calls": 2,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 424,
+          "total_tokens": 499,
+          "completion_tokens": 75,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      },
+      {
+        "id": "parallel_multiple_9",
+        "elapsed_s": 1.459932228550315,
+        "passed": true,
+        "tool_calls": 2,
+        "finish_reason": "tool_calls",
+        "usage": {
+          "prompt_tokens": 333,
+          "total_tokens": 395,
+          "completion_tokens": 62,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "semantic_accuracy_scored": false,
+        "tools_executed": false
+      }
+    ]
+  },
+  "passed": false,
+  "provenance": {
+    "simple_python": {
+      "url": "https://raw.githubusercontent.com/ShishirPatil/gorilla/58f57e9124ea981403792dd51e00a6577e621fae/berkeley-function-call-leaderboard/bfcl_eval/data/BFCL_v4_simple_python.json",
+      "source_sha256": "82dd63ba502eb2520c6b5d1d9a5c4b590e03ff261565175561f6228a367d1991",
+      "selected_ids": [
+        "simple_python_0",
+        "simple_python_1",
+        "simple_python_2",
+        "simple_python_3",
+        "simple_python_4",
+        "simple_python_5",
+        "simple_python_6",
+        "simple_python_7",
+        "simple_python_8",
+        "simple_python_9"
+      ],
+      "selected_sha256": "81fd4cc515def0884eaaa01ed3033627d6dbd63d319257ce2e6503c8e380c1e9"
+    },
+    "multiple": {
+      "url": "https://raw.githubusercontent.com/ShishirPatil/gorilla/58f57e9124ea981403792dd51e00a6577e621fae/berkeley-function-call-leaderboard/bfcl_eval/data/BFCL_v4_multiple.json",
+      "source_sha256": "aef168155ebd74b7ac2401198b201343bc7d16d7a3d7e0d4e6d8ee82c6969b2a",
+      "selected_ids": [
+        "multiple_0",
+        "multiple_1",
+        "multiple_2",
+        "multiple_3",
+        "multiple_4",
+        "multiple_5",
+        "multiple_6",
+        "multiple_7",
+        "multiple_8",
+        "multiple_9"
+      ],
+      "selected_sha256": "e1ac1c28bf596b40ccc5e99b8f5e46316ad2824abd5a12f27a0aef3e0bce8f96"
+    },
+    "parallel": {
+      "url": "https://raw.githubusercontent.com/ShishirPatil/gorilla/58f57e9124ea981403792dd51e00a6577e621fae/berkeley-function-call-leaderboard/bfcl_eval/data/BFCL_v4_parallel.json",
+      "source_sha256": "fad375d68295776efb63e5aa331dd884f8635e7bb50e05908113c74f14281c3c",
+      "selected_ids": [
+        "parallel_0",
+        "parallel_1",
+        "parallel_2",
+        "parallel_3",
+        "parallel_4",
+        "parallel_5",
+        "parallel_6",
+        "parallel_7",
+        "parallel_8",
+        "parallel_9"
+      ],
+      "selected_sha256": "6dbab0ffc1d9343707e4fd4cd792029955f131dfc8c4121f73d2db0d197cd53f"
+    },
+    "parallel_multiple": {
+      "url": "https://raw.githubusercontent.com/ShishirPatil/gorilla/58f57e9124ea981403792dd51e00a6577e621fae/berkeley-function-call-leaderboard/bfcl_eval/data/BFCL_v4_parallel_multiple.json",
+      "source_sha256": "8863ea8433239f55c5f016154cf0830853c89f693c6ea270396a2fa121960579",
+      "selected_ids": [
+        "parallel_multiple_0",
+        "parallel_multiple_1",
+        "parallel_multiple_2",
+        "parallel_multiple_3",
+        "parallel_multiple_4",
+        "parallel_multiple_5",
+        "parallel_multiple_6",
+        "parallel_multiple_7",
+        "parallel_multiple_8",
+        "parallel_multiple_9"
+      ],
+      "selected_sha256": "892fff5e62be6f193b436d9684fbd123c8069a588e05d4ed53e36d4ee732c261"
+    }
+  },
+  "scope": "BFCL-derived tool-call API sample; no tools executed or official benchmark score"
+}
