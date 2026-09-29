@@ -13,6 +13,12 @@ RTX 4060 Laptop, and 30 GiB host RAM. Allow substantial disk space for the
 PyTorch/CUDA environment, model download and build cache (50 GiB is a practical
 starting allocation). LMCache's native extension may require a C++ build toolchain.
 An H100 is the next target; the H100 result is not yet measured.
+Native kernel compilation also needs Ninja on the service `PATH` (the runner
+prepends its GPU environment's `bin`) and a compatible CUDA toolkit. A rental
+template's toolkit can differ from the locked runtime. The locked NVIDIA packages
+provide CUDA headers and `nvcc` under the GPU environment's
+`lib/python3.12/site-packages/nvidia/cu13`; set `CUDA_HOME` to that directory when
+the template's toolkit is older. Keep this environment setting with the run evidence.
 The [local evidence report](../research/2026-09-28-gpu-cache.md) records successful
 fresh-cache and rebuilt-environment runs.
 

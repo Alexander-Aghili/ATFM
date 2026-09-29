@@ -54,3 +54,18 @@ def test_failed_startup_cleans_up_owned_process(tmp_path, monkeypatch, timeout):
         with stack.server([sys.executable, '-c', 'import time; time.sleep(30)'], tmp_path, 'failed', 'unused', timeout):
             pytest.fail('startup must not succeed')
     assert len(processes) == 1 and processes[0].poll() is not None
+
+
+def test_server_uses_its_own_environment_bin_directory(tmp_path, monkeypatch):
+    import os
+    import sys
+    from atfm_experiments.gpu_cache import stack
+    binary = tmp_path / 'bin'
+    binary.mkdir()
+    interpreter = binary / 'python'
+    interpreter.symlink_to(sys.executable)
+    monkeypatch.setattr(stack, 'ready', lambda process, url, timeout: process.wait(timeout=5))
+    command = [str(interpreter), '-c', 'import os; print(os.environ["PATH"])']
+    with stack.server(command, tmp_path, 'path', 'unused'):
+        pass
+    assert (tmp_path / 'path.log').read_text().split(os.pathsep)[0] == str(binary)
