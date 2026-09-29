@@ -55,3 +55,21 @@ def test_tool_summary_propagates_case_failure(tmp_path, monkeypatch):
     monkeypatch.setattr(tool_calls, 'one', lambda *args: {'passed': False})
     summary = tool_calls.run(source, tmp_path / 'result', 'test-model')
     assert summary['passed'] is False
+
+
+def test_public_case_validates_export_and_records_verdict(tmp_path, monkeypatch):
+    import json
+
+    output = tmp_path / 'case'
+
+    def client(*args, **kwargs):
+        (output / 'aiperf').mkdir()
+        report = dict(is_complete=True, was_cancelled=False, error_summary=[],
+                      request_count={'avg': 21}, branch_stats={'children_completed': 1})
+        (output / 'aiperf/profile_export_aiperf.json').write_text(json.dumps(report))
+
+    monkeypatch.setattr(replay, 'run_client', client)
+    monkeypatch.setattr(replay, 'snapshot', lambda *args: None)
+    result = replay.run_case(tmp_path / 'client', tmp_path, output, 'trace', {'requests': 21}, 60)
+    assert result['passed'] and result['requests'] == result['expected_requests'] == 21
+    assert json.loads((output / 'result.json').read_text()) == result

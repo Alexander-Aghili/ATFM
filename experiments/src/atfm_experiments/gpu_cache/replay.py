@@ -54,7 +54,7 @@ def run_case(client, source, output, name, details, timeout):
     try:
         with (output / 'aiperf.log').open('w') as log:
             run_client(args, log, timeout=timeout)
-        result = inspect(output)
+        result = inspect(output, details['requests'])
     except (subprocess.SubprocessError, ValueError, KeyError, OSError) as exc:
         result = dict(passed=False, error=f'{type(exc).__name__}: {exc}')
     snapshot(output, 'after')
