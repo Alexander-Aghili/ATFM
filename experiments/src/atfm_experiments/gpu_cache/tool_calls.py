@@ -54,13 +54,13 @@ def payload(item, model):
                 max_tokens=512, temperature=0, seed=7)
 
 
-def inspect(result, body):
+def inspect(result, body, minimum_calls=1):
     choice = result['choices'][0]
     calls = choice['message'].get('tool_calls') or []
     names = {tool['function']['name'] for tool in body['tools']}
     valid = all(call['function']['name'] in names and
                 isinstance(json.loads(call['function']['arguments']), dict) for call in calls)
-    return dict(passed=bool(calls) and valid and choice['finish_reason'] != 'length',
+    return dict(passed=len(calls) >= minimum_calls and valid and choice['finish_reason'] != 'length',
                 tool_calls=len(calls), finish_reason=choice['finish_reason'], usage=result.get('usage'),
                 semantic_accuracy_scored=False, tools_executed=False)
 
@@ -72,7 +72,7 @@ def one(client, item, output, model):
     try:
         result = request(client, 'POST', INFERENCE + '/v1/chat/completions', json=body)
         save(output, item['id'] + '-response', result)
-        checked = inspect(result, body)
+        checked = inspect(result, body, 2 if item['id'].startswith('parallel_') else 1)
     except (httpx.HTTPError, ValueError, KeyError) as exc:
         checked = dict(passed=False, error=f'{type(exc).__name__}: {exc}')
     return dict(id=item['id'], elapsed_s=time.monotonic() - started, **checked)

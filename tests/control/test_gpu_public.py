@@ -34,5 +34,6 @@ def test_bfcl_check_rejects_unknown_tool_and_truncated_output():
     assert not tool_calls.inspect(result, body)['passed']
     result['choices'][0]['message']['tool_calls'][0]['function']['name'] = 'allowed'
     assert tool_calls.inspect(result, body)['passed']
+    assert not tool_calls.inspect(result, body, minimum_calls=2)['passed']
     result['choices'][0]['finish_reason'] = 'length'
     assert not tool_calls.inspect(result, body)['passed']

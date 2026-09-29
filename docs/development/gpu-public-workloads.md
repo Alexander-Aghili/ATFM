@@ -71,7 +71,8 @@ normalizes dots in function names to underscores, rejecting name collisions.
 
 The server enables the Hermes tool parser. Requests use temperature zero, seed
 seven and a 512-token output limit. Checks require nonempty tool calls, offered
-function names, JSON-object arguments and no output truncation. Raw responses and
+function names, JSON-object arguments and no output truncation; parallel cases
+must return at least two calls. Raw responses and
 usage are saved. No generated call is executed, and these checks do not validate
 argument semantics or replace BFCL's official evaluator. They are API integration
 samples, not an official BFCL score or evidence that the model completes tasks.
