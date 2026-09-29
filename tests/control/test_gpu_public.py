@@ -80,3 +80,30 @@ def test_public_retry_runs_only_selected_complete_roots(tmp_path, monkeypatch):
     selection = {'cases': {'short-branch': {}, 'sequential': {}, 'multi-branch': {}}}
     result = replay.run_cases(tmp_path, tmp_path, tmp_path, selection, cases=('multi-branch',))
     assert result == {'multi-branch': {'name': 'multi-branch'}}
+
+
+def test_stack_commands_take_cache_capacity_and_chunk_size(tmp_path):
+    from atfm_experiments.gpu_cache.stack import commands
+
+    cache, _ = commands(tmp_path, tmp_path, context=131072, cpu_gb=48, chunk=256)
+    assert cache[cache.index('--l1-size-gb') + 1] == '48'
+    assert cache[cache.index('--chunk-size') + 1] == '256'
+    assert commands(tmp_path, tmp_path)[0][cache.index('--chunk-size') + 1] == '16'
+
+
+def test_public_replay_bounds_each_case_by_configured_timeouts(tmp_path, monkeypatch):
+    seen = []
+    monkeypatch.setattr(replay, 'run_case', lambda *args: seen.append(args[-1]) or {})
+    selection = {'cases': {'multi-branch': {}}}
+    replay.run_cases(tmp_path, tmp_path, tmp_path, selection, ('multi-branch',), replay.Limits(2400, 3000))
+    assert 2390 <= seen[0] <= 2400
+    replay.run_cases(tmp_path, tmp_path, tmp_path, selection, ('multi-branch',), replay.Limits(2400, 600))
+    assert 590 <= seen[1] <= 600
+
+
+def test_public_replay_cli_defaults_match_first_h100_run():
+    args = replay.parse(['--source', 's', '--output', 'o'])
+    assert (args.l1_gb, args.chunk_size, args.case_timeout, args.total_timeout) == (24, 16, 1200, 2700)
+    args = replay.parse(['--source', 's', '--output', 'o', '--l1-gb', '48', '--chunk-size', '256',
+                         '--case-timeout', '2400', '--total-timeout', '3000'])
+    assert (args.l1_gb, args.chunk_size, args.case_timeout, args.total_timeout) == (48, 256, 2400, 3000)

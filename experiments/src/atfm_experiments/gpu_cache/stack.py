@@ -24,10 +24,10 @@ def check_ports():
             sock.bind(('127.0.0.1', port))
 
 
-def commands(venv, output, model=MODEL, revision=REVISION, context=2048, cpu_gb=.5):
+def commands(venv, output, model=MODEL, revision=REVISION, context=2048, cpu_gb=.5, chunk=16):
     cache = [str(venv / 'bin/lmcache'), 'server', '--host', '127.0.0.1', '--port', '15555',
              '--http-host', '127.0.0.1', '--http-port', '18181', '--l1-size-gb', str(cpu_gb),
-             '--chunk-size', '16', '--eviction-policy', 'LRU', '--l2-adapter',
+             '--chunk-size', str(chunk), '--eviction-policy', 'LRU', '--l2-adapter',
              json.dumps(dict(type='fs', base_path=str(output / 'l2')))]
     connector = dict(kv_connector='LMCacheMPConnector', kv_role='kv_both',
                      kv_connector_module_path='lmcache.integration.vllm.lmcache_mp_connector',
