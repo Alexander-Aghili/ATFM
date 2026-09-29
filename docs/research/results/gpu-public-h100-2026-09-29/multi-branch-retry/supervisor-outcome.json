@@ -1,0 +1,7 @@
+{
+  "passed": false,
+  "exit_code": 124,
+  "reason": "1110-second supervisor timeout; complete 119-request root not finished",
+  "recorded_at": "2026-09-29T04:47:33.615489+00:00",
+  "processes_stopped": true
+}

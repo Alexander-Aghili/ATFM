@@ -1,0 +1,11 @@
+{
+  "passed": false,
+  "expected_requests": 119,
+  "retained_request_records": 92,
+  "unique_turns": 92,
+  "cancelled_records": 0,
+  "server_usage_records": 92,
+  "retained_server_output_tokens": 30433,
+  "expected_full_trace_output_tokens": 37635,
+  "scope": "incomplete retained subset; not a complete-trace latency or throughput result"
+}

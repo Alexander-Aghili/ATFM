@@ -1,0 +1,121 @@
+{
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "model_revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+  "gpu": "name, driver_version, memory.total [MiB]\nNVIDIA H100 NVL, 580.159.04, 95830 MiB\n",
+  "git_revision": "f441de18cfae5b91e68c94f476e00cde82ad3518",
+  "source_sha256": {
+    "/opt/ATFM/experiments/src/atfm_experiments/gpu_cache/__init__.py": "c3862a4ab604bf91fbbc87c86ffb4348759fa0b0a42ad6a047ce3d73586fb289",
+    "/opt/ATFM/experiments/src/atfm_experiments/gpu_cache/__main__.py": "2f2d0be2565fab07c5171793bf716eb9ea49a0f0e9bde3f27618817d0d059b61",
+    "/opt/ATFM/experiments/src/atfm_experiments/gpu_cache/matrix.py": "2be7811ed06bd8a1b419b18da3e51e393f242d701ac5546daa980025d7a0950e",
+    "/opt/ATFM/experiments/src/atfm_experiments/gpu_cache/probe.py": "b1e35ab3746bca235b9f001030ae7a7d2ece438f0e625a477af23a65cd88adb3",
+    "/opt/ATFM/experiments/src/atfm_experiments/gpu_cache/replay.py": "dbdadfb10dec6a12d6f543ae60a268bab12ef4ac02732dda95182d6036c13144",
+    "/opt/ATFM/experiments/src/atfm_experiments/gpu_cache/stack.py": "635edee683c9da842140269289ffa5d495d936f4e863cb8ff2e0c5372e76d6d1",
+    "/opt/ATFM/experiments/src/atfm_experiments/gpu_cache/tool_calls.py": "68140382dca82eb05516b2c3692f45e304a61b99cdb8dd99039966f070400ac5",
+    "/opt/ATFM/experiments/src/atfm_experiments/gpu_cache/tool_matrix.py": "2d084e1bdc0d5acf1627656e67f03509d8e85011eb3231f6a27e1fc9105be39a",
+    "/opt/ATFM/experiments/src/atfm_experiments/gpu_cache/trace_selection.py": "9a8e01ccc42326e894246c8d45a1aed5c8e83df1068180c57d740db7807972e3",
+    "/opt/ATFM/experiments/src/atfm_experiments/gpu_cache/workloads.py": "34444d076fd588e4d01c4cd0e4e0467cf6f4dbf9a63b279a729ef57b1875ffc0",
+    "src/atfm/control/__init__.py": "c2d1b4c45b03d949e53bbb503fd5027ed4789c2bf0cea9315633787268f8405f",
+    "src/atfm/control/directives.py": "96a6a6bd2b20d76c7fa3f9b1dabaebbaf62cbb69abf09b1cf322f92e5fde3652",
+    "src/atfm/control/gdp.py": "1db1718f869836fd8df064f752fbd8d80b4a051bae7271a5fcf273ea041ded32",
+    "src/atfm/control/lmcache.py": "51e1bd6153d8ee05649fab19cdce37b0353e922de0100ecc614978f3fdcaa24c",
+    "src/atfm/control/lmcache_protocol.py": "94eb07701ffb6316faddc21341979a7c10a8549fd9ff1e1174d2940de4e060e4",
+    "src/atfm/control/loop.py": "58ee976dc460dff6be0fb91e1e67ad8fe2dc4228cf6b0a2bb44bea44013eccb1",
+    "src/atfm/control/prompt_tokens.py": "8fa252d66af325a41b963fb03aa5d360a11c4f96850f56b7c445c0fd8eb30f9f",
+    "src/atfm/control/replica.py": "8cd85b26bf423db679ce072155118488e589d3e5783f4c15d01ee75f82a30547",
+    "src/atfm/control/touch.py": "e645c494ccb55788a33b1fc9b58f67c6b59d921c3eefc0538d48758ed415ab18"
+  },
+  "environment": {
+    "CUDA_HOME": "/opt/ATFM/tmp/venvs/gpu/lib/python3.12/site-packages/nvidia/cu13",
+    "HF_HOME": "/workspace/hf-cache"
+  },
+  "commands": [
+    [
+      "/opt/ATFM/tmp/venvs/gpu/bin/lmcache",
+      "server",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "15555",
+      "--http-host",
+      "127.0.0.1",
+      "--http-port",
+      "18181",
+      "--l1-size-gb",
+      "24",
+      "--chunk-size",
+      "16",
+      "--eviction-policy",
+      "LRU",
+      "--l2-adapter",
+      "{\"type\": \"fs\", \"base_path\": \"/workspace/public-multi-retry/l2\"}"
+    ],
+    [
+      "/opt/ATFM/tmp/venvs/gpu/bin/vllm",
+      "serve",
+      "Qwen/Qwen3-4B-Instruct-2507",
+      "--revision",
+      "cdbee75f17c01a7cc42f958dc650907174af0554",
+      "--tokenizer-revision",
+      "cdbee75f17c01a7cc42f958dc650907174af0554",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "18180",
+      "--max-model-len",
+      "131072",
+      "--max-num-seqs",
+      "2",
+      "--gpu-memory-utilization",
+      "0.55",
+      "--enforce-eager",
+      "--no-enable-prefix-caching",
+      "--kv-transfer-config",
+      "{\"kv_connector\": \"LMCacheMPConnector\", \"kv_role\": \"kv_both\", \"kv_connector_module_path\": \"lmcache.integration.vllm.lmcache_mp_connector\", \"kv_connector_extra_config\": {\"lmcache.mp.host\": \"127.0.0.1\", \"lmcache.mp.port\": 15555}}",
+      "--enable-auto-tool-choice",
+      "--tool-call-parser",
+      "hermes"
+    ]
+  ],
+  "selection": {
+    "source_sha256": "29b6a19e751ff5230771519aab755f80a0f43a4ba9cf96b72d3a6a437ec99276",
+    "cases": {
+      "multi-branch": {
+        "trace_id": "07dd40536557a1d6440a923557c3129dc929",
+        "requests": 119,
+        "subagent_groups": 3,
+        "max_context": 118677,
+        "input_tokens": 9906624,
+        "output_tokens": 37635,
+        "input_type_signals": {},
+        "sha256": "8c8e3c4b0f2803549ad862cd840a0e8cc786a9d2a0e3fca4dfb7ada3199bee09"
+      },
+      "sequential": {
+        "trace_id": "5c5e408b76e5e22747853915f67be3c491a4",
+        "requests": 24,
+        "subagent_groups": 0,
+        "max_context": 93675,
+        "input_tokens": 1557440,
+        "output_tokens": 10202,
+        "input_type_signals": {},
+        "sha256": "4aaddde2e7710b8b5d4ca91a1ebc15561f0cb1b321683a0464ad5ad173e5c9bf"
+      },
+      "short-branch": {
+        "trace_id": "bbdcb12440a7ab3496b9fac8b5f9824b1672",
+        "requests": 21,
+        "subagent_groups": 1,
+        "max_context": 54926,
+        "input_tokens": 818752,
+        "output_tokens": 3949,
+        "input_type_signals": {},
+        "sha256": "2b46fc38faf30610e44560aeae37d5bb34a4bdf6bcf0bf1badbd05d809fbbfdd"
+      }
+    },
+    "source": "https://huggingface.co/datasets/semianalysisai/cc-traces-weka-062126",
+    "modified": false
+  },
+  "cases": [
+    "multi-branch"
+  ],
+  "aiperf": "0.13.0",
+  "atfm_control_enabled": false
+}

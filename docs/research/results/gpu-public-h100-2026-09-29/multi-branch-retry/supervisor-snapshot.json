@@ -1,0 +1,9 @@
+{
+  "observed_at": "2026-09-29T04:45:05.742670+00:00",
+  "process_timeout_s": 1110,
+  "progress": {
+    "vllm:request_success_total": 84.0,
+    "vllm:generation_tokens_total": 28163.0
+  },
+  "scope": "in-progress counters; not a complete-trace verdict"
+}

@@ -15,18 +15,27 @@ and rejected attempts.
 - [Selected public roots and source hashes](selection.json), [hardware](hardware.json),
   [shared-stack manifest](shared-manifest.json) and [tool-matrix manifest](tools-manifest.json).
 
+- [Incomplete large retry](multi-branch-retry/supervisor-outcome.json),
+  [retained-record summary](multi-branch-retry/retained-records.json), and
+  [rental shutdown/accounting](rental-outcome.json).
+
 ## Complete archives
 
-`public-initial-evidence.tar.gz` contains the initial configuration failures,
+[public-initial-evidence.tar.gz](public-initial-evidence.tar.gz) contains the initial configuration failures,
 request-bounded truncation, reporting-regression attempt, two accepted seeded
 cases and the invalid quota-exhausted large case. It includes the selected public
 roots, BFCL inputs, raw AIPerf exports, metrics, logs and failure snapshots.
 An archive that contains accepted cases is not an overall passing-suite verdict.
 
-`public-tool-evidence.tar.gz` contains the isolated 40-case tool matrix: selected
+[public-tool-evidence.tar.gz](public-tool-evidence.tar.gz) contains the isolated 40-case tool matrix: selected
 source inputs, source hashes, every request/response, summaries and serving logs.
 The separately retained `parallel_9-reference.json` records the official answer's
 source URL and SHA-256; it was fetched after observing the call-shape discrepancy.
+
+[public-multi-retry-evidence.tar.gz](public-multi-retry-evidence.tar.gz) contains the isolated large-root retry,
+including 92 retained request records, source/configuration provenance, logs,
+a pre-timeout progress snapshot and the explicit non-passing timeout outcome.
+The progress snapshot predates the final records; it is not a final counter.
 
 Archives preserve original files, including null-filled log tails from the disk
 quota failure. Model weights and generated KV binary objects are excluded.

@@ -1,0 +1,23 @@
+{
+  "statuses": [
+    "EXITED",
+    "EXITED"
+  ],
+  "replacement_stop_confirmed_by": "2026-09-29T04:47:58Z",
+  "allocation_windows_utc": [
+    [
+      "2026-09-29T02:36:41.930+00:00",
+      "2026-09-29T03:26:25+00:00"
+    ],
+    [
+      "2026-09-29T03:40:16.821+00:00",
+      "2026-09-29T04:47:58+00:00"
+    ]
+  ],
+  "total_window_seconds": 7044.249,
+  "approved_maximum_compute_seconds": 7200,
+  "quoted_compute_usd_per_hour": 3.19,
+  "estimated_compute_usd": 6.24,
+  "storage_retained": true,
+  "scope": "created-to-confirmed-stop estimate, not provider invoice; storage/tax and billing adjustments excluded"
+}

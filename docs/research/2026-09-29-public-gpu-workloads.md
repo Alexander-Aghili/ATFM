@@ -5,6 +5,12 @@ The purpose is to exercise public workload structure on real vLLM/LMCache,
 validate the replay machinery, and establish a serving baseline. ATFM control
 is disabled. These runs do not establish a policy benefit or task accuracy.
 
+**Outcome:** two complete traces passed (45 requests total); 39/40 BFCL
+call-shape checks passed. The larger 119-request trace first exhausted workspace
+quota, then reached its retry time limit with 92 records retained. It is not a
+passing complete-trace result. Both Pods were stopped within the approved
+aggregate compute allowance.
+
 ## Workload provenance and interpretation
 
 The [reproduction guide](../development/gpu-public-workloads.md) records model,
@@ -116,7 +122,7 @@ The 16-token chunks and eager execution are compatibility settings, not a tuned
 H100 throughput configuration. Larger chunk sizes and CUDA graphs should be
 separate controlled factors before claiming an optimized serving baseline.
 
-Local validation after the final runner fix: **602 passed, 3 skipped**, with
+Local validation after the final runner fix: **603 passed, 3 skipped**, with
 six existing warnings. The core ATFM policy code is unchanged.
 
 The large case also logged 28–55 ms client event-loop delays and L1 batch
@@ -150,8 +156,48 @@ including startup, to preserve time for evidence download and supervised Pod
 shutdown within the original aggregate compute allowance. The trace is not
 shortened and its recorded delays are not capped.
 
+The supervisor returned exit code **124** after 1,110 seconds. The retained
+JSONL contains **92 distinct, non-cancelled request records** and 30,433 server
+output tokens, versus the complete trace's 119 requests and 37,635 output tokens.
+No finalized complete-trace profile was produced. These retained records are a
+partial subset, not an accepted latency distribution or a complete workload.
+The owned serving processes stopped. The retry logged **19 L1 batch-allocation
+warnings and no disk-quota errors**; reclaiming installation and old KV files
+resolved the storage failure but did not remove CPU-cache pressure.
+
 ## Evidence
 
 The [evidence guide](results/gpu-public-h100-2026-09-29/README.md) links readable
 verdicts, pinned inputs, raw request/response and AIPerf archives, hardware
 metadata and checksums. Failed attempts are retained alongside accepted cases.
+
+## Capacity finding
+
+The isolated retry reproduced L1 allocation warnings at 04:36:19 and 04:36:53
+UTC without the previous quota exhaustion. One batch requested 4,153 blocks of
+2,359,296 bytes and was short by 1,301 blocks. Preserve these warnings as
+capacity diagnostics; a failed cache allocation is not automatically a failed
+inference request.
+
+The recorded LMCache layout is 147,456 bytes (144 KiB) per cached token. Thus
+100,000 tokens occupy about 13.73 GiB of KV tensors, and two such contexts require
+about 27.47 GiB before additional overhead. This exceeds the configured 24 GiB
+CPU tier, whose LRU eviction watermark is 80%. High aggregate cache-hit rates do
+not imply that overlapping long contexts can all remain resident.
+
+The next controlled measurements should separate cold prefill, L2 load, CPU-to-GPU
+transfer, and client scheduling time, then vary L1 capacity and chunk size with
+the same pinned roots. A policy comparison should follow with fixed hardware,
+cache settings and workload seeds, including warming cost and unsuccessful
+prefetches. These runs do not establish which cost dominates or an ATFM speedup.
+
+## Shutdown and rental accounting
+
+All three evidence archives were downloaded and their SHA-256 values matched
+the remote copies before stopping the replacement Pod. It was confirmed
+`EXITED` by **04:47:58 UTC**; a subsequent check confirmed both Pods `EXITED`.
+The original and replacement created-to-confirmed-stop windows total about
+**117.4 minutes**, below the approved 120-minute aggregate compute allowance.
+At the quoted $3.19/hour this is approximately **$6.24 compute**, not a provider
+invoice. Storage, tax and billing adjustments are excluded. Both persistent
+volumes remain allocated and chargeable. See the [rental outcome](results/gpu-public-h100-2026-09-29/rental-outcome.json).
