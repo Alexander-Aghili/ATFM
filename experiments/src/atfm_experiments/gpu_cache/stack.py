@@ -17,11 +17,23 @@ PORTS = (18180, 18181, 15555)
 INFERENCE, CACHE = 'http://127.0.0.1:18180', 'http://127.0.0.1:18181'
 
 
-def check_ports():
+def bind_ports():
     with ExitStack() as stack:
         for port in PORTS:
             sock = stack.enter_context(socket.socket())
             sock.bind(('127.0.0.1', port))
+
+
+def check_ports(wait_s=120, poll_s=5):
+    """Require free serving ports, allowing a just-stopped stack's sockets to leave TIME_WAIT."""
+    deadline = time.monotonic() + wait_s
+    while True:
+        try:
+            return bind_ports()
+        except OSError:
+            if time.monotonic() >= deadline:
+                raise
+            time.sleep(poll_s)
 
 
 def commands(venv, output, model=MODEL, revision=REVISION, context=2048, cpu_gb=.5, chunk=16):

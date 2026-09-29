@@ -107,3 +107,32 @@ def test_public_replay_cli_defaults_match_first_h100_run():
     args = replay.parse(['--source', 's', '--output', 'o', '--l1-gb', '48', '--chunk-size', '256',
                          '--case-timeout', '2400', '--total-timeout', '3000'])
     assert (args.l1_gb, args.chunk_size, args.case_timeout, args.total_timeout) == (48, 256, 2400, 3000)
+
+
+def test_port_check_waits_for_recently_closed_serving_ports(monkeypatch):
+    from atfm_experiments.gpu_cache import stack
+
+    attempts = []
+
+    def bind_once():
+        attempts.append(1)
+        if len(attempts) < 3:
+            raise OSError(98, 'Address already in use')
+
+    monkeypatch.setattr(stack, 'bind_ports', bind_once)
+    monkeypatch.setattr(stack.time, 'sleep', lambda s: None)
+    stack.check_ports(wait_s=120, poll_s=5)
+    assert len(attempts) == 3
+
+
+def test_port_check_gives_up_after_its_deadline(monkeypatch):
+    import pytest
+    from atfm_experiments.gpu_cache import stack
+
+    def busy():
+        raise OSError(98, 'Address already in use')
+
+    monkeypatch.setattr(stack, 'bind_ports', busy)
+    monkeypatch.setattr(stack.time, 'sleep', lambda s: None)
+    with pytest.raises(OSError):
+        stack.check_ports(wait_s=0, poll_s=5)
