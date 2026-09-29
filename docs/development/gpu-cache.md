@@ -12,7 +12,8 @@ the locked CUDA 13 runtime. The measured machine uses driver 595.84, an 8 GiB
 RTX 4060 Laptop, and 30 GiB host RAM. Allow substantial disk space for the
 PyTorch/CUDA environment, model download and build cache (50 GiB is a practical
 starting allocation). LMCache's native extension may require a C++ build toolchain.
-An H100 is the next target; the H100 result is not yet measured.
+The [H100 NVL follow-up](../research/2026-09-29-h100-cache.md) also passes this
+compatibility check and records the rental setup issues and fixes.
 Native kernel compilation also needs Ninja on the service `PATH` (the runner
 prepends its GPU environment's `bin`) and a compatible CUDA toolkit. A rental
 template's toolkit can differ from the locked runtime. The locked NVIDIA packages
@@ -127,7 +128,7 @@ CPU directive, not an automatically selected end-to-end placement policy.
 
 ## What to do after renting
 
-First run exactly the same small check, unchanged, on one H100. Preserve its
+First run the same small correctness check on one H100. Preserve its
 artifacts and compare correctness, environment and shutdown results with the
 local evidence. Do not begin with emulated nodes or simultaneous policy changes.
 
