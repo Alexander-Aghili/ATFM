@@ -329,3 +329,13 @@ proxy discovery and an explicit one-shard rollback preserve operational choices.
 Admission priority/holds remain separate from transport. The
 [transport study](../../research/2026-09-28-sharded-transport.md) records component
 and end-to-end trials, including limits and the earlier rejected shared-pool tuning.
+
+### Implementation update: offline settings selection (28 September 2026)
+
+The experiment layer separates target workload/hardware contexts, candidate
+settings, objective/constraints and search/validation budgets. Selection freezes
+before disjoint-seed comparison with the baseline. Missing/failed trials cannot
+win; inconclusive results remain explicit and no settings deploy automatically.
+See the [protocol](../../development/policy-tuning.md) for approximate uncertainty,
+finite-search limits and the future contextual-policy boundary. Runtime defaults
+remain unchanged; the initial real-HTTP adapter uses a fake worker.

@@ -72,3 +72,5 @@ reproductions where a project-specific explanation is needed.
 The ATFM evaluation section incorporates the [proxy ranking and transport study](../../research/2026-09-28-proxy-ranking.md), distinguishing component scaling from end-to-end latency. This is a local implementation update, not a new literature survey.
 
 The ATFM section now distinguishes the rejected larger shared HTTP pool from the subsequent [bounded sharding study](../../research/2026-09-28-sharded-transport.md). The literature-review cutoff is unchanged.
+
+The ATFM section also introduces the [offline tuning protocol](../../development/policy-tuning.md), distinguishing a context-specific best observed configuration from a universal optimum.

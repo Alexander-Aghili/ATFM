@@ -18,7 +18,7 @@ Agents spend much of their time running tests, builds, and other tools. Their ne
 - **Request control:** OpenAI-compatible proxy, priority queues, bounded holds, admission windows, tool launch gates, [prediction overload protection](docs/operations.md#prediction-overload-protection), and [isolated board computation](docs/operations.md#board-computation-and-prediction-freshness).
 - **Cache-aware actions:** budgeted touches and optional LMCache actuation; tier and replica recommendations have explicit integration limits.
 - **Agent instrumentation:** tool sidecars, harness adapters, and JSONL, in-memory, or Redis Streams event transport.
-- **Reproducible evaluation:** closed-loop simulation, paired policy comparisons, CPU/load benchmarks, and optional Phoenix tool-call tracing.
+- **Reproducible evaluation:** simulation, paired comparisons, CPU/load benchmarks, [constrained policy tuning](docs/development/policy-tuning.md), and optional Phoenix tracing.
 
 ## Quickstart
 
@@ -83,7 +83,7 @@ uv run python scripts/run_h2sim.py experiments/h2sim_loaded_kv.yaml
 
 H1 measures prediction quality; H2 measures policy effects under a simulated worker model. HTTP load tests measure runtime overhead with a fake worker. None substitutes for real-GPU validation.
 
-The [experiment guide](experiments/guide.md) lists model and policy families, outputs, and interpretation. For the latest measured bottleneck work, see the [upstream transport study](docs/research/2026-09-28-sharded-transport.md). For scaling and diagnostics, see [CPU benchmarks](experiments/README.md#cpu-scaling-trials), [HTTP load testing](docs/development/load-testing.md), and [Phoenix tracing](docs/development/observability-tests.md). Corpora and run outputs live in ignored `data/` and `runs/` directories.
+The [experiment guide](experiments/guide.md) lists model and policy families, outputs, and interpretation. Use the [policy-tuning workflow](docs/development/policy-tuning.md) to evaluate settings on your workload and hardware, with constraints and independent validation. For the latest measured bottleneck work, see the [upstream transport study](docs/research/2026-09-28-sharded-transport.md). For scaling and diagnostics, see [CPU benchmarks](experiments/README.md#cpu-scaling-trials), [HTTP load testing](docs/development/load-testing.md), and [Phoenix tracing](docs/development/observability-tests.md). Corpora and run outputs live in ignored `data/` and `runs/` directories.
 
 ## Contributing
 

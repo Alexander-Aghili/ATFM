@@ -380,3 +380,15 @@ one-shard setting retains stock HTTPX. The wrapper uses public transport APIs;
 it does not patch HTTPcore. Highly uneven streaming lifetimes and real remote
 TLS workloads still need workload-specific performance validation. Requests
 already queued inside a shard are not migrated to another shard.
+
+## Offline policy selection boundary
+
+The experiment package owns `load/tuning_config.py` (plan and bounds),
+`tuning_metrics.py` (measurement, constraints, objective and Pareto frontier),
+`tuning_validation.py` (held-out paired run-block uncertainty) and `tune.py`
+(scheduling, evidence and the frozen-selection lifecycle). Core runtime imports
+none of these modules. `LoadConfig.upstream_pool_shards` now forwards the explicit
+candidate transport choice to the proxy; other runtime defaults are unchanged.
+A pluggable evaluator must preserve the load-summary schema and write its raw
+artifacts. Missing/failed measurements cannot become winning scores. See the
+[protocol](policy-tuning.md) before adding a candidate proposer, metric or adapter.

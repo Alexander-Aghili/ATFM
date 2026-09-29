@@ -189,6 +189,15 @@ Directive responses are cached by snapshot object identity because planning can 
 
 This is a responsibility map, not a claim that every import forms a strict layer. Simulation intentionally reuses forecasting and scheduling libraries while owning separate virtual worker state. Experiments depend on `atfm`; [package-boundary tests](../../tests/test_package_boundaries.py) guard the reverse direction.
 
+[Offline policy tuning](../development/policy-tuning.md) composes the HTTP evaluator
+with a bounded plan, health/constraint checks, explicit objective and Pareto report.
+`load/tune.py` randomizes paired search blocks, writes a frozen selection, then
+validates it on disjoint seeds. Statistical checks operate on run blocks, not
+correlated individual calls. Results can retain the baseline or remain inconclusive;
+no runtime setting is applied. Candidate proposal, measurement and validation are
+separate responsibilities, enabling later search algorithms without changing the
+measurement contract.
+
 Functions stay within the project's 20-physical-line limit, checked by [check_function_size.py](../../scripts/check_function_size.py). Small functions should name meaningful operations and leave lifecycle ownership visible. Avoid splitting invariants across unrelated helpers merely to satisfy the line count. See the [core developer guide](../development/core.md) for ordering, RNG, parser, queue and controller contracts.
 
 ## 5. Evaluation and observability

@@ -179,3 +179,14 @@ The retained idle connection cap increases from 20 to 100 across shards, so
 connection reuse trades additional idle sockets for less setup work. Idle expiry
 remains five seconds. Compare CPU, latency, connection counts and workload shape;
 a connection-count decrease alone did not justify the earlier single-pool change.
+
+## Choose settings through a protocol, not a universal optimum
+
+The [offline policy-tuning workflow](policy-tuning.md) separates fixed workload/
+hardware conditions from candidate settings, ranks only feasible configurations,
+and validates a frozen selection against the baseline on disjoint seeds. It can
+return an inconclusive result and never deploys settings. Start with a declared
+objective and service/resource constraints; latency, CPU and useful prediction
+coverage are different outcomes. The current finite search evaluates only its
+candidate list and named contexts, not all possible policies or future traffic.
+Existing runtime defaults are heuristics, not measured universal optima.

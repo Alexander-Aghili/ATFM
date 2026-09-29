@@ -330,3 +330,14 @@ corporate proxy. A `NO_PROXY` entry alone does not disable sharding. The setting
 is read at client construction; changing the admission window does not resize
 pools. See the [transport study](research/2026-09-28-sharded-transport.md) for
 measurements, limits, and why one larger shared pool was rejected.
+
+## Workload-specific configuration selection
+
+Use the [offline tuning workflow](development/policy-tuning.md) to compare settings
+under declared latency/resource/prediction constraints on the target hardware.
+The workflow records its plan, environment, raw trials, search frontier and a
+separate holdout decision. A search winner is not a validated recommendation;
+`inconclusive` and `validation_failed` must remain visible. No settings are applied
+automatically. Existing defaults, including the small-window transport heuristic,
+are starting behavior rather than a claim of universal optimality. Production
+use still needs representative backend/streaming tests and monitored validation.

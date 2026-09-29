@@ -126,3 +126,11 @@ concurrency tests, and paired HTTP measurements.
 The [proxy ranking and transport study](../docs/research/2026-09-28-proxy-ranking.md) retains paired burst trials, thread-aware profiles, exact-rank microbenchmarks and a rejected HTTP pool change.
 
 Run `python -m atfm_experiments.load.transport_benchmark --out runs/transport-comparison` for focused real-HTTP pool comparisons. See the [transport study](../docs/research/2026-09-28-sharded-transport.md) for configurations, limits and integrated results.
+
+## Offline policy tuning
+
+Run `python -m atfm_experiments.load.tune --plan experiments/tuning/smoke.json --out runs/tuning-smoke`
+to exercise constrained settings selection and independent validation. The smoke
+suite is deliberately small; see the [protocol](../docs/development/policy-tuning.md)
+for objectives, workload contexts, bounded trials, Pareto results, uncertainty,
+manual application and future Bayesian/contextual search. No core defaults change.

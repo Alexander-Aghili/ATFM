@@ -116,3 +116,5 @@ concurrency tests, and paired HTTP measurements.
 The implementation appendix now records [exact peer ranking and transport trials](../research/2026-09-28-proxy-ranking.md), including the rejected pool tuning and separated request phases.
 
 The implementation appendix also covers [bounded upstream pool sharding](../research/2026-09-28-sharded-transport.md), response-lifetime ownership, transport fixtures and full-proxy measurements.
+
+The implementation appendix now describes [offline policy selection](../development/policy-tuning.md): context-specific objectives, feasibility, Pareto tradeoffs, independent validation and the limits of finite noisy search.

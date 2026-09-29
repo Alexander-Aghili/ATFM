@@ -1,0 +1,49 @@
+{
+  "selected": "partitioned",
+  "aggregates": {
+    "stock": {
+      "feasible": true,
+      "score": 0.05876841808518899,
+      "contexts": {
+        "staggered": {
+          "feasible": true,
+          "runs": 3,
+          "p95_s": 0.05876841808518899,
+          "cpu_s_per_request": 0.006429387270833332,
+          "prediction_use": 1.0
+        },
+        "burst": {
+          "feasible": true,
+          "runs": 3,
+          "p95_s": 0.04678196491780303,
+          "cpu_s_per_request": 0.005521567000000005,
+          "prediction_use": 0.9375
+        }
+      }
+    },
+    "partitioned": {
+      "feasible": true,
+      "score": 0.02457346774584342,
+      "contexts": {
+        "staggered": {
+          "feasible": true,
+          "runs": 3,
+          "p95_s": 0.02457346774584342,
+          "cpu_s_per_request": 0.005890569270833331,
+          "prediction_use": 1.0
+        },
+        "burst": {
+          "feasible": true,
+          "runs": 3,
+          "p95_s": 0.02438991674838083,
+          "cpu_s_per_request": 0.005625849020833333,
+          "prediction_use": 0.9166666666666666
+        }
+      }
+    }
+  },
+  "pareto": [
+    "stock",
+    "partitioned"
+  ]
+}

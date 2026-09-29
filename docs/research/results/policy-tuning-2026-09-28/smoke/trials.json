@@ -1,0 +1,314 @@
+[
+  {
+    "phase": "search",
+    "context": "burst",
+    "seed": 8,
+    "candidate": "partitioned",
+    "directory": "runs/policy-tuning-2026-09-28/smoke-final/search/burst/8/partitioned",
+    "metrics": {
+      "p95_s": 0.02357125174603425,
+      "cpu_s_per_request": 0.005526237999999989,
+      "prediction_use": 0.875
+    },
+    "violations": []
+  },
+  {
+    "phase": "search",
+    "context": "burst",
+    "seed": 8,
+    "candidate": "stock",
+    "directory": "runs/policy-tuning-2026-09-28/smoke-final/search/burst/8/stock",
+    "metrics": {
+      "p95_s": 0.03852730550352135,
+      "cpu_s_per_request": 0.005124073499999993,
+      "prediction_use": 0.9375
+    },
+    "violations": []
+  },
+  {
+    "phase": "search",
+    "context": "burst",
+    "seed": 7,
+    "candidate": "partitioned",
+    "directory": "runs/policy-tuning-2026-09-28/smoke-final/search/burst/7/partitioned",
+    "metrics": {
+      "p95_s": 0.021230804497463396,
+      "cpu_s_per_request": 0.004927566812500006,
+      "prediction_use": 0.9375
+    },
+    "violations": []
+  },
+  {
+    "phase": "search",
+    "context": "burst",
+    "seed": 7,
+    "candidate": "stock",
+    "directory": "runs/policy-tuning-2026-09-28/smoke-final/search/burst/7/stock",
+    "metrics": {
+      "p95_s": 0.0551772614926449,
+      "cpu_s_per_request": 0.005793037312499999,
+      "prediction_use": 0.9375
+    },
+    "violations": []
+  },
+  {
+    "phase": "search",
+    "context": "staggered",
+    "seed": 8,
+    "candidate": "partitioned",
+    "directory": "runs/policy-tuning-2026-09-28/smoke-final/search/staggered/8/partitioned",
+    "metrics": {
+      "p95_s": 0.013692205491679488,
+      "cpu_s_per_request": 0.0050643962500000195,
+      "prediction_use": 1.0
+    },
+    "violations": []
+  },
+  {
+    "phase": "search",
+    "context": "staggered",
+    "seed": 8,
+    "candidate": "stock",
+    "directory": "runs/policy-tuning-2026-09-28/smoke-final/search/staggered/8/stock",
+    "metrics": {
+      "p95_s": 0.04819857600159594,
+      "cpu_s_per_request": 0.005247032750000019,
+      "prediction_use": 1.0
+    },
+    "violations": []
+  },
+  {
+    "phase": "search",
+    "context": "staggered",
+    "seed": 9,
+    "candidate": "partitioned",
+    "directory": "runs/policy-tuning-2026-09-28/smoke-final/search/staggered/9/partitioned",
+    "metrics": {
+      "p95_s": 0.02478661874192767,
+      "cpu_s_per_request": 0.007153551749999987,
+      "prediction_use": 1.0
+    },
+    "violations": []
+  },
+  {
+    "phase": "search",
+    "context": "staggered",
+    "seed": 9,
+    "candidate": "stock",
+    "directory": "runs/policy-tuning-2026-09-28/smoke-final/search/staggered/9/stock",
+    "metrics": {
+      "p95_s": 0.07027875000494532,
+      "cpu_s_per_request": 0.007420671562499981,
+      "prediction_use": 1.0
+    },
+    "violations": []
+  },
+  {
+    "phase": "search",
+    "context": "staggered",
+    "seed": 7,
+    "candidate": "partitioned",
+    "directory": "runs/policy-tuning-2026-09-28/smoke-final/search/staggered/7/partitioned",
+    "metrics": {
+      "p95_s": 0.03524157900392311,
+      "cpu_s_per_request": 0.005453759812499986,
+      "prediction_use": 1.0
+    },
+    "violations": []
+  },
+  {
+    "phase": "search",
+    "context": "staggered",
+    "seed": 7,
+    "candidate": "stock",
+    "directory": "runs/policy-tuning-2026-09-28/smoke-final/search/staggered/7/stock",
+    "metrics": {
+      "p95_s": 0.05782792824902572,
+      "cpu_s_per_request": 0.006620457499999996,
+      "prediction_use": 1.0
+    },
+    "violations": []
+  },
+  {
+    "phase": "search",
+    "context": "burst",
+    "seed": 9,
+    "candidate": "stock",
+    "directory": "runs/policy-tuning-2026-09-28/smoke-final/search/burst/9/stock",
+    "metrics": {
+      "p95_s": 0.046641327757242834,
+      "cpu_s_per_request": 0.005647590187500023,
+      "prediction_use": 0.9375
+    },
+    "violations": []
+  },
+  {
+    "phase": "search",
+    "context": "burst",
+    "seed": 9,
+    "candidate": "partitioned",
+    "directory": "runs/policy-tuning-2026-09-28/smoke-final/search/burst/9/partitioned",
+    "metrics": {
+      "p95_s": 0.02836769400164485,
+      "cpu_s_per_request": 0.006423742250000003,
+      "prediction_use": 0.9375
+    },
+    "violations": []
+  },
+  {
+    "phase": "validation",
+    "context": "burst",
+    "seed": 102,
+    "candidate": "partitioned",
+    "directory": "runs/policy-tuning-2026-09-28/smoke-final/validation/burst/102/partitioned",
+    "metrics": {
+      "p95_s": 0.023312848003115505,
+      "cpu_s_per_request": 0.005745821937500006,
+      "prediction_use": 0.9375
+    },
+    "violations": []
+  },
+  {
+    "phase": "validation",
+    "context": "burst",
+    "seed": 102,
+    "candidate": "stock",
+    "directory": "runs/policy-tuning-2026-09-28/smoke-final/validation/burst/102/stock",
+    "metrics": {
+      "p95_s": 0.053389471999253146,
+      "cpu_s_per_request": 0.006326372875000014,
+      "prediction_use": 0.9375
+    },
+    "violations": []
+  },
+  {
+    "phase": "validation",
+    "context": "burst",
+    "seed": 101,
+    "candidate": "partitioned",
+    "directory": "runs/policy-tuning-2026-09-28/smoke-final/validation/burst/101/partitioned",
+    "metrics": {
+      "p95_s": 0.017253171503398335,
+      "cpu_s_per_request": 0.005638108187500018,
+      "prediction_use": 1.0
+    },
+    "violations": []
+  },
+  {
+    "phase": "validation",
+    "context": "burst",
+    "seed": 101,
+    "candidate": "stock",
+    "directory": "runs/policy-tuning-2026-09-28/smoke-final/validation/burst/101/stock",
+    "metrics": {
+      "p95_s": 0.043500001997017534,
+      "cpu_s_per_request": 0.005589649874999991,
+      "prediction_use": 0.9375
+    },
+    "violations": []
+  },
+  {
+    "phase": "validation",
+    "context": "staggered",
+    "seed": 102,
+    "candidate": "partitioned",
+    "directory": "runs/policy-tuning-2026-09-28/smoke-final/validation/staggered/102/partitioned",
+    "metrics": {
+      "p95_s": 0.019866620503307786,
+      "cpu_s_per_request": 0.005485195312499996,
+      "prediction_use": 1.0
+    },
+    "violations": []
+  },
+  {
+    "phase": "validation",
+    "context": "staggered",
+    "seed": 102,
+    "candidate": "stock",
+    "directory": "runs/policy-tuning-2026-09-28/smoke-final/validation/staggered/102/stock",
+    "metrics": {
+      "p95_s": 0.051192603747040266,
+      "cpu_s_per_request": 0.006058490062500005,
+      "prediction_use": 1.0
+    },
+    "violations": []
+  },
+  {
+    "phase": "validation",
+    "context": "staggered",
+    "seed": 103,
+    "candidate": "partitioned",
+    "directory": "runs/policy-tuning-2026-09-28/smoke-final/validation/staggered/103/partitioned",
+    "metrics": {
+      "p95_s": 0.019547657248040196,
+      "cpu_s_per_request": 0.006161389687499991,
+      "prediction_use": 1.0
+    },
+    "violations": []
+  },
+  {
+    "phase": "validation",
+    "context": "staggered",
+    "seed": 103,
+    "candidate": "stock",
+    "directory": "runs/policy-tuning-2026-09-28/smoke-final/validation/staggered/103/stock",
+    "metrics": {
+      "p95_s": 0.05324719400232425,
+      "cpu_s_per_request": 0.005846243624999997,
+      "prediction_use": 1.0
+    },
+    "violations": []
+  },
+  {
+    "phase": "validation",
+    "context": "staggered",
+    "seed": 101,
+    "candidate": "partitioned",
+    "directory": "runs/policy-tuning-2026-09-28/smoke-final/validation/staggered/101/partitioned",
+    "metrics": {
+      "p95_s": 0.022846954245324014,
+      "cpu_s_per_request": 0.00598629618749999,
+      "prediction_use": 1.0
+    },
+    "violations": []
+  },
+  {
+    "phase": "validation",
+    "context": "staggered",
+    "seed": 101,
+    "candidate": "stock",
+    "directory": "runs/policy-tuning-2026-09-28/smoke-final/validation/staggered/101/stock",
+    "metrics": {
+      "p95_s": 0.04792080074548721,
+      "cpu_s_per_request": 0.005767128812499994,
+      "prediction_use": 1.0
+    },
+    "violations": []
+  },
+  {
+    "phase": "validation",
+    "context": "burst",
+    "seed": 103,
+    "candidate": "stock",
+    "directory": "runs/policy-tuning-2026-09-28/smoke-final/validation/burst/103/stock",
+    "metrics": {
+      "p95_s": 0.05270107225442189,
+      "cpu_s_per_request": 0.005852742062499999,
+      "prediction_use": 0.9375
+    },
+    "violations": []
+  },
+  {
+    "phase": "validation",
+    "context": "burst",
+    "seed": 103,
+    "candidate": "partitioned",
+    "directory": "runs/policy-tuning-2026-09-28/smoke-final/validation/burst/103/partitioned",
+    "metrics": {
+      "p95_s": 0.021454583995364374,
+      "cpu_s_per_request": 0.005885168875000013,
+      "prediction_use": 0.9375
+    },
+    "violations": []
+  }
+]

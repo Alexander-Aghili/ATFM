@@ -1,0 +1,1963 @@
+{
+  "revision": "d283acd",
+  "files": {
+    "smoke/environment.json": {
+      "bytes": 10498,
+      "sha256": "6eaa22bb40631988a26ff5cf71903adf039c84b45bda2790772d957cd38ba397"
+    },
+    "smoke/plan.json": {
+      "bytes": 2571,
+      "sha256": "01049f4c775fbc4152f56a3205ec86766ac390f4e27687effcd2b30d3bbf29b8"
+    },
+    "smoke/result.json": {
+      "bytes": 2889,
+      "sha256": "8a6db4301cc3a4248454ce2c486c0ca32e32e5839c7926ed1f3c92d10af06660"
+    },
+    "smoke/search/burst/7/partitioned/arrivals.json.gz": {
+      "bytes": 1237,
+      "sha256": "9afa314036332456b4475407a60eeeeddb9d976006adb06d41e4e8d9444f5d09"
+    },
+    "smoke/search/burst/7/partitioned/board-payload.json": {
+      "bytes": 994,
+      "sha256": "f027ba2d39374a00127059b9b9adf2cd511f4e967780e42295bc73435eefa549"
+    },
+    "smoke/search/burst/7/partitioned/board.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/burst/7/partitioned/config.json": {
+      "bytes": 764,
+      "sha256": "328b3d233b0cbf13bab9609609226ff69e36403a3275acef22b610c8b26dc614"
+    },
+    "smoke/search/burst/7/partitioned/control-http.jsonl.gz": {
+      "bytes": 1497,
+      "sha256": "71a4c13eb0a6407160c1bb90db903374d5696626193014f81171b0a55f15cc0d"
+    },
+    "smoke/search/burst/7/partitioned/control-steps.jsonl.gz": {
+      "bytes": 768,
+      "sha256": "a11de6462d88951741b3c26c7f454a7e8ad3acbe56ed12b0d896ad4b9470618d"
+    },
+    "smoke/search/burst/7/partitioned/control.jsonl.gz": {
+      "bytes": 630,
+      "sha256": "54967ea94df17732c9595472c617a043c3d12960bad97a93bdbffd19ce4cebff"
+    },
+    "smoke/search/burst/7/partitioned/environment.json": {
+      "bytes": 10464,
+      "sha256": "aa582ef264ced4f884b9f5997c87d60f986f9c1336be6ca7e657b98b5d752bb8"
+    },
+    "smoke/search/burst/7/partitioned/events.jsonl.gz": {
+      "bytes": 12456,
+      "sha256": "70212fda0a99aa6368c7d5adfc00a4f0cb36f923297fa8c7d5a4a37a8aa91ac1"
+    },
+    "smoke/search/burst/7/partitioned/observations.jsonl.gz": {
+      "bytes": 22892,
+      "sha256": "34c5821547d3b8a28ad297c2400e2785f23f946ccd5a32bd9a8caf4d2b6189eb"
+    },
+    "smoke/search/burst/7/partitioned/proxy-payload.json": {
+      "bytes": 1035,
+      "sha256": "5b16a90bd6e159f126a4e2b86d7110e5137c8f28262b91f007bc550664febf5e"
+    },
+    "smoke/search/burst/7/partitioned/proxy-trace.jsonl.gz": {
+      "bytes": 6284,
+      "sha256": "b00d66f6f76974a51cf124e707b866a7a27999e5732a955d97da73973edd821a"
+    },
+    "smoke/search/burst/7/partitioned/proxy.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/burst/7/partitioned/requests.jsonl.gz": {
+      "bytes": 14310,
+      "sha256": "32a94a7bbeed92a5d3a4cd931ea85da48624c61584f1d9ab91e077414e735c73"
+    },
+    "smoke/search/burst/7/partitioned/shutdown.json": {
+      "bytes": 181,
+      "sha256": "5e3e84f567937fef9b0a01f019ad6bcb94df47a8993d2affc3f4db0401eca56e"
+    },
+    "smoke/search/burst/7/partitioned/stack.json": {
+      "bytes": 1159,
+      "sha256": "89975eab8a8053ca9ff079b8d5a8fec9775b485cb9e982589bfd35b3ec4e1428"
+    },
+    "smoke/search/burst/7/partitioned/summary.json": {
+      "bytes": 12543,
+      "sha256": "a9d8fbf242293381d43323b266f16f2eb165423ce29c8f88b27944a21cedcc47"
+    },
+    "smoke/search/burst/7/partitioned/tools.json.gz": {
+      "bytes": 1497,
+      "sha256": "06053f11d7c92313d0d05fc1d3a539d35d94987f52dfbc5fd143a07591c0b91a"
+    },
+    "smoke/search/burst/7/partitioned/worker-payload.json": {
+      "bytes": 952,
+      "sha256": "3700dc19951fbd9c23293d41367a7dcb0ad57a19eb4b4bf4c0a2bda351d1c302"
+    },
+    "smoke/search/burst/7/partitioned/worker.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/burst/7/stock/arrivals.json.gz": {
+      "bytes": 1236,
+      "sha256": "1bc498f4340ec4119883531809c95a16eeb70e1fecf455118c77a22deabdddb4"
+    },
+    "smoke/search/burst/7/stock/board-payload.json": {
+      "bytes": 988,
+      "sha256": "31e9174b20f56911b1869a3176d878b4b68db869d8c245e16c078ddee7699ddf"
+    },
+    "smoke/search/burst/7/stock/board.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/burst/7/stock/config.json": {
+      "bytes": 764,
+      "sha256": "04a373a00a298829144a3dee95a649afacbd4fe0813d036b725178c503953834"
+    },
+    "smoke/search/burst/7/stock/control-http.jsonl.gz": {
+      "bytes": 1495,
+      "sha256": "e1b878cc61b9ab27c2a35cb2bea688616a77881adf6ff66f9c654a212bc4f6d9"
+    },
+    "smoke/search/burst/7/stock/control-steps.jsonl.gz": {
+      "bytes": 772,
+      "sha256": "c2a09903ebdd6199ab66c2bc5d57bd21283a109b529395ac22850bf0b3bca053"
+    },
+    "smoke/search/burst/7/stock/control.jsonl.gz": {
+      "bytes": 632,
+      "sha256": "71c06229507fa42b28fbf2f48051854aa4f134201935bab3bd6bed21533e07d9"
+    },
+    "smoke/search/burst/7/stock/environment.json": {
+      "bytes": 10464,
+      "sha256": "aa582ef264ced4f884b9f5997c87d60f986f9c1336be6ca7e657b98b5d752bb8"
+    },
+    "smoke/search/burst/7/stock/events.jsonl.gz": {
+      "bytes": 12441,
+      "sha256": "44e5ae9ff981ef45b70a405ac5bda49adfd4ed5677b04917ed0509088d64d9bd"
+    },
+    "smoke/search/burst/7/stock/observations.jsonl.gz": {
+      "bytes": 22251,
+      "sha256": "726c1a3b556bb765b6ee6ae2d0292226b63df05545257eac5364ab8e674dac3d"
+    },
+    "smoke/search/burst/7/stock/proxy-payload.json": {
+      "bytes": 1029,
+      "sha256": "5709c7266aa9312d86d141449b5d23cb5882532bf7d25d53b1dab92896fe4285"
+    },
+    "smoke/search/burst/7/stock/proxy-trace.jsonl.gz": {
+      "bytes": 6268,
+      "sha256": "4bbab373fc325faea666c1e7b5df15fa7b8ea1c763525b4f4c21af5ea30b00c3"
+    },
+    "smoke/search/burst/7/stock/proxy.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/burst/7/stock/requests.jsonl.gz": {
+      "bytes": 14292,
+      "sha256": "12abe703a7ee56c42cd416e08ec32d48080a278530aeb6053de3fa8bd0082f33"
+    },
+    "smoke/search/burst/7/stock/shutdown.json": {
+      "bytes": 181,
+      "sha256": "6339183192f829f74ce8d3245eb7c494f6bbaf31251888369ed936148a102d9e"
+    },
+    "smoke/search/burst/7/stock/stack.json": {
+      "bytes": 1153,
+      "sha256": "452078299e1d8d80c22f522a44181b00d92569528317c80d431cd7c38dcef00a"
+    },
+    "smoke/search/burst/7/stock/summary.json": {
+      "bytes": 12498,
+      "sha256": "3a814ad19bbf818f2248efa97030102f396b36f7d803e351dddf5be95d4638ae"
+    },
+    "smoke/search/burst/7/stock/tools.json.gz": {
+      "bytes": 1496,
+      "sha256": "547c413531070d47842671ad9ab8194860296929ffe3a8ad740783826fabaf5a"
+    },
+    "smoke/search/burst/7/stock/worker-payload.json": {
+      "bytes": 946,
+      "sha256": "f12ca98e5f410e30927b93c3452306a32830fa79af8b2b172456275e2da803cd"
+    },
+    "smoke/search/burst/7/stock/worker.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/burst/8/partitioned/arrivals.json.gz": {
+      "bytes": 1236,
+      "sha256": "5961e03725eb0abcd67d87594d0645b950708fa9b9ee8203c5153ab210931e25"
+    },
+    "smoke/search/burst/8/partitioned/board-payload.json": {
+      "bytes": 994,
+      "sha256": "fe3778ad491c17b6d6a62ba7b22873727b0cbfd816e87d179891206ac91d152c"
+    },
+    "smoke/search/burst/8/partitioned/board.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/burst/8/partitioned/config.json": {
+      "bytes": 764,
+      "sha256": "c0ef90156ae5bd9d41243abc1e4a131c6c479dd5dffe6965fc91ce2cc39919e5"
+    },
+    "smoke/search/burst/8/partitioned/control-http.jsonl.gz": {
+      "bytes": 1490,
+      "sha256": "12ccd60dab0f23492feab8e5826ed96ea2efb6ebc4984200a4c265c487ec226c"
+    },
+    "smoke/search/burst/8/partitioned/control-steps.jsonl.gz": {
+      "bytes": 772,
+      "sha256": "cabf8e82dc6540bed97e4df9e2b5f2a6f3bd2bb8600c0e0a9d20d480618c3700"
+    },
+    "smoke/search/burst/8/partitioned/control.jsonl.gz": {
+      "bytes": 632,
+      "sha256": "2421e92b074d0889d400553fd7f9774f3ccc50bb7e864c6e13a0e121b2478304"
+    },
+    "smoke/search/burst/8/partitioned/environment.json": {
+      "bytes": 10464,
+      "sha256": "aa582ef264ced4f884b9f5997c87d60f986f9c1336be6ca7e657b98b5d752bb8"
+    },
+    "smoke/search/burst/8/partitioned/events.jsonl.gz": {
+      "bytes": 12441,
+      "sha256": "12eaf61ec8e0cdbd77af5eb4204db91c2de8d417ff5fdcd68527807627bb0ef0"
+    },
+    "smoke/search/burst/8/partitioned/observations.jsonl.gz": {
+      "bytes": 23536,
+      "sha256": "643e3401fbebf09cfa933be22e0691ba4e05ce20ea29a22d5932261b32d47de4"
+    },
+    "smoke/search/burst/8/partitioned/proxy-payload.json": {
+      "bytes": 1035,
+      "sha256": "fb7f345f411f39c5707c9d24c4e50fafd29a22b40d34406b5da0fa064cb37d6f"
+    },
+    "smoke/search/burst/8/partitioned/proxy-trace.jsonl.gz": {
+      "bytes": 6274,
+      "sha256": "7316822b7792aafc416fdc59ccbe274e3c22962ce570b90298e51aa89e596648"
+    },
+    "smoke/search/burst/8/partitioned/proxy.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/burst/8/partitioned/requests.jsonl.gz": {
+      "bytes": 14276,
+      "sha256": "b37a9ea489cc20defd497361a210252c3b073ea947f8b75f5c6bf8849d0483a6"
+    },
+    "smoke/search/burst/8/partitioned/shutdown.json": {
+      "bytes": 181,
+      "sha256": "e08e4bdea4e628daf9a8c4f68cd7d75634e26ca1a2a0aaa093c11e14d7f8808e"
+    },
+    "smoke/search/burst/8/partitioned/stack.json": {
+      "bytes": 1159,
+      "sha256": "9a254a2ab3c356ebb4262baaf40652a298c778beb0fe4f23eb08533072a2df4f"
+    },
+    "smoke/search/burst/8/partitioned/summary.json": {
+      "bytes": 12539,
+      "sha256": "0e4b8dfc702623c5ae3258a29406d1d1b6ae13ad8c8dbd56eb14efa822ffa5bb"
+    },
+    "smoke/search/burst/8/partitioned/tools.json.gz": {
+      "bytes": 1497,
+      "sha256": "8fefacc7f98c84f48387123ee0f39769dff7635a31c24d1e9a4b7c9e1be9b5d5"
+    },
+    "smoke/search/burst/8/partitioned/worker-payload.json": {
+      "bytes": 952,
+      "sha256": "02550103fdb99128d784a51fd0d63f6b5af2ee6deb76de04ca513f957e27b833"
+    },
+    "smoke/search/burst/8/partitioned/worker.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/burst/8/stock/arrivals.json.gz": {
+      "bytes": 1235,
+      "sha256": "fc093dc6f829b05aa095a8e59bf40496632a8a9a4bf1269f0a754178fe026c77"
+    },
+    "smoke/search/burst/8/stock/board-payload.json": {
+      "bytes": 988,
+      "sha256": "179ef03f88b90e807446ad57e1ef32cd7b647613e09a14cc4ff7f4bc3bd5d08d"
+    },
+    "smoke/search/burst/8/stock/board.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/burst/8/stock/config.json": {
+      "bytes": 764,
+      "sha256": "b3d5acfbcb06f9c6a9fbd8e6ca45e0dd9ceb814ef215ced817a71d27a592ec0e"
+    },
+    "smoke/search/burst/8/stock/control-http.jsonl.gz": {
+      "bytes": 1353,
+      "sha256": "ed87ba65108bb66893f955561d9cb9a295c73766b3ad5728bda708b2e66d6504"
+    },
+    "smoke/search/burst/8/stock/control-steps.jsonl.gz": {
+      "bytes": 770,
+      "sha256": "e5511852ac9861ed13f02051ce91fda4ed574af0d49cc30a7a49c5b74544e224"
+    },
+    "smoke/search/burst/8/stock/control.jsonl.gz": {
+      "bytes": 631,
+      "sha256": "b51a084f37f549eb263c560501d6d4e850969f1195d2d6e25ea495f8ea7dc6d3"
+    },
+    "smoke/search/burst/8/stock/environment.json": {
+      "bytes": 10464,
+      "sha256": "aa582ef264ced4f884b9f5997c87d60f986f9c1336be6ca7e657b98b5d752bb8"
+    },
+    "smoke/search/burst/8/stock/events.jsonl.gz": {
+      "bytes": 12440,
+      "sha256": "093980fcb6430183670c593d22d12ee53fdd6b17fd75a189edbc898be10a0d10"
+    },
+    "smoke/search/burst/8/stock/observations.jsonl.gz": {
+      "bytes": 22253,
+      "sha256": "f67654ac636ef2059219a897d077ddec1b034f3b23b383775d2a60bc632bda15"
+    },
+    "smoke/search/burst/8/stock/proxy-payload.json": {
+      "bytes": 1029,
+      "sha256": "0b4609b69f6febc096735f2c13621c3911f676ea4fa0449c1faad2c03bc13420"
+    },
+    "smoke/search/burst/8/stock/proxy-trace.jsonl.gz": {
+      "bytes": 6273,
+      "sha256": "3692b7737db01722766fb9e3c05696725086718db240722258ddac11f4672311"
+    },
+    "smoke/search/burst/8/stock/proxy.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/burst/8/stock/requests.jsonl.gz": {
+      "bytes": 14293,
+      "sha256": "50ce19f23d7c2214c3c9166653b5824e16b44841cde0d1e6a2874f89e0da3356"
+    },
+    "smoke/search/burst/8/stock/shutdown.json": {
+      "bytes": 181,
+      "sha256": "acf18576b52b5db1e399e1e386799a11f9542c754a48284443d1dbf5b1215e3a"
+    },
+    "smoke/search/burst/8/stock/stack.json": {
+      "bytes": 1153,
+      "sha256": "3ca7e9e1256397bd7342d4c1456658971676619904f4ea4518699c90918eb74b"
+    },
+    "smoke/search/burst/8/stock/summary.json": {
+      "bytes": 12496,
+      "sha256": "e83ea6fb1eb0b8c8dcdc20785f1827c7c7b9a07540c349dd07b2dcee450cd7ab"
+    },
+    "smoke/search/burst/8/stock/tools.json.gz": {
+      "bytes": 1491,
+      "sha256": "48ed34d3e7a2ac34c091430d72ff3ac75be8b24e0c4171018271e6a8e6922155"
+    },
+    "smoke/search/burst/8/stock/worker-payload.json": {
+      "bytes": 946,
+      "sha256": "dcda658949d0afcef87081db53f444ef3d78c3bff45e07e7983ec936c3cef4f1"
+    },
+    "smoke/search/burst/8/stock/worker.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/burst/9/partitioned/arrivals.json.gz": {
+      "bytes": 1234,
+      "sha256": "5b8f475bee13aeafb9c8247488a82b44bc59790d75adad201483c0841ff9f7d0"
+    },
+    "smoke/search/burst/9/partitioned/board-payload.json": {
+      "bytes": 994,
+      "sha256": "0b552a5636714e5125017fecd3381599f80b0d4623f5c50e4e1c199c727acdc0"
+    },
+    "smoke/search/burst/9/partitioned/board.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/burst/9/partitioned/config.json": {
+      "bytes": 764,
+      "sha256": "a4233bc199da03c345388e6e1f55fd6726c2fcb7a60281571a8bd0232b6f1121"
+    },
+    "smoke/search/burst/9/partitioned/control-http.jsonl.gz": {
+      "bytes": 1493,
+      "sha256": "28339209be22dcfb7317caaa3787548e24081d38036f9b1466fc0bcbbc11943e"
+    },
+    "smoke/search/burst/9/partitioned/control-steps.jsonl.gz": {
+      "bytes": 769,
+      "sha256": "2847df664d0935b67da23424a22800f1230b54776a655c021dbe4db23997669e"
+    },
+    "smoke/search/burst/9/partitioned/control.jsonl.gz": {
+      "bytes": 632,
+      "sha256": "8fd6cdef0deef7844b5bf293fd49d8f7a3a24737385ab8ac0805f7b4d5fe8b69"
+    },
+    "smoke/search/burst/9/partitioned/environment.json": {
+      "bytes": 10464,
+      "sha256": "aa582ef264ced4f884b9f5997c87d60f986f9c1336be6ca7e657b98b5d752bb8"
+    },
+    "smoke/search/burst/9/partitioned/events.jsonl.gz": {
+      "bytes": 12449,
+      "sha256": "b8dd1b0fd2df39e27356c5183e4ebf79fed401ddb53f376f934ee04e13787ad3"
+    },
+    "smoke/search/burst/9/partitioned/observations.jsonl.gz": {
+      "bytes": 22821,
+      "sha256": "7a2740bb10ed282899004e4733ac6e1c4599f80409409858a17c0f393f1c6ab0"
+    },
+    "smoke/search/burst/9/partitioned/proxy-payload.json": {
+      "bytes": 1035,
+      "sha256": "d011b6aa56588d8b3229c54407a1b2773a39a24b97fb43463e2752dfba43d994"
+    },
+    "smoke/search/burst/9/partitioned/proxy-trace.jsonl.gz": {
+      "bytes": 6274,
+      "sha256": "b997af0cc4b5c36c77fd3d082ce455577543a0168baefec7f8b4ae9b32350816"
+    },
+    "smoke/search/burst/9/partitioned/proxy.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/burst/9/partitioned/requests.jsonl.gz": {
+      "bytes": 14288,
+      "sha256": "7aecd32d9e2b4781eb89b45aeb18a3e0e87e548ff54647d6063093308b05f4d8"
+    },
+    "smoke/search/burst/9/partitioned/shutdown.json": {
+      "bytes": 181,
+      "sha256": "9485d7fb9e973b42285ad109da43931054241d84d84aabd32d5b53487b91ae90"
+    },
+    "smoke/search/burst/9/partitioned/stack.json": {
+      "bytes": 1159,
+      "sha256": "179b7fa82c307df5b9b917b23f976e42a91c16bf432e3ce975f5e460f37320cb"
+    },
+    "smoke/search/burst/9/partitioned/summary.json": {
+      "bytes": 12515,
+      "sha256": "ef0340186bb14d20840a111b27cb70a92ce841e602d88c204c3ba05c1b3f2073"
+    },
+    "smoke/search/burst/9/partitioned/tools.json.gz": {
+      "bytes": 1490,
+      "sha256": "dbb9c904001fdeea8885b98a05dcae3a6555391349a535ca044de0c0e6c2ebc4"
+    },
+    "smoke/search/burst/9/partitioned/worker-payload.json": {
+      "bytes": 952,
+      "sha256": "8d60e680e4c72e99d4ee3f312eadb8845ed2b016dd840cfc8f97b8e42c359508"
+    },
+    "smoke/search/burst/9/partitioned/worker.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/burst/9/stock/arrivals.json.gz": {
+      "bytes": 1236,
+      "sha256": "5f65ee5f5c34ed13fe6ec5e2276de4227bf05f4ed1043a291f3d69e245fa56fb"
+    },
+    "smoke/search/burst/9/stock/board-payload.json": {
+      "bytes": 988,
+      "sha256": "dedb27dc004eae42fc92ef2cfa9e592f902a303e127e366a7668edce28e0483c"
+    },
+    "smoke/search/burst/9/stock/board.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/burst/9/stock/config.json": {
+      "bytes": 764,
+      "sha256": "724ed9602b847451f355be9ac8b504bf5b9ccc871f47e67de70657abbf2aa735"
+    },
+    "smoke/search/burst/9/stock/control-http.jsonl.gz": {
+      "bytes": 1493,
+      "sha256": "d52dcaef2b457e8dc1496b821b48b2c051131f61e3430e1b1179a21b36be1304"
+    },
+    "smoke/search/burst/9/stock/control-steps.jsonl.gz": {
+      "bytes": 770,
+      "sha256": "1a5d8fab8308f9321f6b7573b2cca471eb6f96e3e56d3519393e5c79a5b55704"
+    },
+    "smoke/search/burst/9/stock/control.jsonl.gz": {
+      "bytes": 631,
+      "sha256": "deeece0cec8187b9397ed136d95fc8744b08465b4546bc8c38a6839e88166901"
+    },
+    "smoke/search/burst/9/stock/environment.json": {
+      "bytes": 10464,
+      "sha256": "aa582ef264ced4f884b9f5997c87d60f986f9c1336be6ca7e657b98b5d752bb8"
+    },
+    "smoke/search/burst/9/stock/events.jsonl.gz": {
+      "bytes": 12441,
+      "sha256": "6eff8049dbcc470d1b132c0e28a7d6c1ac00260ede213531b8ac5558a01ae61d"
+    },
+    "smoke/search/burst/9/stock/observations.jsonl.gz": {
+      "bytes": 22294,
+      "sha256": "9b0da61b97052e9cb3e2ae608435416f4630b3d9ba901e04d944c0b5f0d4ba28"
+    },
+    "smoke/search/burst/9/stock/proxy-payload.json": {
+      "bytes": 1029,
+      "sha256": "598dc071c3de90903284a3f503785b4491ca1bb4a22cc304948c9a7db69c43d0"
+    },
+    "smoke/search/burst/9/stock/proxy-trace.jsonl.gz": {
+      "bytes": 6266,
+      "sha256": "5d64c90716291dc42d9e728e8f710ce5973bfb05f1d94885d01dd93af7581f4c"
+    },
+    "smoke/search/burst/9/stock/proxy.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/burst/9/stock/requests.jsonl.gz": {
+      "bytes": 14250,
+      "sha256": "74e94622f6e623d3122ff871abc33fb26a05e01dafb34e1216f7b07564f3d073"
+    },
+    "smoke/search/burst/9/stock/shutdown.json": {
+      "bytes": 181,
+      "sha256": "5d5630bbc5c3fb57d8cdad081245ce17f2d7862016789eb7da8fdbc57b59d3ad"
+    },
+    "smoke/search/burst/9/stock/stack.json": {
+      "bytes": 1153,
+      "sha256": "4f66cc1fb6bd6e2272877ec4c59e80f953383a9082fdf3aae9b49071c8ce5736"
+    },
+    "smoke/search/burst/9/stock/summary.json": {
+      "bytes": 12515,
+      "sha256": "91fc04a2ab051d085d66972dcd31d126e130be0ab2497db216079ab6cb8f76b4"
+    },
+    "smoke/search/burst/9/stock/tools.json.gz": {
+      "bytes": 1493,
+      "sha256": "3814683639359865e2307f929bd4cc6828bfbdfe23edd78786b47a83ec15e55c"
+    },
+    "smoke/search/burst/9/stock/worker-payload.json": {
+      "bytes": 946,
+      "sha256": "8309438f78b4e15ac46b64f334bc4a1d99d850525ec8b40d8b4648366a1ad704"
+    },
+    "smoke/search/burst/9/stock/worker.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/staggered/7/partitioned/arrivals.json.gz": {
+      "bytes": 1234,
+      "sha256": "1e9b3518021fa2dbf6e16bb2f053fa9634e86e1ac8e023dac13a0164e05448cd"
+    },
+    "smoke/search/staggered/7/partitioned/board-payload.json": {
+      "bytes": 1001,
+      "sha256": "64643439f6fed8043d27bbe6ddbb367480b282cb37f9b18125151f56cf8fcb21"
+    },
+    "smoke/search/staggered/7/partitioned/board.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/staggered/7/partitioned/config.json": {
+      "bytes": 767,
+      "sha256": "dd078878b4e1f0c15258abd54ce9a88f0e8becfc81972451116d2873c59e1455"
+    },
+    "smoke/search/staggered/7/partitioned/control-http.jsonl.gz": {
+      "bytes": 1081,
+      "sha256": "4dce85c9506eed2b8d1a9ef32319ed919194fd49df5ae63ea9775c53fda00d80"
+    },
+    "smoke/search/staggered/7/partitioned/control-steps.jsonl.gz": {
+      "bytes": 579,
+      "sha256": "d3ecab1c292f325a80d42c4bd24ed7b008de9d8d9ce4bbc202db3a34ba1ce2aa"
+    },
+    "smoke/search/staggered/7/partitioned/control.jsonl.gz": {
+      "bytes": 474,
+      "sha256": "f331eeb554f3941b9819b90c8e8783b82e8c112ae65d05b4e88819e46c431610"
+    },
+    "smoke/search/staggered/7/partitioned/environment.json": {
+      "bytes": 10464,
+      "sha256": "aa582ef264ced4f884b9f5997c87d60f986f9c1336be6ca7e657b98b5d752bb8"
+    },
+    "smoke/search/staggered/7/partitioned/events.jsonl.gz": {
+      "bytes": 12457,
+      "sha256": "3760a461dc6c860baf58ab65cbf0c2f2e6a6e08144a268f32176d47ee15a0fc8"
+    },
+    "smoke/search/staggered/7/partitioned/observations.jsonl.gz": {
+      "bytes": 18183,
+      "sha256": "c59204ec8075098eca5cf2c22cd76aaac25a82d3d49e7abd9d6ed5ee1076d4f5"
+    },
+    "smoke/search/staggered/7/partitioned/proxy-payload.json": {
+      "bytes": 1042,
+      "sha256": "113dd690dd3116ff062305792856556da2e538c04adb18ed19023345722e1a39"
+    },
+    "smoke/search/staggered/7/partitioned/proxy-trace.jsonl.gz": {
+      "bytes": 6281,
+      "sha256": "e524e0c2146791f53520f25b7885d1a3d5441d2e336376076a5b0d41784ab8ae"
+    },
+    "smoke/search/staggered/7/partitioned/proxy.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/staggered/7/partitioned/requests.jsonl.gz": {
+      "bytes": 14287,
+      "sha256": "7228a21ea1fa04d3d19f48d6316d85ef95cc3b0ad3e6003a20170ebadb5e2585"
+    },
+    "smoke/search/staggered/7/partitioned/shutdown.json": {
+      "bytes": 181,
+      "sha256": "c7b0a2df4a997922796939c6df9bce43fa2020268995cdf6b6d28b53b04cc757"
+    },
+    "smoke/search/staggered/7/partitioned/stack.json": {
+      "bytes": 1166,
+      "sha256": "de40c0050305bbf2af3ffbd587443e000487bc1ed40681d1520c98267c816f13"
+    },
+    "smoke/search/staggered/7/partitioned/summary.json": {
+      "bytes": 12521,
+      "sha256": "edff7754f3f5f2aee3373b0799791c9fff9f27c53d9395b3487b14793a8d01ac"
+    },
+    "smoke/search/staggered/7/partitioned/tools.json.gz": {
+      "bytes": 1500,
+      "sha256": "a4ac8596caffe9033a651cb4c17854b1667f894f84da0c5c9fc81da719221591"
+    },
+    "smoke/search/staggered/7/partitioned/worker-payload.json": {
+      "bytes": 959,
+      "sha256": "228dc4129f2591a28ba121b0d6b289f3ee58464a523c1b37f4b333db71978516"
+    },
+    "smoke/search/staggered/7/partitioned/worker.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/staggered/7/stock/arrivals.json.gz": {
+      "bytes": 1233,
+      "sha256": "63fb55128c273d799f31ad594bf562b89c330bc12905017acffbef661a8cc945"
+    },
+    "smoke/search/staggered/7/stock/board-payload.json": {
+      "bytes": 995,
+      "sha256": "b15c204e68d381fe66be6437ab3ce255585af2d4f429a99100eae053d0f2badd"
+    },
+    "smoke/search/staggered/7/stock/board.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/staggered/7/stock/config.json": {
+      "bytes": 767,
+      "sha256": "213dd860cd8c3ac122d4c15ead457a9f73c2194d14705e95cf4f7881105bfe7c"
+    },
+    "smoke/search/staggered/7/stock/control-http.jsonl.gz": {
+      "bytes": 1085,
+      "sha256": "f8754ba39f19922e23ad2efe3935ce8693a6781abc53025f53818a5b4e493864"
+    },
+    "smoke/search/staggered/7/stock/control-steps.jsonl.gz": {
+      "bytes": 577,
+      "sha256": "19ac38e76da4890dfcfc4bceec399eb5cbe728b460ec3ffe24b505aa650dc770"
+    },
+    "smoke/search/staggered/7/stock/control.jsonl.gz": {
+      "bytes": 474,
+      "sha256": "8afd88fb7f4e794778577c3ec382b322dc2afd2c3f26e9a8b76da78836891a7d"
+    },
+    "smoke/search/staggered/7/stock/environment.json": {
+      "bytes": 10464,
+      "sha256": "aa582ef264ced4f884b9f5997c87d60f986f9c1336be6ca7e657b98b5d752bb8"
+    },
+    "smoke/search/staggered/7/stock/events.jsonl.gz": {
+      "bytes": 12449,
+      "sha256": "e17e68aa51a76051566fadbd501c0ec2a4ac12080e18ee36c7f9b7fbfb96b1eb"
+    },
+    "smoke/search/staggered/7/stock/observations.jsonl.gz": {
+      "bytes": 17186,
+      "sha256": "788ffbe6686578b07a05fc7ef55b8fc3c2da14479c03779a2e428238855a9c3d"
+    },
+    "smoke/search/staggered/7/stock/proxy-payload.json": {
+      "bytes": 1036,
+      "sha256": "1b4a64fad90419496697e62397eeb51e59f8b2898f6c3bfc7e15bf70c9340af1"
+    },
+    "smoke/search/staggered/7/stock/proxy-trace.jsonl.gz": {
+      "bytes": 6277,
+      "sha256": "2a443d43ddfab81af953e3e0d18762fcdc3f6fee61558d313f95d5bdd0e79957"
+    },
+    "smoke/search/staggered/7/stock/proxy.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/staggered/7/stock/requests.jsonl.gz": {
+      "bytes": 14298,
+      "sha256": "bfdd63d34c58c7aaa144db3e84f5271623a72eb06aca74e32a8fac3f57918207"
+    },
+    "smoke/search/staggered/7/stock/shutdown.json": {
+      "bytes": 181,
+      "sha256": "fa880ccac6ee65ddd0ae091e78552e65fefe52ae3b696faf22ff65ed284f883c"
+    },
+    "smoke/search/staggered/7/stock/stack.json": {
+      "bytes": 1160,
+      "sha256": "429d34c984e4b989fd142889bd40a7048666315826928e8ec84f415c295a99ca"
+    },
+    "smoke/search/staggered/7/stock/summary.json": {
+      "bytes": 12515,
+      "sha256": "7d120774da545a2cbc1f8072e03aa4708b87a5ff88ca8b2ba4635c1e0a6f3c9f"
+    },
+    "smoke/search/staggered/7/stock/tools.json.gz": {
+      "bytes": 1499,
+      "sha256": "df818fad66a1f6c493136f23ce732abba899cf0dffe03d825a77a3ddab1c629d"
+    },
+    "smoke/search/staggered/7/stock/worker-payload.json": {
+      "bytes": 953,
+      "sha256": "199b64c10e480495274405d57b76556415bdcf3cccb929526e9442f50e58c422"
+    },
+    "smoke/search/staggered/7/stock/worker.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/staggered/8/partitioned/arrivals.json.gz": {
+      "bytes": 1237,
+      "sha256": "82069f2f9c3d0bd08f029fc727531da0c958a9ed3333ab469d691e7709cc9bc4"
+    },
+    "smoke/search/staggered/8/partitioned/board-payload.json": {
+      "bytes": 1001,
+      "sha256": "2391c25fb7ed57e7878aedb1016d3ae05505d9b8b6bd494b2ed894673f7dedfe"
+    },
+    "smoke/search/staggered/8/partitioned/board.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/staggered/8/partitioned/config.json": {
+      "bytes": 767,
+      "sha256": "8e56fdd72646886d4a6b5b4ee5045271acf01515701552018554b2fb2e2e8002"
+    },
+    "smoke/search/staggered/8/partitioned/control-http.jsonl.gz": {
+      "bytes": 942,
+      "sha256": "d32ea544407e7a95cf6250f7f88a60d32d6e4112a8c63adb29d48d9215827c11"
+    },
+    "smoke/search/staggered/8/partitioned/control-steps.jsonl.gz": {
+      "bytes": 579,
+      "sha256": "40e40935e579f0caafa2f9c1c08f176cc65591572f02009eca0abb2f13178a82"
+    },
+    "smoke/search/staggered/8/partitioned/control.jsonl.gz": {
+      "bytes": 472,
+      "sha256": "3f87f8f25e545b6911035f6e960b993e59ab6521fbc05f99988d6a754e24ee91"
+    },
+    "smoke/search/staggered/8/partitioned/environment.json": {
+      "bytes": 10464,
+      "sha256": "aa582ef264ced4f884b9f5997c87d60f986f9c1336be6ca7e657b98b5d752bb8"
+    },
+    "smoke/search/staggered/8/partitioned/events.jsonl.gz": {
+      "bytes": 12447,
+      "sha256": "1c4072c2618e5eecaa7339b7f863b2cba45d2621e793aed9c1221ed2b9daa5df"
+    },
+    "smoke/search/staggered/8/partitioned/observations.jsonl.gz": {
+      "bytes": 17519,
+      "sha256": "58128408b5833620ac0750ac4ffc1e37882cd56ad07a9e2a23e2885046e9c34a"
+    },
+    "smoke/search/staggered/8/partitioned/proxy-payload.json": {
+      "bytes": 1042,
+      "sha256": "47396e6f61b148c60e4d26e54c75e267efdd8550909e5cfc0539896eca17cfee"
+    },
+    "smoke/search/staggered/8/partitioned/proxy-trace.jsonl.gz": {
+      "bytes": 6282,
+      "sha256": "229f484c9968cbf51bf3152d6b81f611a28f030db79c3bb600e8a942ebeb11ed"
+    },
+    "smoke/search/staggered/8/partitioned/proxy.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/staggered/8/partitioned/requests.jsonl.gz": {
+      "bytes": 14309,
+      "sha256": "8fe548e0945489078fcdce4d896b8c99049072b827a2f31313c47f2fd12abea5"
+    },
+    "smoke/search/staggered/8/partitioned/shutdown.json": {
+      "bytes": 181,
+      "sha256": "7904b13a2aaa0a9c705259d34721a9d5d25b91dc72a4d4685066e066f5367d07"
+    },
+    "smoke/search/staggered/8/partitioned/stack.json": {
+      "bytes": 1166,
+      "sha256": "1dc0afc6ba3f435484c60d0712356c3e6c6a9a9a536cc6d60fbf44cd43b84e91"
+    },
+    "smoke/search/staggered/8/partitioned/summary.json": {
+      "bytes": 12530,
+      "sha256": "41b4c5059191e4ea93a5fe21e7faac097d8bb8081646559351ea5985ead10ab3"
+    },
+    "smoke/search/staggered/8/partitioned/tools.json.gz": {
+      "bytes": 1497,
+      "sha256": "13effaec3ae13d97b796f7ddcd2cebbedbb275778f56e6d1948af7b6f12c72b9"
+    },
+    "smoke/search/staggered/8/partitioned/worker-payload.json": {
+      "bytes": 959,
+      "sha256": "1b7d71228b8150e777c478f33ca33edc19d5a8a1263a4171b0932d47de9d52b6"
+    },
+    "smoke/search/staggered/8/partitioned/worker.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/staggered/8/stock/arrivals.json.gz": {
+      "bytes": 1235,
+      "sha256": "53bbeae60492f75c899f7cef82bda80883e464d763707b45d4a31c3830e1c7f8"
+    },
+    "smoke/search/staggered/8/stock/board-payload.json": {
+      "bytes": 995,
+      "sha256": "89eaf34c03b99d085b830f5dc2bf78d9e0a878e2bf6b4ebe6fc4fd048361fc94"
+    },
+    "smoke/search/staggered/8/stock/board.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/staggered/8/stock/config.json": {
+      "bytes": 767,
+      "sha256": "77dba92e19f96a637036e882f588bfba8e524c4e21ae4e7015f0aa4fa979e619"
+    },
+    "smoke/search/staggered/8/stock/control-http.jsonl.gz": {
+      "bytes": 945,
+      "sha256": "98f5a627231499d89487f0f84f16ec817e588c4d69a59e869465e1abe095d145"
+    },
+    "smoke/search/staggered/8/stock/control-steps.jsonl.gz": {
+      "bytes": 577,
+      "sha256": "219a96cea918308651c916ca9090327c4f1b79ddb850eccf98b2e42e5618304c"
+    },
+    "smoke/search/staggered/8/stock/control.jsonl.gz": {
+      "bytes": 472,
+      "sha256": "e967a8b75b9f5b7ddaf34b6699afd3423a0c01520206601524483134532b3998"
+    },
+    "smoke/search/staggered/8/stock/environment.json": {
+      "bytes": 10464,
+      "sha256": "aa582ef264ced4f884b9f5997c87d60f986f9c1336be6ca7e657b98b5d752bb8"
+    },
+    "smoke/search/staggered/8/stock/events.jsonl.gz": {
+      "bytes": 12448,
+      "sha256": "61f1e7071b7b71e5f1a5eec9bd96c2f50f02585ca442bfd57c3ffba8d37f86b9"
+    },
+    "smoke/search/staggered/8/stock/observations.jsonl.gz": {
+      "bytes": 17180,
+      "sha256": "4aa730260f8c59da1cdfb92c01801685b504d722d5c819281a2debabf0e55a24"
+    },
+    "smoke/search/staggered/8/stock/proxy-payload.json": {
+      "bytes": 1036,
+      "sha256": "b7b4acb7c9823b6fceb1d378490c4c958780fe07d4ba61dbb60472fc617fcff3"
+    },
+    "smoke/search/staggered/8/stock/proxy-trace.jsonl.gz": {
+      "bytes": 6273,
+      "sha256": "f5b446879d71444dbd67e91631ab7a9bea7b1a5af062978eb88f51d34b8b7574"
+    },
+    "smoke/search/staggered/8/stock/proxy.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/staggered/8/stock/requests.jsonl.gz": {
+      "bytes": 14295,
+      "sha256": "092ecf2aff7a90ab6184672ccf7fddf4953274e1e47283edec67d090dbda8cbe"
+    },
+    "smoke/search/staggered/8/stock/shutdown.json": {
+      "bytes": 181,
+      "sha256": "97dca7789a59017260e811c976a49c4a02372551406fff1a6c1639905170e042"
+    },
+    "smoke/search/staggered/8/stock/stack.json": {
+      "bytes": 1160,
+      "sha256": "c768b3bb555c7e152d02452b685d9d8a564a3e2ffa5fdbf05ad31210f956df6f"
+    },
+    "smoke/search/staggered/8/stock/summary.json": {
+      "bytes": 12521,
+      "sha256": "e2fbb4915ae403ccb74e6bad34f845267b937d56b3df0dbae9d19460ad4be0bd"
+    },
+    "smoke/search/staggered/8/stock/tools.json.gz": {
+      "bytes": 1495,
+      "sha256": "ff8f6392fd532020af951519d2e296561ffcd739871f7068a369e138edc9ae19"
+    },
+    "smoke/search/staggered/8/stock/worker-payload.json": {
+      "bytes": 953,
+      "sha256": "d17142b8707dddbe7a61837312823d2c6f7d327587897c33685c75500bc5993f"
+    },
+    "smoke/search/staggered/8/stock/worker.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/staggered/9/partitioned/arrivals.json.gz": {
+      "bytes": 1236,
+      "sha256": "4428d65cce29f42f6fb6dbf9c09c35974f6a9b304ed85a62de59e447a4120ca5"
+    },
+    "smoke/search/staggered/9/partitioned/board-payload.json": {
+      "bytes": 1001,
+      "sha256": "fec452996a8d797fda865fe734015d221d3d9dff1ccdc0b1fa43937bc0b2cf27"
+    },
+    "smoke/search/staggered/9/partitioned/board.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/staggered/9/partitioned/config.json": {
+      "bytes": 767,
+      "sha256": "cd80b1ec823a1a8d3c79dfcef728120117ef47bcd54dd72d1b35defdc44afd7b"
+    },
+    "smoke/search/staggered/9/partitioned/control-http.jsonl.gz": {
+      "bytes": 1084,
+      "sha256": "7521589a33e281cfa185b1f6acb32953ac0cad91aad4d017353ab2e931c81d33"
+    },
+    "smoke/search/staggered/9/partitioned/control-steps.jsonl.gz": {
+      "bytes": 579,
+      "sha256": "19b2aadd119888376f91e0d132f1fc80e6d67d1e9818c1534e213bdf11e29de8"
+    },
+    "smoke/search/staggered/9/partitioned/control.jsonl.gz": {
+      "bytes": 472,
+      "sha256": "a5307ede97f41f1d362e15a96c330de2948a0dc3e0361a83938a74989497b0bb"
+    },
+    "smoke/search/staggered/9/partitioned/environment.json": {
+      "bytes": 10464,
+      "sha256": "aa582ef264ced4f884b9f5997c87d60f986f9c1336be6ca7e657b98b5d752bb8"
+    },
+    "smoke/search/staggered/9/partitioned/events.jsonl.gz": {
+      "bytes": 12453,
+      "sha256": "ad8cba204497ffeafc041114ce1bd5ba6ed09c87b4b7cfd0c737a0d768e08932"
+    },
+    "smoke/search/staggered/9/partitioned/observations.jsonl.gz": {
+      "bytes": 17751,
+      "sha256": "1c0279b968d1bc82ea69cb07b0f4e5b3c87ecde89ddea19800d4252478088a73"
+    },
+    "smoke/search/staggered/9/partitioned/proxy-payload.json": {
+      "bytes": 1042,
+      "sha256": "71374b3dcf0b223da7c9dad7cbadf16091e5d2f6a480390154c41b5104688a03"
+    },
+    "smoke/search/staggered/9/partitioned/proxy-trace.jsonl.gz": {
+      "bytes": 6282,
+      "sha256": "7245c9c00beef6b8b8abd6ffc9e01a060f01f3278aabd97ecd6b27547f6a0a92"
+    },
+    "smoke/search/staggered/9/partitioned/proxy.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/staggered/9/partitioned/requests.jsonl.gz": {
+      "bytes": 14303,
+      "sha256": "3e30e29fa5985054a10f47d0028bbd07885b12f211de57efff1500dd120141c4"
+    },
+    "smoke/search/staggered/9/partitioned/shutdown.json": {
+      "bytes": 181,
+      "sha256": "3ffd9167d7d77bf40b8d84f84232db1754a0684a1d0bf2a35402e298d9bb4dee"
+    },
+    "smoke/search/staggered/9/partitioned/stack.json": {
+      "bytes": 1166,
+      "sha256": "26ad3c08f3cbf02c9b717e437887e9f964a5f6143f7930e24eed09974c03ba1c"
+    },
+    "smoke/search/staggered/9/partitioned/summary.json": {
+      "bytes": 12522,
+      "sha256": "8b92c53292608a33c7f0607aae1715d5b016435a36ff24b7380253bef39a8944"
+    },
+    "smoke/search/staggered/9/partitioned/tools.json.gz": {
+      "bytes": 1493,
+      "sha256": "7dc5fc9c91be91dc6cfd05363a0a336f27e8d5223892e39829bb1e20baebc8f3"
+    },
+    "smoke/search/staggered/9/partitioned/worker-payload.json": {
+      "bytes": 959,
+      "sha256": "ea5fe79916c0a06a0d924cf21229e814d2b0cc2b7ef6dfc0d9ab96a76f3272ab"
+    },
+    "smoke/search/staggered/9/partitioned/worker.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/staggered/9/stock/arrivals.json.gz": {
+      "bytes": 1237,
+      "sha256": "d85cbd5c8cd17b5803e8f051209ef0999577a9760d9e9c258221dd0cce439b8a"
+    },
+    "smoke/search/staggered/9/stock/board-payload.json": {
+      "bytes": 995,
+      "sha256": "d0944c6d2576bc51046756ab2a38f916ff626fa57a9ef0ba45ccf895851c1fe2"
+    },
+    "smoke/search/staggered/9/stock/board.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/staggered/9/stock/config.json": {
+      "bytes": 767,
+      "sha256": "9eaa61f69db7f0b67c136af7a9f292e337f578053660d19842ab8c87bb5c32c0"
+    },
+    "smoke/search/staggered/9/stock/control-http.jsonl.gz": {
+      "bytes": 1085,
+      "sha256": "fedf4fbfa9bf19609e16f731a014cbc61e33946ce5c77866b04c3879f93e84aa"
+    },
+    "smoke/search/staggered/9/stock/control-steps.jsonl.gz": {
+      "bytes": 576,
+      "sha256": "98522c4283ed7eeab7b479326e4d2af14d1ac2712eb9dbd541c16085e48dfbda"
+    },
+    "smoke/search/staggered/9/stock/control.jsonl.gz": {
+      "bytes": 473,
+      "sha256": "18208c2f79896e3147dba9c7064bb57a8cf0f616c0bde561f6676bdea2f4a93f"
+    },
+    "smoke/search/staggered/9/stock/environment.json": {
+      "bytes": 10464,
+      "sha256": "aa582ef264ced4f884b9f5997c87d60f986f9c1336be6ca7e657b98b5d752bb8"
+    },
+    "smoke/search/staggered/9/stock/events.jsonl.gz": {
+      "bytes": 12441,
+      "sha256": "9d08092855a0e3042f88e6354bd14a468768dd6da8ab09001c8c285d247a3730"
+    },
+    "smoke/search/staggered/9/stock/observations.jsonl.gz": {
+      "bytes": 17151,
+      "sha256": "1eeb31658e50046fe4068740f564b7b18c0918aaeeaba4af7429319af642b3cf"
+    },
+    "smoke/search/staggered/9/stock/proxy-payload.json": {
+      "bytes": 1036,
+      "sha256": "f19f90934af72a45d80ceb5e606d9a9ad36f2319fe88ea29e0967b8fdbca8daf"
+    },
+    "smoke/search/staggered/9/stock/proxy-trace.jsonl.gz": {
+      "bytes": 6265,
+      "sha256": "5aad400fbdeef57d1fdc502338438aa065ad6aef2b0025ea1e04145f847321b7"
+    },
+    "smoke/search/staggered/9/stock/proxy.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search/staggered/9/stock/requests.jsonl.gz": {
+      "bytes": 14267,
+      "sha256": "491df74b9ac06fd4a44b0d097bcbfd3b005760261f43ad85b5cd581c7b85323f"
+    },
+    "smoke/search/staggered/9/stock/shutdown.json": {
+      "bytes": 181,
+      "sha256": "9feee9549da58cff1a259162fc230e3d387a90dd5bb9aa31e96e77de06dd5872"
+    },
+    "smoke/search/staggered/9/stock/stack.json": {
+      "bytes": 1160,
+      "sha256": "031fcc61669a856a6f950d3f64e61b87e246552de314e44a3a3dd6c4c222e309"
+    },
+    "smoke/search/staggered/9/stock/summary.json": {
+      "bytes": 12490,
+      "sha256": "93948f53563ddc674a6ff3ff72a6dab5b0cd9fe9ce7eba62bb016a406514ccfb"
+    },
+    "smoke/search/staggered/9/stock/tools.json.gz": {
+      "bytes": 1499,
+      "sha256": "5ef499082e8319cc1f66e76a10b931b1c3354244d0cb74790a51b8e8502ae3d8"
+    },
+    "smoke/search/staggered/9/stock/worker-payload.json": {
+      "bytes": 953,
+      "sha256": "eaf92d57a9f6a2353603154f949ed302e466ec839e5d03d0eada5809f5adfa73"
+    },
+    "smoke/search/staggered/9/stock/worker.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/search-schedule.json": {
+      "bytes": 555,
+      "sha256": "37fb57ecc18642f95417c03c4e076b71899e6ab082ea0ba75062029e0b0417f8"
+    },
+    "smoke/selection.json": {
+      "bytes": 1170,
+      "sha256": "d2d6cfeab1083c0f72c3d601c6534d64b8a4fac49bfd6e5bd0af91be2b5b6a12"
+    },
+    "smoke/trials.json": {
+      "bytes": 8542,
+      "sha256": "56aefb28d74010498152928c4d317eef4c5713245ab049c020ce3b8f8d843369"
+    },
+    "smoke/validation/burst/101/partitioned/arrivals.json.gz": {
+      "bytes": 1235,
+      "sha256": "15e75d7eedbe0622e2f1a83c001f2f5d21243bbebc24a5dd525e2993b1ca4d4a"
+    },
+    "smoke/validation/burst/101/partitioned/board-payload.json": {
+      "bytes": 1002,
+      "sha256": "857f61066ccd32b8196f6db7a2acb5d949a1031a3a8588bba523c540520bbcdf"
+    },
+    "smoke/validation/burst/101/partitioned/board.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/burst/101/partitioned/config.json": {
+      "bytes": 766,
+      "sha256": "cb13ec26e93fd974122e7e2eda959d16ec08752ece454afb95374dac95d02987"
+    },
+    "smoke/validation/burst/101/partitioned/control-http.jsonl.gz": {
+      "bytes": 1495,
+      "sha256": "bf54ea0defa17dbbe051b8af547c55ca8d6c014d2a01191725bb347a14eb2062"
+    },
+    "smoke/validation/burst/101/partitioned/control-steps.jsonl.gz": {
+      "bytes": 772,
+      "sha256": "df388ed322e1a8d34cc7eb96e016f7aa1938e6e9e24b4691c07611ca280b8dc1"
+    },
+    "smoke/validation/burst/101/partitioned/control.jsonl.gz": {
+      "bytes": 631,
+      "sha256": "bd54f87ceeb680d31c5596dc65d374328ba9960e9fdbe1f416f911e4fd931ff8"
+    },
+    "smoke/validation/burst/101/partitioned/environment.json": {
+      "bytes": 10464,
+      "sha256": "aa582ef264ced4f884b9f5997c87d60f986f9c1336be6ca7e657b98b5d752bb8"
+    },
+    "smoke/validation/burst/101/partitioned/events.jsonl.gz": {
+      "bytes": 12455,
+      "sha256": "f7a6d7cbb5653abcea4ab2edb5c084cd3b2ccf03a33b1c360d3c04d1c656179a"
+    },
+    "smoke/validation/burst/101/partitioned/observations.jsonl.gz": {
+      "bytes": 22872,
+      "sha256": "d14b1d5e493e3f9fb796510e82390bcb1a101edf411f1d99f2c14af4a92a47a8"
+    },
+    "smoke/validation/burst/101/partitioned/proxy-payload.json": {
+      "bytes": 1043,
+      "sha256": "c3871c4d6f3924cc11fd21f0a9d6ff0c803ecad55965635c2069d2ec6fcf767c"
+    },
+    "smoke/validation/burst/101/partitioned/proxy-trace.jsonl.gz": {
+      "bytes": 6286,
+      "sha256": "6823d5fe2975193f007f4472a4b9a0bfa33eba6d4e9d5a54cdd4b2440cca4903"
+    },
+    "smoke/validation/burst/101/partitioned/proxy.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/burst/101/partitioned/requests.jsonl.gz": {
+      "bytes": 14318,
+      "sha256": "89b6ad25a65c54722ace91bd52ef23f2deb413fe35f84bd6579cdf4b3bee4427"
+    },
+    "smoke/validation/burst/101/partitioned/shutdown.json": {
+      "bytes": 181,
+      "sha256": "01f20692c01ad28a202d87edd1c50d8d9a79736969bafbd5f19b9e3627ca9d80"
+    },
+    "smoke/validation/burst/101/partitioned/stack.json": {
+      "bytes": 1167,
+      "sha256": "44f49c464c56c9ceba14956279650b8e5144e884160123d46a4b32f1191e9422"
+    },
+    "smoke/validation/burst/101/partitioned/summary.json": {
+      "bytes": 12535,
+      "sha256": "aad731aad85b1d8c8f1d72365eb2dc402117b19525dab19f0ae1266ee9abceff"
+    },
+    "smoke/validation/burst/101/partitioned/tools.json.gz": {
+      "bytes": 1497,
+      "sha256": "c1167744081a715c939388f3431a58c923559024ccac900f275071bca9b38510"
+    },
+    "smoke/validation/burst/101/partitioned/worker-payload.json": {
+      "bytes": 960,
+      "sha256": "8b8a15495cf18cbcfde16f96e6034cea29c1854185ecc98303bccbb92e2a0c3f"
+    },
+    "smoke/validation/burst/101/partitioned/worker.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/burst/101/stock/arrivals.json.gz": {
+      "bytes": 1236,
+      "sha256": "8dcb8d356c679c35703c0d023b78970459aee48048d53b923e42dc8b475df918"
+    },
+    "smoke/validation/burst/101/stock/board-payload.json": {
+      "bytes": 996,
+      "sha256": "b46b0d2ee044d840792eb1fcccbde899d6397e8eba2472ee6ea481690935d2f8"
+    },
+    "smoke/validation/burst/101/stock/board.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/burst/101/stock/config.json": {
+      "bytes": 766,
+      "sha256": "87417a72ebff6cb449303541363c45645f63bf4a105ecc55951c4f7222cda9c3"
+    },
+    "smoke/validation/burst/101/stock/control-http.jsonl.gz": {
+      "bytes": 1491,
+      "sha256": "dc2c8b9488c678768e243b04b6113fab87ca2d2b416031abc78110194abb23b1"
+    },
+    "smoke/validation/burst/101/stock/control-steps.jsonl.gz": {
+      "bytes": 770,
+      "sha256": "656f4410e767e4367492108aa28b4b27b7ec7266e2b9bedb1d3866a64bd17006"
+    },
+    "smoke/validation/burst/101/stock/control.jsonl.gz": {
+      "bytes": 631,
+      "sha256": "80a2febecd67f8ca5286e3a52f25280516942af50a8b85257d640b05bff7913e"
+    },
+    "smoke/validation/burst/101/stock/environment.json": {
+      "bytes": 10464,
+      "sha256": "aa582ef264ced4f884b9f5997c87d60f986f9c1336be6ca7e657b98b5d752bb8"
+    },
+    "smoke/validation/burst/101/stock/events.jsonl.gz": {
+      "bytes": 12430,
+      "sha256": "2c3a0a6ecb4405608d43cc1d37c5e0b30fe450e7508eff7999e38f1ac8cbab33"
+    },
+    "smoke/validation/burst/101/stock/observations.jsonl.gz": {
+      "bytes": 22241,
+      "sha256": "cb162de4e981a0d3afc8618596527e88ee6195a3113f25c74f70e00302736627"
+    },
+    "smoke/validation/burst/101/stock/proxy-payload.json": {
+      "bytes": 1037,
+      "sha256": "ec451298197b71aa4ef2b7a372e831783b7956e84554dd481dc4b81203b4963d"
+    },
+    "smoke/validation/burst/101/stock/proxy-trace.jsonl.gz": {
+      "bytes": 6269,
+      "sha256": "4a1291a4554ebf6d4a29b520afa8cb50361c8b84d04583235140a51e75445f18"
+    },
+    "smoke/validation/burst/101/stock/proxy.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/burst/101/stock/requests.jsonl.gz": {
+      "bytes": 14297,
+      "sha256": "91027614ef14ea09fd34161db371dd5e899e07f66cc2da997015ca16ae495ef3"
+    },
+    "smoke/validation/burst/101/stock/shutdown.json": {
+      "bytes": 181,
+      "sha256": "751eb3d0a9e9b901a82581db6ef4b1c4f29a7c7188008d113d19271bfd9fa798"
+    },
+    "smoke/validation/burst/101/stock/stack.json": {
+      "bytes": 1161,
+      "sha256": "63d74966bd869299ea21b0b987628a24b04077c0a65e2361d7910dbe39bb7db7"
+    },
+    "smoke/validation/burst/101/stock/summary.json": {
+      "bytes": 12521,
+      "sha256": "08531e1533424f206f9ee16ec468896d97e53ec14883143a6de6c2188bca0042"
+    },
+    "smoke/validation/burst/101/stock/tools.json.gz": {
+      "bytes": 1493,
+      "sha256": "9a1f71d647b05f4a0fff3a35ee6a255f1ada78148b0fe6ce756ff272777eddc3"
+    },
+    "smoke/validation/burst/101/stock/worker-payload.json": {
+      "bytes": 954,
+      "sha256": "fe7c41f15d9c5e4ea7e9dc26d208f03670746a7764b79eab60af2707afc86f88"
+    },
+    "smoke/validation/burst/101/stock/worker.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/burst/102/partitioned/arrivals.json.gz": {
+      "bytes": 1235,
+      "sha256": "4bfa523beea30079695c1c5022fbbaacbc31a34994ff1802c630d245f94de8ed"
+    },
+    "smoke/validation/burst/102/partitioned/board-payload.json": {
+      "bytes": 1002,
+      "sha256": "06e956a78d07b5b21bb1a3175fddcadf4bd604bf9a9b22eaca68294a130a64eb"
+    },
+    "smoke/validation/burst/102/partitioned/board.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/burst/102/partitioned/config.json": {
+      "bytes": 766,
+      "sha256": "8bd039a8765b94d139a488e4437d45eafad5780247ad754f5e2aec6995ef718e"
+    },
+    "smoke/validation/burst/102/partitioned/control-http.jsonl.gz": {
+      "bytes": 1351,
+      "sha256": "b93bb70aab9a30e1f4c4f065921c096125c7676fa06b81448f2c3240daa3c3e2"
+    },
+    "smoke/validation/burst/102/partitioned/control-steps.jsonl.gz": {
+      "bytes": 771,
+      "sha256": "ce0fc28faf134d1aa565b2c1e0d78296591566c82d5526d2c6715c1f8cdf9f9b"
+    },
+    "smoke/validation/burst/102/partitioned/control.jsonl.gz": {
+      "bytes": 632,
+      "sha256": "d01d93f87bf1b4632a62e6a6c38497d302c8accf09963a880aaf3f580641fce3"
+    },
+    "smoke/validation/burst/102/partitioned/environment.json": {
+      "bytes": 10464,
+      "sha256": "aa582ef264ced4f884b9f5997c87d60f986f9c1336be6ca7e657b98b5d752bb8"
+    },
+    "smoke/validation/burst/102/partitioned/events.jsonl.gz": {
+      "bytes": 12436,
+      "sha256": "dd85eaa0043fc48f15987fda82a20c6d7888849d23820b333380ee590e77636c"
+    },
+    "smoke/validation/burst/102/partitioned/observations.jsonl.gz": {
+      "bytes": 22638,
+      "sha256": "3b8602b0b95cd9c5cc7a3f7df70c43ceb8c473858d53abd40a8e32976d1b8fe0"
+    },
+    "smoke/validation/burst/102/partitioned/proxy-payload.json": {
+      "bytes": 1043,
+      "sha256": "d46a8dcfcb17c65650ae5ddf31ac5b3f5af55420f91b4100822159776ea0b94f"
+    },
+    "smoke/validation/burst/102/partitioned/proxy-trace.jsonl.gz": {
+      "bytes": 6265,
+      "sha256": "412d12b44481424bbc29dd495c4c378b3d25fe4db785d4cf98adad0c179c4056"
+    },
+    "smoke/validation/burst/102/partitioned/proxy.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/burst/102/partitioned/requests.jsonl.gz": {
+      "bytes": 14301,
+      "sha256": "bb0235029e88acf9872c2e4b41c750eafcb6774862bd0822f1a876cc94f7c9b4"
+    },
+    "smoke/validation/burst/102/partitioned/shutdown.json": {
+      "bytes": 181,
+      "sha256": "0a57d3bbc7eab510860070237e7b5762c7f50789ed32fd7415196b1d489ac5b6"
+    },
+    "smoke/validation/burst/102/partitioned/stack.json": {
+      "bytes": 1167,
+      "sha256": "f4b9a90542f593fbfbf10a77045ba2dc1ffb74684135e7d338eb7d447371199e"
+    },
+    "smoke/validation/burst/102/partitioned/summary.json": {
+      "bytes": 12521,
+      "sha256": "9753e0474758ac9d9a8d99baac75b7a1071e2063fb2241d23939796e8028cf8f"
+    },
+    "smoke/validation/burst/102/partitioned/tools.json.gz": {
+      "bytes": 1496,
+      "sha256": "de30bea25d9007e8f6ff4d8598bbb5f76b62aedd8c2bd547ba400812ad39c8d9"
+    },
+    "smoke/validation/burst/102/partitioned/worker-payload.json": {
+      "bytes": 960,
+      "sha256": "12b141a48add8e0f58b1290241c50fd5c2219a1b0e7cabea6725e2ae85f610e9"
+    },
+    "smoke/validation/burst/102/partitioned/worker.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/burst/102/stock/arrivals.json.gz": {
+      "bytes": 1241,
+      "sha256": "36732e86ae5775c6645e9fca94917bb4637f99d995556cfda4afa13a2912284b"
+    },
+    "smoke/validation/burst/102/stock/board-payload.json": {
+      "bytes": 996,
+      "sha256": "bbfee5fe7d7b28097beac20b9dfd51b54a56b4c711a5944579d831615cf58800"
+    },
+    "smoke/validation/burst/102/stock/board.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/burst/102/stock/config.json": {
+      "bytes": 766,
+      "sha256": "b9bf5298c6cf1b100aac79210c99c16529cbdb0de1685bf098394ac253451432"
+    },
+    "smoke/validation/burst/102/stock/control-http.jsonl.gz": {
+      "bytes": 1348,
+      "sha256": "0425a39f264544905e9d56bbf268f6dbff12c5f33904217c69c7072c0c3785a7"
+    },
+    "smoke/validation/burst/102/stock/control-steps.jsonl.gz": {
+      "bytes": 770,
+      "sha256": "9d696afca92a8553170b32e00a0264b0f4c119efa5f95f51df42f711d84f9b8d"
+    },
+    "smoke/validation/burst/102/stock/control.jsonl.gz": {
+      "bytes": 631,
+      "sha256": "068ba7ec085347688c064dea3a8de87797a33f1a53e9c47e8d269f2b73c135a7"
+    },
+    "smoke/validation/burst/102/stock/environment.json": {
+      "bytes": 10464,
+      "sha256": "aa582ef264ced4f884b9f5997c87d60f986f9c1336be6ca7e657b98b5d752bb8"
+    },
+    "smoke/validation/burst/102/stock/events.jsonl.gz": {
+      "bytes": 12446,
+      "sha256": "c6a0f6c7ad7e0e7ebbe127212621b67461e84ea7473648554ea55451ee59e95e"
+    },
+    "smoke/validation/burst/102/stock/observations.jsonl.gz": {
+      "bytes": 22235,
+      "sha256": "a3224cb9c36a43691ee9850f893f12ec757739324026f6f2cddd9d4486b8e0d4"
+    },
+    "smoke/validation/burst/102/stock/proxy-payload.json": {
+      "bytes": 1037,
+      "sha256": "65a8f54efa57444afdccbd376060fe652d43fb55cb3786c2f62fc2e5d00e5188"
+    },
+    "smoke/validation/burst/102/stock/proxy-trace.jsonl.gz": {
+      "bytes": 6272,
+      "sha256": "a98259fe72f3c2a0d6209aa451ca3907128be753b2244dacf3b0e2eb0267a8bc"
+    },
+    "smoke/validation/burst/102/stock/proxy.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/burst/102/stock/requests.jsonl.gz": {
+      "bytes": 14279,
+      "sha256": "610131ca70708c836b5f68a8f047393dd488f44acf8871bf8953226edb82b891"
+    },
+    "smoke/validation/burst/102/stock/shutdown.json": {
+      "bytes": 181,
+      "sha256": "a6b85e7d0860138cbb788f25b5067b691bccb6958aaa433f74478e60360a6581"
+    },
+    "smoke/validation/burst/102/stock/stack.json": {
+      "bytes": 1161,
+      "sha256": "cd75ba3264f3db55049823e8b211b2f1a18b62daacc1604d678d4715c217851b"
+    },
+    "smoke/validation/burst/102/stock/summary.json": {
+      "bytes": 12508,
+      "sha256": "9b8ad14873561027946eb8469c8fc890505deaa0a81e7681ec333c0e0773321d"
+    },
+    "smoke/validation/burst/102/stock/tools.json.gz": {
+      "bytes": 1499,
+      "sha256": "f54f81957d4a9e1fc0e1812427dcd317ee7c16d407f2e7de2a3ccc812ff4e41f"
+    },
+    "smoke/validation/burst/102/stock/worker-payload.json": {
+      "bytes": 954,
+      "sha256": "cee60c9b40095255d13a7e010ced9e1111eb99024467a0b5474a980c9beec46a"
+    },
+    "smoke/validation/burst/102/stock/worker.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/burst/103/partitioned/arrivals.json.gz": {
+      "bytes": 1235,
+      "sha256": "19479f241ec7cd039f4e0bc03597c295f2df4890f17e804fbf7debcb86b94470"
+    },
+    "smoke/validation/burst/103/partitioned/board-payload.json": {
+      "bytes": 1002,
+      "sha256": "3f57f0019572f18f36b5fc32b3dd6806ebe9b061169e7c2c0a14d502ad539283"
+    },
+    "smoke/validation/burst/103/partitioned/board.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/burst/103/partitioned/config.json": {
+      "bytes": 766,
+      "sha256": "11a0befb518cdff445d543af88e8d681ef22746473205ef365392ceeb2213560"
+    },
+    "smoke/validation/burst/103/partitioned/control-http.jsonl.gz": {
+      "bytes": 1491,
+      "sha256": "638cf4610b7487780f407ae7159df918a9518737d9f7709db4a82a3a77477071"
+    },
+    "smoke/validation/burst/103/partitioned/control-steps.jsonl.gz": {
+      "bytes": 770,
+      "sha256": "e972aaf8ff5867d9d57317294138d0a8a3da9c8e46a347e5a50ce31e198b0662"
+    },
+    "smoke/validation/burst/103/partitioned/control.jsonl.gz": {
+      "bytes": 631,
+      "sha256": "00b6a8db43d97f5d74b8e467c9bc2fb9f773ff0eab3b40ed83d54f9a120bc14e"
+    },
+    "smoke/validation/burst/103/partitioned/environment.json": {
+      "bytes": 10464,
+      "sha256": "aa582ef264ced4f884b9f5997c87d60f986f9c1336be6ca7e657b98b5d752bb8"
+    },
+    "smoke/validation/burst/103/partitioned/events.jsonl.gz": {
+      "bytes": 12444,
+      "sha256": "5731e1f8bef809495498175dfa0480e4b64ee4cf18ea9e984cd86a7393d06ede"
+    },
+    "smoke/validation/burst/103/partitioned/observations.jsonl.gz": {
+      "bytes": 23032,
+      "sha256": "18e6506326461a59cf72cfcb51a76d0ebd5ca326bdf58a9cb246d53fd6bdda81"
+    },
+    "smoke/validation/burst/103/partitioned/proxy-payload.json": {
+      "bytes": 1043,
+      "sha256": "a0d743495cb91f3890a6f2aaebc0cab425ddefc4c9127482c51959c984011325"
+    },
+    "smoke/validation/burst/103/partitioned/proxy-trace.jsonl.gz": {
+      "bytes": 6277,
+      "sha256": "296acaf5e2d2e63bc1554085e61b398cc0433e4fdcd8543ac15e770bd1216093"
+    },
+    "smoke/validation/burst/103/partitioned/proxy.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/burst/103/partitioned/requests.jsonl.gz": {
+      "bytes": 14275,
+      "sha256": "1a92be0cad1f29577c2ed71c084b90b89bb93cfebe7e471eaa0e42c0706eb12b"
+    },
+    "smoke/validation/burst/103/partitioned/shutdown.json": {
+      "bytes": 181,
+      "sha256": "5ca10aec0f9b0342b4f5e67092053c6b08bf4045abbabf6115fb23287089ef23"
+    },
+    "smoke/validation/burst/103/partitioned/stack.json": {
+      "bytes": 1167,
+      "sha256": "d334efbf7aa049c79ecea6bc9c0db90e50163e0edead509497c88fa8c64d5262"
+    },
+    "smoke/validation/burst/103/partitioned/summary.json": {
+      "bytes": 12529,
+      "sha256": "c8fa7c7bdd93b9afacecc3bc756dde7f92e0a0aaa1f30f30535cb5203bbd7db7"
+    },
+    "smoke/validation/burst/103/partitioned/tools.json.gz": {
+      "bytes": 1497,
+      "sha256": "ce5bd1b33a982228f3d3f382fea46135ce5a4aa44ec8c28742b71a28659dbf70"
+    },
+    "smoke/validation/burst/103/partitioned/worker-payload.json": {
+      "bytes": 960,
+      "sha256": "a8ee89a00c2186fabd07603e57c21d1b8f26541ff7e14cbdc1df89ba7d0ff3b7"
+    },
+    "smoke/validation/burst/103/partitioned/worker.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/burst/103/stock/arrivals.json.gz": {
+      "bytes": 1234,
+      "sha256": "9322283220bdce391fbc37166fc0211d8bffc6e37b96b4a43f6502ce7e82a3a3"
+    },
+    "smoke/validation/burst/103/stock/board-payload.json": {
+      "bytes": 996,
+      "sha256": "40cdc2b9a33ad0feef514c8eaf4ead6f6d5387529d7757d3a2d6391a7c649c8a"
+    },
+    "smoke/validation/burst/103/stock/board.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/burst/103/stock/config.json": {
+      "bytes": 766,
+      "sha256": "97b78ba168fec2a1dca36239ac6a13908aeaae80c966aa9b16fcc608106afdb8"
+    },
+    "smoke/validation/burst/103/stock/control-http.jsonl.gz": {
+      "bytes": 1490,
+      "sha256": "527a8af843690f0c22067beba790671e954f1748bd788c1e2d142f8a61697e47"
+    },
+    "smoke/validation/burst/103/stock/control-steps.jsonl.gz": {
+      "bytes": 767,
+      "sha256": "04dd883c8a7497a87ef63627e30a7a4c4bd0dd9f23878df3f2ea2ccaefb04bbe"
+    },
+    "smoke/validation/burst/103/stock/control.jsonl.gz": {
+      "bytes": 631,
+      "sha256": "b5738708399a8f6c1697c78a37c6c628beea217a15383604476968ed1dd74a7c"
+    },
+    "smoke/validation/burst/103/stock/environment.json": {
+      "bytes": 10464,
+      "sha256": "aa582ef264ced4f884b9f5997c87d60f986f9c1336be6ca7e657b98b5d752bb8"
+    },
+    "smoke/validation/burst/103/stock/events.jsonl.gz": {
+      "bytes": 12433,
+      "sha256": "8aeb503f52174f4efb84bae0189e71aec98efb4ff71a420df90ae4fe7195ed92"
+    },
+    "smoke/validation/burst/103/stock/observations.jsonl.gz": {
+      "bytes": 22280,
+      "sha256": "95c3a38447fd5a52560f26168fbfa489756ad96034ba1133b037da63eba47ee1"
+    },
+    "smoke/validation/burst/103/stock/proxy-payload.json": {
+      "bytes": 1037,
+      "sha256": "f12d1332d381f0e2362228b011fac534d289a7774d8fbd145744804873afff90"
+    },
+    "smoke/validation/burst/103/stock/proxy-trace.jsonl.gz": {
+      "bytes": 6261,
+      "sha256": "084a00f00a7c5a6e74ac51963aefe5eee5765bf4465d5911c9b449e7ae2349b1"
+    },
+    "smoke/validation/burst/103/stock/proxy.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/burst/103/stock/requests.jsonl.gz": {
+      "bytes": 14271,
+      "sha256": "337b3a7d077d6d0f76fcb50475d2066b671a27f151f4c9b7a9220ceb81176247"
+    },
+    "smoke/validation/burst/103/stock/shutdown.json": {
+      "bytes": 181,
+      "sha256": "03597301c26f8b4411a6543b5ba81ff1ba40c67badaa5a73238149189631e9b0"
+    },
+    "smoke/validation/burst/103/stock/stack.json": {
+      "bytes": 1161,
+      "sha256": "caf8d890dd3464eb49c75dd5c9ed9cf9b7e505f0b567fb0c252a19ec079576d1"
+    },
+    "smoke/validation/burst/103/stock/summary.json": {
+      "bytes": 12519,
+      "sha256": "ff42122ccd11ce6f987a230262c42610055b529d158e1a85e3c272a8ea3bd636"
+    },
+    "smoke/validation/burst/103/stock/tools.json.gz": {
+      "bytes": 1500,
+      "sha256": "372cf8f28f31ae918dde60682e7874eb2329e2e5f833f43037fb8f9e29542d3e"
+    },
+    "smoke/validation/burst/103/stock/worker-payload.json": {
+      "bytes": 954,
+      "sha256": "fa1eed4f1a42d8aefab495feb76333254532fb56759f8a8b77d96f9b9c69a05f"
+    },
+    "smoke/validation/burst/103/stock/worker.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/staggered/101/partitioned/arrivals.json.gz": {
+      "bytes": 1240,
+      "sha256": "2bcc603759447a6f36c5f419e909b34026af4ea2956dfd0997ebb80bca587297"
+    },
+    "smoke/validation/staggered/101/partitioned/board-payload.json": {
+      "bytes": 1009,
+      "sha256": "db63e133e62ec45173ebd98a9dd58f7e67d9d6c01a0795eb54d7553b4055b548"
+    },
+    "smoke/validation/staggered/101/partitioned/board.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/staggered/101/partitioned/config.json": {
+      "bytes": 769,
+      "sha256": "485a329f45574903f6aec916870f945b7f9e1e0f1f3ed2bd1742c13d2ab86f43"
+    },
+    "smoke/validation/staggered/101/partitioned/control-http.jsonl.gz": {
+      "bytes": 1494,
+      "sha256": "d4dd934ff1469248f191b620536549731a54b20213131b952ef8e880322f92cf"
+    },
+    "smoke/validation/staggered/101/partitioned/control-steps.jsonl.gz": {
+      "bytes": 772,
+      "sha256": "308a8bd9ba5f2ac4e12394711f0ac670bf5b8949904464737664905527a51707"
+    },
+    "smoke/validation/staggered/101/partitioned/control.jsonl.gz": {
+      "bytes": 630,
+      "sha256": "718462ab7202456419c14e846ca5cd68e13502897dd4c65e00f35b53a872117b"
+    },
+    "smoke/validation/staggered/101/partitioned/environment.json": {
+      "bytes": 10464,
+      "sha256": "aa582ef264ced4f884b9f5997c87d60f986f9c1336be6ca7e657b98b5d752bb8"
+    },
+    "smoke/validation/staggered/101/partitioned/events.jsonl.gz": {
+      "bytes": 12453,
+      "sha256": "733dad677566d40cd2803809ae3f98ab7b68184f0ae48fd1efbace60ccedcd2b"
+    },
+    "smoke/validation/staggered/101/partitioned/observations.jsonl.gz": {
+      "bytes": 22851,
+      "sha256": "a2a38d54f0a221d8d0c46e8573efbbfce0ab4565489c8aeb527a6a40c6f2ddb5"
+    },
+    "smoke/validation/staggered/101/partitioned/proxy-payload.json": {
+      "bytes": 1050,
+      "sha256": "3200db3ebb58d6eb87e16970ded61aeb6cd617555334534dc9ded3746a3882d0"
+    },
+    "smoke/validation/staggered/101/partitioned/proxy-trace.jsonl.gz": {
+      "bytes": 6281,
+      "sha256": "8dd7d2c67a6e78b545c54add8e53d0bbb94a3e639c726d631dfc4919b484d0f8"
+    },
+    "smoke/validation/staggered/101/partitioned/proxy.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/staggered/101/partitioned/requests.jsonl.gz": {
+      "bytes": 14309,
+      "sha256": "fc560742acc14b10f94395c2ca8dd5e45811d5171f29839bd8e2068e68ecf417"
+    },
+    "smoke/validation/staggered/101/partitioned/shutdown.json": {
+      "bytes": 181,
+      "sha256": "76b41d737dfd42b5188d19ffa01c7c8fe362c9a4617349fa00c516eac806881a"
+    },
+    "smoke/validation/staggered/101/partitioned/stack.json": {
+      "bytes": 1174,
+      "sha256": "f3c543a8063d49024b39d4dc4da88ee13b19440b264ed6a15f96eeca813d9067"
+    },
+    "smoke/validation/staggered/101/partitioned/summary.json": {
+      "bytes": 12535,
+      "sha256": "82e6e6b8cd3ebe741ef304bc0a7e94a90da946fcec81ded9962f00da334f9640"
+    },
+    "smoke/validation/staggered/101/partitioned/tools.json.gz": {
+      "bytes": 1501,
+      "sha256": "3a08198b86531f0242c8ad4514d83309672db53ee1a13560d42ee6c4c0c3dbfd"
+    },
+    "smoke/validation/staggered/101/partitioned/worker-payload.json": {
+      "bytes": 967,
+      "sha256": "ba00227967961a068186103f8e454c0948f465769283a608bf7b93c7dd849638"
+    },
+    "smoke/validation/staggered/101/partitioned/worker.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/staggered/101/stock/arrivals.json.gz": {
+      "bytes": 1234,
+      "sha256": "999958c3c7a5b993a809d773927b4d6f23ca6c5a684b200ec0c0857d15e0e4d6"
+    },
+    "smoke/validation/staggered/101/stock/board-payload.json": {
+      "bytes": 1003,
+      "sha256": "df4f3469f8d4ce171ad3f1e0e51ab0579de0de0150bb0a779a22c001e6f37056"
+    },
+    "smoke/validation/staggered/101/stock/board.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/staggered/101/stock/config.json": {
+      "bytes": 769,
+      "sha256": "a250e59561184c41ccd3a65eb910f17020159bc97d23c8911faa3431bb0f0582"
+    },
+    "smoke/validation/staggered/101/stock/control-http.jsonl.gz": {
+      "bytes": 1085,
+      "sha256": "19a0fde9102d03269e41803fa93d09897b442d53710d86cfad1c17881dfa64cb"
+    },
+    "smoke/validation/staggered/101/stock/control-steps.jsonl.gz": {
+      "bytes": 577,
+      "sha256": "3e375ef80146e60c94c87ba64798e1b84177a2cbc73424aad07f6b36481ec049"
+    },
+    "smoke/validation/staggered/101/stock/control.jsonl.gz": {
+      "bytes": 472,
+      "sha256": "cf297568254b6b046f1ca6bc291677cb642292f6189b87f6ac39c1cbdcfaeb29"
+    },
+    "smoke/validation/staggered/101/stock/environment.json": {
+      "bytes": 10464,
+      "sha256": "aa582ef264ced4f884b9f5997c87d60f986f9c1336be6ca7e657b98b5d752bb8"
+    },
+    "smoke/validation/staggered/101/stock/events.jsonl.gz": {
+      "bytes": 12440,
+      "sha256": "e0e8eee4a0920e53ca2f26222828117841b2cabe573a3873491686579367b2c1"
+    },
+    "smoke/validation/staggered/101/stock/observations.jsonl.gz": {
+      "bytes": 17354,
+      "sha256": "9b7fb6660d75eb2fdf3f0dd9d96989db6e257c51f36bfaad34d15cb1f8eeb05f"
+    },
+    "smoke/validation/staggered/101/stock/proxy-payload.json": {
+      "bytes": 1044,
+      "sha256": "65c48d1d316c0f6523379f5e65fa88fae13b10ba38080d4faf3e42a8139deaea"
+    },
+    "smoke/validation/staggered/101/stock/proxy-trace.jsonl.gz": {
+      "bytes": 6268,
+      "sha256": "db14d73f8c34f87d2e8f308c3f3a3d85fba512d2b74da8d03682225e7e821f11"
+    },
+    "smoke/validation/staggered/101/stock/proxy.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/staggered/101/stock/requests.jsonl.gz": {
+      "bytes": 14304,
+      "sha256": "311baa8ee58c9eae0af84265cf44c45efd9dca83377f68fc5f130c48e9246812"
+    },
+    "smoke/validation/staggered/101/stock/shutdown.json": {
+      "bytes": 181,
+      "sha256": "a580c386f521a8117519417d2e7d643164e178a7c93ead9d7b73e5ebc9b9bdf8"
+    },
+    "smoke/validation/staggered/101/stock/stack.json": {
+      "bytes": 1168,
+      "sha256": "20aedd30fe2b6d26d41410d4385be1a963c5071060169518ac80dfbe6905b3dd"
+    },
+    "smoke/validation/staggered/101/stock/summary.json": {
+      "bytes": 12508,
+      "sha256": "73ad3eec98d98360dda5e2bfebf2b230a95d1b2236631d3bb096c5a823fb24df"
+    },
+    "smoke/validation/staggered/101/stock/tools.json.gz": {
+      "bytes": 1495,
+      "sha256": "3197365fc6f7a5ae7d0ba3e49044ba9cde92f054bf227cd72bd16a3359260fde"
+    },
+    "smoke/validation/staggered/101/stock/worker-payload.json": {
+      "bytes": 961,
+      "sha256": "5520d314827da15394bc88499af2fd949e6158c9cd5d094a4af08cc8cc2fd41d"
+    },
+    "smoke/validation/staggered/101/stock/worker.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/staggered/102/partitioned/arrivals.json.gz": {
+      "bytes": 1236,
+      "sha256": "c6e35db6c3d0cb9ca3c3e6cb34d8293889267e0897876b763921f82838ab2c98"
+    },
+    "smoke/validation/staggered/102/partitioned/board-payload.json": {
+      "bytes": 1009,
+      "sha256": "e56335a26d7d44a3aa457d49972fbebbf2356c84a818f5d6bd12d9ee24c54eaa"
+    },
+    "smoke/validation/staggered/102/partitioned/board.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/staggered/102/partitioned/config.json": {
+      "bytes": 769,
+      "sha256": "8f757d022c7991986222812bb47a710066116543c66f6071e03e958138704764"
+    },
+    "smoke/validation/staggered/102/partitioned/control-http.jsonl.gz": {
+      "bytes": 1353,
+      "sha256": "09415d7de825f1f21d0f8c37068020e31ce625ef6431125e007971497fbef8c6"
+    },
+    "smoke/validation/staggered/102/partitioned/control-steps.jsonl.gz": {
+      "bytes": 770,
+      "sha256": "614f5c0160897c7b7539db81ce65032b8ff2fb1bb2c0d47c75e509ac4e39a54a"
+    },
+    "smoke/validation/staggered/102/partitioned/control.jsonl.gz": {
+      "bytes": 630,
+      "sha256": "92bff22ebf6fecbad9a484f181f0a9d2d7bd17123cd528826685427dbf975660"
+    },
+    "smoke/validation/staggered/102/partitioned/environment.json": {
+      "bytes": 10464,
+      "sha256": "aa582ef264ced4f884b9f5997c87d60f986f9c1336be6ca7e657b98b5d752bb8"
+    },
+    "smoke/validation/staggered/102/partitioned/events.jsonl.gz": {
+      "bytes": 12447,
+      "sha256": "0940ae4b9699f95f1d1527692c1bc4b345a6adcfeebc5dec1dc7a63a8d726875"
+    },
+    "smoke/validation/staggered/102/partitioned/observations.jsonl.gz": {
+      "bytes": 22665,
+      "sha256": "057a6a29dfa64bada3a297373f336e7d779ece896f443e931ecc87cbb5356daa"
+    },
+    "smoke/validation/staggered/102/partitioned/proxy-payload.json": {
+      "bytes": 1050,
+      "sha256": "bb2904b015471ddd77ea3a9f7fba5f0743055f868ce7d61dc9bf6c0de2b03e90"
+    },
+    "smoke/validation/staggered/102/partitioned/proxy-trace.jsonl.gz": {
+      "bytes": 6276,
+      "sha256": "bcfc8b1ec5ed32668b42e4e073225048609291ae31538bcfa91fa16c69a4a85b"
+    },
+    "smoke/validation/staggered/102/partitioned/proxy.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/staggered/102/partitioned/requests.jsonl.gz": {
+      "bytes": 14317,
+      "sha256": "634a75e29d14112defad1883b35dc625719308e6658d61c532ac48a1fbd998b6"
+    },
+    "smoke/validation/staggered/102/partitioned/shutdown.json": {
+      "bytes": 181,
+      "sha256": "ce567f057d9cab5a5d83ceb10713324e7776ced680e91ecb2f17abadf50625f0"
+    },
+    "smoke/validation/staggered/102/partitioned/stack.json": {
+      "bytes": 1174,
+      "sha256": "32a9146840e1a64bf7cc72a5a8b62f912dca5b4cdf054c297193777fe165a54c"
+    },
+    "smoke/validation/staggered/102/partitioned/summary.json": {
+      "bytes": 12527,
+      "sha256": "7cfdb0e63dbc87c03d14d35a72ff7cf4bf932fd6dbf7beeabe6e6e3f426731cd"
+    },
+    "smoke/validation/staggered/102/partitioned/tools.json.gz": {
+      "bytes": 1503,
+      "sha256": "f0815f5346cd83ce22523a6fd09cc4ee5566cc9a52bb8f36feef4ef70e6577dd"
+    },
+    "smoke/validation/staggered/102/partitioned/worker-payload.json": {
+      "bytes": 967,
+      "sha256": "cf80d49454e0bc30dbb6c54bcf1d4eaaeb22060581f3e8e83b8e1f5b5a2dfc6e"
+    },
+    "smoke/validation/staggered/102/partitioned/worker.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/staggered/102/stock/arrivals.json.gz": {
+      "bytes": 1236,
+      "sha256": "efea69a2e0c628be109729a2215c6ff7fa1dfbd9b3f80cc819681ab960f20fc0"
+    },
+    "smoke/validation/staggered/102/stock/board-payload.json": {
+      "bytes": 1003,
+      "sha256": "29d2c6c71fa317a64d66576fb0e06af2bab57b2835df65f47b5b473c2ed2243a"
+    },
+    "smoke/validation/staggered/102/stock/board.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/staggered/102/stock/config.json": {
+      "bytes": 769,
+      "sha256": "ab6e396c1bf5d2bf7cfe3836bc1ebce045bb163c72a3e2357dd0eeb0d84fa47a"
+    },
+    "smoke/validation/staggered/102/stock/control-http.jsonl.gz": {
+      "bytes": 939,
+      "sha256": "afeff3465f97cce5f1fe560b9881c585f3827c9346582dde42764f14aa389189"
+    },
+    "smoke/validation/staggered/102/stock/control-steps.jsonl.gz": {
+      "bytes": 579,
+      "sha256": "2dcc1a732810097961e9ad889c0b0a9448abfd40fa3d595f0b1f1bab7020fd0f"
+    },
+    "smoke/validation/staggered/102/stock/control.jsonl.gz": {
+      "bytes": 474,
+      "sha256": "839d034c2c2261a5962b4dc9e248274e9b30fca2fa7548572a1bb0d2640f881f"
+    },
+    "smoke/validation/staggered/102/stock/environment.json": {
+      "bytes": 10464,
+      "sha256": "aa582ef264ced4f884b9f5997c87d60f986f9c1336be6ca7e657b98b5d752bb8"
+    },
+    "smoke/validation/staggered/102/stock/events.jsonl.gz": {
+      "bytes": 12452,
+      "sha256": "151294d76e86453072af9bfd08d087e78305bdca19bfe58911247dd710d5965a"
+    },
+    "smoke/validation/staggered/102/stock/observations.jsonl.gz": {
+      "bytes": 17159,
+      "sha256": "3319f88057e795be68fb35781f20cb9d9cb3068990637d4ea1ba3ee67ea11625"
+    },
+    "smoke/validation/staggered/102/stock/proxy-payload.json": {
+      "bytes": 1044,
+      "sha256": "47d772b8d106f51ab08e591b25b2e67d715dfe8a1f05563c3a12da48a88b493f"
+    },
+    "smoke/validation/staggered/102/stock/proxy-trace.jsonl.gz": {
+      "bytes": 6276,
+      "sha256": "68c20e8a051ccd2e3e55cee6a25823f1eaee65280883a366af6f297c09bf8caa"
+    },
+    "smoke/validation/staggered/102/stock/proxy.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/staggered/102/stock/requests.jsonl.gz": {
+      "bytes": 14291,
+      "sha256": "8573e2e14f659ca30d8beb483054b3888e2a5091028b6f42bcb7767cc4058e7f"
+    },
+    "smoke/validation/staggered/102/stock/shutdown.json": {
+      "bytes": 181,
+      "sha256": "4dea2f4a75e087b7f0b8d7f2f3d409c708de5982b749749d0508c5fd6df88a36"
+    },
+    "smoke/validation/staggered/102/stock/stack.json": {
+      "bytes": 1168,
+      "sha256": "c8000aa694ff5a0cf3e530d9d7383f031e1ed0515f5375a2640c4e82cf1f3778"
+    },
+    "smoke/validation/staggered/102/stock/summary.json": {
+      "bytes": 12518,
+      "sha256": "d18e18c0cd55ee9f9a36e7b0854c89a7346fdca18fdb0f6cd0482a37b747ca66"
+    },
+    "smoke/validation/staggered/102/stock/tools.json.gz": {
+      "bytes": 1500,
+      "sha256": "943c3ea7f4f3c708cdc78fdedc07de16e3c62aa2c36b0fb65abe623eb1b93ce7"
+    },
+    "smoke/validation/staggered/102/stock/worker-payload.json": {
+      "bytes": 961,
+      "sha256": "c42b2d4e3188ec522379ea143af52bfc7464e73f0434eeeba5992412dff05595"
+    },
+    "smoke/validation/staggered/102/stock/worker.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/staggered/103/partitioned/arrivals.json.gz": {
+      "bytes": 1234,
+      "sha256": "1ad84835a0b92dc8b7a85c927bce0a50d212238177c0334ffb1d15c14f142e9f"
+    },
+    "smoke/validation/staggered/103/partitioned/board-payload.json": {
+      "bytes": 1009,
+      "sha256": "f410a9562730fd7bcfd4c451f812cdc0d6b965236fcd5e0f839b9f756e5ffea6"
+    },
+    "smoke/validation/staggered/103/partitioned/board.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/staggered/103/partitioned/config.json": {
+      "bytes": 769,
+      "sha256": "f9992773535ebabc3542ba148a20bd99c1b0454899e843015edd4acd1b5abeff"
+    },
+    "smoke/validation/staggered/103/partitioned/control-http.jsonl.gz": {
+      "bytes": 1081,
+      "sha256": "738e1fb07507708242f9a1f43f1aaa04609cee3f912f5aaf144bb3acbd5e3139"
+    },
+    "smoke/validation/staggered/103/partitioned/control-steps.jsonl.gz": {
+      "bytes": 577,
+      "sha256": "725c1c87ee04e403358d6eb07e20995fe38a636f1ef4a6208660a9f8252cc653"
+    },
+    "smoke/validation/staggered/103/partitioned/control.jsonl.gz": {
+      "bytes": 473,
+      "sha256": "358e2b73c17b5fc9f25e99177baabb112fc52b92d20f76d2fff4838f5bbdfaac"
+    },
+    "smoke/validation/staggered/103/partitioned/environment.json": {
+      "bytes": 10464,
+      "sha256": "aa582ef264ced4f884b9f5997c87d60f986f9c1336be6ca7e657b98b5d752bb8"
+    },
+    "smoke/validation/staggered/103/partitioned/events.jsonl.gz": {
+      "bytes": 12439,
+      "sha256": "945873ef53f60e8c0c764db7d512eed9b1dba0ee0249a7bc6867e446adcfefd3"
+    },
+    "smoke/validation/staggered/103/partitioned/observations.jsonl.gz": {
+      "bytes": 22823,
+      "sha256": "355eea06456ae81d281d978b7284c462747e3d6f83b939519b4e68d0a25f33cb"
+    },
+    "smoke/validation/staggered/103/partitioned/proxy-payload.json": {
+      "bytes": 1050,
+      "sha256": "b44e33e58b3bc742e95bab7776cb1811a54a34efdf84fba9559714c43fad1c5d"
+    },
+    "smoke/validation/staggered/103/partitioned/proxy-trace.jsonl.gz": {
+      "bytes": 6273,
+      "sha256": "d38d7ed4537611095512009a4369e30db04faf88268dda1b30efdb262603a308"
+    },
+    "smoke/validation/staggered/103/partitioned/proxy.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/staggered/103/partitioned/requests.jsonl.gz": {
+      "bytes": 14303,
+      "sha256": "d22d6bd65bc900011e659bddc78c0ca3dbcbd25a8439a8b2ebacd874edf4601e"
+    },
+    "smoke/validation/staggered/103/partitioned/shutdown.json": {
+      "bytes": 181,
+      "sha256": "7c2e868bd834c4bf7fbc78cb370ff64bae3a42e4fc5e4b4af2377e6a79b8d3f1"
+    },
+    "smoke/validation/staggered/103/partitioned/stack.json": {
+      "bytes": 1174,
+      "sha256": "21e6c22341dd2c1c98d09a873bee44a959997ecd7e985638ca5565ce308ffc05"
+    },
+    "smoke/validation/staggered/103/partitioned/summary.json": {
+      "bytes": 12533,
+      "sha256": "7753bf79fc51512722fff70784622409da18e2e5e6f4f12dacceb176b9ccaf31"
+    },
+    "smoke/validation/staggered/103/partitioned/tools.json.gz": {
+      "bytes": 1499,
+      "sha256": "34a890ae2d3b0ed6a4bd3694c1c260b579256b84ae0bebceca27664d4cb21bd9"
+    },
+    "smoke/validation/staggered/103/partitioned/worker-payload.json": {
+      "bytes": 967,
+      "sha256": "ea344cf5852dfac971c6c137f8103ebdb78da7e8c32f2f60c95102942e2ddf0b"
+    },
+    "smoke/validation/staggered/103/partitioned/worker.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/staggered/103/stock/arrivals.json.gz": {
+      "bytes": 1238,
+      "sha256": "0c4705c5d7ef3f303735b3401d3747f55effd04c86e7b6247b3cb7152aa31c34"
+    },
+    "smoke/validation/staggered/103/stock/board-payload.json": {
+      "bytes": 1003,
+      "sha256": "c20b1243174b5049d6804296213d2aa98b1510783f28aa03cee141bfd852aa65"
+    },
+    "smoke/validation/staggered/103/stock/board.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/staggered/103/stock/config.json": {
+      "bytes": 769,
+      "sha256": "1a3b93c75a6da8e11529aa884e785f8ef1f41c16c26ff86a9e76c03a71be51fa"
+    },
+    "smoke/validation/staggered/103/stock/control-http.jsonl.gz": {
+      "bytes": 1078,
+      "sha256": "97a389aea7f80eb054f76b7ce6e54581d8c9c98bcafd80df2aa73a99956e9d54"
+    },
+    "smoke/validation/staggered/103/stock/control-steps.jsonl.gz": {
+      "bytes": 575,
+      "sha256": "08cf841ca011529e47352e9597745f41661ea3e4a357e72cb50fa9d38e92e886"
+    },
+    "smoke/validation/staggered/103/stock/control.jsonl.gz": {
+      "bytes": 473,
+      "sha256": "0b54652ff17ec77118832e3e08a6eb2d933bd3780ab27c5636d25be8d885173e"
+    },
+    "smoke/validation/staggered/103/stock/environment.json": {
+      "bytes": 10464,
+      "sha256": "aa582ef264ced4f884b9f5997c87d60f986f9c1336be6ca7e657b98b5d752bb8"
+    },
+    "smoke/validation/staggered/103/stock/events.jsonl.gz": {
+      "bytes": 12441,
+      "sha256": "31f9edb1b262f061f6b70b510f26a0774e19a0ca9450fd5fc88966d408346664"
+    },
+    "smoke/validation/staggered/103/stock/observations.jsonl.gz": {
+      "bytes": 17345,
+      "sha256": "484b87aafa8181a7f38576d06f8460c3ee577a491acaafffb81f54b7f09e3bbf"
+    },
+    "smoke/validation/staggered/103/stock/proxy-payload.json": {
+      "bytes": 1044,
+      "sha256": "d2ef37a8fc35683002ae4c2b611e43af363e8fa4023a109661eeb588b335d95a"
+    },
+    "smoke/validation/staggered/103/stock/proxy-trace.jsonl.gz": {
+      "bytes": 6278,
+      "sha256": "68efc6996564c0d7aabf57a193ffcbc4f9a637e8c0e9534bbe6c784821e7f8d3"
+    },
+    "smoke/validation/staggered/103/stock/proxy.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation/staggered/103/stock/requests.jsonl.gz": {
+      "bytes": 14288,
+      "sha256": "f0c8ee5225cad45629a09ae7f316dd3ba7cda388e631cbd755013fd4d1f22b0a"
+    },
+    "smoke/validation/staggered/103/stock/shutdown.json": {
+      "bytes": 181,
+      "sha256": "c642792914c2fe0b4be980e9eccf22f5f8947c10be64fe3a7c30ec3cea1278dc"
+    },
+    "smoke/validation/staggered/103/stock/stack.json": {
+      "bytes": 1168,
+      "sha256": "71e4d0ebdea1056f8aa698cc4b091f2beefe0ef712ffe030790c2a758af8c9a0"
+    },
+    "smoke/validation/staggered/103/stock/summary.json": {
+      "bytes": 12508,
+      "sha256": "6fd3f9f38c66d38d87b6aae10ff6fa83f2bb165604bd52e196f00ee17ebd74e0"
+    },
+    "smoke/validation/staggered/103/stock/tools.json.gz": {
+      "bytes": 1497,
+      "sha256": "34f1d404d56d719d05e4564cf4b2b549b0a5d0f967d4b04465dc60fc801b8a43"
+    },
+    "smoke/validation/staggered/103/stock/worker-payload.json": {
+      "bytes": 961,
+      "sha256": "fa85fd6cfeda2770e0f6dd27509269868dd67ac3eae5b313e0bd51630a53b1f5"
+    },
+    "smoke/validation/staggered/103/stock/worker.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke/validation-schedule.json": {
+      "bytes": 579,
+      "sha256": "0fbb560ba64d56793671ffb8dcda1a488e0a0a3514318742e8198130b0ab6dff"
+    },
+    "pytest.log.gz": {
+      "bytes": 2226,
+      "sha256": "3f0265a91a17e01556728e760ff26d906b3158ba6d998a536cbad03ed8924ee4"
+    },
+    "executed-smoke.log.gz": {
+      "bytes": 1316,
+      "sha256": "77309e7e412822b61d60f0ae1f0eb2671d7cdd683885890107a132b4ab7b4fe4"
+    }
+  },
+  "cases": 24,
+  "requests": 384
+}

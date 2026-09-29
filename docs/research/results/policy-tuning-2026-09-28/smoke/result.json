@@ -1,0 +1,104 @@
+{
+  "selection": {
+    "selected": "partitioned",
+    "aggregates": {
+      "stock": {
+        "feasible": true,
+        "score": 0.05876841808518899,
+        "contexts": {
+          "staggered": {
+            "feasible": true,
+            "runs": 3,
+            "p95_s": 0.05876841808518899,
+            "cpu_s_per_request": 0.006429387270833332,
+            "prediction_use": 1.0
+          },
+          "burst": {
+            "feasible": true,
+            "runs": 3,
+            "p95_s": 0.04678196491780303,
+            "cpu_s_per_request": 0.005521567000000005,
+            "prediction_use": 0.9375
+          }
+        }
+      },
+      "partitioned": {
+        "feasible": true,
+        "score": 0.02457346774584342,
+        "contexts": {
+          "staggered": {
+            "feasible": true,
+            "runs": 3,
+            "p95_s": 0.02457346774584342,
+            "cpu_s_per_request": 0.005890569270833331,
+            "prediction_use": 1.0
+          },
+          "burst": {
+            "feasible": true,
+            "runs": 3,
+            "p95_s": 0.02438991674838083,
+            "cpu_s_per_request": 0.005625849020833333,
+            "prediction_use": 0.9166666666666666
+          }
+        }
+      }
+    },
+    "pareto": [
+      "stock",
+      "partitioned"
+    ]
+  },
+  "validation": {
+    "status": "validated_candidate",
+    "aggregates": {
+      "stock": {
+        "feasible": true,
+        "score": 0.050786866164950574,
+        "contexts": {
+          "staggered": {
+            "feasible": true,
+            "runs": 3,
+            "p95_s": 0.050786866164950574,
+            "cpu_s_per_request": 0.005890620833333332,
+            "prediction_use": 1.0
+          },
+          "burst": {
+            "feasible": true,
+            "runs": 3,
+            "p95_s": 0.04986351541689752,
+            "cpu_s_per_request": 0.005922921604166668,
+            "prediction_use": 0.9375
+          }
+        }
+      },
+      "partitioned": {
+        "feasible": true,
+        "score": 0.020753743998890666,
+        "contexts": {
+          "staggered": {
+            "feasible": true,
+            "runs": 3,
+            "p95_s": 0.020753743998890666,
+            "cpu_s_per_request": 0.005877627062499992,
+            "prediction_use": 1.0
+          },
+          "burst": {
+            "feasible": true,
+            "runs": 3,
+            "p95_s": 0.020673534500626072,
+            "cpu_s_per_request": 0.005756366333333346,
+            "prediction_use": 0.9583333333333334
+          }
+        }
+      }
+    },
+    "confidence": 0.95,
+    "validation_blocks": 3,
+    "objective_change": -0.5913560814820782,
+    "objective_change_upper": -0.5232351319280584,
+    "worst_context_change_upper": -0.5232351319280584,
+    "method": "paired seed-block percentile bootstrap, two Bonferroni bounds; approximate, not a guarantee"
+  },
+  "recommendation": "partitioned",
+  "deployed": false
+}

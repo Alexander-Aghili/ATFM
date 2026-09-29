@@ -336,3 +336,14 @@ planned count. A failed comparison returns nonzero. Output directories cannot
 already exist. This is a transport component test, not full-proxy or production
 throughput evidence. The [transport study](../research/2026-09-28-sharded-transport.md)
 compares it with separate full-stack pairs and retains small-workload regressions.
+
+## Constrained settings studies
+
+`python -m atfm_experiments.load.tune --plan experiments/tuning/smoke.json
+--out runs/tuning-smoke` runs a small end-to-end protocol check. Use the command
+on one line. The [tuning guide](policy-tuning.md) defines search versus validation,
+complete-block requirements, budgets and result statuses. `LoadConfig` accepts
+`upstream_pool_shards` to forward explicit candidate settings to the proxy.
+Do not reuse holdout results to pick another candidate after an unfavorable
+comparison; declare another study with fresh validation data. The smoke plan
+is a functional fixture, not a deployment recommendation.

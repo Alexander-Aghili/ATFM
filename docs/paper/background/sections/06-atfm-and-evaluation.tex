@@ -314,4 +314,23 @@ real-socket lifecycle tests do not establish streaming performance. The dated
 sharded-transport study retains measured revisions, unfavorable small-case
 results, the final automatic-selection distinction and raw evidence.
 
-\clearpage
+
+\paragraph{Finding policies rather than declaring a universal setting.}
+The offline tuning protocol separates hardware/workload context $x$, candidate
+settings $\theta$, objectives and feasibility constraints. Conceptually it seeks
+$\arg\min_\theta\mathbb{E}[C(\theta,x)]$ over feasible settings. The initial
+implementation enumerates a finite declared set, checks complete healthy trials,
+retains a Pareto frontier and freezes one selection before independent paired
+validation. It optimizes the worst context's mean run p95 or proxy CPU/request;
+configured prediction-use and resource bounds remain visible. Missing trials
+and source/environment changes cannot become winning measurements.
+
+A paired run-block bootstrap checks both objective improvement and context
+regression on disjoint seeds. Approximate uncertainty, an inconclusive outcome
+and a retained baseline are explicit; three smoke-test blocks do not establish
+production statistical power. No runtime setting changes automatically. The
+current adapter measures local nonstreaming HTTP with a fake worker, and the
+current selector chooses one setting across a suite. Learning a context-dependent
+policy, evaluating real serving goodput and managing safe live exploration are
+separate steps. The repository's policy-tuning guide compares candidate search
+methods and documents the independently validated evaluation boundary.

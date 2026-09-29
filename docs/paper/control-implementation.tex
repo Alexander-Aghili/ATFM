@@ -392,3 +392,58 @@ connection reuse, cancellation, close failures, proxy fallback and capacity
 boundaries. The dated \texttt{2026-09-28-sharded-transport.md} study preserves
 all configurations, hashes, raw evidence and limitations. Remote TLS/streaming
 performance, GPU benefits and production capacity remain unvalidated.
+
+\paragraph{Context-specific policy selection (28 September 2026).}
+A single admission window, pool count or prediction budget cannot be assumed
+optimal across hardware and workload distributions. Let $x$ denote the context
+and $\theta$ a policy setting vector. The conceptual problem is
+\[
+ \theta^*(x)\in\arg\min_{\theta\in\Theta}
+       \mathbb{E}[C(\theta,x)]
+ \quad\text{subject to declared service and resource constraints.}
+\]
+Without a chosen cost or tradeoff, multiple feasible settings can remain
+Pareto-optimal. A finite noisy experiment identifies a best observed candidate
+under its protocol, not a global optimum over every setting or future workload.
+The new offline experiment layer leaves runtime defaults unchanged.
+
+The first evaluator accepts explicit candidate settings for the admission window,
+upstream pool shards, prediction concurrency and caller budget. Named workload
+contexts remain separate from settings, preventing a candidate from winning by
+reducing offered work. A bounded plan declares the baseline, objective,
+constraints, trial/request budget and disjoint search/validation seeds. Search
+enumerates a small finite list with randomized candidate order within paired
+context/seed blocks. Incomplete requests, health failures, missing blocks and
+invalid measurements cannot win. Source/environment fingerprints are checked
+around each evaluation. A selected candidate and feasible Pareto frontier are
+written before any validation experiment begins.
+
+For context $c$ and independent run block $r$, let $L_{cr}$ be run-level client
+p95 and $U_{cr}$ proxy CPU per successful request. The supported objectives are
+$\max_c\overline{L}_c$ or $\max_c\overline{U}_c$. Configurable run-level bounds
+also cover latency, CPU/request and timely prediction use. These observed
+constraints are not guarantees of future compliance. The current runner selects
+one robust setting across its suite; it does not yet learn a live mapping
+$\pi(x)$. The real-HTTP adapter uses a nonstreaming fake worker and cannot establish
+GPU/cache benefit or actual job-level goodput.
+
+Only the frozen candidate and baseline proceed to held-out seeds. Validation
+resamples whole paired seed columns across contexts, preserving run-level
+correlation rather than treating individual HTTP calls as independent samples.
+Two relative-change statistics measure the overall objective and the worst
+context regression. For nominal confidence $1-\alpha$, one-sided percentile
+bounds each use level $1-\alpha/2$. Acceptance requires an objective upper bound
+below the negative declared improvement margin and a worst-context upper bound
+within the declared regression allowance. This Bonferroni allocation accompanies
+an approximate paired bootstrap; it is not an exact production confidence
+guarantee, especially with the three-block smoke-test minimum.
+
+The workflow can return no feasible candidate, baseline retained, failed
+validation, inconclusive evidence or a validated candidate. It never uses holdout
+results to select a runner-up, and never deploys a setting. Future candidate
+proposal could use random search or constrained Bayesian optimization while
+retaining the measurement and independent-validation contract. Early-stopping
+methods need evidence that shorter serving trials preserve rankings; otherwise
+queue growth, warmup and bursts can make the apparent low-fidelity winner
+misleading. The developer policy-tuning guide records the method comparison,
+primary sources and the separate path toward constrained online adaptation.

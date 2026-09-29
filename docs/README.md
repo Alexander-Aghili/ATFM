@@ -59,3 +59,5 @@ concurrency tests, and paired HTTP measurements.
 [Proxy ranking and transport study](research/2026-09-28-proxy-ranking.md) records exact peer counts, phase timing, profiles, and retained/rejected optimization evidence.
 
 [Upstream transport study](research/2026-09-28-sharded-transport.md) records focused HTTP trials, bounded pool sharding, response ownership and integrated measurements.
+
+[Policy tuning](development/policy-tuning.md) describes constrained search, independent validation, Pareto tradeoffs and the path toward context-dependent policies.
