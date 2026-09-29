@@ -1,86 +1,122 @@
-"""LMCache actuator: our placement decisions executed by LMCache's controller (pin / move / lookup) instead
-of keep-alive touches. Client and tokenizer are injected; nothing here talks to a real LMCache."""
+"""LMCache MP contract: acceptance, completion and unsupported placement differ."""
+import httpx
 import pytest
 
 from atfm.control import TierDirective, TouchDirective
 from atfm.control.lmcache import LMCacheActuator, LMCacheConfig, PromptTokens
 
 
-class FakeResponse:
-    def __init__(self, status=200, body=None):
-        self.status_code, self._body = status, body or {}
-    def json(self):
-        return self._body
+def actuator(polls=None, **config):
+    calls, pending = [], list(polls or [dict(status='completed', found_keys=2, total_keys=2)])
+    def handler(request):
+        calls.append(request)
+        path = request.url.path
+        if path == '/version': return httpx.Response(200, json='0.5.5-g05a013b2')
+        if path == '/status': return httpx.Response(200, json=dict(chunk_size=2, is_healthy=True))
+        if request.method == 'POST': return httpx.Response(202, json=dict(status='submitted', chunks=2, request_id='abc'))
+        body = pending.pop(0) if len(pending) > 1 else pending[0]
+        return httpx.Response(200, json=dict(request_id='abc', **body))
+    tokens = PromptTokens(lambda messages: [1, 2, 3, 4], lambda sid: [{'content': sid}])
+    cfg = LMCacheConfig('http://lmcache', 'model', chunk_size=2, **config)
+    return LMCacheActuator(cfg, httpx.Client(transport=httpx.MockTransport(handler)), tokens), calls
 
 
-class FakeClient:
-    def __init__(self, fail=False):
-        self.calls, self.fail = [], fail
-        self._n = 0
-    def post(self, url, json=None, **kw):
-        self.calls.append((url, json))
-        if self.fail:
-            raise ConnectionError("lmcache down")
-        self._n += 1
-        if url.endswith("/lookup"):          # documented response: instance-keyed (location, matched prefix length)
-            return FakeResponse(200, {"event_id": "ev", "vllm-0": ["LocalCPUBackend", len(json["tokens"]) // 2]})
-        if url.endswith("/check_finish"):
-            return FakeResponse(200, {"status": "finished"})
-        return FakeResponse(200, {"event_id": f"ev{self._n}", "num_tokens": len(json.get("tokens", []))})
+def test_waits_for_complete_transfer_with_exact_wire_body():
+    import json
+    act, calls = actuator([dict(status='pending'), dict(status='completed', found_keys=2, total_keys=2)])
+    result = act.prefetch('s')
+    assert result['ok'] and result['target'] == 'cpu_l1' and not act.pending
+    post = next(c for c in calls if c.method == 'POST')
+    assert json.loads(post.content) == dict(model_name='model', world_size=1, token_ids=[1, 2, 3, 4],
+                                          cache_salt='', source_tier='l2', target_tier='l1')
+    assert len([c for c in calls if c.url.path.endswith('/abc')]) == 2
 
 
-def _tokens():
-    return PromptTokens(tokenize=lambda messages: [len(m["content"]) for m in messages] * 3,
-                        prompt_source=lambda sid: {"sess": [{"role": "user", "content": "hello"}, {"role": "assistant", "content": "hi!"}]}.get(sid))
+@pytest.mark.parametrize('body', [dict(status='completed', found_keys=1, total_keys=2),
+                                dict(status='completed', found_keys=2, total_keys=3),
+                                dict(status='failed'), dict(status='completed', found_keys=True, total_keys=2)])
+def test_partial_failed_and_malformed_completions_never_succeed(body):
+    act, _ = actuator([body])
+    assert not act.prefetch('s')['ok']
 
 
-def test_touch_directive_becomes_a_gpu_pin_with_the_session_prefix_tokens():
-    client = FakeClient()
-    act = LMCacheActuator(LMCacheConfig(url="http://lmcache:9000", instance_id="vllm-0", gpu_location="LocalGPUBackend",
-                                        cpu_location="LocalCPUBackend"), client=client, tokens=_tokens())
-    out = act.apply_touch(TouchDirective(session_id="sess", worker_id="w0", eta_q50=4.0, expires_at=100.0), now=50.0)
-    assert out == {"ok": True, "event_id": "ev1", "num_tokens": 6}
-    url, body = client.calls[-1]
-    assert url == "http://lmcache:9000/pin" and body == {"instance_id": "vllm-0", "location": "LocalGPUBackend", "tokens": [5, 3, 5, 3, 5, 3]}
-    assert act.pinned["sess"] == (100.0, "LocalGPUBackend")                      # remembered with its expiry
+def test_timeout_keeps_snapshot_and_does_not_resubmit():
+    act, calls = actuator([dict(status='pending')], completion_timeout_s=.001)
+    assert act.prefetch('s')['status'] == 'pending'
+    assert act.prefetch('s')['status'] == 'pending'
+    act.tokens = PromptTokens(lambda _: [5, 6, 7, 8], lambda _: [{'content': 'new'}])
+    assert act.prefetch('s')['status'] == 'previous_prompt_pending'
+    assert act.pending['s'][0] == (1, 2, 3, 4)
+    assert len([c for c in calls if c.method == 'POST']) == 1
 
 
-def test_tier_directives_map_to_pin_move_and_unpin():
-    client = FakeClient()
-    act = LMCacheActuator(LMCacheConfig(url="http://lmcache:9000", instance_id="vllm-0"), client=client, tokens=_tokens())
-    act.apply_tier(TierDirective(session_id="sess", action="pin", tier="gpu", eta_q10=1.0, eta_q90=5.0, expires_at=10.0), now=0.0)
-    act.apply_tier(TierDirective(session_id="sess", action="demote", tier="cpu", eta_q10=30.0, eta_q90=90.0, expires_at=60.0), now=1.0)
-    act.apply_tier(TierDirective(session_id="sess", action="promote", tier="gpu", eta_q10=2.0, eta_q90=8.0, expires_at=70.0), now=2.0)
-    urls = [u.rsplit("/", 1)[1] for u, _ in client.calls]
-    assert urls == ["pin", "move", "move"]
-    assert client.calls[1][1] == {"src": {"instance_id": "vllm-0", "location": "LocalGPUBackend"},
-                                  "dst": {"instance_id": "vllm-0", "location": "LocalCPUBackend"}, "tokens": [5, 3, 5, 3, 5, 3]}
-    act.apply_tier(TierDirective(session_id="sess", action="demote", tier="disk", eta_q10=500.0, eta_q90=900.0, expires_at=80.0), now=3.0)
-    assert client.calls[-1][1]["dst"]["location"] == "LocalDiskBackend"        # tier names map through the config
+def test_no_pin_or_gpu_placement_is_claimed():
+    act, calls = actuator()
+    assert act.apply_touch(TouchDirective(session_id='s', expires_at=2), 1)['status'] == 'unsupported'
+    for action, tier in [('pin', 'cpu'), ('prefetch', 'gpu'), ('promote', 'cpu'), ('demote', 'disk')]:
+        directive = TierDirective(session_id='s', action=action, tier=tier, expires_at=2, eta_q10=0, eta_q90=1)
+        assert act.apply_tier(directive, 1)['status'] == 'unsupported'
+    assert act.release_expired(3) == [] and not calls
 
 
-def test_expired_pins_are_released_and_failures_are_fail_open():
-    client = FakeClient()
-    act = LMCacheActuator(LMCacheConfig(url="http://lmcache:9000", instance_id="vllm-0"), client=client, tokens=_tokens())
-    act.apply_touch(TouchDirective(session_id="sess", expires_at=100.0), now=50.0)
-    assert act.release_expired(now=99.0) == [] and act.release_expired(now=101.0) == ["sess"]
-    assert client.calls[-1][0].endswith("/unpin") and client.calls[-1][1]["tokens"] and "sess" not in act.pinned
-    dead = LMCacheActuator(LMCacheConfig(url="http://lmcache:9000", instance_id="vllm-0"), client=FakeClient(fail=True), tokens=_tokens())
-    assert dead.apply_touch(TouchDirective(session_id="sess", expires_at=100.0), now=0.0)["ok"] is False and dead.errors == 1
-    unknown = LMCacheActuator(LMCacheConfig(url="http://lmcache:9000", instance_id="vllm-0"), client=client, tokens=_tokens())
-    assert unknown.apply_touch(TouchDirective(session_id="never", expires_at=100.0), now=0.0) == {"ok": False, "reason": "no prompt"}
+def test_cpu_prefetch_directive_and_expiry():
+    act, _ = actuator()
+    directive = TierDirective(session_id='s', action='prefetch', tier='cpu', expires_at=2, eta_q10=0, eta_q90=1)
+    assert act.apply_tier(directive, 2)['status'] == 'expired'
+    assert act.apply_tier(directive, 1)['ok']
 
 
-def test_lookup_reports_where_a_session_prefix_lives():
-    act = LMCacheActuator(LMCacheConfig(url="http://lmcache:9000", instance_id="vllm-0"), client=FakeClient(), tokens=_tokens())
-    assert act.lookup("sess") == [{"instance_id": "vllm-0", "location": "LocalCPUBackend", "hit_tokens": 3}]
-    assert act.lookup("never") == []
+def test_transport_error_remains_fail_open():
+    act, _ = actuator()
+    act.client = httpx.Client(transport=httpx.MockTransport(lambda _: (_ for _ in ()).throw(ConnectionError('down'))))
+    assert act.prefetch('s')['status'] == 'error' and act.errors == 1
 
 
-def test_prompt_tokens_caches_per_session_and_refreshes_on_new_prompt():
+def test_prompt_tokens_refresh_without_mutating_an_existing_snapshot():
+    source = {'s': [{'content': 'old'}]}
     calls = []
-    src = {"s": [{"role": "user", "content": "a"}]}
-    pt = PromptTokens(tokenize=lambda m: (calls.append(1), [1] * len(m))[1], prompt_source=lambda sid: src.get(sid))
-    assert pt.get("s") == [1] and pt.get("s") == [1] and len(calls) == 1
-    src["s"] = [{"role": "user", "content": "a"}, {"role": "assistant", "content": "b"}]
-    assert pt.get("s") == [1, 1] and len(calls) == 2
+    tokens = PromptTokens(lambda m: calls.append(m) or [len(m[0]['content'])], source.get)
+    before = tuple(tokens.get('s'))
+    assert tokens.get('s') == [3] and len(calls) == 1
+    source['s'] = [{'content': 'longer'}]
+    assert tokens.get('s') == [6] and before == (3,)
+
+
+@pytest.mark.parametrize('version', ['0.5.4', '0.5.6', {'version': '0.5.5'}])
+def test_incompatible_backend_is_rejected_before_submission(version):
+    act, calls = actuator()
+    act.client = httpx.Client(transport=httpx.MockTransport(lambda request: httpx.Response(200, json=version)))
+    assert act.prefetch('s')['status'] == 'error'
+    assert not act.pending and not calls
+
+
+def test_consumed_or_missing_completion_is_unknown():
+    act, _ = actuator([dict(status='pending')], completion_timeout_s=.001)
+    assert act.prefetch('s')['status'] == 'pending'
+    act.client = httpx.Client(transport=httpx.MockTransport(lambda request: httpx.Response(404)))
+    assert act.prefetch('s')['status'] == 'unknown'
+    assert not act.pending
+
+
+def test_pending_limit_does_not_submit_more_work():
+    act, calls = actuator([dict(status='pending')], completion_timeout_s=.001, max_pending=1)
+    assert act.prefetch('a')['status'] == 'pending'
+    assert act.prefetch('b')['status'] == 'error'
+    assert len([c for c in calls if c.method == 'POST']) == 1
+
+
+def test_failed_poll_preserves_request_for_reconciliation():
+    act, calls = actuator([dict(status='pending')], completion_timeout_s=.001)
+    act.prefetch('s')
+    original = act.client
+    act.client = httpx.Client(transport=httpx.MockTransport(lambda request: httpx.Response(503)))
+    assert act.prefetch('s')['status'] == 'error' and 's' in act.pending
+    act.client = original
+    assert act.prefetch('s')['status'] == 'pending'
+    assert len([c for c in calls if c.method == 'POST']) == 1
+
+
+def test_acknowledgement_requires_integer_chunk_count():
+    from atfm.control.lmcache_protocol import submitted
+    with pytest.raises(ValueError):
+        submitted(dict(status='submitted', chunks=True, request_id='abc'), 1)

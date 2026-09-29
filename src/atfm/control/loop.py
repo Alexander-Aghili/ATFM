@@ -13,8 +13,8 @@ from atfm.control.directives import HoldBatch, HoldUpdate, MAX_HOLD_BATCH, TierD
 class ControlLoop:
     def __init__(self, board_url: str, proxy_url: str, client=None, interval_s: float = 5.0, log_path: str | Path | None = None,
                  timeout_s: float = 2.0, lmcache=None, hold_batch_size: int = MAX_HOLD_BATCH):
-        """With an `LMCacheActuator`, touches become pins and tier directives are executed (pin / move);
-        without one, touches go to the proxy's /touch and tier directives are only logged."""
+        """LMCache MP supports CPU prefetch only; unsupported actions are counted.
+        Without an actuator, touches go to the proxy and tiers remain advisory."""
         if not 1 <= hold_batch_size <= MAX_HOLD_BATCH:
             raise ValueError(f"hold_batch_size must be in [1, {MAX_HOLD_BATCH}]")
         self.hold_batch_size = hold_batch_size
@@ -63,8 +63,8 @@ class ControlLoop:
         s["tier"] = len(d.get("tier", []))
         if self.lmcache is not None:
             for t in d.get("tier", []):
-                if self.lmcache.apply_tier(TierDirective(**{k: v for k, v in t.items() if k != "kind"}), now).get("ok"):
-                    s["tier_applied"] += 1
+                result = self.lmcache.apply_tier(TierDirective(**{k: v for k, v in t.items() if k != "kind"}), now)
+                self._cache_result(result, s, "tier_applied")
             self.lmcache.release_expired(now)
             s["errors"] += self.lmcache.errors - getattr(self, "_lm_err", 0)
             self._lm_err = self.lmcache.errors
@@ -74,10 +74,18 @@ class ControlLoop:
             if t.get("expires_at") is not None and now >= float(t["expires_at"]):
                 continue
             if self.lmcache is not None:
-                if self.lmcache.apply_touch(TouchDirective(**{k: v for k, v in t.items() if k != "kind"}), now).get("ok"):
-                    s["pins"] += 1
+                result = self.lmcache.apply_touch(TouchDirective(**{k: v for k, v in t.items() if k != "kind"}), now)
+                self._cache_result(result, s, "pins")
                 continue
             self._proxy_touch(t, s)
+
+    @staticmethod
+    def _cache_result(result, summary, applied):
+        if result.get('ok') is True:
+            summary[applied] += 1
+        else:
+            key = 'cache_' + result.get('status', 'unknown')
+            summary[key] = summary.get(key, 0) + 1
 
     def _proxy_touch(self, t, s):
         try:

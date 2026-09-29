@@ -112,22 +112,21 @@ an external cluster. The replica connector is currently virtual.
 
 ### Optional LMCache actuation
 
-The LMCache path requires a separately running compatible controller, the
-correct instance ID, and a tokenizer matching the serving model. `transformers`
-is imported by this path but is not a declared project extra. One way to supply
-it for the command is:
+The supported actuator targets **LMCache MP 0.5.5 CPU warm prefetch**. It checks
+backend version/chunk size and polls accepted jobs through verified completion.
+Pinning, unpinning and GPU placement are unsupported and reported explicitly.
 
 ```bash
-uv run --with transformers python scripts/run_control.py \
+.venv/bin/python scripts/run_control.py \
   --board http://127.0.0.1:8081 --proxy http://127.0.0.1:8799 \
-  --lmcache http://127.0.0.1:9000 --lmcache-instance vllm-0 \
-  --tokenizer Qwen/Qwen3-0.6B
+  --lmcache http://127.0.0.1:18181 --lmcache-model Qwen/Qwen3-0.6B \
+  --lmcache-chunk-size 16 --inference http://127.0.0.1:18180
 ```
 
-With an actuator attached, touch directives become pins and tier directives
-can invoke pin/move operations. Endpoint shapes and actual controller behavior
-must be verified against the installed LMCache deployment. A unit-tested HTTP
-adapter does not establish successful placement on real workers.
+The inference endpoint supplies matching tokenization for ordinary message-only
+prompts. Tools, multimodal input and template overrides require a richer exact
+prompt source. See [GPU validation and contract](development/gpu-cache.md) for
+the pinned environment, failure semantics, real inference check and limitations.
 
 ### Optional Redis transport
 
@@ -344,4 +343,4 @@ use still needs representative backend/streaming tests and monitored validation.
 
 ### Prepare locally before GPU rental
 
-Use the [Dynamo/AIPerf recipe](development/local-cluster.md) to validate the workload client and simulated workers. The existing LMCache adapter targets the legacy controller and still needs completion tracking, exact pin-release ownership and verified backend locations before hardware policy evaluation. A Mocker pass does not validate LMCache actuation.
+Use the [Dynamo/AIPerf recipe](development/local-cluster.md) for simulated workload-client checks and the [real GPU cache recipe](development/gpu-cache.md) for verified LMCache MP CPU warming and subsequent inference reuse. Neither check establishes an ATFM policy benefit.

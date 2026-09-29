@@ -1,149 +1,115 @@
-"""LMCache actuator: execute placement decisions through LMCache's controller instead of keep-alive touches.
+"""LMCache MP 0.5.5: secondary-storage to CPU warming, with verified completion.
 
-LMCache's controller exposes `pin`, `move`, `lookup` and `clear` over HTTP, keyed by (instance, storage
-location, token ids). Our directives are keyed by session; `PromptTokens` turns a session into its prefix
-token ids (the proxy keeps the last prompt, a tokenizer is injected). Everything is fail-open: a dead
-controller is counted, never raised. Endpoint shapes follow the documented controller API; verify them
-against the multi-process controller before a hardware study."""
-from __future__ import annotations
+This API holds no pin leases. GPU placement, pin, unpin and arbitrary move are
+unsupported; the previous legacy adapter's assumed endpoints are not used.
+"""
+import time
 
-import hashlib
-import json
-from dataclasses import dataclass, field
-from typing import Callable
-
-from .directives import TierDirective, TouchDirective
-
-
-@dataclass
-class LMCacheConfig:
-    url: str
-    instance_id: str
-    gpu_location: str = "LocalGPUBackend"
-    cpu_location: str = "LocalCPUBackend"
-    disk_location: str = "LocalDiskBackend"
-    tier_map: dict[str, str] = field(default_factory=dict)     # extra tier name -> LMCache location
-    timeout_s: float = 2.0
-    paths: dict[str, str] = field(default_factory=lambda: {"pin": "/pin", "unpin": "/unpin", "move": "/move", "lookup": "/lookup",
-                                                           "clear": "/clear", "check": "/check_finish", "health": "/health"})
-    release_op: str = "unpin"       # how an expired pin is released: "unpin" (controller op) or "clear" (drop the entry)
-
-    def location(self, tier: str) -> str:
-        return {"gpu": self.gpu_location, "cpu": self.cpu_location, "disk": self.disk_location, **self.tier_map}.get(tier, tier)
-
-
-class PromptTokens:
-    """Session -> prefix token ids, cached until the session's prompt changes."""
-
-    def __init__(self, tokenize: Callable[[list[dict]], list[int]], prompt_source: Callable[[str], list[dict] | None]):
-        self.tokenize, self.prompt_source = tokenize, prompt_source
-        self._cache: dict[str, tuple[str, list[int]]] = {}
-
-    def get(self, session_id: str) -> list[int] | None:
-        try:
-            messages = self.prompt_source(session_id)
-        except Exception:
-            messages = None
-        if not messages:
-            return None
-        key = hashlib.sha256(json.dumps(messages, sort_keys=True).encode()).hexdigest()
-        hit = self._cache.get(session_id)
-        if hit is not None and hit[0] == key:
-            return hit[1]
-        toks = list(self.tokenize(messages))
-        self._cache[session_id] = (key, toks)
-        return toks
+from .lmcache_protocol import LMCacheConfig, completed, prefetch_body, submitted
+from .prompt_tokens import PromptTokens
 
 
 class LMCacheActuator:
     def __init__(self, cfg: LMCacheConfig, client=None, tokens: PromptTokens | None = None):
-        if client is None:
-            import httpx
-            client = httpx.Client(timeout=cfg.timeout_s)
-        self.cfg, self.client, self.tokens = cfg, client, tokens
-        self.pinned: dict[str, tuple[float, str]] = {}      # session -> (expires_at, location)
-        self.where: dict[str, str] = {}                      # session -> location we last placed it in
+        import httpx
+        self.cfg, self.tokens = cfg, tokens
+        self._owns_client = client is None
+        self.client = client if client is not None else httpx.Client(timeout=cfg.timeout_s)
+        self.pending = {}
+        self._verified = False
         self.errors = 0
-        self.ops = {"pin": 0, "unpin": 0, "move": 0, "clear": 0, "lookup": 0}
 
-    # ---- HTTP
-    def _post(self, op: str, body: dict) -> dict | None:
+    def close(self):
+        if self._owns_client:
+            self.client.close()
+
+    def _request(self, method, path, status, **kwargs):
+        response = self.client.request(method, self.cfg.url.rstrip('/') + path, **kwargs)
+        if response.status_code == 404:
+            raise LookupError('prefetch status unavailable; completion is unknown')
+        if response.status_code != status:
+            raise ValueError(f'LMCache returned HTTP {response.status_code}')
+        result = response.json()
+        if not isinstance(result, dict):
+            raise ValueError('LMCache returned a non-object response')
+        return result
+
+    def prefetch(self, session_id):
         try:
-            r = self.client.post(self.cfg.url.rstrip("/") + self.cfg.paths[op], json=body)
-            if r.status_code != 200:
-                self.errors += 1
-                return None
-            self.ops[op] = self.ops.get(op, 0) + 1
-            return r.json()
-        except Exception:
+            tokens = tuple(self.tokens.get(session_id) or ()) if self.tokens else ()
+            if not tokens:
+                return dict(ok=False, status='no_prompt')
+            self.verify_backend()
+            body = prefetch_body(self.cfg, tokens)
+            chunks = len(tokens) // self.cfg.chunk_size
+            if chunks == 0:
+                return dict(ok=False, status='no_complete_chunk')
+            if session_id not in self.pending:
+                self._submit(session_id, tokens, body, chunks)
+            original, request_id, expected = self.pending[session_id]
+            if original != tokens:
+                return dict(ok=False, status='previous_prompt_pending', request_id=request_id)
+            return self._wait(session_id, request_id, expected)
+        except Exception as exc:
             self.errors += 1
-            return None
+            return dict(ok=False, status='error', reason=str(exc))
 
-    def _toks(self, session_id: str) -> list[int] | None:
-        return self.tokens.get(session_id) if self.tokens is not None else None
+    def verify_backend(self):
+        if self._verified:
+            return
+        response = self.client.request('GET', self.cfg.url.rstrip('/') + '/version')
+        version = response.json()
+        if response.status_code != 200 or not isinstance(version, str) or version.split('-')[0] != '0.5.5':
+            raise ValueError('requires the validated LMCache MP 0.5.5 API')
+        status = self._request('GET', '/status', 200)
+        if status.get('chunk_size') != self.cfg.chunk_size or status.get('is_healthy') is not True:
+            raise ValueError('LMCache chunk size mismatch or unhealthy backend')
+        self._verified = True
 
-    # ---- operations
-    def pin(self, session_id: str, location: str, expires_at: float) -> dict:
-        toks = self._toks(session_id)
-        if not toks:
-            return {"ok": False, "reason": "no prompt"}
-        res = self._post("pin", {"instance_id": self.cfg.instance_id, "location": location, "tokens": toks})
-        if res is None:
-            return {"ok": False, "reason": "controller"}
-        self.pinned[session_id] = (expires_at, location)
-        self.where[session_id] = location
-        return {"ok": True, "event_id": res.get("event_id"), "num_tokens": res.get("num_tokens", len(toks))}
+    def _submit(self, session_id, tokens, body, chunks):
+        if len(self.pending) >= self.cfg.max_pending:
+            raise ValueError('prefetch pending limit reached')
+        result = self._request('POST', '/cache/prefetches', 202, json=body)
+        request_id = submitted(result, chunks)
+        self.pending[session_id] = (tokens, request_id, chunks * self.cfg.world_size)
 
-    def move(self, session_id: str, dst_location: str) -> dict:
-        toks = self._toks(session_id)
-        if not toks:
-            return {"ok": False, "reason": "no prompt"}
-        src = self.where.get(session_id, self.cfg.gpu_location)
-        res = self._post("move", {"src": {"instance_id": self.cfg.instance_id, "location": src},
-                                  "dst": {"instance_id": self.cfg.instance_id, "location": dst_location}, "tokens": toks})
-        if res is None:
-            return {"ok": False, "reason": "controller"}
-        self.where[session_id] = dst_location
-        return {"ok": True, "event_id": res.get("event_id")}
+    def _poll(self, session_id, request_id, expected):
+        try:
+            response = self._request('GET', '/cache/prefetches/' + request_id, 200)
+        except LookupError:
+            del self.pending[session_id]
+            return dict(ok=False, status='unknown', request_id=request_id)
+        result = completed(response, request_id, expected)
+        if result is not None:
+            del self.pending[session_id]
+        return result
 
-    def lookup(self, session_id: str) -> list[dict]:
-        toks = self._toks(session_id)
-        if not toks:
-            return []
-        res = self._post("lookup", {"tokens": toks})
-        if not res:
-            return []
-        if isinstance(res.get("res"), list):                       # list form
-            return list(res["res"])
-        out = []                                                   # documented form: {"event_id": ..., "<instance>": [location, hit]}
-        for k, v in res.items():
-            if k == "event_id" or not isinstance(v, (list, tuple)) or len(v) < 2:
-                continue
-            out.append({"instance_id": k, "location": v[0], "hit_tokens": int(v[1])})
-        return out
+    def _wait(self, session_id, request_id, expected):
+        deadline = time.monotonic() + self.cfg.completion_timeout_s
+        while True:
+            result = self._poll(session_id, request_id, expected)
+            if result is not None:
+                return result
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                return dict(ok=False, status='pending', request_id=request_id)
+            time.sleep(min(self.cfg.poll_interval_s, remaining))
 
-    def release_expired(self, now: float) -> list[str]:
-        """Unpin sessions whose directive expired (clear the pin in its location); returns the session ids."""
-        out = []
-        for sid, (exp, loc) in list(self.pinned.items()):
-            if now >= exp:
-                toks = self._toks(sid) or []
-                self._post(self.cfg.release_op, {"instance_id": self.cfg.instance_id, "location": loc, "tokens": toks})
-                del self.pinned[sid]
-                out.append(sid)
-        return out
+    def release_expired(self, now):
+        """Reconcile pending warm jobs; MP warming holds no leases to release."""
+        for session_id, (_, request_id, expected) in list(self.pending.items()):
+            try:
+                self._poll(session_id, request_id, expected)
+            except Exception:
+                self.errors += 1
+        return []
 
-    # ---- directives
-    def apply_touch(self, d: TouchDirective, now: float) -> dict:
-        """A keep-alive touch becomes a pin in the GPU-side location until the directive expires."""
-        if d.expired(now):
-            return {"ok": False, "reason": "expired"}
-        return self.pin(d.session_id, self.cfg.gpu_location, d.expires_at)
+    def apply_touch(self, directive, now):
+        return dict(ok=False, status='expired' if directive.expired(now) else 'unsupported', operation='pin')
 
-    def apply_tier(self, d: TierDirective, now: float) -> dict:
-        if d.expired(now):
-            return {"ok": False, "reason": "expired"}
-        loc = self.cfg.location(d.tier)
-        if d.action in ("pin", "prefetch"):
-            return self.pin(d.session_id, loc, d.expires_at)
-        return self.move(d.session_id, loc)          # demote / promote
+    def apply_tier(self, directive, now):
+        if directive.expired(now):
+            return dict(ok=False, status='expired')
+        if directive.action != 'prefetch' or directive.tier not in ('cpu', 'l1'):
+            return dict(ok=False, status='unsupported', operation=directive.action, tier=directive.tier)
+        return self.prefetch(directive.session_id)
