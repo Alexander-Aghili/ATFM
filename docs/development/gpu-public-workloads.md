@@ -29,7 +29,15 @@ nested requests, timing, output sizes and block hashes. The selector saves sourc
 and individual hashes; replay rejects modified selected files.
 
 AIPerf 0.13.0 owns reconstruction, scheduling and branch execution. Replay uses
-the fixed trace schedule without input/output synthesis caps or delay removal.
+closed-loop concurrency-one replay (`--no-fixed-schedule`) without input/output
+synthesis caps or delay removal. Each continuation retains the recorded
+end-to-start delay, computed from consecutive timestamps minus the previous
+recorded API duration. Absolute trace timestamps do not dictate dispatch; the
+new model's response time affects total session duration. Subagent branches
+remain in the dataset. The initial fixed-schedule attempt failed configuration
+validation because AIPerf did not detect timing inside nested Weka roots; its
+logs are retained. AIPerf's request-rate strategy explicitly honors continuation
+delays for both root and child turns.
 `ignore_eos:true` requests the recorded output length rather than stopping early
 on EOS. The client tokenizer revision matches the server. Each case is bounded
 to 1,200 seconds, with a 2,700-second aggregate replay deadline. A timed-out,

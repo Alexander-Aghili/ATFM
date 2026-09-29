@@ -65,3 +65,5 @@ concurrency tests, and paired HTTP measurements.
 - [Local cluster preparation](development/local-cluster.md): pinned AIPerf/Dynamo smoke and evidence scope.
 
 - [Real GPU cache validation](development/gpu-cache.md): pinned setup, CPU warming contract, real inference reuse and rental handoff.
+- [H100 NVL compatibility evidence](research/2026-09-29-h100-cache.md): passing cache reuse, rental details and native-build fixes.
+- [Public GPU tool workloads](development/gpu-public-workloads.md): pinned BFCL API samples and complete Weka agentic sessions.

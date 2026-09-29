@@ -21,7 +21,7 @@ def command(client, source, output, count):
     return [str(client), 'profile', '--url', INFERENCE, '--model', MODEL,
             '--endpoint-type', 'chat', '--streaming', '--input-file', str(source),
             '--custom-dataset-type', 'weka_trace', '--tokenizer', MODEL,
-            '--tokenizer-revision', REVISION, '--fixed-schedule', '--concurrency', '1',
+            '--tokenizer-revision', REVISION, '--no-fixed-schedule', '--concurrency', '1',
             '--extra-inputs', 'ignore_eos:true', '--request-count', str(count),
             '--artifact-dir', str(output / 'aiperf'), '--ui', 'none', '--no-auto-plot']
 
