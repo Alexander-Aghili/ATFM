@@ -29,6 +29,7 @@ def test_indexed_queue_matches_scan_reference_over_event_traces(seed):
 
 def _assert_equivalent(queues, entries, seed, step, action):
     assert queues[0].stats() == queues[1].stats(), (seed, step, action)
+    _assert_peer_ranks(queues)
     assert list(queues[0].release_order) == list(queues[1].release_order)
     for left, right in zip(entries[0], entries[1]):
         assert (left.tier, left.not_before, left.t_release, left.done) == (right.tier, right.not_before, right.t_release, right.done)
@@ -101,3 +102,11 @@ async def test_cancellation_clears_last_timer():
     assert queue._timer is not None
     queue.cancel(e)
     assert queue._timer is None and queue.queued == 0
+
+
+def _assert_peer_ranks(queues):
+    from tests.proxy.test_peer_ranks import scan_bucket
+    for tier in range(3):
+        indices = [e.index for e in queues[1].pending if e.tier == tier]
+        for index in (-1., 0., 1.5, 3., 4.):
+            assert queues[0].priority_bucket(tier, index) == scan_bucket(indices, index)

@@ -6,6 +6,8 @@ from collections import deque
 import time
 from dataclasses import dataclass, field
 
+from .peers import PeerRanks
+
 
 @dataclass
 class Entry:
@@ -44,6 +46,7 @@ class HoldQueue:
         self._entries: dict[int, _Waiting] = {}
         self._entry_ids: dict[int, int] = {}
         self._sequence = 0
+        self._ranks = PeerRanks()
         self._ready: list[tuple] = []
         self._arrival: list[tuple] = []
         self._delayed: list[tuple] = []
@@ -95,8 +98,10 @@ class HoldQueue:
 
     def _rebuild(self, now: float) -> None:
         self._ready, self._arrival, self._delayed, self._promotions = [], [], [], []
+        self._ranks = PeerRanks()
         for key, record in self._entries.items():
             e = record.entry
+            self._ranks.add(e)
             record.ready = e.not_before <= now
             if record.ready:
                 self._ready.append(self._ready_key(key, record))
@@ -113,7 +118,9 @@ class HoldQueue:
             _, key = heapq.heappop(self._promotions)
             record = self._entries.get(key)
             if record is not None and record.entry.tier == 1:
+                self._ranks.remove(record.entry)
                 record.entry.tier = 2
+                self._ranks.add(record.entry)
                 record.version += 1
                 if record.ready:
                     heapq.heappush(self._ready, self._ready_key(key, record))
@@ -133,6 +140,7 @@ class HoldQueue:
                 continue
             if not self.overflow and item[4] != record.version:
                 continue
+            self._ranks.remove(record.entry)
             del self._entries[key]
             del self._entry_ids[id(record.entry)]
             return record.entry
@@ -162,6 +170,7 @@ class HoldQueue:
         self._sequence += 1
         self._entries[self._sequence] = record = _Waiting(e)
         self._entry_ids[id(e)] = self._sequence
+        self._ranks.add(e)
         self._index(self._sequence, record, self.clock())
         if self.max_size is not None and self.queued > self.max_size:
             self._release_overflow()
@@ -195,6 +204,7 @@ class HoldQueue:
         """Drop a still-waiting entry (client went away); a released one is freed via complete()."""
         key = self._entry_ids.pop(id(e), None)
         if key is not None:
+            self._ranks.remove(e)
             del self._entries[key]
             self.tick()
         elif e.released.is_set():
@@ -242,3 +252,7 @@ class HoldQueue:
 
     def tier_indices(self, tier: int) -> list[float]:
         return [e.index for e in (r.entry for r in self._entries.values()) if e.tier == tier]
+
+    def priority_bucket(self, tier: int, index: float) -> int:
+        """Exact quartile among queued peers; O(distinct indices in this tier)."""
+        return self._ranks.bucket(tier, index)

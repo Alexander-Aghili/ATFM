@@ -25,7 +25,7 @@ from atfm.bus import InMemoryBus, JsonlBus
 from atfm.schema.events import LlmDone, LlmFirstToken, LlmRequest, SessionStart
 
 from .config import ProxyConfig
-from .index import CallMeta, compute_index, estimate_isl, priority_bucket, promote_at, service_time, tier
+from .index import CallMeta, compute_index, estimate_isl, promote_at, service_time, tier
 from .queue import Entry, HoldQueue
 
 
@@ -259,7 +259,7 @@ class ProxyRuntime:
             return JSONResponse({'error': f'upstream unavailable: {exc}'}, status_code=502)
 
     def _prepare_body(self, entry, meta, body, now, rid, t_rel):
-        bucket = priority_bucket(entry.index, self.st.queue.tier_indices(entry.tier))
+        bucket = self.st.queue.priority_bucket(entry.tier, entry.index)
         hints = {'priority': bucket, 'strict_priority': entry.tier, 'osl': meta.predicted_osl}
         body = dict(body)
         body['nvext'] = dict(body.get('nvext') or {})

@@ -5,6 +5,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from .config import ProxyConfig
+from .peers import priority_quartile
 
 
 @dataclass
@@ -56,10 +57,8 @@ def tier(meta: CallMeta, cfg: ProxyConfig, now: float, e_service_s: float) -> in
 
 def priority_bucket(index: float, tier_indices: list[float]) -> int:
     """Coarse rank quartile of the index among the tier's current indices, 0..3 (3 = highest)."""
-    if not tier_indices:
-        return 3
-    rank = float(np.mean(np.asarray(tier_indices) < index))  # share of the tier strictly below this call
-    return min(3, int(rank * 4))
+    below = int(np.count_nonzero(np.asarray(tier_indices) < index))
+    return priority_quartile(below, len(tier_indices))
 
 
 def promote_at(meta: CallMeta, cfg: ProxyConfig, e_service_s: float) -> float | None:
