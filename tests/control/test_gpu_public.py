@@ -10,6 +10,7 @@ def test_public_replay_preserves_sizes_and_schedule(tmp_path):
     assert '--synthesis-max-osl' not in command and '--synthesis-max-isl' not in command
     assert command[command.index('--num-sessions') + 1] == '1'
     assert '--request-count' not in command
+    assert command[command.index('--random-seed') + 1] == '7'
 
 
 def test_trace_statistics_include_nested_requests():

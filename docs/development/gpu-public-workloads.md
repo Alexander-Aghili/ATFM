@@ -42,7 +42,10 @@ which admits one root and lets its children finish. A request-count bound alone
 repeated roots and truncated children in the first closed-loop attempt, even
 though the exported request total matched; branch checks correctly rejected it.
 `ignore_eos:true` requests the recorded output length rather than stopping early
-on EOS. The client tokenizer revision matches the server. Each case is bounded
+on EOS. The client tokenizer revision matches the server. The recipe now pins
+`--random-seed 7` for reconstructed prompt content. Earlier runs at `676bb9f`
+used AIPerf's unseeded default; they establish integration behavior, not
+byte-reproducible prompts or a paired policy comparison. Each case is bounded
 to 1,200 seconds, with a 2,700-second aggregate replay deadline. A timed-out,
 errored, truncated, incomplete or wrong-count replay is not a pass. Requested
 token lengths still need comparison with actual exported server/tokenizer counts.

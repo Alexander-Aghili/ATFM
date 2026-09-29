@@ -22,7 +22,7 @@ def command(client, source, output):
             '--endpoint-type', 'chat', '--streaming', '--input-file', str(source),
             '--custom-dataset-type', 'weka_trace', '--tokenizer', MODEL,
             '--tokenizer-revision', REVISION, '--no-fixed-schedule', '--concurrency', '1',
-            '--extra-inputs', 'ignore_eos:true', '--num-sessions', '1',
+            '--random-seed', '7', '--extra-inputs', 'ignore_eos:true', '--num-sessions', '1',
             '--artifact-dir', str(output / 'aiperf'), '--ui', 'none', '--no-auto-plot']
 
 
