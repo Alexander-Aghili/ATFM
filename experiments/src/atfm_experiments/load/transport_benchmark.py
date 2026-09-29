@@ -15,14 +15,14 @@ from pydantic import BaseModel, Field
 from .config import LoadConfig
 from .metrics import distribution
 from .runtime import _launch, _shutdown, _wait_ready, provenance, write_json
-from .transport_pool import ShardedTransport
+from atfm.proxy.transport import ShardedTransport
 
 
 class TransportConfig(BaseModel):
     model_config = {'extra': 'forbid'}
     concurrency: int = Field(default=64, ge=1, le=256)
     turns: int = Field(default=48, ge=1, le=1000)
-    service_s: float = Field(default=.005, ge=0, le=10, allow_inf_nan=False)
+    service_s: float = Field(default=.005, gt=0, le=10, allow_inf_nan=False)
     repeats: int = Field(default=3, ge=1, le=20)
 
 

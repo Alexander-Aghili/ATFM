@@ -27,6 +27,7 @@ from atfm.schema.events import LlmDone, LlmFirstToken, LlmRequest, SessionStart
 from .config import ProxyConfig
 from .index import CallMeta, compute_index, estimate_isl, promote_at, service_time, tier
 from .queue import Entry, HoldQueue
+from .transport import upstream_client as create_upstream_client
 
 
 def _meta_from(req: Request, body: dict, cfg: ProxyConfig, now: float, turn_index: int) -> CallMeta:
@@ -63,7 +64,7 @@ class ProxyRuntime:
         self.owns_upstream = upstream_client is None
         st.cfg = cfg
         st.bus = bus if bus is not None else (JsonlBus(cfg.events_path) if cfg.events_path else InMemoryBus())
-        st.client = upstream_client or httpx.AsyncClient(base_url=cfg.upstream_url, timeout=httpx.Timeout(600.0))
+        st.client = upstream_client or create_upstream_client(cfg)
         st.queue = HoldQueue(cfg.window, clock=clock, max_hold_s=cfg.max_hold_s, max_size=cfg.max_queue_size)
         self._initialize_sessions()
         self._initialize_predictor(predictor)

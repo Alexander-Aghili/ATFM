@@ -1,7 +1,8 @@
-"""Experimental HTTPX pool sharding; not wired into the runtime default."""
+"""Bounded upstream HTTP pools with response-lifetime load balancing."""
 from __future__ import annotations
 
 import asyncio
+from urllib.request import getproxies
 
 import httpx
 
@@ -13,7 +14,9 @@ class ShardedTransport(httpx.AsyncBaseTransport):
         if not 1 <= shards <= connections:
             raise ValueError('shards must be between one and the total connection limit')
         self.limits = [connections // shards + (i < connections % shards) for i in range(shards)]
-        self.pools = [factory(limits=httpx.Limits(max_connections=n, max_keepalive_connections=n)) for n in self.limits]
+        context = httpx.create_ssl_context()
+        self.pools = [factory(verify=context, limits=httpx.Limits(max_connections=n, max_keepalive_connections=n))
+                      for n in self.limits]
         self.active = [0] * shards
         self.closed = False
 
@@ -60,3 +63,10 @@ class _TrackedStream(httpx.AsyncByteStream):
             await self.stream.aclose()
         finally:
             self.owner.release(self.shard)
+
+
+def upstream_client(cfg):
+    """Keep HTTPX proxy discovery intact; custom pools apply only to direct traffic."""
+    proxies = any(key != 'no' and value for key, value in getproxies().items())
+    transport = ShardedTransport(cfg.upstream_pool_shards) if cfg.upstream_pool_shards > 1 and not proxies else None
+    return httpx.AsyncClient(base_url=cfg.upstream_url, timeout=httpx.Timeout(600.0), transport=transport)

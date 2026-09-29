@@ -4,7 +4,7 @@ import asyncio
 import httpx
 import pytest
 
-from atfm_experiments.load.transport_pool import ShardedTransport
+from atfm.proxy.transport import ShardedTransport
 
 
 class Stream(httpx.AsyncByteStream):
@@ -117,3 +117,45 @@ async def test_close_attempts_every_pool_and_rejects_new_requests():
     await transport.aclose()
     with pytest.raises(RuntimeError, match='transport is closed'):
         await transport.handle_async_request(httpx.Request('GET', 'http://worker'))
+
+
+async def test_shared_tls_context_verifies_certificates_and_hostnames():
+    import ssl
+    transport = ShardedTransport(4, 8, Pool)
+    contexts = [p.options['verify'] for p in transport.pools]
+    assert all(c is contexts[0] for c in contexts)
+    assert contexts[0].verify_mode == ssl.CERT_REQUIRED and contexts[0].check_hostname
+    await transport.aclose()
+
+
+@pytest.mark.parametrize('shards,proxies,sharded', [(16, {}, True), (1, {}, False),
+                                                  (16, {'https': 'http://proxy'}, False),
+                                                  (16, {'no': 'localhost'}, True)])
+async def test_upstream_factory_preserves_stock_proxy_discovery(monkeypatch, shards, proxies, sharded):
+    from atfm.proxy.config import ProxyConfig
+    from atfm.proxy.transport import upstream_client
+    monkeypatch.setattr('atfm.proxy.transport.getproxies', lambda: proxies)
+    async with upstream_client(ProxyConfig(upstream_url='http://worker', upstream_pool_shards=shards)) as client:
+        assert isinstance(client._transport, ShardedTransport) == sharded
+        assert client.timeout.read == 600 and str(client.base_url) == 'http://worker'
+
+
+@pytest.mark.parametrize('shards', [0, 101, True, 1.5])
+def test_proxy_rejects_invalid_transport_configuration(shards):
+    from pydantic import ValidationError
+    from atfm.proxy.config import ProxyConfig
+    with pytest.raises(ValidationError):
+        ProxyConfig(upstream_url='http://worker', upstream_pool_shards=shards)
+
+
+async def test_failed_stream_close_releases_occupancy_once(monkeypatch):
+    transport = ShardedTransport(1, 1, Pool)
+    response = await transport.handle_async_request(httpx.Request('GET', 'http://worker'))
+    async def fail():
+        raise httpx.ReadError('close failed')
+    monkeypatch.setattr(transport.pools[0].streams[0], 'aclose', fail)
+    with pytest.raises(httpx.ReadError, match='close failed'):
+        await response.aclose()
+    await response.aclose()
+    assert transport.active == [0]
+    await transport.aclose()
