@@ -63,6 +63,7 @@ def _validate_log(scratch):
 
 def _figures():
     run([sys.executable, str(HERE/'plots.py')])
+    run([sys.executable, str(HERE/'evidence_plots.py')])
     for source in sorted((HERE/'figures').glob('*.reladraw')):
         svg = source.with_suffix('.svg')
         run(['npx', '--yes', 'reladraw', str(source), '-o', str(svg)])

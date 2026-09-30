@@ -12,10 +12,11 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import Image, PageBreak, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 import charts
+import measured_charts
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
-OUTPUT = ROOT / "output/pdf/atfm-gpu-results-2026-09-29.pdf"
+OUTPUT = ROOT / "output/pdf/atfm-gpu-results-2026-09-30.pdf"
 WIDTH = 499
 INK = colors.HexColor("#23364d")
 
@@ -85,13 +86,14 @@ def footer(canvas, doc):
     canvas.setFont("Body", 7.5)
     canvas.setFillColor(INK)
     canvas.drawString(48, 815, "ATFM  /  GPU EVIDENCE & CACHING TRADEOFFS")
-    canvas.drawRightString(547, 815, "29 SEPTEMBER 2026")
+    canvas.drawRightString(547, 815, "30 SEPTEMBER 2026")
     canvas.drawString(48, 28, "Measured results, derived bounds, and illustrative scenarios are labeled separately.")
     canvas.drawRightString(547, 28, str(doc.page))
 
 
 def build():
     charts.build()
+    measured_charts.build()
     style, story = styles(), []
     pages = (HERE / "report.md").read_text().split("---PAGE---")
     for i, page in enumerate(pages):

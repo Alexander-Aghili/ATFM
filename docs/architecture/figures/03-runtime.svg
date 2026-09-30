@@ -1,99 +1,94 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1384" height="565" viewBox="0 0 1384 565" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
+<svg xmlns="http://www.w3.org/2000/svg" width="1544" height="555" viewBox="0 0 1544 555" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
   <defs>
-    <marker id="re110d14b-arrow-5c5c7c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#5c5c7c"/>
-    </marker>
-    <marker id="re110d14b-arrow-5c5c7c-back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="r2fe897d9-arrow-5c5c7c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#5c5c7c"/>
     </marker>
   </defs>
-  <rect x="0" y="0" width="1384" height="565" fill="#111111"/>
-  <path d="M48 40 H338 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H48 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#f1f3f5" stroke="#78838d"/>
-  <text x="193" y="68.4" fill="#29333c" text-anchor="middle">Agent harness</text>
-  <text x="193" y="87.4" fill="#29333c" text-anchor="middle">mini-SWE-agent, OpenHands, Harbor</text>
-  <text x="193" y="106.4" fill="#29333c" text-anchor="middle">Owns session and tool execution</text>
-  <path d="M513.4 40 H828.4 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H513.4 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
-  <text x="670.9" y="68.4" fill="#172c42" text-anchor="middle">Proxy process</text>
-  <text x="670.9" y="87.4" fill="#172c42" text-anchor="middle">proxy/app.py: ProxyRuntime</text>
-  <text x="670.9" y="106.4" fill="#172c42" text-anchor="middle">Admission, hints, response lifecycle</text>
-  <path d="M1003.8 40 H1318.8 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H1003.8 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#f1f3f5" stroke="#78838d"/>
-  <text x="1161.3" y="68.4" fill="#29333c" text-anchor="middle">External serving pool</text>
-  <text x="1161.3" y="87.4" fill="#29333c" text-anchor="middle">Dynamo frontend and model workers</text>
-  <text x="1161.3" y="106.4" fill="#29333c" text-anchor="middle">Actual token generation and KV cache</text>
-  <path d="M56.5 235 H329.5 a8 8 0 0 1 8 8 V312 a8 8 0 0 1 -8 8 H56.5 a8 8 0 0 1 -8 -8 V243 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
-  <text x="193" y="263.4" fill="#172c42" text-anchor="middle">In-process sidecar</text>
-  <text x="193" y="282.4" fill="#172c42" text-anchor="middle">sidecar/core.py and adapters.py</text>
-  <text x="193" y="301.4" fill="#172c42" text-anchor="middle">Tool start, progress, data, end</text>
-  <path d="M497.9 235 H812.9 a8 8 0 0 1 8 8 V312 a8 8 0 0 1 -8 8 H497.9 a8 8 0 0 1 -8 -8 V243 a8 8 0 0 1 8 -8 Z" fill="#eaf5ed" stroke="#50815c"/>
-  <text x="655.4" y="263.4" fill="#203d28" text-anchor="middle">Event transport</text>
-  <text x="655.4" y="282.4" fill="#203d28" text-anchor="middle">bus/jsonl.py in shipped launchers</text>
-  <text x="655.4" y="301.4" fill="#203d28" text-anchor="middle">Redis library or memory alternatives</text>
-  <path d="M995.3 225.5 H1268.3 a8 8 0 0 1 8 8 V321.5 a8 8 0 0 1 -8 8 H995.3 a8 8 0 0 1 -8 -8 V233.5 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
-  <text x="1131.8" y="253.9" fill="#172c42" text-anchor="middle">Board process</text>
-  <text x="1131.8" y="272.9" fill="#172c42" text-anchor="middle">board/service.py: BoardRuntime</text>
-  <text x="1131.8" y="291.9" fill="#172c42" text-anchor="middle">Registry, forecasts, controller</text>
-  <text x="1131.8" y="310.9" fill="#172c42" text-anchor="middle">planning</text>
-  <path d="M52.5 430 H333.5 a8 8 0 0 1 8 8 V507 a8 8 0 0 1 -8 8 H52.5 a8 8 0 0 1 -8 -8 V438 a8 8 0 0 1 8 -8 Z" fill="#fff0df" stroke="#af702f"/>
-  <text x="193" y="458.4" fill="#513416" text-anchor="middle">Proxy control endpoints</text>
-  <text x="193" y="477.4" fill="#513416" text-anchor="middle">/directives/batch, /gate, /touch</text>
-  <text x="193" y="496.4" fill="#513416" text-anchor="middle">Hold delivery and launch checks</text>
-  <path d="M529.9 430 H835.9 a8 8 0 0 1 8 8 V507 a8 8 0 0 1 -8 8 H529.9 a8 8 0 0 1 -8 -8 V438 a8 8 0 0 1 8 -8 Z" fill="#fff0df" stroke="#af702f"/>
-  <text x="682.9" y="458.4" fill="#513416" text-anchor="middle">Control-loop process</text>
-  <text x="682.9" y="477.4" fill="#513416" text-anchor="middle">control/loop.py: ControlLoop</text>
-  <text x="682.9" y="496.4" fill="#513416" text-anchor="middle">Tick, fetch, validate, batch, apply</text>
-  <path d="M1054.3 420.5 H1335.3 a8 8 0 0 1 8 8 V516.5 a8 8 0 0 1 -8 8 H1054.3 a8 8 0 0 1 -8 -8 V428.5 a8 8 0 0 1 8 -8 Z" fill="#f1f3f5" stroke="#78838d"/>
-  <text x="1194.8" y="448.9" fill="#29333c" text-anchor="middle">Optional LMCache endpoint</text>
-  <text x="1194.8" y="467.9" fill="#29333c" text-anchor="middle">control/lmcache.py adapter</text>
-  <text x="1194.8" y="486.9" fill="#29333c" text-anchor="middle">MP 0.5.5 CPU warm prefetch; poll</text>
-  <text x="1194.8" y="505.9" fill="#29333c" text-anchor="middle">completion</text>
-  <path d="M 346 82.5 L 505.4 82.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#re110d14b-arrow-5c5c7c)"/>
-  <rect x="377.2" y="74.5" width="97" height="16" fill="#111111"/>
+  <rect x="0" y="0" width="1544" height="555" fill="#111111"/>
+  <path d="M60.5 40 H350.5 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H60.5 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#f1f3f5" stroke="#78838d"/>
+  <text x="205.5" y="68.4" fill="#29333c" text-anchor="middle">Agent harness</text>
+  <text x="205.5" y="87.4" fill="#29333c" text-anchor="middle">mini-SWE-agent, OpenHands, Harbor</text>
+  <text x="205.5" y="106.4" fill="#29333c" text-anchor="middle">Owns session and tool execution</text>
+  <path d="M525.9 40 H840.9 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H525.9 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
+  <text x="683.4" y="68.4" fill="#172c42" text-anchor="middle">Proxy process</text>
+  <text x="683.4" y="87.4" fill="#172c42" text-anchor="middle">proxy/app.py: ProxyRuntime</text>
+  <text x="683.4" y="106.4" fill="#172c42" text-anchor="middle">Admission, hints, response lifecycle</text>
+  <path d="M1016.3 40 H1331.3 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H1016.3 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#f1f3f5" stroke="#78838d"/>
+  <text x="1173.8" y="68.4" fill="#29333c" text-anchor="middle">External serving pool</text>
+  <text x="1173.8" y="87.4" fill="#29333c" text-anchor="middle">Dynamo frontend and model workers</text>
+  <text x="1173.8" y="106.4" fill="#29333c" text-anchor="middle">Actual token generation and KV cache</text>
+  <path d="M69 235 H342 a8 8 0 0 1 8 8 V312 a8 8 0 0 1 -8 8 H69 a8 8 0 0 1 -8 -8 V243 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
+  <text x="205.5" y="263.4" fill="#172c42" text-anchor="middle">In-process sidecar</text>
+  <text x="205.5" y="282.4" fill="#172c42" text-anchor="middle">sidecar/core.py and adapters.py</text>
+  <text x="205.5" y="301.4" fill="#172c42" text-anchor="middle">Tool start, progress, data, end</text>
+  <path d="M510.4 235 H825.4 a8 8 0 0 1 8 8 V312 a8 8 0 0 1 -8 8 H510.4 a8 8 0 0 1 -8 -8 V243 a8 8 0 0 1 8 -8 Z" fill="#eaf5ed" stroke="#50815c"/>
+  <text x="667.9" y="263.4" fill="#203d28" text-anchor="middle">Event transport</text>
+  <text x="667.9" y="282.4" fill="#203d28" text-anchor="middle">bus/jsonl.py in shipped launchers</text>
+  <text x="667.9" y="301.4" fill="#203d28" text-anchor="middle">Redis library or memory alternatives</text>
+  <path d="M1007.8 235 H1330.8 a8 8 0 0 1 8 8 V312 a8 8 0 0 1 -8 8 H1007.8 a8 8 0 0 1 -8 -8 V243 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
+  <text x="1169.3" y="263.4" fill="#172c42" text-anchor="middle">Board process</text>
+  <text x="1169.3" y="282.4" fill="#172c42" text-anchor="middle">board/service.py: BoardRuntime</text>
+  <text x="1169.3" y="301.4" fill="#172c42" text-anchor="middle">Registry, forecasts, holds + prefetch</text>
+  <path d="M48 430 H363 a8 8 0 0 1 8 8 V507 a8 8 0 0 1 -8 8 H48 a8 8 0 0 1 -8 -8 V438 a8 8 0 0 1 8 -8 Z" fill="#fff0df" stroke="#af702f"/>
+  <text x="205.5" y="458.4" fill="#513416" text-anchor="middle">Proxy control endpoints</text>
+  <text x="205.5" y="477.4" fill="#513416" text-anchor="middle">/directives/batch, /gate, /touch</text>
+  <text x="205.5" y="496.4" fill="#513416" text-anchor="middle">/session/{id}/prompt for warm tokens</text>
+  <path d="M588.4 430 H894.4 a8 8 0 0 1 8 8 V507 a8 8 0 0 1 -8 8 H588.4 a8 8 0 0 1 -8 -8 V438 a8 8 0 0 1 8 -8 Z" fill="#fff0df" stroke="#af702f"/>
+  <text x="741.4" y="458.4" fill="#513416" text-anchor="middle">Control-loop process</text>
+  <text x="741.4" y="477.4" fill="#513416" text-anchor="middle">control/loop.py: ControlLoop</text>
+  <text x="741.4" y="496.4" fill="#513416" text-anchor="middle">Tick, fetch, validate, batch, apply</text>
+  <path d="M1155.8 430 H1495.8 a8 8 0 0 1 8 8 V507 a8 8 0 0 1 -8 8 H1155.8 a8 8 0 0 1 -8 -8 V438 a8 8 0 0 1 8 -8 Z" fill="#f1f3f5" stroke="#78838d"/>
+  <text x="1325.8" y="458.4" fill="#29333c" text-anchor="middle">Optional LMCache MP 0.5.5</text>
+  <text x="1325.8" y="477.4" fill="#29333c" text-anchor="middle">control/lmcache.py actuator</text>
+  <text x="1325.8" y="496.4" fill="#29333c" text-anchor="middle">L2 -&gt; L1 (CPU) warm; sync or async poll</text>
+  <path d="M 358.5 82.5 L 517.9 82.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r2fe897d9-arrow-5c5c7c)"/>
+  <rect x="389.7" y="74.5" width="97" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="425.7" y="86.7" fill="#d9d9d9" text-anchor="middle">chat request</text>
+  <text x="438.2" y="86.7" fill="#d9d9d9" text-anchor="middle">chat request</text>
   </g>
-  <path d="M 836.4 82.5 L 995.8 82.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#re110d14b-arrow-5c5c7c)"/>
-  <rect x="867.6" y="74.5" width="97" height="16" fill="#111111"/>
+  <path d="M 848.9 82.5 L 1008.3 82.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r2fe897d9-arrow-5c5c7c)"/>
+  <rect x="880.1" y="74.5" width="97" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="916.1" y="86.7" fill="#d9d9d9" text-anchor="middle">HTTP + hints</text>
+  <text x="928.6" y="86.7" fill="#d9d9d9" text-anchor="middle">HTTP + hints</text>
   </g>
-  <path d="M 193 125 L 193 235" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#re110d14b-arrow-5c5c7c)"/>
-  <rect x="144.5" y="172" width="97" height="16" fill="#111111"/>
+  <path d="M 205.5 125 L 205.5 235" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r2fe897d9-arrow-5c5c7c)"/>
+  <rect x="157" y="172" width="97" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="193" y="184.2" fill="#d9d9d9" text-anchor="middle">execute tool</text>
+  <text x="205.5" y="184.2" fill="#d9d9d9" text-anchor="middle">execute tool</text>
   </g>
-  <path d="M 337.5 277.5 L 489.9 277.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#re110d14b-arrow-5c5c7c)"/>
-  <rect x="368.7" y="269.5" width="90" height="16" fill="#111111"/>
+  <path d="M 350 277.5 L 502.4 277.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r2fe897d9-arrow-5c5c7c)"/>
+  <rect x="381.2" y="269.5" width="90" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="413.7" y="281.7" fill="#d9d9d9" text-anchor="middle">tool events</text>
+  <text x="426.2" y="281.7" fill="#d9d9d9" text-anchor="middle">tool events</text>
   </g>
-  <path d="M 670.9 125 L 670.9 172.25 C 670.9 176.53, 667.43 180, 663.15 180 L 663.15 180 C 658.87 180, 655.4 183.47, 655.4 187.75 L 655.4 235" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#re110d14b-arrow-5c5c7c)"/>
-  <rect x="629.9" y="144.5" width="82" height="16" fill="#111111"/>
+  <path d="M 683.4 125 L 683.4 172.25 C 683.4 176.53, 679.93 180, 675.65 180 L 675.65 180 C 671.37 180, 667.9 183.47, 667.9 187.75 L 667.9 235" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r2fe897d9-arrow-5c5c7c)"/>
+  <rect x="642.4" y="144.5" width="82" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="670.9" y="156.7" fill="#d9d9d9" text-anchor="middle">LLM events</text>
+  <text x="683.4" y="156.7" fill="#d9d9d9" text-anchor="middle">LLM events</text>
   </g>
-  <path d="M 820.9 277.5 L 987.3 277.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#re110d14b-arrow-5c5c7c)"/>
-  <rect x="852.1" y="269.5" width="104" height="16" fill="#111111"/>
+  <path d="M 833.4 277.5 L 999.8 277.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r2fe897d9-arrow-5c5c7c)"/>
+  <rect x="864.6" y="269.5" width="104" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="904.1" y="281.7" fill="#d9d9d9" text-anchor="middle">drain on tick</text>
+  <text x="916.6" y="281.7" fill="#d9d9d9" text-anchor="middle">drain on tick</text>
   </g>
-  <path d="M 1161.3 125 L 1161.3 160.5 C 1161.3 168.65, 1154.7 175.25, 1146.55 175.25 L 1146.55 175.25 C 1138.4 175.25, 1131.8 181.85, 1131.8 190 L 1131.8 225.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#re110d14b-arrow-5c5c7c)"/>
-  <rect x="1105.8" y="142.13" width="111" height="16" fill="#111111"/>
+  <path d="M 1173.8 125 L 1173.8 177.75 C 1173.8 178.99, 1172.79 180, 1171.55 180 L 1171.55 180 C 1170.31 180, 1169.3 181.01, 1169.3 182.25 L 1169.3 235" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r2fe897d9-arrow-5c5c7c)"/>
+  <rect x="1118.3" y="144.5" width="111" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="1161.3" y="154.32" fill="#d9d9d9" text-anchor="middle">worker metrics</text>
+  <text x="1173.8" y="156.7" fill="#d9d9d9" text-anchor="middle">worker metrics</text>
   </g>
-  <path d="M 682.9 430 L 682.9 399.75 C 682.9 388.7, 691.85 379.75, 702.9 379.75 L 1111.8 379.75 C 1122.85 379.75, 1131.8 370.8, 1131.8 359.75 L 1131.8 329.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#re110d14b-arrow-5c5c7c)"/>
-  <rect x="840.85" y="371.75" width="133" height="16" fill="#111111"/>
+  <path d="M 741.4 430 L 741.4 395 C 741.4 383.95, 750.35 375, 761.4 375 L 1149.3 375 C 1160.35 375, 1169.3 366.05, 1169.3 355 L 1169.3 320" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r2fe897d9-arrow-5c5c7c)"/>
+  <rect x="888.85" y="367" width="133" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="907.35" y="383.95" fill="#d9d9d9" text-anchor="middle">tick + directives</text>
+  <text x="955.35" y="379.2" fill="#d9d9d9" text-anchor="middle">tick + directives</text>
   </g>
-  <path d="M 521.9 472.5 L 341.5 472.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#re110d14b-arrow-5c5c7c)"/>
-  <rect x="372.7" y="464.5" width="118" height="16" fill="#111111"/>
+  <path d="M 580.4 472.5 L 371 472.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r2fe897d9-arrow-5c5c7c)"/>
+  <rect x="402.2" y="464.5" width="147" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="431.7" y="476.7" fill="#d9d9d9" text-anchor="middle">holds via proxy</text>
+  <text x="475.7" y="476.7" fill="#d9d9d9" text-anchor="middle">holds; prompt fetch</text>
   </g>
-  <path d="M 843.9 472.5 L 1046.3 472.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#re110d14b-arrow-5c5c7c)"/>
-  <rect x="875.1" y="464.5" width="140" height="16" fill="#111111"/>
+  <path d="M 902.4 472.5 L 1147.8 472.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r2fe897d9-arrow-5c5c7c)"/>
+  <rect x="933.6" y="464.5" width="183" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="945.1" y="476.7" fill="#d9d9d9" text-anchor="middle">optional actuation</text>
+  <text x="1025.1" y="476.7" fill="#d9d9d9" text-anchor="middle">prefetch tier directives</text>
   </g>
 </svg>

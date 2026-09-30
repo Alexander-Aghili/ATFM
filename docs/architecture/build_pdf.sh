@@ -11,7 +11,7 @@ pandoc docs/architecture/03-code-and-documentation.md \
   --lua-filter=docs/architecture/pdf-layout.lua \
   --include-in-header=docs/architecture/pdf-layout.tex \
   --metadata title='ATFM: code and documentation architecture' \
-  --metadata date='Implementation baseline: 28 September 2026' \
+  --metadata date='Implementation baseline: 30 September 2026' \
   -V documentclass=article -V papersize=letter -V fontsize=10pt \
   -V geometry:margin=0.6in -V mainfont='DejaVu Serif' \
   -V sansfont='DejaVu Sans' -V monofont='DejaVu Sans Mono' \

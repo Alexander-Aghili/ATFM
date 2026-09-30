@@ -1,0 +1,34 @@
+import json
+
+import pytest
+
+from atfm_experiments.gpu_cache import stage_e
+
+
+def test_warm_timing_classifies_each_directive_against_the_next_request():
+    requests = {'a': [10.0, 30.0], 'b': [5.0]}
+    warms = [(12.0, 'a'), (29.5, 'a'), (31.0, 'a'), (6.0, 'b')]
+    timing = stage_e.warm_timing(warms, requests)
+    assert timing['issued'] == 4 and timing['before_next_request'] == 2 and timing['no_next_request'] == 2
+    assert timing['lead_s_p50'] == pytest.approx((18.0 + .5) / 2)
+
+
+def test_warm_timing_with_no_warms():
+    assert stage_e.warm_timing([], {'a': [1.0]}) == dict(issued=0, before_next_request=0, no_next_request=0,
+                                                         lead_s_p50=None)
+
+
+def test_directives_and_requests_are_read_from_run_logs(tmp_path):
+    (tmp_path / 'control.jsonl').write_text('\n'.join(json.dumps(r) for r in [
+        {'t': 1.0, 'tier': [{'session_id': 'a', 'action': 'prefetch'}], 'cache_outcomes': {}},
+        {'t': 3.0, 'tier': [], 'cache_outcomes': {'completed': 1}}]) + '\n')
+    (tmp_path / 'events.jsonl').write_text('\n'.join(json.dumps(r) for r in [
+        {'kind': 'llm.request', 't': 0.5, 'session_id': 'a'}, {'kind': 'llm.done', 't': .9, 'session_id': 'a'},
+        {'kind': 'llm.request', 't': 4.0, 'session_id': 'a'}]) + '\n')
+    assert stage_e.directives(tmp_path) == [(1.0, 'a')]
+    assert stage_e.requests(tmp_path) == {'a': [0.5, 4.0]}
+    assert stage_e.outcomes(tmp_path) == {'completed': 1}
+
+
+def test_arm_names_come_from_step_names():
+    assert stage_e.arm('atfm-q10-2') == 'atfm-q10' and stage_e.arm('direct-1') == 'direct'

@@ -1,92 +1,85 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1396" height="555" viewBox="0 0 1396 555" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
+<svg xmlns="http://www.w3.org/2000/svg" width="1366" height="555" viewBox="0 0 1366 555" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
   <defs>
-    <marker id="r038a14fc-arrow-5c5c7c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#5c5c7c"/>
-    </marker>
-    <marker id="r038a14fc-arrow-5c5c7c-back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="rfa1a204b-arrow-5c5c7c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#5c5c7c"/>
     </marker>
   </defs>
-  <rect x="0" y="0" width="1396" height="555" fill="#111111"/>
-  <path d="M48 40 H363 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H48 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
-  <text x="205.5" y="68.4" fill="#172c42" text-anchor="middle">Composition roots</text>
-  <text x="205.5" y="87.4" fill="#172c42" text-anchor="middle">scripts/run_proxy.py, run_board.py</text>
-  <text x="205.5" y="106.4" fill="#172c42" text-anchor="middle">run_control.py; config and lifecycle</text>
-  <path d="M516.4 40 H814.4 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H516.4 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
-  <text x="665.4" y="68.4" fill="#172c42" text-anchor="middle">Online orchestration</text>
-  <text x="665.4" y="87.4" fill="#172c42" text-anchor="middle">proxy, sidecar, board/service</text>
-  <text x="665.4" y="106.4" fill="#172c42" text-anchor="middle">control/loop and optional adapters</text>
-  <path d="M967.8 40 H1273.8 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H967.8 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#f1f3f5" stroke="#78838d"/>
-  <text x="1120.8" y="68.4" fill="#29333c" text-anchor="middle">External dependencies</text>
-  <text x="1120.8" y="87.4" fill="#29333c" text-anchor="middle">Harness, HTTP serving, metrics</text>
-  <text x="1120.8" y="106.4" fill="#29333c" text-anchor="middle">Optional Redis and LMCache services</text>
-  <path d="M69 235 H342 a8 8 0 0 1 8 8 V312 a8 8 0 0 1 -8 8 H69 a8 8 0 0 1 -8 -8 V243 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
-  <text x="205.5" y="263.4" fill="#172c42" text-anchor="middle">Forecast and control libraries</text>
-  <text x="205.5" y="282.4" fill="#172c42" text-anchor="middle">board/predictors and forecaster</text>
-  <text x="205.5" y="301.4" fill="#172c42" text-anchor="middle">control/gdp, touch, replica</text>
-  <path d="M468 235 H749 a8 8 0 0 1 8 8 V312 a8 8 0 0 1 -8 8 H468 a8 8 0 0 1 -8 -8 V243 a8 8 0 0 1 8 -8 Z" fill="#eaf5ed" stroke="#50815c"/>
-  <text x="608.5" y="263.4" fill="#203d28" text-anchor="middle">Shared contracts</text>
-  <text x="608.5" y="282.4" fill="#203d28" text-anchor="middle">schema/events, forecast, trace</text>
-  <text x="608.5" y="301.4" fill="#203d28" text-anchor="middle">control/directives; bus protocol</text>
-  <path d="M909.4 235 H1241.4 a8 8 0 0 1 8 8 V312 a8 8 0 0 1 -8 8 H909.4 a8 8 0 0 1 -8 -8 V243 a8 8 0 0 1 8 -8 Z" fill="#eaf5ed" stroke="#50815c"/>
-  <text x="1075.4" y="263.4" fill="#203d28" text-anchor="middle">Data preparation</text>
-  <text x="1075.4" y="282.4" fill="#203d28" text-anchor="middle">collect + traces</text>
-  <text x="1075.4" y="301.4" fill="#203d28" text-anchor="middle">Real adapters and synthetic generation</text>
-  <path d="M56.5 430 H354.5 a8 8 0 0 1 8 8 V507 a8 8 0 0 1 -8 8 H56.5 a8 8 0 0 1 -8 -8 V438 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
-  <text x="205.5" y="458.4" fill="#172c42" text-anchor="middle">Closed-loop simulator</text>
-  <text x="205.5" y="477.4" fill="#172c42" text-anchor="middle">sim/core, engine, policies</text>
-  <text x="205.5" y="496.4" fill="#172c42" text-anchor="middle">Forecast and placement policy arms</text>
-  <path d="M514.9 430 H846.9 a8 8 0 0 1 8 8 V507 a8 8 0 0 1 -8 8 H514.9 a8 8 0 0 1 -8 -8 V438 a8 8 0 0 1 8 -8 Z" fill="#f0eafa" stroke="#8060a5"/>
-  <text x="680.9" y="458.4" fill="#38244d" text-anchor="middle">Separate workspace package</text>
-  <text x="680.9" y="477.4" fill="#38244d" text-anchor="middle">experiments/src/atfm_experiments</text>
-  <text x="680.9" y="496.4" fill="#38244d" text-anchor="middle">H1, H2, load, profiling, observability</text>
-  <path d="M1007.3 430 H1347.3 a8 8 0 0 1 8 8 V507 a8 8 0 0 1 -8 8 H1007.3 a8 8 0 0 1 -8 -8 V438 a8 8 0 0 1 8 -8 Z" fill="#f0eafa" stroke="#8060a5"/>
-  <text x="1177.3" y="458.4" fill="#38244d" text-anchor="middle">Verification</text>
-  <text x="1177.3" y="477.4" fill="#38244d" text-anchor="middle">tests by package + references</text>
-  <text x="1177.3" y="496.4" fill="#38244d" text-anchor="middle">Behavior, isolation, scaling, structure</text>
-  <path d="M 371 82.5 L 508.4 82.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r038a14fc-arrow-5c5c7c)"/>
-  <rect x="402.2" y="74.5" width="75" height="16" fill="#111111"/>
+  <rect x="0" y="0" width="1366" height="555" fill="#111111"/>
+  <path d="M52 40 H367 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H52 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
+  <text x="209.5" y="68.4" fill="#172c42" text-anchor="middle">Composition roots</text>
+  <text x="209.5" y="87.4" fill="#172c42" text-anchor="middle">scripts/run_proxy.py, run_board.py</text>
+  <text x="209.5" y="106.4" fill="#172c42" text-anchor="middle">run_control.py; config and lifecycle</text>
+  <path d="M520.4 40 H818.4 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H520.4 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
+  <text x="669.4" y="68.4" fill="#172c42" text-anchor="middle">Online orchestration</text>
+  <text x="669.4" y="87.4" fill="#172c42" text-anchor="middle">proxy, sidecar, board/service</text>
+  <text x="669.4" y="106.4" fill="#172c42" text-anchor="middle">control/loop and optional adapters</text>
+  <path d="M971.8 40 H1277.8 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H971.8 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#f1f3f5" stroke="#78838d"/>
+  <text x="1124.8" y="68.4" fill="#29333c" text-anchor="middle">External dependencies</text>
+  <text x="1124.8" y="87.4" fill="#29333c" text-anchor="middle">Harness, HTTP serving, metrics</text>
+  <text x="1124.8" y="106.4" fill="#29333c" text-anchor="middle">Optional Redis and LMCache services</text>
+  <path d="M48 235 H371 a8 8 0 0 1 8 8 V312 a8 8 0 0 1 -8 8 H48 a8 8 0 0 1 -8 -8 V243 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
+  <text x="209.5" y="263.4" fill="#172c42" text-anchor="middle">Forecast and control libraries</text>
+  <text x="209.5" y="282.4" fill="#172c42" text-anchor="middle">board/predictors and forecaster</text>
+  <text x="209.5" y="301.4" fill="#172c42" text-anchor="middle">control/gdp, touch, prefetch, replica</text>
+  <path d="M497 235 H778 a8 8 0 0 1 8 8 V312 a8 8 0 0 1 -8 8 H497 a8 8 0 0 1 -8 -8 V243 a8 8 0 0 1 8 -8 Z" fill="#eaf5ed" stroke="#50815c"/>
+  <text x="637.5" y="263.4" fill="#203d28" text-anchor="middle">Shared typed contracts</text>
+  <text x="637.5" y="282.4" fill="#203d28" text-anchor="middle">schema/events, forecast, trace</text>
+  <text x="637.5" y="301.4" fill="#203d28" text-anchor="middle">control/directives; bus protocol</text>
+  <path d="M938.4 235 H1270.4 a8 8 0 0 1 8 8 V312 a8 8 0 0 1 -8 8 H938.4 a8 8 0 0 1 -8 -8 V243 a8 8 0 0 1 8 -8 Z" fill="#eaf5ed" stroke="#50815c"/>
+  <text x="1104.4" y="263.4" fill="#203d28" text-anchor="middle">Data preparation</text>
+  <text x="1104.4" y="282.4" fill="#203d28" text-anchor="middle">collect + traces</text>
+  <text x="1104.4" y="301.4" fill="#203d28" text-anchor="middle">Real adapters and synthetic generation</text>
+  <path d="M60.5 430 H358.5 a8 8 0 0 1 8 8 V507 a8 8 0 0 1 -8 8 H60.5 a8 8 0 0 1 -8 -8 V438 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
+  <text x="209.5" y="458.4" fill="#172c42" text-anchor="middle">Closed-loop simulator</text>
+  <text x="209.5" y="477.4" fill="#172c42" text-anchor="middle">sim/core, engine, policies</text>
+  <text x="209.5" y="496.4" fill="#172c42" text-anchor="middle">Forecast and placement policy arms</text>
+  <path d="M518.9 430 H816.9 a8 8 0 0 1 8 8 V507 a8 8 0 0 1 -8 8 H518.9 a8 8 0 0 1 -8 -8 V438 a8 8 0 0 1 8 -8 Z" fill="#f0eafa" stroke="#8060a5"/>
+  <text x="667.9" y="458.4" fill="#38244d" text-anchor="middle">Separate workspace package</text>
+  <text x="667.9" y="477.4" fill="#38244d" text-anchor="middle">experiments/src/atfm_experiments</text>
+  <text x="667.9" y="496.4" fill="#38244d" text-anchor="middle">H1, H2, load, profiling, GPU cache</text>
+  <path d="M977.3 430 H1317.3 a8 8 0 0 1 8 8 V507 a8 8 0 0 1 -8 8 H977.3 a8 8 0 0 1 -8 -8 V438 a8 8 0 0 1 8 -8 Z" fill="#f0eafa" stroke="#8060a5"/>
+  <text x="1147.3" y="458.4" fill="#38244d" text-anchor="middle">Verification</text>
+  <text x="1147.3" y="477.4" fill="#38244d" text-anchor="middle">tests by package + references</text>
+  <text x="1147.3" y="496.4" fill="#38244d" text-anchor="middle">Behavior, isolation, scaling, structure</text>
+  <path d="M 375 82.5 L 512.4 82.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rfa1a204b-arrow-5c5c7c)"/>
+  <rect x="406.2" y="74.5" width="75" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="439.7" y="86.7" fill="#d9d9d9" text-anchor="middle">construct</text>
+  <text x="443.7" y="86.7" fill="#d9d9d9" text-anchor="middle">construct</text>
   </g>
-  <path d="M 822.4 82.5 L 959.8 82.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r038a14fc-arrow-5c5c7c)"/>
-  <rect x="853.6" y="74.5" width="75" height="16" fill="#111111"/>
+  <path d="M 826.4 82.5 L 963.8 82.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rfa1a204b-arrow-5c5c7c)"/>
+  <rect x="857.6" y="74.5" width="75" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="891.1" y="86.7" fill="#d9d9d9" text-anchor="middle">protocols</text>
+  <text x="895.1" y="86.7" fill="#d9d9d9" text-anchor="middle">protocols</text>
   </g>
-  <path d="M 673.4 125 L 673.4 168 C 673.4 179.05, 664.45 188, 653.4 188 L 628.5 188 C 617.45 188, 608.5 196.95, 608.5 208 L 608.5 235" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r038a14fc-arrow-5c5c7c)"/>
-  <rect x="599.95" y="180" width="82" height="16" fill="#111111"/>
+  <path d="M 677.4 125 L 677.4 168.05 C 677.4 179.07, 668.47 188, 657.45 188 L 657.45 188 C 646.43 188, 637.5 196.93, 637.5 207.95 L 637.5 235" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rfa1a204b-arrow-5c5c7c)"/>
+  <path d="M 661.4 125 L 661.4 152 C 661.4 163.05, 652.45 172, 641.4 172 L 229.5 172 C 218.45 172, 209.5 180.95, 209.5 192 L 209.5 235" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rfa1a204b-arrow-5c5c7c)"/>
+  <rect x="408.45" y="164" width="54" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="640.95" y="192.2" fill="#d9d9d9" text-anchor="middle">typed data</text>
+  <text x="435.45" y="176.2" fill="#d9d9d9" text-anchor="middle">invoke</text>
   </g>
-  <path d="M 657.4 125 L 657.4 152 C 657.4 163.05, 648.45 172, 637.4 172 L 225.5 172 C 214.45 172, 205.5 180.95, 205.5 192 L 205.5 235" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r038a14fc-arrow-5c5c7c)"/>
-  <rect x="404.45" y="164" width="54" height="16" fill="#111111"/>
+  <path d="M 930.4 277.5 L 786 277.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rfa1a204b-arrow-5c5c7c)"/>
+  <rect x="817.2" y="269.5" width="82" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="431.45" y="176.2" fill="#d9d9d9" text-anchor="middle">invoke</text>
+  <text x="858.2" y="281.7" fill="#d9d9d9" text-anchor="middle">TraceTable</text>
   </g>
-  <path d="M 901.4 277.5 L 757 277.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r038a14fc-arrow-5c5c7c)"/>
-  <rect x="788.2" y="269.5" width="82" height="16" fill="#111111"/>
+  <path d="M 209.5 430 L 209.5 320" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rfa1a204b-arrow-5c5c7c)"/>
+  <rect x="161" y="367" width="97" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="829.2" y="281.7" fill="#d9d9d9" text-anchor="middle">TraceTable</text>
+  <text x="209.5" y="379.2" fill="#d9d9d9" text-anchor="middle">reuse models</text>
   </g>
-  <path d="M 205.5 430 L 205.5 320" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r038a14fc-arrow-5c5c7c)"/>
-  <rect x="157" y="367" width="97" height="16" fill="#111111"/>
+  <path d="M 510.9 472.5 L 366.5 472.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rfa1a204b-arrow-5c5c7c)"/>
+  <rect x="397.7" y="464.5" width="82" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="205.5" y="379.2" fill="#d9d9d9" text-anchor="middle">reuse models</text>
+  <text x="438.7" y="476.7" fill="#d9d9d9" text-anchor="middle">run trials</text>
   </g>
-  <path d="M 506.9 472.5 L 362.5 472.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r038a14fc-arrow-5c5c7c)"/>
-  <rect x="393.7" y="464.5" width="82" height="16" fill="#111111"/>
+  <path d="M 824.9 472.5 L 969.3 472.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rfa1a204b-arrow-5c5c7c)"/>
+  <rect x="856.1" y="464.5" width="82" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="434.7" y="476.7" fill="#d9d9d9" text-anchor="middle">run trials</text>
+  <text x="897.1" y="476.7" fill="#d9d9d9" text-anchor="middle">checked by</text>
   </g>
-  <path d="M 854.9 472.5 L 999.3 472.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r038a14fc-arrow-5c5c7c)"/>
-  <rect x="886.1" y="464.5" width="82" height="16" fill="#111111"/>
+  <path d="M 637.5 320 L 637.5 359.8 C 637.5 368.19, 644.31 375, 652.7 375 L 652.7 375 C 661.09 375, 667.9 381.81, 667.9 390.2 L 667.9 430" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rfa1a204b-arrow-5c5c7c)"/>
+  <rect x="582" y="339.5" width="111" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="927.1" y="476.7" fill="#d9d9d9" text-anchor="middle">checked by</text>
-  </g>
-  <path d="M 608.5 320 L 608.5 355 C 608.5 366.05, 617.45 375, 628.5 375 L 660.9 375 C 671.95 375, 680.9 383.95, 680.9 395 L 680.9 430" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r038a14fc-arrow-5c5c7c)"/>
-  <rect x="589.2" y="367" width="111" height="16" fill="#111111"/>
-  <g font-size="12px">
-  <text x="644.7" y="379.2" fill="#d9d9d9" text-anchor="middle">shared formats</text>
+  <text x="637.5" y="351.7" fill="#d9d9d9" text-anchor="middle">shared formats</text>
   </g>
 </svg>

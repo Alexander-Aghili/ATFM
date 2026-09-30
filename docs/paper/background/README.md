@@ -43,6 +43,9 @@ It does not overwrite `docs/paper/atfm-paper.pdf` or its manuscript.
 - `figures/*.reladraw` contains architecture sources; SVG/PDF are generated.
 - `plots.py` produces analytical plots. All numbers are illustrative assumptions,
   recorded in `illustration-inputs.json`, not GPU or ATFM benchmark results.
+- `evidence_plots.py` produces the one measured figure (retrieval paths) from
+  `measured-evidence.json`, which transcribes medians from the dated stage C
+  report and names its source. Keep measured and illustrative data separate.
 - `make_sources.py` owns the bibliography metadata and regenerates
   `sources.json`, `SOURCES.md`, and `references.tex`.
 - `build.py --bundle` creates an Overleaf-ready ZIP with pre-rendered figures.
@@ -74,3 +77,5 @@ The ATFM evaluation section incorporates the [proxy ranking and transport study]
 The ATFM section now distinguishes the rejected larger shared HTTP pool from the subsequent [bounded sharding study](../../research/2026-09-28-sharded-transport.md). The literature-review cutoff is unchanged.
 
 The ATFM section also introduces the [offline tuning protocol](../../development/policy-tuning.md), distinguishing a context-specific best observed configuration from a universal optimum.
+
+Section 6.6, "ATFM's measured serving evidence to date" (added 30 September 2026), summarizes the [first H100 NVL replays](../../research/2026-09-29-public-gpu-workloads.md), [GPU round 2](../../research/2026-09-29-gpu-round2.md), [GPU round 3](../../research/2026-09-30-gpu-round3.md) and the [stage C retrieval paths](../../research/2026-09-30-retrieval-paths.md). These are baseline vLLM/LMCache measurements with ATFM control disabled (stage C issues a warm before a known request); the forecast-driven stage E policy is being evaluated and no policy speedup is claimed. The literature-review cutoff is unchanged.

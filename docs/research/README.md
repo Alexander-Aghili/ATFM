@@ -8,10 +8,11 @@ predate today's launchers. Use the [project README](../../README.md) and
 
 | Note | Role |
 | --- | --- |
+| [Stage E: forecast-driven warming](2026-09-30-stage-e.md) | First live ATFM warming on H100s: pipeline works; inconclusive (run-order drift, <2 s gaps between calls). |
 | [Retrieval paths (stage C)](2026-09-30-retrieval-paths.md) | Cold prefill vs on-demand L2 load vs ATFM-warmed L1 on H100 and A100; break-even is hardware-dependent. |
 | [GPU round 3](2026-09-30-gpu-round3.md) | Randomized 24 vs 48 GiB repeats (1.9x duration gap), chunk-size repeats, Blackwell compatibility. |
 | [GPU round 2](2026-09-29-gpu-round2.md) | First complete 119-request root, 24 vs 48 GiB CPU tier, A100 repeats and chunk size. |
-| [GPU results and caching tradeoffs](gpu-results-report/README.md) | Detailed [PDF](gpu-results-report/atfm-gpu-results-2026-09-29.pdf): completed and incomplete runs, nine figures, capacity and transfer analysis. |
+| [GPU results and caching tradeoffs](gpu-results-report/README.md) | Detailed [PDF](gpu-results-report/atfm-gpu-results-2026-09-30.pdf): all rounds through stage E, completed and incomplete runs, fourteen figures, capacity and transfer analysis. |
 | [Public H100 workloads](2026-09-29-public-gpu-workloads.md) | BFCL tool-call API cases, complete Weka sessions, cache pressure and retained replay failures. |
 | [H100 cache compatibility](2026-09-29-h100-cache.md) | Native deployment fixes, completed CPU warming and real external-cache reuse. |
 | [Real GPU cache validation](2026-09-28-gpu-cache.md) | Pinned vLLM/LMCache, completed CPU warming, real external reuse and rental handoff. |

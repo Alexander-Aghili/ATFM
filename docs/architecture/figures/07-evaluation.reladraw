@@ -18,6 +18,11 @@ edge inputs -> h1 "held-out trace" (size: small) from: right to: left
 edge h1 -> h1score "predictions vs truth" (size: small) from: right to: left
 edge inputs -> h2 "paired programs" (size: small) from: bottom to: top
 edge h2 -> sim "policy arms" (size: small) from: right to: left
-edge sim -> h2score "outcomes" (size: small) from: top to: bottom
+edge sim -> h2score "outcomes" (size: small) from: bottom to: bottom below h2
 edge load -> profile "measure" (size: small) from: right to: left
 edge load -> phoenix "completed event logs" (size: small) from: bottom to: bottom below profile
+node retrieval "Stage C retrieval paths / gpu_cache/retrieval.py on real vLLM / cold vs L2 load vs ATFM-warmed L1" (wrap: 39) style: evidence gap: wide below load
+node stagee "Stage E replay arms / gpu_cache/replay.py + arms.py / direct | proxy | atfm; first run inconclusive" (wrap: 39) style: evidence gap: wide right of retrieval
+node pods "Runpod round tooling / pod_setup.sh, pod_round.sh / Seeded plans/*.txt; stop watchdog" (wrap: 39) style: external gap: wide right of stagee
+edge retrieval -> stagee "calibrate warm lead" (size: small) from: right to: left
+edge pods -> stagee "run plan steps" (size: small) from: left to: right

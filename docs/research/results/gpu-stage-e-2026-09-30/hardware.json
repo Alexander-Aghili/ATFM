@@ -1,0 +1,27 @@
+{
+ "pod_a": {
+  "id": "ejz0v5x5yu8vf7",
+  "data_center": "US-NE-1",
+  "host": "216.243.220.225",
+  "note": "shared host with pod B; terminated ~05:02Z before completing its first arm; no results used"
+ },
+ "pod_b": {
+  "id": "fztxfsmgiohpks",
+  "data_center": "US-NE-1",
+  "host": "216.243.220.225",
+  "gpu": "NVIDIA H100 80GB HBM3, 595.91.07",
+  "note": "first arm (proxy-1) overlapped pod A: contaminated, excluded"
+ },
+ "pod_c": {
+  "id": "oki3lsayluyel8",
+  "data_center": "US-MO-1",
+  "host": "64.247.201.47",
+  "gpu": "NVIDIA H100 80GB HBM3, 580.159.04"
+ },
+ "usd_per_hour": 3.49,
+ "estimated_compute_usd": 13.8,
+ "runpod_billing_2026_09_29_30_usd": 30.79,
+ "git_revision": "45bbf93",
+ "plan_seed": "random.Random(20261001)",
+ "train": "runs/train-holdout.parquet sha256 e465dcc8ad908380c4f9b645aa5591ca1ddc05f73813bccfe1ab50d8dc24a4f3 (98,663 rows; 3 replayed roots removed)"
+}

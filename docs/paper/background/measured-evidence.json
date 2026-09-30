@@ -1,0 +1,21 @@
+{
+  "kind": "ATFM repository measurements, transcribed from a dated report; not analytical illustrations",
+  "source": "docs/research/2026-09-30-retrieval-paths.md",
+  "revision": "0552406",
+  "description": "Stage C retrieval paths: medians of three seeded blocks of client time (s) for one Qwen3-4B-Instruct-2507 request with one output token; 48 GiB CPU tier, 16-token chunks, filesystem L2, vLLM prefix cache disabled. 'warm' is the preceding L2-to-L1 TierDirective prefetch, excluded from the l1 client time.",
+  "context_tokens": [2048, 8192, 32768, 98304],
+  "gpus": {
+    "H100 SXM (AP-IN-2)": {
+      "cold": [0.27, 0.34, 4.26, 8.67],
+      "l2_on_demand": [0.29, 0.95, 3.54, 10.43],
+      "l1_warmed": [0.09, 0.13, 0.34, 0.87],
+      "warm": [0.29, 0.87, 3.42, 9.77]
+    },
+    "A100 SXM (US-WA-1)": {
+      "cold": [0.18, 0.71, 4.90, 24.77],
+      "l2_on_demand": [0.35, 1.07, 3.62, 10.72],
+      "l1_warmed": [0.10, 0.17, 0.48, 1.15],
+      "warm": [0.25, 0.96, 3.94, 8.49]
+    }
+  }
+}

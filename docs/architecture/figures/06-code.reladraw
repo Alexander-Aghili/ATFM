@@ -8,15 +8,15 @@ style external fill: #f1f3f5 border: #78838d text: (color: #29333c)
 node entry "Composition roots / scripts/run_proxy.py, run_board.py / run_control.py; config and lifecycle" (wrap: 39) style: runtime gap: wide
 node online "Online orchestration / proxy, sidecar, board/service / control/loop and optional adapters" (wrap: 39) style: runtime gap: wide right of entry
 node external "External dependencies / Harness, HTTP serving, metrics / Optional Redis and LMCache services" (wrap: 39) style: external gap: wide right of online
-node models "Forecast and control libraries / board/predictors and forecaster / control/gdp, touch, replica" (wrap: 39) style: runtime gap: wide below entry
-node contracts "Shared contracts / schema/events, forecast, trace / control/directives; bus protocol" (wrap: 39) style: data gap: wide right of models
+node models "Forecast and control libraries / board/predictors and forecaster / control/gdp, touch, prefetch, replica" (wrap: 39) style: runtime gap: wide below entry
+node contracts "Shared typed contracts / schema/events, forecast, trace / control/directives; bus protocol" (wrap: 39) style: data gap: wide right of models
 node traces "Data preparation / collect + traces / Real adapters and synthetic generation" (wrap: 39) style: data gap: wide right of contracts
 node simulation "Closed-loop simulator / sim/core, engine, policies / Forecast and placement policy arms" (wrap: 39) style: runtime gap: wide below models
-node experiments "Separate workspace package / experiments/src/atfm_experiments / H1, H2, load, profiling, observability" (wrap: 39) style: evidence gap: wide right of simulation
+node experiments "Separate workspace package / experiments/src/atfm_experiments / H1, H2, load, profiling, GPU cache" (wrap: 39) style: evidence gap: wide right of simulation
 node tests "Verification / tests by package + references / Behavior, isolation, scaling, structure" (wrap: 39) style: evidence gap: wide right of experiments
 edge entry -> online "construct" (size: small) from: right to: left
 edge online -> external "protocols" (size: small) from: right to: left
-edge online -> contracts "typed data" (size: small) from: bottom to: top
+edge online -> contracts from: bottom to: top
 edge online -> models "invoke" (size: small) from: bottom to: top
 edge traces -> contracts "TraceTable" (size: small) from: left to: right
 edge simulation -> models "reuse models" (size: small) from: top to: bottom

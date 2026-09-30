@@ -1,0 +1,62 @@
+{
+ "b/proxy-1": {
+  "sessions": 5,
+  "gaps": 114,
+  "gap_s_p10": 0.83,
+  "gap_s_p50": 1.63,
+  "gap_s_p90": 1.96,
+  "gap_s_max": 1308.5,
+  "gaps_over_5s": 2,
+  "gaps_over_10s": 1
+ },
+ "b/atfm-q10-2": {
+  "sessions": 5,
+  "gaps": 114,
+  "gap_s_p10": 0.84,
+  "gap_s_p50": 1.64,
+  "gap_s_p90": 1.96,
+  "gap_s_max": 1264.9,
+  "gaps_over_5s": 2,
+  "gaps_over_10s": 1
+ },
+ "b/atfm-q50-4": {
+  "sessions": 5,
+  "gaps": 114,
+  "gap_s_p10": 0.84,
+  "gap_s_p50": 1.64,
+  "gap_s_p90": 1.96,
+  "gap_s_max": 858.7,
+  "gaps_over_5s": 2,
+  "gaps_over_10s": 1
+ },
+ "c/atfm-q10-2": {
+  "sessions": 5,
+  "gaps": 114,
+  "gap_s_p10": 0.84,
+  "gap_s_p50": 1.64,
+  "gap_s_p90": 1.97,
+  "gap_s_max": 1163.5,
+  "gaps_over_5s": 2,
+  "gaps_over_10s": 1
+ },
+ "c/atfm-q50-3": {
+  "sessions": 5,
+  "gaps": 114,
+  "gap_s_p10": 0.84,
+  "gap_s_p50": 1.64,
+  "gap_s_p90": 1.97,
+  "gap_s_max": 1380.7,
+  "gaps_over_5s": 2,
+  "gaps_over_10s": 1
+ },
+ "c/proxy-4": {
+  "sessions": 5,
+  "gaps": 114,
+  "gap_s_p10": 0.83,
+  "gap_s_p50": 1.63,
+  "gap_s_p90": 1.96,
+  "gap_s_max": 1268.1,
+  "gaps_over_5s": 2,
+  "gaps_over_10s": 1
+ }
+}

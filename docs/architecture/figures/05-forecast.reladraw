@@ -6,12 +6,12 @@ style evidence fill: #f0eafa border: #8060a5 text: (color: #38244d)
 style external fill: #f1f3f5 border: #78838d text: (color: #29333c)
 
 node input "Event ingestion / schema/events.py + bus drain / Session, LLM, tool and spawn events" (wrap: 39) style: data gap: wide
-node registry "SessionRegistry / board/live.py; control worker owns / Mutable states, expiry, new starts" (wrap: 39) style: data gap: wide right of input
+node registry "SessionRegistry / board/live.py; control worker owns / States, expiry, starts, __gap__ phase" (wrap: 39) style: data gap: wide right of input
 node live "LiveBoard / board/live.py / Consume starts and advance forecast" (wrap: 39) style: runtime gap: wide right of registry
 node snapshot "ForecastSnapshot / Published with prediction view + JSON / Target -> class -> horizon x draw" (wrap: 39) style: data gap: wide below input
 node aggregate "SessionForecaster / board/forecaster.py / First return + children + new arrivals" (wrap: 39) style: runtime gap: wide right of snapshot
 node predictors "Session predictor ladder / History, survival, progress, backend / Fit on training traces; draw resumptions" (wrap: 39) style: runtime gap: wide right of aggregate
-node plans "Controller planning / GDP slots; touch credit; tier; replicas / Cached once per snapshot identity" (wrap: 39) style: control gap: wide below snapshot
+node plans "Controller planning / GDP, touch, tier, prefetch, replicas / Cached once per snapshot identity" (wrap: 39) style: control gap: wide below snapshot
 node capacity "Capacity and residency inputs / board/metrics.py + service.py / Worker metrics and registry estimate" (wrap: 39) style: data gap: wide right of plans
 node series "Alternative history-only branch / SeriesForecaster + B0/B1 / Use truth only after horizon elapses" (wrap: 39) style: runtime gap: wide right of capacity
 edge input -> registry "apply" (size: small) from: right to: left
@@ -19,6 +19,6 @@ edge registry -> live "active states" (size: small) from: right to: left
 edge live -> predictors "state + time" (size: small) from: bottom to: top
 edge predictors -> aggregate "Monte Carlo draws" (size: small) from: left to: right
 edge aggregate -> snapshot "aggregate samples" (size: small) from: left to: right
-edge snapshot -> plans "demand" (size: small) from: bottom to: top
+edge snapshot -> plans "demand" (size: small) from: left to: left
 edge capacity -> plans "constraints" (size: small) from: left to: right
 edge series -> snapshot "same schema" (size: small) from: top to: bottom

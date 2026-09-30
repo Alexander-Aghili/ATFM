@@ -1,0 +1,37 @@
+default edge line: (path: square, corners: rounded)
+style runtime fill: #e8f1fa border: #37618a text: (color: #172c42)
+style control fill: #fff0df border: #af702f text: (color: #513416)
+style data fill: #eaf5ed border: #50815c text: (color: #203d28)
+style evidence fill: #f0eafa border: #8060a5 text: (color: #38244d)
+style external fill: #f1f3f5 border: #78838d text: (color: #29333c)
+style group fill: #fafbfc border: #9aa4ad text: (color: #29333c)
+style ok text: (color: #1f6b35)
+style impl text: (color: #2b5d8f)
+style pend text: (color: #a34f00)
+
+node client "Agent client / AIPerf replay in stage E / x-atfm-session header per session" (wrap: 39) style: external gap: wide
+node proxy "Proxy process / proxy/app.py: OSL from max_completion_tokens / Remembers prompt; writes LLM events / [impl]implemented, unit-tested[/impl]" (wrap: 39) style: runtime gap: wide below client
+node vllm "vLLM serving worker / LMCache MP connector (prefix cache off) / Loads L1 hits; recomputes misses" (wrap: 39) style: external gap: wide right of proxy
+
+node board "Board process / run_board.py --gap-after-done" (at: bottom-left) style: group gap: wide below proxy
+node board.registry "SessionRegistry(gap_after_done=True) / board/live.py / llm.done opens a synthetic __gap__ tool / [impl]implemented, unit-tested[/impl]" (wrap: 39) style: data
+node board.quantiles "Resumption quantiles / __gap__ model fit on held-out table / q10, q50, q90 seconds until return / [impl]implemented, unit-tested[/impl]" (wrap: 39) style: runtime
+node board.planner "PrefetchPlanner / control/prefetch.py; 'prefetch' config / lead = overhead + bytes \/ warm rate / q10|q50 trigger; skip if q90 < lead / per-turn dedup, rewarm, byte budget / [impl]implemented, unit-tested[/impl]" (wrap: 39) style: control
+
+node control "Control-loop process / run_control.py --lmcache-async" (at: bottom-left) style: group gap: wide right of board bottom level with board below vllm
+node control.actuator "LMCacheActuator / control/lmcache.py, lmcache_protocol.py / Prompt from proxy; ids from vLLM /tokenize / Async: submit, reconcile on later steps / [ok]warm mechanics validated: stage C[/ok] / [ok]async warms ran live: stage E[/ok]" (wrap: 42) style: control
+node control.step "ControlLoop.step / control/loop.py, every interval / tick; POST /directives; apply 'tier' / Logs cache_outcomes per step / [impl]implemented, unit-tested[/impl]" (wrap: 42) style: control
+
+node lmcache "LMCache MP 0.5.5 / L2 filesystem tier -> L1 CPU memory / 144 KiB KV per token (Qwen3-4B) / [ok]validated: H100 SXM, A100 (stage C)[/ok]" (wrap: 39) style: external gap: wide right of control level with control.actuator
+
+node key "Status key / [ok]green: validated on real GPUs (stage C)[/ok] / [impl]blue: implemented, unit-tested, local smoke[/impl] / [pend]orange: benefit not established[/pend] / [pend](stage E inconclusive)[/pend]" (wrap: 44, align: left) style: group below lmcache
+
+edge client -> proxy "chat request" (size: small) from: bottom to: top
+edge proxy -> vllm "forward" (size: small) from: right to: left
+edge proxy -> board.registry "LLM events (JSONL)" (size: small) from: bottom to: top
+edge board.registry -> board.quantiles "states" (size: small) from: bottom to: top
+edge board.quantiles -> board.planner "quantiles" (size: small) from: bottom to: top
+edge board.planner -> control.step from: right to: left
+edge control.step -> control.actuator "prefetch, tier=cpu" (size: small) from: top to: bottom
+edge control.actuator -> lmcache "POST /cache/prefetches / l2 -> l1, then poll" (size: small) from: right to: left
+edge vllm -> lmcache "store, load KV" (size: small) from: right to: top

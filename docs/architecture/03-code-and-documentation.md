@@ -2,7 +2,7 @@
 
 [Download the PDF edition](atfm-architecture.pdf), with landscape diagram pages and clickable source links.
 
-This guide maps the implementation at **28 September 2026**, including bounded prediction admission, isolated board computation, exact peer-rank counts and bounded upstream pool sharding. It explains where state lives, how a request becomes evidence and a control decision, and which documents describe each layer. The diagrams describe current code boundaries; the older [context](01-context.md) and [container](02-container.md) views describe broader design intent.
+This guide maps the implementation at **30 September 2026**, including bounded prediction admission, isolated board computation, exact peer-rank counts, bounded upstream pool sharding and forecast-driven LMCache warming (GPU results pending). It explains where state lives, how a request becomes evidence and a control decision, and which documents describe each layer. The diagrams describe current code boundaries; the older [context](01-context.md) and [container](02-container.md) views describe broader design intent.
 
 ATFM is a forecasting and admission layer around an LLM serving system. It observes agents during their tool phases, estimates when they will resume using the model, and uses that information to order or delay eligible work. The serving engine owns token generation and the actual KV tensors. ATFM owns observations, predictions, scheduling state, and control requests.
 
@@ -13,9 +13,10 @@ ATFM is a forecasting and admission layer around an LLM serving system. It obser
 | [Runtime topology](#1-runtime-topology) | Which processes communicate, and what crosses each boundary? | [reladraw](figures/03-runtime.reladraw) |
 | [Request lifecycle](#2-request-lifecycle-and-queue-ownership) | Where can a request wait, fail, or release resources? | [reladraw](figures/04-request.reladraw) |
 | [Forecast and control](#3-from-events-to-forecasts-and-decisions) | How do tool observations turn into scheduling decisions? | [reladraw](figures/05-forecast.reladraw) |
-| [Code composition](#4-code-composition-and-extension-points) | Which modules own which responsibilities? | [reladraw](figures/06-code.reladraw) |
-| [Evaluation](#5-evaluation-and-observability) | What do replay, simulation, and HTTP trials establish? | [reladraw](figures/07-evaluation.reladraw) |
-| [Documentation](#6-documentation-and-publication-architecture) | Where should a change or a claim be documented? | [reladraw](figures/08-documentation.reladraw) |
+| [Cache warming](#4-forecast-driven-cache-warming) | How does a forecast become a cache warm? | [reladraw](figures/10-prefetch.reladraw) |
+| [Code composition](#5-code-composition-and-extension-points) | Which modules own which responsibilities? | [reladraw](figures/06-code.reladraw) |
+| [Evaluation](#6-evaluation-and-observability) | What does each evidence path show? | [reladraw](figures/07-evaluation.reladraw) |
+| [Documentation](#7-documentation-and-publication-architecture) | Where should a change or a claim be documented? | [reladraw](figures/08-documentation.reladraw) |
 
 Open an SVG directly to zoom. Blue boxes are runtime code, orange are control responsibilities, green are data/contracts/documents, purple are evaluation/build tooling, and gray are external systems. Arrows describe the labeled interaction or dependency; they do not imply that every box is a separate process. Alternative paths and configuration-dependent behavior are called out in the text.
 
@@ -27,14 +28,14 @@ The deployed composition has three ATFM service roles: the proxy, board, and con
 
 | Boundary | Implementation | Responsibility and exchanged data |
 | --- | --- | --- |
-| Harness → proxy | [proxy/app.py](../../src/atfm/proxy/app.py), [config.py](../../src/atfm/proxy/config.py) | OpenAI-compatible chat request, session identity, class and deadline metadata. |
+| Harness → proxy | [proxy/app.py](../../src/atfm/proxy/app.py), [config.py](../../src/atfm/proxy/config.py) | OpenAI-compatible chat request, session identity, class and deadline metadata. OSL from `max_completion_tokens`, else `max_tokens`. |
 | Harness → sidecar | [sidecar/adapters.py](../../src/atfm/sidecar/adapters.py), [core.py](../../src/atfm/sidecar/core.py) | Tool execution, result preservation, progress extraction, timeout handling. Harness-specific adapters live beside these shared modules. |
 | Producers → bus | [schema/events.py](../../src/atfm/schema/events.py), [bus/](../../src/atfm/bus) | Typed session, LLM, tool and spawn observations. The launch scripts use JSONL. |
 | Proxy → serving frontend | [proxy/app.py](../../src/atfm/proxy/app.py) | Released request with `nvext.agent_hints` and session header; upstream response is streamed or returned as JSON. |
 | Proxy → board | [proxy/board_client.py](../../src/atfm/proxy/board_client.py) | Budgeted expected service and next-tool duration used in request scoring. |
 | Board → worker metrics | [board/metrics.py](../../src/atfm/board/metrics.py), [board/service.py](../../src/atfm/board/service.py) | Configured Prometheus endpoint supplies worker capacity and cache-related signals. A frontend-only metrics page may not contain these. |
 | Loop → board → proxy | [control/loop.py](../../src/atfm/control/loop.py), [directives.py](../../src/atfm/control/directives.py) | Tick, fetch decisions, validate/expire holds, send bounded batches, validate acknowledgements. |
-| Loop → optional cache actuator | [control/lmcache.py](../../src/atfm/control/lmcache.py) | MP 0.5.5 CPU warm-prefetch requests with exact token snapshots and verified completion. Pinning and GPU placement are unsupported. |
+| Loop → optional cache actuator | [control/lmcache.py](../../src/atfm/control/lmcache.py), [lmcache_protocol.py](../../src/atfm/control/lmcache_protocol.py) | MP 0.5.5 L2 → L1 (CPU) prefetch; completion checked inline or, with `--lmcache-async`, later. No pinning or GPU placement. |
 
 ### HTTP surface
 
@@ -51,7 +52,7 @@ Routes are registered by per-application `ProxyRuntime` and `BoardRuntime` insta
 | Board | `POST /tick` | Drain observations and produce the next forecast snapshot. |
 | Board | `POST /predict` | Return per-request expectations under a time budget. |
 | Board | `GET /snapshot`, `GET /state` | Published quantiles; prediction freshness and stage timings. |
-| Board | `POST /directives` | Plan once for the current snapshot, then return its cached decisions. |
+| Board | `POST /directives` | Plan once per snapshot; return cached holds, touches, tier (with prefetch) and replica. |
 | Board | `GET /healthz` | Health response. |
 
 ## 2. Request lifecycle and queue ownership
@@ -109,7 +110,7 @@ A wrapped external executor may expose output only after completion. Those obser
 
 ### State and transport
 
-[SessionRegistry](../../src/atfm/board/live.py) owns current session phase, tool state, context size, activity/expiry bookkeeping and newly observed starts. [LiveBoard](../../src/atfm/board/live.py) consumes the appropriate start interval and advances the forecaster. Neither is a durable fleet database. The design assumes an owner of mutable live state; replicating the service requires an explicit state/ownership strategy.
+[SessionRegistry](../../src/atfm/board/live.py) owns current session phase, tool state, context size, activity/expiry bookkeeping and newly observed starts. [LiveBoard](../../src/atfm/board/live.py) consumes the appropriate start interval and advances the forecaster. Neither is a durable fleet database. The design assumes an owner of mutable live state; replicating the service requires an explicit state/ownership strategy. For sessions seen only at the proxy (no sidecar tool events), `SessionRegistry(gap_after_done=True)` (`run_board.py --gap-after-done`) opens a synthetic `__gap__` tool phase at each `llm.done`, so the elapsed-conditioned `__gap__` duration model learned from AgentX traces applies; the next `llm.request` records the gap in tool history.
 
 The [JSONL reader](../../src/atfm/bus/jsonl.py) tracks file identity and byte offset. A drain reads newly appended complete records up to its observed file-size boundary. Malformed complete records are consumed and counted; incomplete trailing records wait for a later drain. Rotation and observed truncation reset the cursor. This removes repeated historical file parsing, but does not supply transactional acknowledgement or exactly-once processing.
 
@@ -162,13 +163,38 @@ The main per-session aggregation scales roughly as `O(N H M)` for `N` sessions, 
 | GDP | [gdp.py](../../src/atfm/control/gdp.py) | Place deferrable sessions into slots under empirical demand/capacity constraints, delay caps and tenant accounting. Greedy allocation is a heuristic. |
 | Touch | [touch.py](../../src/atfm/control/touch.py) | Spend bounded credit on eligible cache-preservation actions using expected return and residency/frontier estimates. |
 | Tier | [touch.py](../../src/atfm/control/touch.py) | Produce placement recommendations; logged unless an actuator is configured. |
+| Prefetch | [prefetch.py](../../src/atfm/control/prefetch.py) | Emit `TierDirective(action='prefetch', tier='cpu')` warms timed by a calibrated lead-time model; appended to the `tier` list. See [section 4](#4-forecast-driven-cache-warming). |
 | Replica floor | [replica.py](../../src/atfm/control/replica.py) | Recommend a minimum replica count; the launch path logs this, rather than running an external autoscaler. |
 
 GDP uses exact empirical order-statistic thresholds, indexed slot checks where applicable, and a per-plan cache of hold-window boundaries. These optimizations reduce repeated work without making joint feasibility universally logarithmic. See [control scaling](../development/control-scaling.md) for precise bounds, adversarial cases and measurements. Deployment's multi-slot `GdpPlanner` and the simulator's GDP-lite policy are distinct algorithms.
 
 Directive responses are cached by snapshot object identity because planning can consume credit or change planner state. Repeated polls must not spend that budget again. Delivery validates schemas and expiries, batches holds, and checks that the proxy acknowledgement accounts for every submitted entry. Fail-open counters are operational evidence; they are not a distributed transaction or a guarantee that a cache action completed.
 
-## 4. Code composition and extension points
+## 4. Forecast-driven cache warming
+
+![Forecast-driven warming: proxy LLM events feed the board's gap-aware registry, resumption quantiles and PrefetchPlanner; the control loop turns tier prefetch directives into LMCache MP L2-to-L1 warms that vLLM reads at request time. Status text: green is validated on GPUs in stage C, blue is implemented and unit-tested, orange is pending stage E.](figures/10-prefetch.svg)
+
+The stage E software ([design](../superpowers/specs/2026-09-30-stage-e-design.md)) is the first path from a forecast to a cache action. It moves a session's KV from the LMCache filesystem tier (L2) into CPU memory (L1) before the session is predicted to return, so the reload is off the request's critical path. It targets proxy-only deployments: the client sends chat requests with an `x-atfm-session` header and no sidecar tool events exist.
+
+1. **Proxy.** Forwards each request to vLLM, remembers its prompt and writes LLM request/done events to the JSONL bus.
+2. **Board.** `run_board.py --gap-after-done` turns the time after each call into a `__gap__` tool phase (section 3). The predictor is trained on a held-out table, and [resumption quantiles](../../src/atfm/board/resumption.py) give q10, q50 and q90 seconds until each session returns. [configure_controllers](../../src/atfm/board/service.py) builds a `PrefetchPlanner` from the `prefetch` section of the `--control` configuration. Its directives are appended to the `/directives` `tier` list and planned once per snapshot, like the other controllers.
+3. **PrefetchPlanner** ([prefetch.py](../../src/atfm/control/prefetch.py)). Lead time is `overhead_s` + context tokens × `bytes_per_token` / `warm_bytes_per_s`. A session that is not running and has at least `min_tokens` of context gets `TierDirective(action='prefetch', tier='cpu')` if its trigger quantile is inside lead + `interval_s` + `margin_s`. The trigger is `q10` by default or `q50`. A session whose q90 is below the lead is skipped, because the warm could not finish even before a late return. Each session turn gets one warm, or another after `rewarm_after_s`. Candidates are ordered by q10 and capped per plan. Bytes in flight stay within `budget_bytes` until the session returns or the directive expires.
+4. **Control loop** ([loop.py](../../src/atfm/control/loop.py), `run_control.py --lmcache ... --lmcache-async`). Each step it ticks the board, fetches directives and passes each `tier` directive to the actuator. It then reconciles pending warms and logs `tier_applied`, per-status `cache_*` counts and cumulative `cache_outcomes`.
+5. **Actuator** ([lmcache.py](../../src/atfm/control/lmcache.py)). Reads the prompt from the proxy's `/session/{id}/prompt` and gets token ids from vLLM `/tokenize`. It checks LMCache version 0.5.5, chunk size and health, then posts `/cache/prefetches` with `source_tier='l2'` and `target_tier='l1'` for complete chunks. Synchronous mode polls until `completion_timeout_s`. Asynchronous mode returns `submitted` and polls on later steps, because real warms take seconds. A warm is `completed` only when every expected key is found; otherwise it is `partial` or `unknown`.
+6. **vLLM** loads L1 hits through its LMCache connector at request time and recomputes misses. GPU prefix caching is disabled in these runs.
+
+The stage E [arms](../../experiments/src/atfm_experiments/gpu_cache/arms.py) calibrate with stage C values: 147,456 bytes per token (Qwen3-4B) and a 1.4 GB/s warm rate. They also set 0.2 s overhead, a 2 s interval, a 1 s margin, eight warms per plan and a budget of half the CPU tier. [build_holdout_train.py](../../scripts/build_holdout_train.py) uses `exclude_traces` to remove the replayed roots and their children from the AgentX training table, and records hashes.
+
+| Part | Implementation status | Real-GPU status |
+| --- | --- | --- |
+| PrefetchPlanner and board wiring, `__gap__` phase, held-out table, OSL field | Implemented. Unit tests: [test_prefetch.py](../../tests/control/test_prefetch.py), [test_prefetch_service.py](../../tests/board/test_prefetch_service.py), [test_gap_phase.py](../../tests/board/test_gap_phase.py), [test_agentx_holdout.py](../../tests/traces/test_agentx_holdout.py), [test_requested_osl.py](../../tests/proxy/test_requested_osl.py) | **Ran in stage E** on H100 SXM: 124 forecast-driven directives, no errors. |
+| Actuator, synchronous L2 → L1 warm | Implemented; [test_lmcache.py](../../tests/control/test_lmcache.py) | **Validated in stage C** on H100 SXM and A100 ([retrieval paths](../research/2026-09-30-retrieval-paths.md)). Contexts warmed ahead of time beat recomputation at every tested length. The directive was built by hand, not produced by a forecast. |
+| Asynchronous warms and outcome logging | Implemented; [test_loop_lmcache.py](../../tests/control/test_loop_lmcache.py) | **Ran in stage E**: submitted and reconciled live; 26 of 108 settled warms complete, 82 partial. |
+| End-to-end warming driven by forecasts | `replay --arm` with `direct`, `proxy` or `atfm`; Pod plans `stage-e-a`, `stage-e-b` | **Inconclusive** ([stage E](../research/2026-09-30-stage-e.md)): run-order drift exceeded arm effects; calls left a median 1.6 s, too little to warm ~80k tokens. No effect claimed. |
+
+The atfm arm leaves out holds, GDP, touches and GPU placement; stage E compared `q10` and `q50` (re-warm after 30 s) triggers.
+
+## 5. Code composition and extension points
 
 ![Code composition: launch scripts compose runtime modules; shared schemas connect models, traces, simulation and a separate experiments package.](figures/06-code.svg)
 
@@ -179,8 +205,8 @@ Directive responses are cached by snapshot object identity because planning can 
 | [sidecar/](../../src/atfm/sidecar) | Harness adapters, execution, gating and parsers | Supporting a harness/tool without altering tool results. |
 | [proxy/](../../src/atfm/proxy) | Request metadata, queue, HTTP lifecycle, prediction client | Changing admission or forwarding. Keep resource cleanup at the owning boundary. |
 | [board/](../../src/atfm/board) | Registry, predictors, aggregation, replay, calibration and service | Changing observed state or forecast behavior. |
-| [control/](../../src/atfm/control) | Planning, typed decisions and delivery adapters | Adding a control action; distinguish recommendation from actuation. |
-| [collect/](../../src/atfm/collect), [traces/](../../src/atfm/traces) | Trace acquisition, conversion and synthetic families | Adding a corpus or generation recipe. |
+| [control/](../../src/atfm/control) | Planning (including prefetch), typed decisions and delivery adapters | Adding a control action; distinguish recommendation from actuation. |
+| [collect/](../../src/atfm/collect), [traces/](../../src/atfm/traces) | Trace acquisition, conversion, held-out filtering and synthetic families | Adding a corpus or generation recipe. |
 | [sim/](../../src/atfm/sim) | Virtual time, worker/router model and policy hooks | Studying feedback from decisions to subsequent workload. |
 | [eval/](../../src/atfm/eval) | Forecast and serving metrics | Changing how outcomes are scored, rather than how requests execute. |
 | [dynamo/](../../src/atfm/dynamo) | Local external-serving launch support | Changing local integration setup. |
@@ -200,11 +226,11 @@ measurement contract.
 
 Functions stay within the project's 20-physical-line limit, checked by [check_function_size.py](../../scripts/check_function_size.py). Small functions should name meaningful operations and leave lifecycle ownership visible. Avoid splitting invariants across unrelated helpers merely to satisfy the line count. See the [core developer guide](../development/core.md) for ordering, RNG, parser, queue and controller contracts.
 
-## 5. Evaluation and observability
+## 6. Evaluation and observability
 
-![Evaluation paths: H1 scores held-out forecasts, H2 compares policies in a closed-loop simulator, and HTTP load trials measure runtime overhead with optional profiling and analytics.](figures/07-evaluation.svg)
+![Evaluation paths: H1 scores held-out forecasts, H2 compares policies in a closed-loop simulator, HTTP load trials measure runtime overhead with optional profiling and analytics, and real-GPU rounds measure retrieval paths (stage C) and replay arms (stage E, pending).](figures/07-evaluation.svg)
 
-There are three different evidence paths:
+There are three software-only evidence paths, and a separate real-GPU path described below:
 
 1. **H1 replay** fits on training data, advances held-out events and scores forecasts against later observations. It measures forecast quality. It does not show how a different policy would have changed the recorded trajectory.
 2. **H2 simulation** runs paired programs/seeds under alternative policy arms. [Simulator](../../src/atfm/sim/core.py) owns a heap of virtual events; [engine.py](../../src/atfm/sim/engine.py) models worker service, router affinity and cache residency. Decisions alter later request arrival times. This supports controlled policy comparisons under the model's assumptions, not GPU throughput claims.
@@ -226,6 +252,8 @@ It keeps the serving dependencies outside the core package. The
 [recorded RTX 4060 results](../research/2026-09-28-gpu-cache.md) establish this
 contract, not an end-to-end board policy or H100 performance benefit.
 
+On rented Runpod GPUs, `pod_setup.sh` prepares a Pod and `pod_round.sh <plan>` runs a seeded plan from `experiments/gpu-cache/plans/` with per-step archives and a stop watchdog. [Rounds 2](../research/2026-09-29-gpu-round2.md) and [3](../research/2026-09-30-gpu-round3.md) ran with ATFM control disabled and characterize the vLLM/LMCache baseline. [retrieval.py](../../experiments/src/atfm_experiments/gpu_cache/retrieval.py) (stage C) times cold, on-demand L2 and actuator-warmed L1 requests. [replay.py](../../experiments/src/atfm_experiments/gpu_cache/replay.py) with [arms.py](../../experiments/src/atfm_experiments/gpu_cache/arms.py) (stage E) runs the proxy, board and control loop as owned processes; the first run was [inconclusive](../research/2026-09-30-stage-e.md).
+
 ### Verification map
 
 | Contract | Evidence location |
@@ -241,7 +269,7 @@ contract, not an end-to-end board policy or H100 performance benefit.
 
 A passing functional test, an unchanged seeded output and a timing result establish different things. Preserve all relevant evidence when changing a hot path; do not infer GPU behavior from fake-worker trials.
 
-## 6. Documentation and publication architecture
+## 7. Documentation and publication architecture
 
 ![Documentation architecture: entry points lead to current implementation, operations, design records and evidence; the main manuscript and background survey have separate build paths.](figures/08-documentation.svg)
 
@@ -267,7 +295,7 @@ Changing code does not regenerate either paper, and rebuilding a PDF does not va
 
 ### Keeping the diagrams current
 
-The six `.reladraw` files in [figures/](figures) are the editable sources; their matching SVGs are checked-in rendered artifacts. Regenerate from the repository root:
+The `.reladraw` files in [figures/](figures) are the editable sources; their matching SVGs are checked-in rendered artifacts. Regenerate from the repository root:
 
 ```bash
 for source in docs/architecture/figures/*.reladraw; do

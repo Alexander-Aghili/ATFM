@@ -33,6 +33,7 @@
 {\large KV caches, vLLM, LMCache, distributed serving, and agent workloads\par}
 \vspace{1cm}
 \textbf{Research cutoff: 28 September 2026}\par
+Measured-evidence addendum: 30 September 2026 (literature cutoff unchanged).\par
 Repository baseline: \texttt{900d63b}, following the verified core refactor.\par
 \vspace{0.7cm}
 \begin{abstract}
@@ -55,7 +56,9 @@ Existing systems already address substantial parts of this problem. The paper
 therefore gives both the case for ATFM and conditions under which it adds no
 value, with a comparison and evaluation plan that can falsify the hypothesis.
 All numerical illustrations are derived examples unless explicitly identified as
-repository measurements. No new GPU serving benchmark is claimed.
+repository measurements. Section~\ref{sec:measured} summarizes ATFM's own
+baseline vLLM/LMCache GPU measurements from 29--30 September 2026; no ATFM
+policy speedup is claimed.
 \end{abstract}
 \vfill
 \noindent\small Primary-source survey and engineering synthesis. Living documentation

@@ -139,10 +139,155 @@ policy and forecast fixtures retained output hashes. This supports code
 maintenance, not a GPU goodput or model-quality claim.
 \end{itemize}
 
-The status document also states that a completed H100 performance study is not
-part of the recorded local evidence. The strongest useful present claim is that
-ATFM provides a testable forecasting/control prototype with measured CPU and
-integration behavior. Production serving advantage is still a hypothesis.
+At that baseline the status document also stated that a completed H100
+performance study was not part of the recorded local evidence. Baseline GPU
+serving measurements recorded since then are summarized in
+Section~\ref{sec:measured}; none of them measures a forecast-driven ATFM policy.
+The strongest useful present claim is that ATFM provides a testable
+forecasting/control prototype with measured CPU and integration behavior and a
+measured vLLM/LMCache baseline. Production serving advantage is still a hypothesis.
+
+\subsection{ATFM's measured serving evidence to date}
+\label{sec:measured}
+This addendum, added on 30 September 2026, summarizes four dated repository
+reports from 29--30 September. They are ATFM evidence in the sense of
+Section~\ref{sec:evidence-kinds}: measurements of this repository's pinned
+setup, not a literature result and not an analytical illustration. The
+literature cutoff of the preceding sections is unchanged.
+
+\paragraph{Setup common to the reports.}
+Public agentic traces (three complete roots from the SemiAnalysis Weka corpus:
+a 21-request short branch, a 24-request sequential session, and a 119-request
+root with four child branches) and BFCL V4 tool-call cases were replayed through
+Qwen3-4B-Instruct-2507 on vLLM 0.30.0 with LMCache 0.5.5 in multiprocess mode:
+a CPU tier (LMCache L1), a filesystem L2, 16-token chunks unless varied, and
+vLLM's own prefix cache disabled. Rented single-GPU Pods covered H100 NVL, H100
+SXM, A100 SXM and RTX PRO 6000 Blackwell. \textbf{ATFM control was disabled in
+every trace replay}; these runs characterize the ordinary serving baseline.
+Weka prompts are reconstructed from cache hashes and all source models are
+replayed through one model, so the roots are a small feasibility sample, not a
+representative workload. BFCL checks validate call shape, not tool execution or
+semantic accuracy.
+
+\begin{table}[tbp]\centering\small
+\caption{ATFM's GPU serving evidence, 29--30 September 2026. TTFT is time to
+first token; p50 is the median. Every row is a baseline or a mechanism
+measurement; none compares ATFM control with a baseline policy.}\label{tab:measured}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.15\linewidth}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{0.29\linewidth}@{}}
+\toprule Report & Measured result & Principal caveat\\\midrule
+First public replays, H100 NVL (29~Sep.) &
+Short branch 21/21 and sequential 24/24 requests completed; external hit ratio
+87.11\% and 94.00\%; TTFT p50 0.88\,s and 1.26\,s. BFCL call shape 39/40. The
+119-request root did not complete (workspace quota, then a 1,110\,s limit with
+92 records retained). &
+One session per case on a shared stack and cache; 16-token chunks and eager
+execution are compatibility settings, not a tuned baseline.\\
+\addlinespace[3pt]
+Round~2, H100 SXM and A100 SXM (29~Sep.) &
+The 119-request root completed for the first time. Raising the CPU tier from
+24 to 48\,GiB removed all 15 L1 allocation warnings, lowered TTFT p50 from 5.60
+to 1.78\,s and elapsed time from 1,159 to 930\,s. Three A100 repeats agreed
+within about 4\%. &
+One run per capacity, fixed order; maximum TTFT rose and p95 latency did not
+improve, so the tail was not settled.\\
+\addlinespace[3pt]
+Round~3, H100 SXM, A100 SXM, RTX PRO 6000 (30~Sep.) &
+On one H100 SXM Pod, in the order 48, 24, 24, 48\,GiB, the 48\,GiB tier halved
+the 119-request root's duration (588--591 versus 1,126--1,159\,s) and cut TTFT
+p50 about 5.7$\times$ (2.00--2.02 versus 10.93--12.06\,s). The A100 moved in
+the same direction. Chunks of 64 or 256 tokens lowered sequential-root TTFT p50
+by about 17\% (A100) and 9\% (Blackwell). The locked environment served on
+Blackwell unchanged. &
+The round-2 H100 SXM took 930\,s at 48\,GiB with identical hit ratios: hosts
+with the same GPU differ by more than the cache effect, so comparisons must be
+paired within a Pod.\\
+\addlinespace[3pt]
+Stage~C retrieval paths, H100 SXM and A100 SXM (30~Sep.) &
+All 72 single-request trials showed the expected reuse. A context warmed into
+L1 ahead of time beat recomputation by 2.5--12.6$\times$ (H100) and
+1.8--21.6$\times$ (A100) from 2,048 to 98,304 tokens. On-demand L2 load was
+slower than recomputing on the H100 at every length but 32k and won on the A100
+only from 32k up. &
+One Pod per GPU, three blocks per cell; OS page cache not dropped; GPU-resident
+reuse not measured; isolated requests show no contention.\\\bottomrule
+\end{tabularx}\end{table}
+
+\paragraph{Capacity: a high hit ratio is not residency.}
+The measured LMCache layout is 147,456 bytes (144\,KiB) per cached token, the
+per-token quantity $m_{\mathrm{token}}$ of Equation~\ref{eq:kvbytes}. A
+100,000-token context therefore occupies about 13.73\,GiB, and two such contexts
+about 27.47\,GiB, which exceeds a 24\,GiB CPU tier whose LRU eviction watermark
+is 80\%. The counters show the mechanism: at 24\,GiB allocation fails, the
+external hit ratio falls by about six points (95.9\% to 89.4--89.6\% on the
+round-3 H100), and missed prefixes are recomputed. This is the
+location-dependent hit of Section~\ref{sec:hierarchy} in measured form: a high
+aggregate hit rate does not imply that overlapping long contexts all remain
+resident, and tier capacity dominated the baseline's TTFT for this root.
+
+\paragraph{Restore versus recompute on real hardware.}
+The stage~C measurement is the empirical counterpart of
+Equation~\ref{eq:break-even} and the analytical Figure~\ref{fig:transfer}.
+Figure~\ref{fig:retrieval} shows that loading from the filesystem tier on the
+request path cost about the same wall time on both GPUs, whereas cold prefill
+scaled with length and GPU (8.67\,s at 98,304 tokens on the H100 against
+24.77\,s on the A100). vLLM's histograms place the cost of reuse in queue time,
+not prefill: with external hits prefill took 0.04--0.06\,s at every length,
+while queue time grew with the bytes to load (10.2--10.5\,s at 98k from L2).
+In the terms of Equation~\ref{eq:restore}, the waiting and transfer terms
+dominate. Prefill speed and host transfer speed differ by about 3$\times$
+between these Pods, so the break-even is hardware-dependent; a controller should
+calibrate both on its own hardware rather than use a fixed threshold.
+
+\fig{retrieval-measured}{0.95}{\textbf{Measured} (not illustrative): medians of
+three seeded blocks of client time for one request with one output token,
+48\,GiB CPU tier, 16-token chunks, one Pod per GPU. ``L1 warmed ahead'' excludes
+the preceding L2-to-L1 warm, whose duration is plotted separately as the lead
+time it requires. Data from the dated stage~C retrieval-path report, recorded in
+\texttt{measured-evidence.json}.}{retrieval}
+
+\paragraph{Prefetch works only with lead time.}
+Warming ahead of a predicted return was the only reuse path that won at every
+length on both machines. The warm was issued as an ATFM \texttt{TierDirective}
+prefetch from L2 into L1 before the request; afterwards L1 held exactly
+144\,KiB per token and every prompt token but the last was served externally.
+For this pinned stack and isolated requests, that observes both completed
+movement and subsequent reuse, which Section~\ref{sec:hierarchy} identifies as
+the evidence a placement claim requires. At 98k tokens the warm needs roughly
+8.5--10\,s of lead time. This is the lead time $\ell$ in the fixed-lead-time
+prefetch model of Section~\ref{sec:agents}: on the H100 the 98k warm (9.77\,s)
+exceeds cold prefill (8.67\,s), so a warm started too late is worse than doing
+nothing. Reuse therefore pays only when the transfer is moved off the request's
+critical path. Because the warm preceded a known request, stage~C measures the
+best case of the mechanism, not forecast accuracy, timing errors, or
+contention between warming and serving.
+
+\paragraph{Chunk size and variance.}
+The LMCache chunk size is a transfer granularity, distinct from the engine's
+chunked prefill (Section~\ref{sec:engines}). Hit ratios were 93.9--94.0\% at
+every size, so the lower TTFT with 64- or 256-token chunks is not more reuse;
+fewer, larger transfers are a plausible cause that the runs do not isolate.
+The effect on full latency was smaller (3--7\%) because decode dominates it.
+Host-to-host variance is the more consequential finding for evaluation: the
+same GPU model in another data center differed by more than the capacity effect
+under study, and the manifests do not yet record host CPU or PCIe details that
+could explain it. This is measured support for the paired, within-host design
+of Stage~5 below.
+
+\paragraph{Status of the ATFM policy.}
+ATFM's forecast-driven policy (stage~E: forecast-driven LMCache warming ahead of
+predicted returns, compared across direct, proxy and ATFM replay arms) ran end to end on
+H100 GPUs on 30 September: 124 forecast-driven warms were issued without errors,
+but the comparison was inconclusive because run-order drift within each host
+exceeded any arm effect and the replayed agent left a median 1.6\,s between calls,
+too little to warm its $\approx$80k-token contexts
+(\path{docs/research/2026-09-30-stage-e.md}). \textbf{No policy speedup is
+established yet.} The results above show that the substrate ATFM would act on is
+real and hardware-dependent: CPU-tier capacity mattered for this workload, and
+early warming beats both recomputation and on-demand loading when lead time is
+available. Whether session forecasts supply that lead time often and accurately
+enough, at acceptable cost in wasted warms and displaced cache, is exactly the
+question a repeated stage~E, with bracketed orders and workloads that leave
+multi-second tool phases, and the evaluation below must answer.
 
 \subsection{Known control costs and the Python/Rust decision}
 The repository has already removed repeated full-history JSONL scans, batched

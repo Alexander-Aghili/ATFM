@@ -10,10 +10,10 @@ node proxy "Proxy process / proxy/app.py: ProxyRuntime / Admission, hints, respo
 node engine "External serving pool / Dynamo frontend and model workers / Actual token generation and KV cache" (wrap: 39) style: external gap: wide right of proxy
 node sidecar "In-process sidecar / sidecar/core.py and adapters.py / Tool start, progress, data, end" (wrap: 39) style: runtime gap: wide below agent
 node bus "Event transport / bus/jsonl.py in shipped launchers / Redis library or memory alternatives" (wrap: 39) style: data gap: wide right of sidecar
-node board "Board process / board/service.py: BoardRuntime / Registry, forecasts, controller planning" (wrap: 39) style: runtime gap: wide right of bus
-node gate "Proxy control endpoints / /directives/batch, /gate, /touch / Hold delivery and launch checks" (wrap: 39) style: control gap: wide below sidecar
+node board "Board process / board/service.py: BoardRuntime / Registry, forecasts, holds + prefetch" (wrap: 39) style: runtime gap: wide right of bus
+node gate "Proxy control endpoints / /directives/batch, /gate, /touch / /session/{id}/prompt for warm tokens" (wrap: 39) style: control gap: wide below sidecar
 node loop "Control-loop process / control/loop.py: ControlLoop / Tick, fetch, validate, batch, apply" (wrap: 39) style: control gap: wide right of gate
-node actuator "Optional LMCache endpoint / control/lmcache.py adapter / MP 0.5.5 CPU warm prefetch; poll completion" (wrap: 39) style: external gap: wide right of loop
+node actuator "Optional LMCache MP 0.5.5 / control/lmcache.py actuator / L2 -> L1 (CPU) warm; sync or async poll" (wrap: 39) style: external gap: wide right of loop
 edge agent -> proxy "chat request" (size: small) from: right to: left
 edge proxy -> engine "HTTP + hints" (size: small) from: right to: left
 edge agent -> sidecar "execute tool" (size: small) from: bottom to: top
@@ -22,5 +22,5 @@ edge proxy -> bus "LLM events" (size: small) from: bottom to: top
 edge bus -> board "drain on tick" (size: small) from: right to: left
 edge engine -> board "worker metrics" (size: small) from: bottom to: top
 edge loop -> board "tick + directives" (size: small) from: top to: bottom
-edge loop -> gate "holds via proxy" (size: small) from: left to: right
-edge loop -> actuator "optional actuation" (size: small) from: right to: left
+edge loop -> gate "holds; prompt fetch" (size: small) from: left to: right
+edge loop -> actuator "prefetch tier directives" (size: small) from: right to: left

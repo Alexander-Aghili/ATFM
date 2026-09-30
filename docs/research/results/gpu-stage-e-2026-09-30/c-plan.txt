@@ -1,0 +1,5 @@
+# Stage E: direct vs proxy-only vs ATFM warming (q10, q50+rewarm), 24 GiB CPU tier, random.Random(20261001)
+direct-1 replay --case multi-branch --l1-gb 24 --case-timeout 2400 --total-timeout 2460 --arm direct
+atfm-q10-2 replay --case multi-branch --l1-gb 24 --case-timeout 2400 --total-timeout 2460 --arm atfm --train runs/train-holdout.parquet --warm-gbps 1.4 --prefetch-trigger q10
+atfm-q50-3 replay --case multi-branch --l1-gb 24 --case-timeout 2400 --total-timeout 2460 --arm atfm --train runs/train-holdout.parquet --warm-gbps 1.4 --prefetch-trigger q50 --rewarm-after 30
+proxy-4 replay --case multi-branch --l1-gb 24 --case-timeout 2400 --total-timeout 2460 --arm proxy

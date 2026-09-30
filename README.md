@@ -64,7 +64,7 @@ Explore all six diagrams, API routes, state ownership, and complexity notes in t
 | [Architecture](docs/architecture/03-code-and-documentation.md) | Code, runtime flows, testing, and documentation map | [Download](docs/architecture/atfm-architecture.pdf) |
 | [ATFM research paper](docs/paper/README.md) | Hypotheses, algorithms, evaluation, and limitations | [Download](docs/paper/atfm-paper.pdf) |
 | [LLM serving background](docs/paper/background/README.md) | KV caches, vLLM, LMCache, related systems, and motivation | [Download](docs/paper/background/llm-serving-background.pdf) |
-| [GPU results and caching tradeoffs](docs/research/gpu-results-report/README.md) | Measured runs, capacity constraints, nine figures, and next experiments | [Download](docs/research/gpu-results-report/atfm-gpu-results-2026-09-29.pdf) |
+| [GPU results and caching tradeoffs](docs/research/gpu-results-report/README.md) | All GPU rounds through stage E, capacity, retrieval paths, fourteen figures | [Download](docs/research/gpu-results-report/atfm-gpu-results-2026-09-30.pdf) |
 | [Operations](docs/operations.md) | Start and configure the proxy, board, and control loop | — |
 | [Core development](docs/development/core.md) | Module contracts and safe extension points | — |
 | [Performance](docs/development/performance.md) | Scaling, bottlenecks, and the Python/Rust decision | — |

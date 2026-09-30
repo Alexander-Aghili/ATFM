@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1557" height="1091" viewBox="0 0 1557 1091" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
+  <defs>
+    <marker id="r0bf486ee-arrow-5c5c7c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#5c5c7c"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1557" height="1091" fill="#111111"/>
+  <path d="M87 40 H377 a8 8 0 0 1 8 8 V117 a8 8 0 0 1 -8 8 H87 a8 8 0 0 1 -8 -8 V48 a8 8 0 0 1 8 -8 Z" fill="#f1f3f5" stroke="#78838d"/>
+  <text x="232" y="68.4" fill="#29333c" text-anchor="middle">Agent client</text>
+  <text x="232" y="87.4" fill="#29333c" text-anchor="middle">AIPerf replay in stage E</text>
+  <text x="232" y="106.4" fill="#29333c" text-anchor="middle">x-atfm-session header per session</text>
+  <path d="M79 235 H385 a8 8 0 0 1 8 8 V350 a8 8 0 0 1 -8 8 H79 a8 8 0 0 1 -8 -8 V243 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
+  <text x="232" y="263.4" fill="#172c42" text-anchor="middle">Proxy process</text>
+  <text x="232" y="282.4" fill="#172c42" text-anchor="middle">proxy/app.py: OSL from</text>
+  <text x="232" y="301.4" fill="#172c42" text-anchor="middle">max_completion_tokens</text>
+  <text x="232" y="320.4" fill="#172c42" text-anchor="middle">Remembers prompt; writes LLM events</text>
+  <text x="232" y="339.4" fill="#2b5d8f" text-anchor="middle">implemented, unit-tested</text>
+  <path d="M524.4 254 H864.4 a8 8 0 0 1 8 8 V331 a8 8 0 0 1 -8 8 H524.4 a8 8 0 0 1 -8 -8 V262 a8 8 0 0 1 8 -8 Z" fill="#f1f3f5" stroke="#78838d"/>
+  <text x="694.4" y="282.4" fill="#29333c" text-anchor="middle">vLLM serving worker</text>
+  <text x="694.4" y="301.4" fill="#29333c" text-anchor="middle">LMCache MP connector (prefix cache off)</text>
+  <text x="694.4" y="320.4" fill="#29333c" text-anchor="middle">Loads L1 hits; recomputes misses</text>
+  <path d="M48 468 H416 a8 8 0 0 1 8 8 V1042.8 a8 8 0 0 1 -8 8 H48 a8 8 0 0 1 -8 -8 V476 a8 8 0 0 1 8 -8 Z" fill="#fafbfc" stroke="#9aa4ad"/>
+  <text x="54" y="1013.2" fill="#29333c" text-anchor="start">Board process</text>
+  <text x="54" y="1032.2" fill="#29333c" text-anchor="start">run_board.py --gap-after-done</text>
+  <path d="M62 482 H402 a8 8 0 0 1 8 8 V578 a8 8 0 0 1 -8 8 H62 a8 8 0 0 1 -8 -8 V490 a8 8 0 0 1 8 -8 Z" fill="#eaf5ed" stroke="#50815c"/>
+  <text x="232" y="510.4" fill="#203d28" text-anchor="middle">SessionRegistry(gap_after_done=True)</text>
+  <text x="232" y="529.4" fill="#203d28" text-anchor="middle">board/live.py</text>
+  <text x="232" y="548.4" fill="#203d28" text-anchor="middle">llm.done opens a synthetic __gap__ tool</text>
+  <text x="232" y="567.4" fill="#2b5d8f" text-anchor="middle">implemented, unit-tested</text>
+  <path d="M62 664.4 H368 a8 8 0 0 1 8 8 V760.4 a8 8 0 0 1 -8 8 H62 a8 8 0 0 1 -8 -8 V672.4 a8 8 0 0 1 8 -8 Z" fill="#e8f1fa" stroke="#37618a"/>
+  <text x="215" y="692.8" fill="#172c42" text-anchor="middle">Resumption quantiles</text>
+  <text x="215" y="711.8" fill="#172c42" text-anchor="middle">__gap__ model fit on held-out table</text>
+  <text x="215" y="730.8" fill="#172c42" text-anchor="middle">q10, q50, q90 seconds until return</text>
+  <text x="215" y="749.8" fill="#2b5d8f" text-anchor="middle">implemented, unit-tested</text>
+  <path d="M62 846.8 H394 a8 8 0 0 1 8 8 V980.8 a8 8 0 0 1 -8 8 H62 a8 8 0 0 1 -8 -8 V854.8 a8 8 0 0 1 8 -8 Z" fill="#fff0df" stroke="#af702f"/>
+  <text x="228" y="875.2" fill="#513416" text-anchor="middle">PrefetchPlanner</text>
+  <text x="228" y="894.2" fill="#513416" text-anchor="middle">control/prefetch.py; 'prefetch' config</text>
+  <text x="228" y="913.2" fill="#513416" text-anchor="middle">lead = overhead + bytes / warm rate</text>
+  <text x="228" y="932.2" fill="#513416" text-anchor="middle">q10|q50 trigger; skip if q90 &lt; lead</text>
+  <text x="228" y="951.2" fill="#513416" text-anchor="middle">per-turn dedup, rewarm, byte budget</text>
+  <text x="228" y="970.2" fill="#2b5d8f" text-anchor="middle">implemented, unit-tested</text>
+  <path d="M542 631.4 H935 a8 8 0 0 1 8 8 V1042.8 a8 8 0 0 1 -8 8 H542 a8 8 0 0 1 -8 -8 V639.4 a8 8 0 0 1 8 -8 Z" fill="#fafbfc" stroke="#9aa4ad"/>
+  <text x="548" y="1013.2" fill="#29333c" text-anchor="start">Control-loop process</text>
+  <text x="548" y="1032.2" fill="#29333c" text-anchor="start">run_control.py --lmcache-async</text>
+  <path d="M556 645.4 H921 a8 8 0 0 1 8 8 V779.4 a8 8 0 0 1 -8 8 H556 a8 8 0 0 1 -8 -8 V653.4 a8 8 0 0 1 8 -8 Z" fill="#fff0df" stroke="#af702f"/>
+  <text x="738.5" y="673.8" fill="#513416" text-anchor="middle">LMCacheActuator</text>
+  <text x="738.5" y="692.8" fill="#513416" text-anchor="middle">control/lmcache.py, lmcache_protocol.py</text>
+  <text x="738.5" y="711.8" fill="#513416" text-anchor="middle">Prompt from proxy; ids from vLLM /tokenize</text>
+  <text x="738.5" y="730.8" fill="#513416" text-anchor="middle">Async: submit, reconcile on later steps</text>
+  <text x="738.5" y="749.8" fill="#1f6b35" text-anchor="middle">warm mechanics validated: stage C</text>
+  <text x="738.5" y="768.8" fill="#a34f00" text-anchor="middle">async warms in live replay: pending</text>
+  <path d="M556 865.8 H871 a8 8 0 0 1 8 8 V980.8 a8 8 0 0 1 -8 8 H556 a8 8 0 0 1 -8 -8 V873.8 a8 8 0 0 1 8 -8 Z" fill="#fff0df" stroke="#af702f"/>
+  <text x="713.5" y="894.2" fill="#513416" text-anchor="middle">ControlLoop.step</text>
+  <text x="713.5" y="913.2" fill="#513416" text-anchor="middle">control/loop.py, every interval</text>
+  <text x="713.5" y="932.2" fill="#513416" text-anchor="middle">tick; POST /directives; apply 'tier'</text>
+  <text x="713.5" y="951.2" fill="#513416" text-anchor="middle">Logs cache_outcomes per step</text>
+  <text x="713.5" y="970.2" fill="#2b5d8f" text-anchor="middle">implemented, unit-tested</text>
+  <path d="M1168.4 664.4 H1474.4 a8 8 0 0 1 8 8 V760.4 a8 8 0 0 1 -8 8 H1168.4 a8 8 0 0 1 -8 -8 V672.4 a8 8 0 0 1 8 -8 Z" fill="#f1f3f5" stroke="#78838d"/>
+  <text x="1321.4" y="692.8" fill="#29333c" text-anchor="middle">LMCache MP 0.5.5</text>
+  <text x="1321.4" y="711.8" fill="#29333c" text-anchor="middle">L2 filesystem tier -&gt; L1 CPU memory</text>
+  <text x="1321.4" y="730.8" fill="#29333c" text-anchor="middle">144 KiB KV per token (Qwen3-4B)</text>
+  <text x="1321.4" y="749.8" fill="#1f6b35" text-anchor="middle">validated: H100 SXM, A100 (stage C)</text>
+  <path d="M1134.4 878.4 H1508.4 a8 8 0 0 1 8 8 V993.4 a8 8 0 0 1 -8 8 H1134.4 a8 8 0 0 1 -8 -8 V886.4 a8 8 0 0 1 8 -8 Z" fill="#fafbfc" stroke="#9aa4ad"/>
+  <text x="1140.4" y="906.8" fill="#29333c" text-anchor="start">Status key</text>
+  <text x="1140.4" y="925.8" fill="#1f6b35" text-anchor="start">green: validated on real GPUs (stage C)</text>
+  <text x="1140.4" y="944.8" fill="#2b5d8f" text-anchor="start">blue: implemented, unit-tested, local smoke</text>
+  <text x="1140.4" y="963.8" fill="#a34f00" text-anchor="start">pending: stage E GPU replay of the</text>
+  <text x="1140.4" y="982.8" fill="#a34f00" text-anchor="start">full loop (direct | proxy | atfm arms)</text>
+  <path d="M 232 125 L 232 235" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r0bf486ee-arrow-5c5c7c)"/>
+  <rect x="183.5" y="172" width="97" height="16" fill="#111111"/>
+  <g font-size="12px">
+  <text x="232" y="184.2" fill="#d9d9d9" text-anchor="middle">chat request</text>
+  </g>
+  <path d="M 393 296.5 L 516.4 296.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r0bf486ee-arrow-5c5c7c)"/>
+  <rect x="424.2" y="288.5" width="61" height="16" fill="#111111"/>
+  <g font-size="12px">
+  <text x="454.7" y="300.7" fill="#d9d9d9" text-anchor="middle">forward</text>
+  </g>
+  <path d="M 232 358 L 232 482" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r0bf486ee-arrow-5c5c7c)"/>
+  <rect x="162" y="412" width="140" height="16" fill="#111111"/>
+  <g font-size="12px">
+  <text x="232" y="424.2" fill="#d9d9d9" text-anchor="middle">LLM events (JSONL)</text>
+  </g>
+  <path d="M 232 586 L 232 616.7 C 232 621.39, 228.19 625.2, 223.5 625.2 L 223.5 625.2 C 218.81 625.2, 215 629.01, 215 633.7 L 215 664.4" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r0bf486ee-arrow-5c5c7c)"/>
+  <rect x="205" y="597.6" width="54" height="16" fill="#111111"/>
+  <g font-size="12px">
+  <text x="232" y="609.8" fill="#d9d9d9" text-anchor="middle">states</text>
+  </g>
+  <path d="M 215 768.4 L 215 801.1 C 215 804.69, 217.91 807.6, 221.5 807.6 L 221.5 807.6 C 225.09 807.6, 228 810.51, 228 814.1 L 228 846.8" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r0bf486ee-arrow-5c5c7c)"/>
+  <rect x="177.5" y="780" width="75" height="16" fill="#111111"/>
+  <g font-size="12px">
+  <text x="215" y="792.2" fill="#d9d9d9" text-anchor="middle">quantiles</text>
+  </g>
+  <path d="M 402 917.8 L 470.25 917.8 C 472.87 917.8, 475 919.93, 475 922.55 L 475 922.55 C 475 925.17, 477.13 927.3, 479.75 927.3 L 548 927.3" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r0bf486ee-arrow-5c5c7c)"/>
+  <path d="M 713.5 865.8 L 713.5 839.1 C 713.5 832.2, 719.1 826.6, 726 826.6 L 726 826.6 C 732.9 826.6, 738.5 821, 738.5 814.1 L 738.5 787.4" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r0bf486ee-arrow-5c5c7c)"/>
+  <rect x="643.5" y="838.2" width="140" height="16" fill="#111111"/>
+  <g font-size="12px">
+  <text x="713.5" y="850.4" fill="#d9d9d9" text-anchor="middle">prefetch, tier=cpu</text>
+  </g>
+  <path d="M 929 716.4 L 1160.4 716.4" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r0bf486ee-arrow-5c5c7c)"/>
+  <rect x="960.2" y="700.4" width="169" height="32" fill="#111111"/>
+  <g font-size="12px">
+  <text x="1044.7" y="712.6" fill="#d9d9d9" text-anchor="middle">POST /cache/prefetches</text>
+  <text x="1044.7" y="728.6" fill="#d9d9d9" text-anchor="middle">l2 -&gt; l1, then poll</text>
+  </g>
+  <path d="M 872.4 296.5 L 1301.4 296.5 C 1312.45 296.5, 1321.4 305.45, 1321.4 316.5 L 1321.4 664.4" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r0bf486ee-arrow-5c5c7c)"/>
+  <rect x="1041.4" y="288.5" width="111" height="16" fill="#111111"/>
+  <g font-size="12px">
+  <text x="1096.9" y="300.7" fill="#d9d9d9" text-anchor="middle">store, load KV</text>
+  </g>
+</svg>

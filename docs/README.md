@@ -1,6 +1,6 @@
 # Documentation
 
-[GPU results and caching tradeoffs (PDF)](research/gpu-results-report/atfm-gpu-results-2026-09-29.pdf): detailed measurements, nine figures, capacity analysis, and next experiments.
+[GPU results and caching tradeoffs (PDF)](research/gpu-results-report/atfm-gpu-results-2026-09-30.pdf): all GPU rounds through stage E, fourteen figures, capacity, retrieval-path and warming analysis.
 
 ## Start here
 
@@ -31,6 +31,7 @@ contracts, use the developer guide and the source code together.
 
 ## Evaluation and evidence
 
+- [Stage E: forecast-driven warming](research/2026-09-30-stage-e.md): the full ATFM warming path on H100s; inconclusive because run-order drift exceeded arm effects and calls left under 2 s to warm.
 - [Retrieval paths (stage C)](research/2026-09-30-retrieval-paths.md): warmed L1 beats recompute at every length (up to 21.6x); on-demand L2 loads help only on the slower GPU.
 - [GPU round 3](research/2026-09-30-gpu-round3.md): randomized CPU-tier and chunk-size repeats on H100 SXM and A100, plus RTX PRO 6000 Blackwell.
 - [GPU round 2](research/2026-09-29-gpu-round2.md): first complete 119-request root, CPU-tier capacity pair, A100 repeats and chunk size.

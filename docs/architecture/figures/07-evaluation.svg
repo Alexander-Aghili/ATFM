@@ -1,17 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1471" height="598" viewBox="0 0 1471 598" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
+<svg xmlns="http://www.w3.org/2000/svg" width="1471" height="760" viewBox="0 0 1471 760" font-family="'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace" font-size="14px">
   <defs>
-    <marker id="r24f47a8a-arrow-5c5c7c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="rb0acc852-arrow-5c5c7c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#5c5c7c"/>
     </marker>
-    <marker id="r24f47a8a-arrow-5c5c7c-back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#5c5c7c"/>
-    </marker>
-    <mask id="r24f47a8a-cut-1" maskUnits="userSpaceOnUse" x="0" y="0" width="1471" height="598">
-      <rect x="0" y="0" width="1471" height="598" fill="white"/>
-      <circle cx="658.5" cy="213.3" r="6.2" fill="black"/>
-    </mask>
   </defs>
-  <rect x="0" y="0" width="1471" height="598" fill="#111111"/>
+  <rect x="0" y="0" width="1471" height="760" fill="#111111"/>
   <path d="M48 49.5 H388 a8 8 0 0 1 8 8 V126.5 a8 8 0 0 1 -8 8 H48 a8 8 0 0 1 -8 -8 V57.5 a8 8 0 0 1 8 -8 Z" fill="#eaf5ed" stroke="#50815c"/>
   <text x="218" y="77.9" fill="#203d28" text-anchor="middle">Trace and program inputs</text>
   <text x="218" y="96.9" fill="#203d28" text-anchor="middle">traces adapters or synthetic families</text>
@@ -49,39 +42,61 @@
   <text x="1083.9" y="467.9" fill="#29333c" text-anchor="middle">Optional agent analytics</text>
   <text x="1083.9" y="486.9" fill="#29333c" text-anchor="middle">tool_traces.py + phoenix_smoke.py</text>
   <text x="1083.9" y="505.9" fill="#29333c" text-anchor="middle">Offline event export to OpenInference</text>
-  <path d="M 396 92 L 569.4 92" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r24f47a8a-arrow-5c5c7c)"/>
+  <path d="M65 634.5 H371 a8 8 0 0 1 8 8 V711.5 a8 8 0 0 1 -8 8 H65 a8 8 0 0 1 -8 -8 V642.5 a8 8 0 0 1 8 -8 Z" fill="#f0eafa" stroke="#8060a5"/>
+  <text x="218" y="662.9" fill="#38244d" text-anchor="middle">Stage C retrieval paths</text>
+  <text x="218" y="681.9" fill="#38244d" text-anchor="middle">gpu_cache/retrieval.py on real vLLM</text>
+  <text x="218" y="700.9" fill="#38244d" text-anchor="middle">cold vs L2 load vs ATFM-warmed L1</text>
+  <path d="M596.4 634.5 H928.4 a8 8 0 0 1 8 8 V711.5 a8 8 0 0 1 -8 8 H596.4 a8 8 0 0 1 -8 -8 V642.5 a8 8 0 0 1 8 -8 Z" fill="#f0eafa" stroke="#8060a5"/>
+  <text x="762.4" y="662.9" fill="#38244d" text-anchor="middle">Stage E replay arms</text>
+  <text x="762.4" y="681.9" fill="#38244d" text-anchor="middle">gpu_cache/replay.py + arms.py</text>
+  <text x="762.4" y="700.9" fill="#38244d" text-anchor="middle">direct | proxy | atfm; results pending</text>
+  <path d="M1117.8 634.5 H1407.8 a8 8 0 0 1 8 8 V711.5 a8 8 0 0 1 -8 8 H1117.8 a8 8 0 0 1 -8 -8 V642.5 a8 8 0 0 1 8 -8 Z" fill="#f1f3f5" stroke="#78838d"/>
+  <text x="1262.8" y="662.9" fill="#29333c" text-anchor="middle">Runpod round tooling</text>
+  <text x="1262.8" y="681.9" fill="#29333c" text-anchor="middle">pod_setup.sh, pod_round.sh</text>
+  <text x="1262.8" y="700.9" fill="#29333c" text-anchor="middle">Seeded plans/*.txt; stop watchdog</text>
+  <path d="M 396 92 L 569.4 92" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rb0acc852-arrow-5c5c7c)"/>
   <rect x="427.2" y="84" width="111" height="16" fill="#111111"/>
   <g font-size="12px">
   <text x="482.7" y="96.2" fill="#d9d9d9" text-anchor="middle">held-out trace</text>
   </g>
-  <path d="M 866.4 92 L 1082.8 92" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r24f47a8a-arrow-5c5c7c)"/>
+  <path d="M 866.4 92 L 1082.8 92" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rb0acc852-arrow-5c5c7c)"/>
   <rect x="897.6" y="84" width="154" height="16" fill="#111111"/>
   <g font-size="12px">
   <text x="974.6" y="96.2" fill="#d9d9d9" text-anchor="middle">predictions vs truth</text>
   </g>
-  <path d="M 218 134.5 L 218 169.5 C 218 180.55, 226.95 189.5, 238 189.5 L 638.5 189.5 C 649.55 189.5, 658.5 198.45, 658.5 209.5 L 658.5 244.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r24f47a8a-arrow-5c5c7c)"/>
+  <path d="M 218 134.5 L 218 169.5 C 218 180.55, 226.95 189.5, 238 189.5 L 638.5 189.5 C 649.55 189.5, 658.5 198.45, 658.5 209.5 L 658.5 244.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rb0acc852-arrow-5c5c7c)"/>
   <rect x="379.25" y="181.5" width="118" height="16" fill="#111111"/>
   <g font-size="12px">
   <text x="438.25" y="193.7" fill="#d9d9d9" text-anchor="middle">paired programs</text>
   </g>
-  <path d="M 819.5 287 L 971.9 287" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r24f47a8a-arrow-5c5c7c)"/>
+  <path d="M 819.5 287 L 971.9 287" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rb0acc852-arrow-5c5c7c)"/>
   <rect x="850.7" y="279" width="90" height="16" fill="#111111"/>
   <g font-size="12px">
   <text x="895.7" y="291.2" fill="#d9d9d9" text-anchor="middle">policy arms</text>
   </g>
-  <path d="M 1137.4 244.5 L 1137.4 233.3 C 1137.4 222.25, 1128.45 213.3, 1117.4 213.3 L 440 213.3 C 428.95 213.3, 420 222.25, 420 233.3 L 420 340.7 C 420 351.75, 411.05 360.7, 400 360.7 L 238 360.7 C 226.95 360.7, 218 351.75, 218 340.7 L 218 329.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r24f47a8a-arrow-5c5c7c)" mask="url(#r24f47a8a-cut-1)"/>
-  <rect x="744.7" y="205.3" width="68" height="16" fill="#111111"/>
+  <path d="M 1137.4 329.5 L 1137.4 340.7 C 1137.4 351.75, 1128.45 360.7, 1117.4 360.7 L 238 360.7 C 226.95 360.7, 218 351.75, 218 340.7 L 218 329.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rb0acc852-arrow-5c5c7c)"/>
+  <rect x="643.7" y="352.7" width="68" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="778.7" y="217.5" fill="#d9d9d9" text-anchor="middle">outcomes</text>
+  <text x="677.7" y="364.9" fill="#d9d9d9" text-anchor="middle">outcomes</text>
   </g>
-  <path d="M 375 482 L 498.4 482" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r24f47a8a-arrow-5c5c7c)"/>
+  <path d="M 375 482 L 498.4 482" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rb0acc852-arrow-5c5c7c)"/>
   <rect x="406.2" y="474" width="61" height="16" fill="#111111"/>
   <g font-size="12px">
   <text x="436.7" y="486.2" fill="#d9d9d9" text-anchor="middle">measure</text>
   </g>
-  <path d="M 218 524.5 L 218 535.7 C 218 542.77, 223.73 548.5, 230.8 548.5 L 1071.1 548.5 C 1078.17 548.5, 1083.9 542.77, 1083.9 535.7 L 1083.9 524.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#r24f47a8a-arrow-5c5c7c)"/>
-  <rect x="573.95" y="540.5" width="154" height="16" fill="#111111"/>
+  <path d="M 218 524.5 L 218 535.7 C 218 546.75, 226.95 555.7, 238 555.7 L 1063.9 555.7 C 1074.95 555.7, 1083.9 546.75, 1083.9 535.7 L 1083.9 524.5" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rb0acc852-arrow-5c5c7c)"/>
+  <rect x="573.95" y="547.7" width="154" height="16" fill="#111111"/>
   <g font-size="12px">
-  <text x="650.95" y="552.7" fill="#d9d9d9" text-anchor="middle">completed event logs</text>
+  <text x="650.95" y="559.9" fill="#d9d9d9" text-anchor="middle">completed event logs</text>
+  </g>
+  <path d="M 379 677 L 588.4 677" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rb0acc852-arrow-5c5c7c)"/>
+  <rect x="410.2" y="669" width="147" height="16" fill="#111111"/>
+  <g font-size="12px">
+  <text x="483.7" y="681.2" fill="#d9d9d9" text-anchor="middle">calibrate warm lead</text>
+  </g>
+  <path d="M 1109.8 677 L 936.4 677" fill="none" stroke="#5c5c7c" stroke-width="1.6" marker-end="url(#rb0acc852-arrow-5c5c7c)"/>
+  <rect x="967.6" y="669" width="111" height="16" fill="#111111"/>
+  <g font-size="12px">
+  <text x="1023.1" y="681.2" fill="#d9d9d9" text-anchor="middle">run plan steps</text>
   </g>
 </svg>

@@ -24,3 +24,13 @@ current systems, not an exhaustive catalogue or a cross-paper speed ranking.
 Living documentation is dated, not release-pinned. Recent preprints are identified
 as research rather than production guarantees. Numerical plots are illustrative;
 repository results are linked separately and retain their limitations.
+
+## Measured-evidence addendum, 30 September 2026
+
+- Added Section 6.6 (Table 3, Figure 14) from four dated GPU reports of 29-30
+  September; numbers and caveats were checked against those reports. The
+  literature survey and its cutoff are unchanged.
+- Figure 14 is the only measured plot; its data are in `measured-evidence.json`.
+- 36 PDF pages. The build has no overflowing boxes or unresolved references;
+  the changed pages (title, Section 6.6, Appendix E) were rendered and inspected.
+- No ATFM policy speedup is claimed; stage E is under evaluation.
