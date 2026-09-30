@@ -1,0 +1,32 @@
+{
+ "h100_sxm": {
+  "pod": "qo9ifv5gzg3s6h",
+  "data_center": "AP-IN-1",
+  "gpu": "NVIDIA H100 80GB HBM3, 580.126.09, 81559 MiB",
+  "host_ram_gb": 2015,
+  "usd_per_hour": 3.49,
+  "window_utc": [
+   "2026-09-29T20:36:55Z",
+   "2026-09-29T21:33Z (terminated)"
+  ]
+ },
+ "h100_sxm_unused": {
+  "pod": "3977sv10ifhdyy",
+  "data_center": "US-MO-1",
+  "usd_per_hour": 3.49,
+  "note": "created 20:28:16Z, stopped ~6 min later without use (upload blocked), then terminated; GPU was reassigned while stopped"
+ },
+ "a100_sxm": {
+  "pod": "773iunpn1un3qh",
+  "data_center": "US-MD-1",
+  "gpu": "NVIDIA A100-SXM4-80GB, 580.126.16, 81920 MiB",
+  "host_ram_gb": 2003,
+  "usd_per_hour": 1.59,
+  "window_utc": [
+   "2026-09-29T20:28:18Z",
+   "2026-09-29T21:51Z (terminated)"
+  ]
+ },
+ "billing_2026_09_29_pod_gpu_usd": 12.01,
+ "billing_note": "Runpod day total incl. the earlier 6.24 USD H100 NVL trial; round 2 GPU about 5.77 USD"
+}

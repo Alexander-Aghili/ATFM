@@ -31,6 +31,7 @@ contracts, use the developer guide and the source code together.
 
 ## Evaluation and evidence
 
+- [GPU round 2](research/2026-09-29-gpu-round2.md): first complete 119-request root, CPU-tier capacity pair, A100 repeats and chunk size.
 - [Public H100 workloads](research/2026-09-29-public-gpu-workloads.md): BFCL tool-call API samples and complete Weka sessions, with measured cache behavior and explicit limits.
 
 - [Prediction overload protection](research/2026-09-28-prediction-overload.md): bounded jobs, deadlines, and paired HTTP trials.

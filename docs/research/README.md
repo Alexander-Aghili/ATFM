@@ -8,6 +8,7 @@ predate today's launchers. Use the [project README](../../README.md) and
 
 | Note | Role |
 | --- | --- |
+| [GPU round 2](2026-09-29-gpu-round2.md) | First complete 119-request root, 24 vs 48 GiB CPU tier, A100 repeats and chunk size. |
 | [GPU results and caching tradeoffs](gpu-results-report/README.md) | Detailed [PDF](gpu-results-report/atfm-gpu-results-2026-09-29.pdf): completed and incomplete runs, nine figures, capacity and transfer analysis. |
 | [Public H100 workloads](2026-09-29-public-gpu-workloads.md) | BFCL tool-call API cases, complete Weka sessions, cache pressure and retained replay failures. |
 | [H100 cache compatibility](2026-09-29-h100-cache.md) | Native deployment fixes, completed CPU warming and real external-cache reuse. |

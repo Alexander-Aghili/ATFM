@@ -1,0 +1,302 @@
+[
+ {
+  "gpu": "H100 SXM 80GB",
+  "run": "multi-l1-24",
+  "case": "multi-branch",
+  "git": "e1c20b3",
+  "l1_gb": 24.0,
+  "chunk": 16,
+  "passed": true,
+  "requests": 119,
+  "expected": 119,
+  "elapsed_s": 1159.4,
+  "ttft_ms": {
+   "p50": 5596,
+   "p95": 14742,
+   "max": 22215
+  },
+  "latency_ms": {
+   "p50": 11347,
+   "p95": 33103,
+   "max": 119028
+  },
+  "external_hit_ratio": 0.8659,
+  "l1_alloc_warnings_whole_stack": 15,
+  "tools_passed": null
+ },
+ {
+  "gpu": "H100 SXM 80GB",
+  "run": "multi-l1-48",
+  "case": "multi-branch",
+  "git": "18645ff",
+  "l1_gb": 48.0,
+  "chunk": 16,
+  "passed": true,
+  "requests": 119,
+  "expected": 119,
+  "elapsed_s": 930.1,
+  "ttft_ms": {
+   "p50": 1784,
+   "p95": 7953,
+   "max": 31904
+  },
+  "latency_ms": {
+   "p50": 8174,
+   "p95": 34239,
+   "max": 120504
+  },
+  "external_hit_ratio": 0.9589,
+  "l1_alloc_warnings_whole_stack": 0,
+  "tools_passed": null
+ },
+ {
+  "gpu": "A100 SXM4 80GB",
+  "run": "attempt1-rep1",
+  "case": "short-branch",
+  "git": "e1c20b3",
+  "l1_gb": 24,
+  "chunk": 16,
+  "passed": true,
+  "requests": 21,
+  "expected": 21,
+  "elapsed_s": 153.5,
+  "ttft_ms": {
+   "p50": 592,
+   "p95": 2863,
+   "max": 7630
+  },
+  "latency_ms": {
+   "p50": 4142,
+   "p95": 6210,
+   "max": 34956
+  },
+  "external_hit_ratio": 0.8711,
+  "l1_alloc_warnings_whole_stack": 0,
+  "tools_passed": null
+ },
+ {
+  "gpu": "A100 SXM4 80GB",
+  "run": "attempt1-rep1",
+  "case": "sequential",
+  "git": "e1c20b3",
+  "l1_gb": 24,
+  "chunk": 16,
+  "passed": true,
+  "requests": 24,
+  "expected": 24,
+  "elapsed_s": 326.0,
+  "ttft_ms": {
+   "p50": 1180,
+   "p95": 3932,
+   "max": 5258
+  },
+  "latency_ms": {
+   "p50": 11115,
+   "p95": 19074,
+   "max": 19299
+  },
+  "external_hit_ratio": 0.94,
+  "l1_alloc_warnings_whole_stack": 0,
+  "tools_passed": null
+ },
+ {
+  "gpu": "A100 SXM4 80GB",
+  "run": "rep1",
+  "case": "short-branch",
+  "git": "18645ff",
+  "l1_gb": 24,
+  "chunk": 16,
+  "passed": true,
+  "requests": 21,
+  "expected": 21,
+  "elapsed_s": 150.2,
+  "ttft_ms": {
+   "p50": 622,
+   "p95": 2918,
+   "max": 7693
+  },
+  "latency_ms": {
+   "p50": 4227,
+   "p95": 6201,
+   "max": 34839
+  },
+  "external_hit_ratio": 0.8711,
+  "l1_alloc_warnings_whole_stack": 0,
+  "tools_passed": null
+ },
+ {
+  "gpu": "A100 SXM4 80GB",
+  "run": "rep1",
+  "case": "sequential",
+  "git": "18645ff",
+  "l1_gb": 24,
+  "chunk": 16,
+  "passed": true,
+  "requests": 24,
+  "expected": 24,
+  "elapsed_s": 322.8,
+  "ttft_ms": {
+   "p50": 1187,
+   "p95": 3978,
+   "max": 5287
+  },
+  "latency_ms": {
+   "p50": 11020,
+   "p95": 19081,
+   "max": 19135
+  },
+  "external_hit_ratio": 0.94,
+  "l1_alloc_warnings_whole_stack": 0,
+  "tools_passed": null
+ },
+ {
+  "gpu": "A100 SXM4 80GB",
+  "run": "rep2",
+  "case": "short-branch",
+  "git": "18645ff",
+  "l1_gb": 24,
+  "chunk": 16,
+  "passed": true,
+  "requests": 21,
+  "expected": 21,
+  "elapsed_s": 151.3,
+  "ttft_ms": {
+   "p50": 596,
+   "p95": 2966,
+   "max": 7573
+  },
+  "latency_ms": {
+   "p50": 4168,
+   "p95": 6279,
+   "max": 35071
+  },
+  "external_hit_ratio": 0.8711,
+  "l1_alloc_warnings_whole_stack": 0,
+  "tools_passed": null
+ },
+ {
+  "gpu": "A100 SXM4 80GB",
+  "run": "rep2",
+  "case": "sequential",
+  "git": "18645ff",
+  "l1_gb": 24,
+  "chunk": 16,
+  "passed": true,
+  "requests": 24,
+  "expected": 24,
+  "elapsed_s": 328.8,
+  "ttft_ms": {
+   "p50": 1206,
+   "p95": 3992,
+   "max": 5363
+  },
+  "latency_ms": {
+   "p50": 11378,
+   "p95": 19518,
+   "max": 19743
+  },
+  "external_hit_ratio": 0.94,
+  "l1_alloc_warnings_whole_stack": 0,
+  "tools_passed": null
+ },
+ {
+  "gpu": "A100 SXM4 80GB",
+  "run": "rep3",
+  "case": "short-branch",
+  "git": "18645ff",
+  "l1_gb": 24,
+  "chunk": 16,
+  "passed": true,
+  "requests": 21,
+  "expected": 21,
+  "elapsed_s": 152.3,
+  "ttft_ms": {
+   "p50": 596,
+   "p95": 2890,
+   "max": 7630
+  },
+  "latency_ms": {
+   "p50": 4311,
+   "p95": 6290,
+   "max": 35387
+  },
+  "external_hit_ratio": 0.8711,
+  "l1_alloc_warnings_whole_stack": 0,
+  "tools_passed": null
+ },
+ {
+  "gpu": "A100 SXM4 80GB",
+  "run": "rep3",
+  "case": "sequential",
+  "git": "18645ff",
+  "l1_gb": 24,
+  "chunk": 16,
+  "passed": true,
+  "requests": 24,
+  "expected": 24,
+  "elapsed_s": 327.9,
+  "ttft_ms": {
+   "p50": 1171,
+   "p95": 3926,
+   "max": 5278
+  },
+  "latency_ms": {
+   "p50": 11232,
+   "p95": 19450,
+   "max": 19707
+  },
+  "external_hit_ratio": 0.94,
+  "l1_alloc_warnings_whole_stack": 0,
+  "tools_passed": null
+ },
+ {
+  "gpu": "A100 SXM4 80GB",
+  "run": "chunk-64",
+  "case": "sequential",
+  "git": "18645ff",
+  "l1_gb": 24,
+  "chunk": 64,
+  "passed": true,
+  "requests": 24,
+  "expected": 24,
+  "elapsed_s": 315.2,
+  "ttft_ms": {
+   "p50": 1066,
+   "p95": 3580,
+   "max": 4555
+  },
+  "latency_ms": {
+   "p50": 10599,
+   "p95": 18549,
+   "max": 18900
+  },
+  "external_hit_ratio": 0.9397,
+  "l1_alloc_warnings_whole_stack": 0,
+  "tools_passed": null
+ },
+ {
+  "gpu": "A100 SXM4 80GB",
+  "run": "chunk-256",
+  "case": "sequential",
+  "git": "18645ff",
+  "l1_gb": 24,
+  "chunk": 256,
+  "passed": true,
+  "requests": 24,
+  "expected": 24,
+  "elapsed_s": 320.3,
+  "ttft_ms": {
+   "p50": 1067,
+   "p95": 3525,
+   "max": 4311
+  },
+  "latency_ms": {
+   "p50": 10552,
+   "p95": 18812,
+   "max": 19298
+  },
+  "external_hit_ratio": 0.9387,
+  "l1_alloc_warnings_whole_stack": 0,
+  "tools_passed": null
+ }
+]
