@@ -1,0 +1,8 @@
+{
+ "gpu": "RTX PRO 6000 Blackwell Server Edition",
+ "passed_cases": 39,
+ "total": 40,
+ "failed": [
+  "parallel_9"
+ ]
+}

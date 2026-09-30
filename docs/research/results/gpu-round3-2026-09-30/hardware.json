@@ -1,0 +1,39 @@
+{
+ "h100_sxm": {
+  "pod": "ovifrqfdw0kmxg",
+  "data_center": "US-NE-1",
+  "gpu": "NVIDIA H100 80GB HBM3, 580.126.09, 81559 MiB",
+  "host_ram_gb": 2015,
+  "usd_per_hour": 3.49,
+  "window_utc": [
+   "2026-09-30T00:38:27Z",
+   "~01:43Z terminated"
+  ]
+ },
+ "a100_sxm": {
+  "pod": "ip8wdaivd72p4u",
+  "data_center": "US-KS-2",
+  "gpu": "NVIDIA A100-SXM4-80GB, 580.159.04, 81920 MiB",
+  "host_ram_gb": 2015,
+  "usd_per_hour": 1.59,
+  "window_utc": [
+   "2026-09-30T00:38:28Z",
+   "~02:07Z terminated"
+  ]
+ },
+ "rtx_pro_6000": {
+  "pod": "8imi014kqwb19k",
+  "data_center": "US-NC-1",
+  "host_cuda": "13.2",
+  "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition, 595.91.07, 97887 MiB",
+  "host_ram_gb": 1511,
+  "usd_per_hour": 2.09,
+  "window_utc": [
+   "2026-09-30T00:38:29Z",
+   "~01:11Z terminated"
+  ]
+ },
+ "estimated_compute_usd": 7.29,
+ "plan_seed": "random.Random(20260930)",
+ "git_revision": "d694c18"
+}
