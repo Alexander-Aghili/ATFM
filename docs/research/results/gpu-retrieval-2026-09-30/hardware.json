@@ -1,0 +1,21 @@
+{
+ "h100_sxm": {
+  "pod": "novxptyh0qnja3",
+  "data_center": "AP-IN-2",
+  "gpu": "NVIDIA H100 80GB HBM3, 580.126.09",
+  "host_ram_gb": 2015,
+  "usd_per_hour": 3.49
+ },
+ "a100_sxm": {
+  "pod": "ctjftc1j942cem",
+  "data_center": "US-WA-1",
+  "gpu": "NVIDIA A100-SXM4-80GB, 595.91.07",
+  "host_ram_gb": 2003,
+  "usd_per_hour": 1.59
+ },
+ "created_utc": "2026-09-30T03:14Z",
+ "terminated_utc": "~03:30Z",
+ "estimated_compute_usd": 1.3,
+ "git_revision": "0552406",
+ "seed": 20260930
+}

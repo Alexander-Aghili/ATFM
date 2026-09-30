@@ -8,6 +8,7 @@ predate today's launchers. Use the [project README](../../README.md) and
 
 | Note | Role |
 | --- | --- |
+| [Retrieval paths (stage C)](2026-09-30-retrieval-paths.md) | Cold prefill vs on-demand L2 load vs ATFM-warmed L1 on H100 and A100; break-even is hardware-dependent. |
 | [GPU round 3](2026-09-30-gpu-round3.md) | Randomized 24 vs 48 GiB repeats (1.9x duration gap), chunk-size repeats, Blackwell compatibility. |
 | [GPU round 2](2026-09-29-gpu-round2.md) | First complete 119-request root, 24 vs 48 GiB CPU tier, A100 repeats and chunk size. |
 | [GPU results and caching tradeoffs](gpu-results-report/README.md) | Detailed [PDF](gpu-results-report/atfm-gpu-results-2026-09-29.pdf): completed and incomplete runs, nine figures, capacity and transfer analysis. |

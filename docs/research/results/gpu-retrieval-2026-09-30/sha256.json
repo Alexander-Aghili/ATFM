@@ -1,0 +1,11 @@
+{
+ "a100-retrieval.tar.gz": "2afc6a2e52ae00362190355bb93cd87f867e72715cdd602427232e54810ddb3a",
+ "a100-steps.log": "96ac44c846ebb12c6ef8ed8c3b13a874131c58ae576ce2b4d90a084542c071d1",
+ "a100-summary.json": "0c34cc3ead387fdb8c5074a0159559074d086c0a3fd7ffa7c33b615fdedbc3f2",
+ "a100-trials.jsonl": "ac6e62f88edc789450b60d5e4774362cdcf834ed49c46364ba5ac3fa35b29a64",
+ "hardware.json": "2b90ccfb3c79dff504d6c79a83c8777ab0880a99c7f7ddefc6a1850a5309ab6a",
+ "sxm-retrieval.tar.gz": "8e7216c8acd87a124557135b767d1f9617a253a179d599581e7db33fcaa57020",
+ "sxm-steps.log": "77278a307e1c303603c144fcb8746f52096bc616346a2b6ffa58c3e4b9051aaa",
+ "sxm-summary.json": "def61e3ed7a8a936b1e9eddfe1cff9bbaca4392d9f705dadd9bc3ce3ab50d532",
+ "sxm-trials.jsonl": "3b3e566d958ef2d124169f67079d72fb954f07802b8330b0caf1dfcb7911025b"
+}

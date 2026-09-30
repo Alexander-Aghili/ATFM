@@ -31,6 +31,7 @@ contracts, use the developer guide and the source code together.
 
 ## Evaluation and evidence
 
+- [Retrieval paths (stage C)](research/2026-09-30-retrieval-paths.md): warmed L1 beats recompute at every length (up to 21.6x); on-demand L2 loads help only on the slower GPU.
 - [GPU round 3](research/2026-09-30-gpu-round3.md): randomized CPU-tier and chunk-size repeats on H100 SXM and A100, plus RTX PRO 6000 Blackwell.
 - [GPU round 2](research/2026-09-29-gpu-round2.md): first complete 119-request root, CPU-tier capacity pair, A100 repeats and chunk size.
 - [Public H100 workloads](research/2026-09-29-public-gpu-workloads.md): BFCL tool-call API samples and complete Weka sessions, with measured cache behavior and explicit limits.
