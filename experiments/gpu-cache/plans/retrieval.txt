@@ -1,0 +1,2 @@
+# Stage C retrieval paths: cold prefill vs L2 (filesystem) vs ATFM-warmed L1, 3 seeded blocks
+retrieval retrieval --lengths 2048 8192 32768 98304 --repeats 3 --seed 20260930 --l1-gb 48

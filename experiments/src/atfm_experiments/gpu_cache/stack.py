@@ -36,11 +36,11 @@ def check_ports(wait_s=120, poll_s=5):
             time.sleep(poll_s)
 
 
-def commands(venv, output, model=MODEL, revision=REVISION, context=2048, cpu_gb=.5, chunk=16):
+def commands(venv, output, model=MODEL, revision=REVISION, context=2048, cpu_gb=.5, chunk=16, l2=None):
     cache = [str(venv / 'bin/lmcache'), 'server', '--host', '127.0.0.1', '--port', '15555',
              '--http-host', '127.0.0.1', '--http-port', '18181', '--l1-size-gb', str(cpu_gb),
              '--chunk-size', str(chunk), '--eviction-policy', 'LRU', '--l2-adapter',
-             json.dumps(dict(type='fs', base_path=str(output / 'l2')))]
+             json.dumps(dict(type='fs', base_path=str(l2 or output / 'l2')))]
     connector = dict(kv_connector='LMCacheMPConnector', kv_role='kv_both',
                      kv_connector_module_path='lmcache.integration.vllm.lmcache_mp_connector',
                      kv_connector_extra_config={'lmcache.mp.host': '127.0.0.1', 'lmcache.mp.port': 15555})

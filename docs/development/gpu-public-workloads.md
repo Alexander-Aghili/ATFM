@@ -113,3 +113,19 @@ exercise multiple emitted calls with several offered function schemas. The same
 syntax, offered-name and minimum-call checks apply. This is a larger convenience
 sample, not a random sample or an official accuracy score. Do not run it alongside
 a latency measurement; it owns the same serving ports.
+
+## Retrieval paths (stage C)
+
+`python -m atfm_experiments.gpu_cache.retrieval --output runs/retrieval` serves one
+output token for prompts of 2,048, 8,192, 32,768 and 98,304 tokens under three
+cache states: `cold` (unique header, full prefill), `l2` (served once, CPU tier
+cleared, context only in the filesystem tier) and `l1` (same, then warmed into CPU
+memory by an ATFM `TierDirective` prefetch). Trials are shuffled in seeded repeat
+blocks; each block starts a fresh LMCache/vLLM pair with its own L2 directory,
+deleted afterwards (LMCache can clear only L1), so disk use stays near one block
+(~60 GB at the default lengths). Per trial it records client time, vLLM queue,
+prefill and TTFT histogram deltas, recomputed and externally hit tokens, prefetch
+time and L1 bytes. `summary.json` gives medians and the speedup against `cold` per
+length. The OS page cache is not dropped, so `l2` may read from host memory; vLLM's
+own prefix cache is disabled, so there is no GPU-resident condition. On a Pod, use
+`pod_round.sh retrieval`.

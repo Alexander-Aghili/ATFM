@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Run one unattended round of public-trace replays on a rented GPU Pod.
 # Usage: pod_round.sh <plan> [watchdog seconds]
-# <plan> names experiments/gpu-cache/plans/<plan>.txt: one "<step> <tools|replay> [replay args]" per line.
+# <plan> names experiments/gpu-cache/plans/<plan>.txt: one "<step> <tools|replay|retrieval> [args]" per line.
 # Each step writes runs/round/<plan>/<step>/ plus <step>.tar.gz (L2 KV objects excluded).
 # The watchdog stops the Pod as a backstop; the operator still downloads and stops it.
 set -uo pipefail
@@ -44,6 +44,7 @@ while read -r name kind args; do
   case "$kind" in
     tools) step "$name" .venv/bin/python -m atfm_experiments.gpu_cache.tool_matrix --output "$out/$name" ;;
     replay) replay "$name" $args ;;
+    retrieval) step "$name" .venv/bin/python -m atfm_experiments.gpu_cache.retrieval --output "$out/$name" $args ;;
     *) echo "$(date -u +%FT%TZ) skip $name: unknown kind $kind" >>"$out/steps.log" ;;
   esac
 done < <(grep -v '^#' "$plan_file" | grep -v '^$')

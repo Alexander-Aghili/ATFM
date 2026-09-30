@@ -53,8 +53,8 @@ def inference(client, output, name, tokens, max_tokens=8):
                 external_hits=metrics(client, output, name))
 
 
-def idle_storage(client, output, name, objects):
-    deadline = time.monotonic() + 30
+def idle_storage(client, output, name, objects, timeout_s=30):
+    deadline = time.monotonic() + timeout_s
     while time.monotonic() < deadline:
         status = request(client, 'GET', CACHE + '/status')
         storage = status['storage_manager']
@@ -77,10 +77,12 @@ def warm(client, output, tokens):
     return result
 
 
-def prefetch(output, tokens):
+def prefetch(output, tokens, model=MODEL, timeout_s=10):
     source = PromptTokens(lambda _: tokens, lambda _: [{'content': 'synthetic-probe'}])
-    actuator = LMCacheActuator(LMCacheConfig(CACHE, MODEL, chunk_size=16, completion_timeout_s=10), tokens=source)
-    directive = TierDirective(session_id='probe', action='prefetch', tier='cpu', eta_q10=0, eta_q90=1, expires_at=time.time() + 30)
+    config = LMCacheConfig(CACHE, model, chunk_size=16, completion_timeout_s=timeout_s)
+    actuator = LMCacheActuator(config, tokens=source)
+    directive = TierDirective(session_id='probe', action='prefetch', tier='cpu', eta_q10=0, eta_q90=1,
+                              expires_at=time.time() + timeout_s + 30)
     try:
         result = save(output, 'prefetch', actuator.apply_tier(directive, time.time()))
     finally:
