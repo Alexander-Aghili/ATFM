@@ -120,3 +120,27 @@ def test_acknowledgement_requires_integer_chunk_count():
     from atfm.control.lmcache_protocol import submitted
     with pytest.raises(ValueError):
         submitted(dict(status='submitted', chunks=True, request_id='abc'), 1)
+
+
+def test_asynchronous_mode_submits_without_waiting_and_reconciles_later():
+    act, calls = actuator([dict(status='pending'), dict(status='completed', found_keys=2, total_keys=2)],
+                          wait_for_completion=False)
+    first = act.prefetch('s')
+    assert first == dict(ok=None, status='submitted', request_id='abc')
+    assert not [c for c in calls if c.url.path.endswith('/abc')]
+    assert act.release_expired(1.0) == [] and 's' in act.pending            # still pending on the first poll
+    act.release_expired(2.0)
+    assert not act.pending and act.outcomes == {'completed': 1}
+
+
+def test_asynchronous_resubmission_of_the_same_prompt_is_not_duplicated():
+    act, calls = actuator([dict(status='pending')], wait_for_completion=False)
+    assert act.prefetch('s')['status'] == 'submitted'
+    assert act.prefetch('s')['status'] == 'submitted'
+    assert len([c for c in calls if c.method == 'POST']) == 1
+
+
+def test_outcomes_count_partial_and_unknown_completions():
+    act, _ = actuator([dict(status='completed', found_keys=1, total_keys=2)])
+    act.prefetch('s')
+    assert act.outcomes == {'partial': 1}

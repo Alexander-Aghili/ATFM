@@ -129,3 +129,19 @@ time and L1 bytes. `summary.json` gives medians and the speedup against `cold` p
 length. The OS page cache is not dropped, so `l2` may read from host memory; vLLM's
 own prefix cache is disabled, so there is no GPU-resident condition. On a Pod, use
 `pod_round.sh retrieval`.
+
+## Stage E arms (forecast-driven warming)
+
+`replay --arm {direct,proxy,atfm}` selects what sits in front of vLLM. `proxy` adds
+only the ATFM proxy (AIPerf uses `--session-header x-atfm-session` so each AIPerf
+conversation is one ATFM session). `atfm` adds the board (trained on
+`scripts/build_holdout_train.py` output, which removes the replayed roots and their
+children, with `--gap-after-done` for proxy-only sessions) and the control loop,
+which sends the board's `PrefetchPlanner` directives to LMCache as asynchronous
+L2 -> CPU warms. `--warm-gbps` is the calibrated warm rate (stage C: ~1.5 GB/s on
+H100, ~1.7 GB/s on A100); `--prefetch-trigger q10` warms as soon as an early return
+is plausible, `q50` waits until the median return is within lead time plus one
+control interval, and `--rewarm-after` allows another warm in a long gap. Proxy
+`events.jsonl`/`calls.jsonl`, board `snapshots.jsonl` and `control.jsonl` (issued
+directives and warm outcomes) are written to the run directory. Plans
+`plans/stage-e-{a,b}.txt` run all four arms in seeded orders on two Pods.

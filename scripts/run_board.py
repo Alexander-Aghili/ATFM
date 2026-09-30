@@ -16,7 +16,7 @@ def main():
     train = TraceTable.from_parquet(a.train)
     fc = SessionForecaster(ProgressPredictor().fit(train), ExogenousModel().fit(train),
                            horizons=[10.0, 30.0, 120.0, 300.0, 900.0], n=256)
-    board = LiveBoard(SessionRegistry(), fc, tick_s=a.tick)
+    board = LiveBoard(SessionRegistry(gap_after_done=a.gap_after_done), fc, tick_s=a.tick)
     rng = np.random.default_rng(0)
     if a.serve is not None:
         _serve(a, board, rng)
@@ -84,7 +84,8 @@ def _arguments():
     ap.add_argument("--once", action="store_true")
     ap.add_argument("--prediction-max-age", type=float, default=None, help="maximum prediction state age in seconds (default: max(1, 3*tick))")
     ap.add_argument("--serve", type=int, default=None, help="serve the board HTTP API on this port instead of the file loop")
-    ap.add_argument("--control", default=None, help="YAML with gdp/touch/tier/replica/metrics sections to attach controllers")
+    ap.add_argument("--control", default=None, help="YAML with gdp/touch/tier/replica/prefetch/metrics sections to attach controllers")
+    ap.add_argument("--gap-after-done", action="store_true", help="treat time after each call as the __gap__ tool phase (proxy-only sessions)")
     a = ap.parse_args()
     return a
 

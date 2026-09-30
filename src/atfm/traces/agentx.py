@@ -80,3 +80,11 @@ def load_agentx(path: str | Path, limit: int | None = None, cls: str = "interact
             if line:
                 rows.extend(trace_to_rows(json.loads(line), cls=cls))
     return TraceTable.from_rows(rows)
+
+
+def exclude_traces(table: TraceTable, trace_ids) -> TraceTable:
+    """Drop whole traces (root sessions and their `<root>/<agent>` children), e.g. evaluation roots."""
+    ids = set(trace_ids)
+    sessions = table.df.session_id.astype(str)
+    roots = sessions.str.split("/", n=1).str[0]
+    return TraceTable(table.df[~roots.isin(ids)].reset_index(drop=True))

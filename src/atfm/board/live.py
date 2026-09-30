@@ -7,6 +7,7 @@ from atfm.board.forecaster import SessionForecaster
 from atfm.board.state import SessionState
 from atfm.schema.events import Event
 from atfm.schema.forecast import ForecastSnapshot
+from atfm.traces.agentx import GAP
 
 
 class SessionRegistry:
@@ -16,8 +17,10 @@ class SessionRegistry:
     expiry; ``get`` and ``session_ids`` inspect without advancing time.
     """
 
-    def __init__(self, expire_s: float = 7200.0):
-        self.expire_s = expire_s
+    def __init__(self, expire_s: float = 7200.0, gap_after_done: bool = False):
+        """``gap_after_done`` treats the time after each call as the corpus's ``__gap__`` tool phase, for
+        sessions observed only at the proxy (no tool events), matching how AgentX traces label gaps."""
+        self.expire_s, self.gap_after_done = expire_s, gap_after_done
         self._s: dict[str, SessionState] = {}
         self._last: dict[str, float] = {}
         self._starts: list[tuple[float, str]] = []
@@ -44,6 +47,8 @@ class SessionRegistry:
         self._starts.append((e.t, e.cls))
 
     def _llm_request(self, s, e):
+        if self.gap_after_done and s.phase == 'tool_running' and s.tool_name == GAP and s.t_tool_start is not None:
+            s.tool_history.append((GAP, max(0.0, e.t - s.t_tool_start)))
         s.phase, s.t_phase_start, s.turn_index = 'llm_running', e.t, e.turn_index
         s.ctx_tokens = int(e.isl) + int(e.predicted_osl or 0)
 
@@ -52,6 +57,9 @@ class SessionRegistry:
         if getattr(e, 'worker_id', None):
             s.worker_id = e.worker_id
         s.t_last_done = e.t
+        if self.gap_after_done:
+            s.phase, s.tool_name, s.backend_id, s.t_tool_start = 'tool_running', GAP, 'local', e.t
+            s.progress, s.data = [], []
 
     def _tool_start(self, s, e):
         s.phase, s.tool_name, s.backend_id = 'tool_running', e.tool_name, e.backend_id

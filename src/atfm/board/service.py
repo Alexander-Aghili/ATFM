@@ -17,7 +17,7 @@ from atfm.board.live import LiveBoard, SessionRegistry
 from atfm.board.metrics import worker_metrics_from_prometheus
 from atfm.board.resumption import resumption_quantiles
 from atfm.bus import InMemoryBus
-from atfm.control import Deferrable, GdpPlanner, ReplicaFloor, Residency, TierLogger, TouchController
+from atfm.control import Deferrable, GdpPlanner, PrefetchPlanner, ReplicaFloor, Residency, TierLogger, TouchController
 
 
 def residency_from_registry(registry: SessionRegistry, now: float, block_size: int = 16, default_worker: str = "w0") -> dict[str, Residency]:
@@ -35,7 +35,7 @@ def configure_controllers(app, cfg: dict, fetch=None):
     """Attach configured controllers and return a fail-open metrics scraper."""
     st = app.state
     for key, controller in (('gdp', GdpPlanner), ('touch', TouchController),
-                            ('tier', TierLogger), ('replica', ReplicaFloor)):
+                            ('tier', TierLogger), ('replica', ReplicaFloor), ('prefetch', PrefetchPlanner)):
         if key in cfg:
             setattr(st, key, controller(**cfg[key]))
     st.worker_metrics, st.metrics_cfg = {}, cfg.get('metrics', {})
@@ -102,6 +102,7 @@ class BoardRuntime:
         st.snapshot = None
         st.directives_cache = None       # (snapshot object, response): computed once per snapshot, served to every poller
         st.gdp, st.capacity, st.touch, st.tier, st.replica = gdp, capacity or {}, touch, tier, replica
+        st.prefetch = None
         st.residency, st.frontier = {}, {}          # fed by a metrics scraper when one is attached
         self.st = st
         self.directives_response = (None, None)
@@ -193,6 +194,8 @@ class BoardRuntime:
             out['touches'] = [t.model_dump() for t in self.st.touch.plan(now, resumptions, self.st.residency, self.st.frontier)]
         if self.st.tier is not None:
             out['tier'] = [t.model_dump() for t in self.st.tier.plan(now, resumptions)]
+        if self.st.prefetch is not None:
+            out['tier'] += [t.model_dump() for t in self.st.prefetch.plan(now, resumptions, states)]
         if self.st.replica is not None:
             out['replica'] = self.st.replica.propose(now, s).model_dump()
 

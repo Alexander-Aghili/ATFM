@@ -88,7 +88,8 @@ def server(command, output, name, url, startup_timeout=360):
         process = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT,
                                    env=env, start_new_session=True)
         try:
-            ready(process, url, timeout=startup_timeout)
+            if url is not None:
+                ready(process, url, timeout=startup_timeout)
             yield process
         finally:
             stop(process)

@@ -57,7 +57,8 @@ class ControlLoop:
         s["replica"] = int(rep["replicas_at_least"]) if rep else None
         for k in ("holds", "touches", "touch_tokens", "errors"):
             self.totals[k] += s[k]
-        self._log({"t": now, **s, "tier": d.get("tier", []), "replica": rep})
+        outcomes = dict(getattr(self.lmcache, "outcomes", {}) or {})
+        self._log({"t": now, **s, "tier": d.get("tier", []), "replica": rep, "cache_outcomes": outcomes})
 
     def _apply_tiers(self, d, now, s):
         s["tier"] = len(d.get("tier", []))

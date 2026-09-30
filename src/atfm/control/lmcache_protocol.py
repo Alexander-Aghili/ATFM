@@ -14,6 +14,7 @@ class LMCacheConfig:
     completion_timeout_s: float = 2.0
     poll_interval_s: float = .02
     max_pending: int = 64
+    wait_for_completion: bool = True   # False: submit and reconcile in release_expired (warms take seconds)
 
     def __post_init__(self):
         for value in (self.chunk_size, self.world_size, self.max_pending):

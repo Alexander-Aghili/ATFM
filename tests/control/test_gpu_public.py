@@ -76,7 +76,7 @@ def test_public_case_validates_export_and_records_verdict(tmp_path, monkeypatch)
 
 
 def test_public_retry_runs_only_selected_complete_roots(tmp_path, monkeypatch):
-    monkeypatch.setattr(replay, 'run_case', lambda *args: {'name': args[3]})
+    monkeypatch.setattr(replay, 'run_case', lambda *args, **kw: {'name': args[3]})
     selection = {'cases': {'short-branch': {}, 'sequential': {}, 'multi-branch': {}}}
     result = replay.run_cases(tmp_path, tmp_path, tmp_path, selection, cases=('multi-branch',))
     assert result == {'multi-branch': {'name': 'multi-branch'}}
@@ -93,7 +93,7 @@ def test_stack_commands_take_cache_capacity_and_chunk_size(tmp_path):
 
 def test_public_replay_bounds_each_case_by_configured_timeouts(tmp_path, monkeypatch):
     seen = []
-    monkeypatch.setattr(replay, 'run_case', lambda *args: seen.append(args[-1]) or {})
+    monkeypatch.setattr(replay, 'run_case', lambda *args, **kw: seen.append(args[-1]) or {})
     selection = {'cases': {'multi-branch': {}}}
     replay.run_cases(tmp_path, tmp_path, tmp_path, selection, ('multi-branch',), replay.Limits(2400, 3000))
     assert 2390 <= seen[0] <= 2400

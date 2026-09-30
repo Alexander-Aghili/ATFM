@@ -18,6 +18,7 @@ class LMCacheActuator:
         self.pending = {}
         self._verified = False
         self.errors = 0
+        self.outcomes = {}
 
     def close(self):
         if self._owns_client:
@@ -46,13 +47,18 @@ class LMCacheActuator:
                 return dict(ok=False, status='no_complete_chunk')
             if session_id not in self.pending:
                 self._submit(session_id, tokens, body, chunks)
-            original, request_id, expected = self.pending[session_id]
-            if original != tokens:
-                return dict(ok=False, status='previous_prompt_pending', request_id=request_id)
-            return self._wait(session_id, request_id, expected)
+            return self._follow(session_id, tokens)
         except Exception as exc:
             self.errors += 1
             return dict(ok=False, status='error', reason=str(exc))
+
+    def _follow(self, session_id, tokens):
+        original, request_id, expected = self.pending[session_id]
+        if original != tokens:
+            return dict(ok=False, status='previous_prompt_pending', request_id=request_id)
+        if not self.cfg.wait_for_completion:
+            return dict(ok=None, status='submitted', request_id=request_id)
+        return self._wait(session_id, request_id, expected)
 
     def verify_backend(self):
         if self._verified:
@@ -78,10 +84,15 @@ class LMCacheActuator:
             response = self._request('GET', '/cache/prefetches/' + request_id, 200)
         except LookupError:
             del self.pending[session_id]
-            return dict(ok=False, status='unknown', request_id=request_id)
+            return self._settled(dict(ok=False, status='unknown', request_id=request_id))
         result = completed(response, request_id, expected)
         if result is not None:
             del self.pending[session_id]
+            self._settled(result)
+        return result
+
+    def _settled(self, result):
+        self.outcomes[result['status']] = self.outcomes.get(result['status'], 0) + 1
         return result
 
     def _wait(self, session_id, request_id, expected):

@@ -30,6 +30,14 @@ from .queue import Entry, HoldQueue
 from .transport import upstream_client as create_upstream_client
 
 
+def requested_osl(body: dict, default: int) -> int:
+    """OpenAI clients send ``max_completion_tokens`` (current) or ``max_tokens`` (legacy)."""
+    try:
+        return int(body.get("max_completion_tokens") or body.get("max_tokens") or default)
+    except (TypeError, ValueError):
+        return default
+
+
 def _meta_from(req: Request, body: dict, cfg: ProxyConfig, now: float, turn_index: int) -> CallMeta:
     h = req.headers
     sid = h.get("x-atfm-session") or f"anon-{uuid.uuid4().hex[:8]}"
@@ -39,10 +47,7 @@ def _meta_from(req: Request, body: dict, cfg: ProxyConfig, now: float, turn_inde
         deadline = float(h["x-atfm-deadline"]) if h.get("x-atfm-deadline") else None
     except ValueError:  # fail-open: a malformed deadline is no deadline
         deadline = None
-    try:
-        osl = int(body.get("max_tokens") or cfg.default_osl)
-    except (TypeError, ValueError):
-        osl = cfg.default_osl
+    osl = requested_osl(body, cfg.default_osl)
     return CallMeta(session_id=sid, cls=cls, tenant=h.get("x-atfm-tenant", "t0"),
                     deadline=deadline, parent=h.get("x-atfm-parent"), turn_index=turn_index,
                     isl=estimate_isl(body), predicted_osl=osl, t_arrival=now)
