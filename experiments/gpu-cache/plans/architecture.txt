@@ -1,0 +1,7 @@
+# Generated with random.Random(20260930); one step per line: <name> <tools|replay> [replay args]
+tools tools
+rep1 replay --case short-branch --case sequential
+rep2 replay --case short-branch --case sequential
+chunk-16-1 replay --case sequential --chunk-size 16
+chunk-64-2 replay --case sequential --chunk-size 64
+chunk-256-3 replay --case sequential --chunk-size 256

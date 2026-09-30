@@ -1,0 +1,5 @@
+# Generated with random.Random(20260930); one step per line: <name> <tools|replay> [replay args]
+multi-l1-48-1 replay --case multi-branch --l1-gb 48 --case-timeout 2400 --total-timeout 2460
+multi-l1-24-2 replay --case multi-branch --l1-gb 24 --case-timeout 2400 --total-timeout 2460
+multi-l1-24-3 replay --case multi-branch --l1-gb 24 --case-timeout 2400 --total-timeout 2460
+multi-l1-48-4 replay --case multi-branch --l1-gb 48 --case-timeout 2400 --total-timeout 2460
