@@ -361,7 +361,9 @@ Stage E2 compared ATFM (proxy + board + control loop) with direct vLLM, so the p
 | A (AP-IN-1) | direct, proxy, proxy, direct | Does the ATFM proxy alone change TTFT and queueing? |
 | B (US-NE-1) | proxy, atfm-q50, atfm-q50, proxy | What does warming add beyond the proxy? |
 
-Same fleet, 24 GiB CPU tier, training table, calibration and policy as E2. Per-run mean vLLM queue, prefill and decode time come from Prometheus counter deltas. **Status: running on 1 October; results will be added here.**
+Same fleet, 24 GiB CPU tier, training table, calibration and policy as E2.
+
+**Status: stopped early (credits) after the first run on each Pod.** Pod A direct: 100/100, 1,629 s, TTFT p50 4.50 s, mean vLLM queue 4.42 s. Pod B proxy: 100/100, 1,752 s, TTFT p50 9.51 s, queue 8.60 s. These are on different hosts and are **not** a valid comparison; no within-Pod pair finished, so **the proxy-versus-warming attribution of E2 remains open**. Evidence: `results/gpu-stage-e3-2026-10-01/`.
 
 ---PAGE---
 # 17 | Memory: the first hard constraint

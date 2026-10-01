@@ -1,0 +1,2 @@
+c896e9ce3e8372fb7882f6cf69ad49b4780e78e91b572951986fde24d99f232e  a-direct-1.tar.gz
+1099190fb8876eade68dd055873ad1b84dd35f6cdfebcba7de22e9dd92c255d8  b-proxy-1.tar.gz
