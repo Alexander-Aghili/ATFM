@@ -1,0 +1,8 @@
+# Stage E4: attribute the E2 gain. Three arms in one symmetric bracket per Pod (direct, proxy, atfm, atfm, proxy, direct)
+# so linear drift cancels for every pair; headline metric is the CPU-tier (L1) share of reused chunks per vLLM lookup.
+direct-1 replay --case fleet --l1-gb 24 --case-timeout 3000 --total-timeout 3060 --arm direct
+proxy-2 replay --case fleet --l1-gb 24 --case-timeout 3000 --total-timeout 3060 --arm proxy
+atfm-q50-3 replay --case fleet --l1-gb 24 --case-timeout 3000 --total-timeout 3060 --arm atfm --train runs/train-holdout.parquet --warm-gbps 1.4 --prefetch-trigger q50 --rewarm-after 30
+atfm-q50-4 replay --case fleet --l1-gb 24 --case-timeout 3000 --total-timeout 3060 --arm atfm --train runs/train-holdout.parquet --warm-gbps 1.4 --prefetch-trigger q50 --rewarm-after 30
+proxy-5 replay --case fleet --l1-gb 24 --case-timeout 3000 --total-timeout 3060 --arm proxy
+direct-6 replay --case fleet --l1-gb 24 --case-timeout 3000 --total-timeout 3060 --arm direct

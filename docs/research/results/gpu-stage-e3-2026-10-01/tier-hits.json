@@ -1,0 +1,20 @@
+{
+ "direct-1": {
+  "lookups": 99,
+  "keys": 293408,
+  "l1_keys": 39778,
+  "l2_keys": 244101,
+  "missed_keys": 9529,
+  "lookups_needing_l2": 82,
+  "l1_share_of_hits": 0.14012308060828732
+ },
+ "proxy-1": {
+  "lookups": 99,
+  "keys": 291222,
+  "l1_keys": 57532,
+  "l2_keys": 224145,
+  "missed_keys": 9545,
+  "lookups_needing_l2": 80,
+  "l1_share_of_hits": 0.20424812817517937
+ }
+}

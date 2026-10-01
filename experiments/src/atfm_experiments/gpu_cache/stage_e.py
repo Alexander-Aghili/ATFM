@@ -10,6 +10,9 @@ import statistics
 import sys
 
 METRICS = ('vllm:external_prefix_cache_hits_total', 'vllm:external_prefix_cache_queries_total')
+# One line per LMCache lookup; vLLM's carry a chatcmpl request id, ATFM warms an empty one.
+LOOKUP = re.compile(r'Prefetch request completed \(L1\+L2\): \d+/(\d+) retained keys \((\d+) L1, (\d+) L2\)'
+                    r'.*?external_request_id=([^,]*),')
 
 
 def arm(step):
@@ -74,6 +77,16 @@ def engine_phases(case):
     return dict(**means, requests=int(n))
 
 
+def tier_hits(path):
+    """Where vLLM's lookups found their chunks: CPU tier (L1), filesystem tier (L2, a load on the critical path) or
+    nowhere (recompute). ``l1_share_of_hits`` is the fast-tier share of reused chunks, the metric warming targets."""
+    found = [m.groups() for m in map(LOOKUP.search, Path(path).read_text(errors='replace').splitlines()) if m]
+    rows = [tuple(map(int, g[:3])) for g in found if g[3]]
+    keys, l1, l2 = (sum(r[i] for r in rows) for i in range(3))
+    return dict(lookups=len(rows), keys=keys, l1_keys=l1, l2_keys=l2, missed_keys=keys - l1 - l2,
+                lookups_needing_l2=sum(1 for r in rows if r[2]), l1_share_of_hits=l1 / (l1 + l2) if l1 + l2 else None)
+
+
 def ttft_stats(values):
     return dict(n=len(values), ttft_s_p50=statistics.median(values) if values else None,
                 ttft_s_mean=statistics.mean(values) if values else None)
@@ -101,7 +114,8 @@ def summarize(run):
     warnings = sum('Failed to batched allocate' in line for line in (run / 'lmcache.log').read_text(errors='replace').splitlines())
     case = next(path.parent for path in sorted(run.glob('*/result.json')))
     out = dict(step=run.name, arm=arm(run.name), case=case.name, l1_warnings=warnings, **serving(case),
-               post_gap=post_gap_ttft(case / 'aiperf/profile_export.jsonl'), engine=engine_phases(case))
+               post_gap=post_gap_ttft(case / 'aiperf/profile_export.jsonl'), engine=engine_phases(case),
+               tiers=tier_hits(run / 'lmcache.log'))
     if (run / 'control.jsonl').exists():
         out['warms'] = dict(**warm_timing(directives(run), requests(run)), outcomes=outcomes(run))
     return out

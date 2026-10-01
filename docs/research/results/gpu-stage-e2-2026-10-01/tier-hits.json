@@ -1,0 +1,38 @@
+{
+ "direct-1": {
+  "lookups": 99,
+  "keys": 295051,
+  "l1_keys": 89536,
+  "l2_keys": 191646,
+  "missed_keys": 13869,
+  "lookups_needing_l2": 83,
+  "l1_share_of_hits": 0.31842721084564446
+ },
+ "atfm-q50-2": {
+  "lookups": 95,
+  "keys": 277344,
+  "l1_keys": 212545,
+  "l2_keys": 49305,
+  "missed_keys": 15494,
+  "lookups_needing_l2": 29,
+  "l1_share_of_hits": 0.8117051747183502
+ },
+ "atfm-q50-3": {
+  "lookups": 92,
+  "keys": 270850,
+  "l1_keys": 192673,
+  "l2_keys": 62679,
+  "missed_keys": 15498,
+  "lookups_needing_l2": 24,
+  "l1_share_of_hits": 0.7545388326701964
+ },
+ "direct-4": {
+  "lookups": 97,
+  "keys": 286472,
+  "l1_keys": 91024,
+  "l2_keys": 179171,
+  "missed_keys": 16277,
+  "lookups_needing_l2": 78,
+  "l1_share_of_hits": 0.33688262181017414
+ }
+}

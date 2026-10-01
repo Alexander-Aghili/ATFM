@@ -59,3 +59,21 @@ def test_engine_phase_means_come_from_counter_deltas(tmp_path):
     (tmp_path / 'after-vllm.txt').write_text(after)
     phases = stage_e.engine_phases(tmp_path)
     assert phases == dict(queue_s_mean=3.0, prefill_s_mean=0.5, decode_s_mean=2.0, requests=10)
+
+
+def lookup(total, l1, l2, request='chatcmpl-1'):
+    return (f'\x1b[32m[2026-10-01 02:08:27,159] LMCache INFO:\x1b[0m Prefetch request completed (L1+L2): {l1 + l2}/{total} '
+            f'retained keys ({l1} L1, {l2} L2) in 4.7 ms (external_request_id={request}, prefetch_request_id=1) (x.py:1)\n')
+
+
+def test_tier_hits_count_request_lookups_by_tier_and_skip_atfm_warms(tmp_path):
+    (tmp_path / 'lmcache.log').write_text(lookup(10, 3, 5) + lookup(10, 10, 0, 'chatcmpl-2')
+                                          + lookup(8, 0, 8, request='') + 'Stored 48 tokens\n')
+    hits = stage_e.tier_hits(tmp_path / 'lmcache.log')
+    assert hits == dict(lookups=2, keys=20, l1_keys=13, l2_keys=5, missed_keys=2, lookups_needing_l2=1,
+                        l1_share_of_hits=pytest.approx(13 / 18))
+
+
+def test_tier_hits_without_lookups(tmp_path):
+    (tmp_path / 'lmcache.log').write_text('')
+    assert stage_e.tier_hits(tmp_path / 'lmcache.log')['l1_share_of_hits'] is None
