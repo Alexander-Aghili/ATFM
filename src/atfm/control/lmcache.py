@@ -19,6 +19,7 @@ class LMCacheActuator:
         self._verified = False
         self.errors = 0
         self.outcomes = {}
+        self.settled = []          # (session_id, result) per finished warm, drained by the control loop
 
     def close(self):
         if self._owns_client:
@@ -84,16 +85,21 @@ class LMCacheActuator:
             response = self._request('GET', '/cache/prefetches/' + request_id, 200)
         except LookupError:
             del self.pending[session_id]
-            return self._settled(dict(ok=False, status='unknown', request_id=request_id))
+            return self._settled(session_id, dict(ok=False, status='unknown', request_id=request_id))
         result = completed(response, request_id, expected)
         if result is not None:
             del self.pending[session_id]
-            self._settled(result)
+            self._settled(session_id, result)
         return result
 
-    def _settled(self, result):
+    def _settled(self, session_id, result):
         self.outcomes[result['status']] = self.outcomes.get(result['status'], 0) + 1
+        self.settled.append((session_id, result))
         return result
+
+    def drain_settled(self):
+        out, self.settled = self.settled, []
+        return [dict(session_id=sid, **result) for sid, result in out]
 
     def _wait(self, session_id, request_id, expected):
         deadline = time.monotonic() + self.cfg.completion_timeout_s

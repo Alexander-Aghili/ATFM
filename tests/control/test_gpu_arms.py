@@ -73,3 +73,21 @@ def test_prefetch_policy_reaches_the_board_config(tmp_path):
     args = replay.parse(['--source', 's', '--output', 'o', '--arm', 'atfm', '--train', 't',
                          '--prefetch-trigger', 'q50', '--rewarm-after', '30'])
     assert (args.prefetch_trigger, args.rewarm_after) == ('q50', 30.0)
+
+
+def test_fleet_case_replays_every_root_concurrently_once():
+    cmd = replay.command(Path('aiperf'), Path('fleet.jsonl'), Path('out'), sessions=4)
+    assert cmd[cmd.index('--concurrency') + 1] == '4' and cmd[cmd.index('--num-sessions') + 1] == '4'
+    assert cmd[cmd.index('--dataset-sampling-strategy') + 1] == 'sequential'
+    single = replay.command(Path('aiperf'), Path('root.jsonl'), Path('out'))
+    assert single[single.index('--concurrency') + 1] == '1' and '--dataset-sampling-strategy' not in single
+
+
+def test_host_load_snapshot_is_recorded(tmp_path):
+    replay.host_load(tmp_path, 'before')
+    text = (tmp_path / 'before-loadavg.txt').read_text()
+    assert len(text.split()) >= 3
+
+
+def test_case_choices_include_the_fleet():
+    assert replay.parse(['--source', 's', '--output', 'o', '--case', 'fleet']).cases == ['fleet']

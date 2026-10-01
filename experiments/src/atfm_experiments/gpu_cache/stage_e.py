@@ -1,7 +1,7 @@
 """Summarize stage E runs: serving outcomes per arm and, for ATFM arms, whether warms landed before the return.
 
 python -m atfm_experiments.gpu_cache.stage_e <run dir>... > summary.json
-Each run dir is one replay step (e.g. runs/round/stage-e-a/atfm-q10-2) with the multi-branch case inside.
+Each run dir is one replay step (e.g. runs/round/stage-e-a/atfm-q10-2) with one replayed case inside.
 """
 import json
 from pathlib import Path
@@ -67,7 +67,8 @@ def serving(case):
 def summarize(run):
     run = Path(run)
     warnings = sum('Failed to batched allocate' in line for line in (run / 'lmcache.log').read_text(errors='replace').splitlines())
-    out = dict(step=run.name, arm=arm(run.name), l1_warnings=warnings, **serving(run / 'multi-branch'))
+    case = next(path.parent for path in sorted(run.glob('*/result.json')))
+    out = dict(step=run.name, arm=arm(run.name), case=case.name, l1_warnings=warnings, **serving(case))
     if (run / 'control.jsonl').exists():
         out['warms'] = dict(**warm_timing(directives(run), requests(run)), outcomes=outcomes(run))
     return out

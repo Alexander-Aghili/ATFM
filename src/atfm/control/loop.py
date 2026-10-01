@@ -58,7 +58,10 @@ class ControlLoop:
         for k in ("holds", "touches", "touch_tokens", "errors"):
             self.totals[k] += s[k]
         outcomes = dict(getattr(self.lmcache, "outcomes", {}) or {})
-        self._log({"t": now, **s, "tier": d.get("tier", []), "replica": rep, "cache_outcomes": outcomes})
+        drain = getattr(self.lmcache, "drain_settled", None)
+        settled = drain() if callable(drain) else []
+        self._log({"t": now, **s, "tier": d.get("tier", []), "replica": rep, "cache_outcomes": outcomes,
+                   "warms_settled": settled})
 
     def _apply_tiers(self, d, now, s):
         s["tier"] = len(d.get("tier", []))
@@ -66,6 +69,7 @@ class ControlLoop:
             for t in d.get("tier", []):
                 result = self.lmcache.apply_tier(TierDirective(**{k: v for k, v in t.items() if k != "kind"}), now)
                 self._cache_result(result, s, "tier_applied")
+                s.setdefault("tier_results", []).append(dict(session_id=t.get("session_id"), **result))
             self.lmcache.release_expired(now)
             s["errors"] += self.lmcache.errors - getattr(self, "_lm_err", 0)
             self._lm_err = self.lmcache.errors

@@ -15,7 +15,7 @@ from atfm_experiments.local_cluster.process import run_client
 from . import arms
 from .probe import save
 from .stack import CACHE, INFERENCE, check_ports, commands, manifest, server
-from .trace_selection import SELECTED, verified
+from .trace_selection import CASES, SELECTED, verified
 from .tool_calls import run as run_tools
 
 MODEL = 'Qwen/Qwen3-4B-Instruct-2507'
@@ -27,13 +27,20 @@ class Limits(NamedTuple):
     total_s: int = 2700
 
 
-def command(client, source, output, url=INFERENCE, extra=()):
+def command(client, source, output, url=INFERENCE, extra=(), sessions=1):
+    """One AIPerf replay; ``sessions`` > 1 replays every root of a fleet file once, concurrently."""
+    fleet = ['--dataset-sampling-strategy', 'sequential'] if sessions > 1 else []
     return [str(client), 'profile', '--url', url, '--model', MODEL,
             '--endpoint-type', 'chat', '--streaming', '--input-file', str(source),
             '--custom-dataset-type', 'weka_trace', '--tokenizer', MODEL,
-            '--tokenizer-revision', REVISION, '--no-fixed-schedule', '--concurrency', '1',
-            '--random-seed', '7', '--extra-inputs', 'ignore_eos:true', '--num-sessions', '1',
+            '--tokenizer-revision', REVISION, '--no-fixed-schedule', '--concurrency', str(sessions),
+            '--random-seed', '7', '--extra-inputs', 'ignore_eos:true', '--num-sessions', str(sessions), *fleet,
             '--artifact-dir', str(output / 'aiperf'), '--ui', 'none', '--no-auto-plot', *extra]
+
+
+def host_load(output, label):
+    """Host load average (shared by co-tenants in a container), to diagnose run-order drift."""
+    (output / f'{label}-loadavg.txt').write_text(Path('/proc/loadavg').read_text())
 
 
 def snapshot(output, label):
@@ -57,9 +64,10 @@ def inspect(output, expected):
 
 def run_case(client, source, output, name, details, timeout, url=INFERENCE, extra=()):
     output.mkdir()
-    args = command(client, source / f'{name}.jsonl', output, url, extra)
+    args = command(client, source / f'{name}.jsonl', output, url, extra, details.get('sessions', 1))
     save(output, 'command', args)
     snapshot(output, 'before')
+    host_load(output, 'before')
     started = time.monotonic()
     try:
         with (output / 'aiperf.log').open('w') as log:
@@ -68,6 +76,7 @@ def run_case(client, source, output, name, details, timeout, url=INFERENCE, extr
     except (subprocess.SubprocessError, ValueError, KeyError, OSError) as exc:
         result = dict(passed=False, error=f'{type(exc).__name__}: {exc}')
     snapshot(output, 'after')
+    host_load(output, 'after')
     return save(output, 'result', dict(**result, elapsed_s=time.monotonic() - started, workload=details))
 
 
@@ -139,7 +148,7 @@ def parse(argv=None):
     parser.add_argument('--client', type=Path, default=Path('tmp/venvs/aiperf/bin/aiperf'))
     parser.add_argument('--source', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
-    parser.add_argument('--case', choices=SELECTED, action='append', dest='cases')
+    parser.add_argument('--case', choices=CASES, action='append', dest='cases')
     parser.add_argument('--l1-gb', type=float, default=24, help='LMCache CPU (L1) tier size')
     parser.add_argument('--chunk-size', type=int, default=16, help='LMCache chunk size in tokens')
     parser.add_argument('--case-timeout', type=int, default=1200, help='seconds per complete root')

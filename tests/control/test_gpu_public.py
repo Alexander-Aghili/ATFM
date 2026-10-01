@@ -136,3 +136,17 @@ def test_port_check_gives_up_after_its_deadline(monkeypatch):
     monkeypatch.setattr(stack.time, 'sleep', lambda s: None)
     with pytest.raises(OSError):
         stack.check_ports(wait_s=0, poll_s=5)
+
+
+def test_fleet_case_concatenates_roots_and_sums_requests():
+    import json
+    from atfm_experiments.gpu_cache.trace_selection import fleet_case
+
+    def trace(identifier, n):
+        return json.dumps(dict(id=identifier, requests=[dict(type='s', t=float(i), api_time=.5, **{'in': 100 + i, 'out': 5})
+                                                         for i in range(n)])).encode() + b'\n'
+    lines = {'a': trace('a', 3), 'b': trace('b', 2)}
+    data, details = fleet_case(lines, ['b', 'a'])
+    assert data == lines['b'] + lines['a']
+    assert details['requests'] == 5 and details['sessions'] == 2 and details['trace_ids'] == ['b', 'a']
+    assert details['max_context'] == 107

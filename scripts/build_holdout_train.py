@@ -8,13 +8,20 @@ from atfm.schema.trace import TraceTable
 from atfm.traces.agentx import exclude_traces
 
 
+def held_out_ids(selection):
+    ids = []
+    for case in selection["cases"].values():
+        ids += case.get("trace_ids") or [case["trace_id"]]
+    return ids
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--parquet", default="data/agentx/agentx.parquet")
     ap.add_argument("--selection", required=True, help="selection.json from gpu_cache.trace_selection")
     ap.add_argument("--output", required=True)
     a = ap.parse_args()
-    held_out = [case["trace_id"] for case in json.loads(Path(a.selection).read_text())["cases"].values()]
+    held_out = held_out_ids(json.loads(Path(a.selection).read_text()))
     table = TraceTable.from_parquet(a.parquet)
     kept = exclude_traces(table, held_out)
     kept.to_parquet(a.output)
