@@ -1,13 +1,13 @@
 # GPU results and caching tradeoffs
 
-[Read the 25-page PDF](atfm-gpu-results-2026-09-30.pdf) (30 September edition) or the
-[editable report](report.md). Fourteen figures distinguish measurements, derived
+[Read the 27-page PDF](atfm-gpu-results-2026-09-30.pdf) (30 September edition) or the
+[editable report](report.md). Fifteen figures distinguish measurements, derived
 capacity bounds, and illustrative timing/bandwidth scenarios.
 
 The report covers the 28-29 September RTX/H100 compatibility checks and first
 public replays, round 2 (first complete large root, CPU-tier pair), round 3
 (seeded random repeats, Blackwell), stage C (retrieval paths) and stage E
-(forecast-driven warming, inconclusive). It does **not** establish an ATFM
+(forecast-driven warming, inconclusive), stage E2 (long-gap fleet, positive) and stage E3 (proxy control). It does **not** establish an ATFM
 policy speedup or official BFCL accuracy. Plots read the committed evidence under
 `docs/research/results/` through `evidence.py`; `measured_charts.py` draws the
 round 2-3, stage C and stage E figures.
@@ -45,6 +45,6 @@ pdftoppm -scale-to 1400 -png \
 ```
 
 Inspect all pages after editing, especially long tables and page breaks. The
-current report has 25 pages, fourteen labeled figures, and links to raw records and
+current report has 27 pages, fifteen labeled figures, and links to raw records and
 archive checksums. The 29 September edition is superseded; its source is in git
 history at `739f902`.

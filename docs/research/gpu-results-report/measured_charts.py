@@ -116,6 +116,24 @@ def stage_e_chart():
     save(fig, "stage-e")
 
 
+def stage_e2_chart():
+    fig, axes = plt.subplots(1, 2, figsize=(9, 3.3), layout="constrained")
+    runs = evidence.stage_e2()
+    labels = [f"{i}. {row['arm']}" for i, _, row in runs]
+    colors = [ARM_COLORS[row["arm"]] for _, _, row in runs]
+    x = np.arange(len(runs))
+    for ax, values, title in ((axes[0], [(r["ttft_s"]["p50"], r["ttft_s"]["avg"]) for _, _, r in runs], "TTFT (s)"),
+                              (axes[1], [(r["engine"]["queue_s_mean"], r["engine"]["prefill_s_mean"]) for _, _, r in runs], "vLLM time (s)")):
+        ax.bar(x - .2, [v[0] for v in values], .4, color=colors)
+        ax.bar(x + .2, [v[1] for v in values], .4, color=colors, alpha=.45)
+        ax.set_xticks(x, labels)
+        ax.set(ylabel=title)
+        ax.grid(axis="y", alpha=.2)
+    axes[0].set_title("MEASURED | Stage E2: median (solid), mean (light)")
+    axes[1].set_title("Mean queue (solid), prefill (light)")
+    save(fig, "stage-e2")
+
+
 def build():
-    for chart in [capacity_measured, chunk_measured, retrieval_chart, gpus_chart, stage_e_chart]:
+    for chart in [capacity_measured, chunk_measured, retrieval_chart, gpus_chart, stage_e_chart, stage_e2_chart]:
         chart()

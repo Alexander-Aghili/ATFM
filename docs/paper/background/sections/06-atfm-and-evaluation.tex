@@ -280,14 +280,20 @@ H100 GPUs on 30 September: 124 forecast-driven warms were issued without errors,
 but the comparison was inconclusive because run-order drift within each host
 exceeded any arm effect and the replayed agent left a median 1.6\,s between calls,
 too little to warm its $\approx$80k-token contexts
-(\path{docs/research/2026-09-30-stage-e.md}). \textbf{No policy speedup is
-established yet.} The results above show that the substrate ATFM would act on is
+(\path{docs/research/2026-09-30-stage-e.md}). Stage~E2 (1 October) replayed four
+concurrent agents chosen for long idle gaps in a bracketed order on one H100: both
+ATFM runs had a median TTFT of about 1.0\,s against about 3.8\,s for the two
+bracketing direct runs, with the difference in vLLM queue time; warms landed
+10--13\,s ahead and found 97.5\% of expected chunks
+(\path{docs/research/2026-10-01-stage-e2.md}). Because ATFM runs also pass through
+the ATFM proxy, \textbf{the gain is not yet attributed to warming}; a proxy-only
+control is under way. The results above show that the substrate ATFM would act on is
 real and hardware-dependent: CPU-tier capacity mattered for this workload, and
 early warming beats both recomputation and on-demand loading when lead time is
 available. Whether session forecasts supply that lead time often and accurately
 enough, at acceptable cost in wasted warms and displaced cache, is exactly the
-question a repeated stage~E, with bracketed orders and workloads that leave
-multi-second tool phases, and the evaluation below must answer.
+question the stage~E2 workload begins to answer and the evaluation below must
+settle.
 
 \subsection{Known control costs and the Python/Rust decision}
 The repository has already removed repeated full-history JSONL scans, batched

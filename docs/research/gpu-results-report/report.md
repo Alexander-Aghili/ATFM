@@ -2,7 +2,7 @@
 
 ## Evidence report | 28-30 September 2026
 
-ATFM's cache integration works on four GPU types, the complete 119-request agent root now finishes, and the ordinary vLLM/LMCache baseline is characterized with repeated, randomized runs. Warming a context into CPU memory ahead of its request beat recomputation at every tested length. Forecast-driven warming (stage E) ran end to end on H100s but was inconclusive: within-Pod drift across runs exceeded any arm effect, and the replayed agent left under 2 s between calls to warm about 80k-token contexts.
+ATFM's cache integration works on four GPU types, the complete 119-request agent root now finishes, and the ordinary vLLM/LMCache baseline is characterized with repeated, randomized runs. Warming a context into CPU memory ahead of its request beat recomputation at every tested length. Forecast-driven warming (stage E) ran end to end on H100s but was inconclusive, because the replayed agent left no time to warm. On a four-agent fleet with long idle gaps (stage E2), both ATFM runs cut median TTFT by about 72% against bracketing direct runs, through lower vLLM queue time; a proxy-only control (stage E3) is under way.
 
 This edition consolidates the 28-29 September compatibility checks and first public replays with three later rounds on Runpod: round 2 (first complete large root, CPU-tier pair, A100 repeats), round 3 (seeded random repeats, Blackwell) and two targeted studies, stage C (retrieval paths) and stage E (forecast-driven warming). Earlier CPU and simulation studies remain separate; see the research index [10].
 
@@ -12,7 +12,7 @@ This edition consolidates the 28-29 September compatibility checks and first pub
 | Complete public roots | All 164 requests of three roots; 41 complete-root replays | Faithful completion on H100 NVL/SXM, A100, RTX PRO 6000 |
 | CPU tier 24 vs 48 GiB | 1.9x duration, 5.7x median TTFT (H100 SXM, 2+2 runs) | Capacity pressure is the dominant baseline cost on this root |
 | Retrieval paths (stage C) | Warmed L1 2.5-21.6x faster than recompute | Reuse pays when the transfer is off the critical path |
-| Forecast-driven warming (stage E) | 124 warms issued; no consistent effect | Pipeline works; this workload has no warm window |
+| Forecast-driven warming (stages E, E2) | E: inconclusive; E2: median TTFT 3.7-3.9 s to 1.0-1.1 s | Gain on a long-gap fleet; proxy not yet separated |
 
 ### How to read the visuals
 
@@ -20,7 +20,7 @@ This edition consolidates the 28-29 September compatibility checks and first pub
 
 ### Reading map
 
-Sections 01-07 describe the setup, compatibility, workloads, first latency results, reuse, tool calls and failures. Sections 08-11 present the measured rounds: repeatability and host variance, CPU-tier capacity, chunk size and retrieval paths. Sections 12-14 cover stage E. Sections 15-21 relate the measurements to memory, concurrency, transfer, warming, design choices and next experiments. Sections 22-24 provide reproducibility, accounting and sources.
+Sections 01-07 describe the setup, compatibility, workloads, first latency results, reuse, tool calls and failures. Sections 08-11 present the measured rounds: repeatability and host variance, CPU-tier capacity, chunk size and retrieval paths. Sections 12-16 cover stages E, E2 and E3. Sections 17-23 relate the measurements to memory, concurrency, transfer, warming, design choices and next experiments. Sections 24-26 provide reproducibility, accounting and sources.
 
 ---PAGE---
 # 01 | What ran, and how it was measured
@@ -328,11 +328,43 @@ All eight replays completed 119/119 requests and 4/4 child branches, and the ATF
 
 **What stage E does establish.** The complete forecast-to-cache path - proxy events, held-out survival forecasts, prefetch planning, asynchronous LMCache warms - runs on real GPUs against a real agent replay without errors, issuing warms within about 1 s of a call ending. It also shows which quantity decides whether warming can help: the idle window before a session's next request relative to the warm time measured in stage C. In this replay that window was shorter than the warm for almost every turn.
 
-**What would decide it.** Bracketed arm orders with repeats on each Pod, a workload with multi-second tool phases, and per-warm key accounting (section 21).
+**What would decide it.** Bracketed arm orders with repeats on each Pod, a workload with multi-second tool phases, and per-warm key accounting (section 23).
 
 
 ---PAGE---
-# 15 | Memory: the first hard constraint
+# 15 | Stage E2: a long-gap fleet, bracketed
+
+Stage E's replay left no time to warm. Stage E2 replays a **fleet**: four complete Weka roots chosen for long idle gaps (at least 8 of 19-26 gaps lasting 10 s or more; contexts up to 114k tokens; 100 requests), run concurrently so their contexts share a 24 GiB CPU tier. 43 of 100 requests follow a gap of 10 s or more, against 1 of 119 in stage E. One H100 SXM Pod (AP-IN-1, 28 vCPU, host load average 3-8) ran direct, atfm-q50, atfm-q50, direct, so linear drift cancels [16].
+
+![Stage E2](figures/stage-e2.png)
+
+**Figure 15 - Measured stage E2 runs in order.** Left: client TTFT median and mean. Right: mean vLLM queue and prefill time per request from Prometheus counter deltas.
+
+| Run (order) | Elapsed | TTFT p50 / p95 / mean | vLLM queue / prefill (mean) | Hit ratio | Warms complete / partial |
+| --- | --- | --- | --- | --- | --- |
+| 1 direct | 1,671 s | 3.67 / 11.31 / 4.43 s | 3.95 / 0.26 s | 91.9% | - |
+| 2 atfm-q50 | 1,578 s | 1.13 / 8.10 / 2.63 s | 1.97 / 0.42 s | 85.6% | 58 / 3 |
+| 3 atfm-q50 | 1,581 s | 0.96 / 8.38 / 2.63 s | 1.92 / 0.47 s | 83.5% | 48 / 1 |
+| 4 direct | 1,612 s | 3.92 / 8.19 / 4.12 s | 3.56 / 0.36 s | 88.3% | - |
+
+**Both ATFM runs beat both bracketing direct runs:** median TTFT about 72% lower, mean about 38% lower, duration about 4% lower. Warms landed a median 10.7-13.3 s before the session's next request and 97.5% of expected keys were found, the conditions stage C showed warming needs. The difference sits almost entirely in vLLM queue time; prefill rose slightly and decode was unchanged. Requests after gaps under 2 s, which could not have been warmed themselves, improved as much as those after long gaps (median 3.45-3.69 s against 1.21-1.43 s), consistent with a fleet-wide queueing effect: warming moves other sessions' on-demand loads off the engine's two slots.
+
+**Not yet attributed.** ATFM runs pass through the ATFM proxy and direct runs do not; section 16 separates the two. The hit ratio fell under ATFM while TTFT improved, which remains unexplained.
+
+---PAGE---
+# 16 | Stage E3: separating the proxy from warming
+
+Stage E2 compared ATFM (proxy + board + control loop) with direct vLLM, so the proxy hop and forecast-driven warming were confounded. Stage E3 separates them with two bracketed Pods on separate hosts, each comparing one pair:
+
+| Pod | Order | Question |
+| --- | --- | --- |
+| A (AP-IN-1) | direct, proxy, proxy, direct | Does the ATFM proxy alone change TTFT and queueing? |
+| B (US-NE-1) | proxy, atfm-q50, atfm-q50, proxy | What does warming add beyond the proxy? |
+
+Same fleet, 24 GiB CPU tier, training table, calibration and policy as E2. Per-run mean vLLM queue, prefill and decode time come from Prometheus counter deltas. **Status: running on 1 October; results will be added here.**
+
+---PAGE---
+# 17 | Memory: the first hard constraint
 
 For a conventional uniform, uncompressed attention KV layout, tensor bytes per token are `b = 2 x layers x KV_heads x head_dimension x bytes_per_element`. The factor two represents keys and values. For this run, LMCache directly reports `b = 147,456 bytes = 144 KiB`. The calculations below use that observed value rather than assuming all models have this footprint [4].
 
@@ -353,7 +385,7 @@ For independent resident token sets, `M_KV = b x U`, where U is the number of un
 Round 3 confirmed the prediction: on the 119-request root the 24 GiB tier logged 18-32 batch-allocation failures per run and a 1.9x longer replay than 48 GiB (section 09). More GPU VRAM does not automatically enlarge CPU L1. Likewise, a 55% GPU utilization setting is a memory-budget parameter, not measured GPU utilization or a CPU-cache limit. Engine max sequences bounds active engine work; retained historical prefixes and prefetch batches can create a larger CPU working set.
 
 ---PAGE---
-# 16 | Concurrency, sharing, and headroom
+# 18 | Concurrency, sharing, and headroom
 
 The relevant size is the union of resident cached objects, not simply active sessions multiplied by their full text lengths. Shared prefixes can reduce unique storage if the engine and cache identity permit deduplication. Branch suffixes, multiple models, and incompatible layouts can remove that advantage. These examples are sizing scenarios, not measured deduplication rates.
 
@@ -374,7 +406,7 @@ Moving from 24 to 48 GiB was expected to reduce capacity pressure but not guaran
 The useful question is not whether every historical context fits forever. It is whether contexts needed soon can remain available without displacing more valuable ones or saturating the transfer path.
 
 ---PAGE---
-# 17 | Chunk size: objects versus granularity
+# 19 | Chunk size: objects versus granularity
 
 The public runs use 16-token chunks. At 144 KiB per token, each full chunk contains 2.25 MiB of KV tensors. A 100k-token context therefore involves 6,250 chunks. Larger chunks reduce the number of objects and operations, but each allocation and transfer becomes larger. This tradeoff does not make total tensor bytes disappear.
 
@@ -397,7 +429,7 @@ A simple work model is `T = bytes / effective_bandwidth + object_count x fixed_c
 LMCache's upstream documentation discusses configurable chunks and persistent-tier behavior [8, 9]. Supported sizes, alignment, partial-chunk handling, and batched allocation behavior must be verified against our pinned 0.5.5 stack. Test 16, 64, and 256 separately after capacity is held constant; do not change chunk size and L1 size together and attribute the result to one factor.
 
 ---PAGE---
-# 18 | Moving KV versus recomputing it
+# 20 | Moving KV versus recomputing it
 
 An external-cache hit is not free. The relevant comparison is the wall-clock critical path for retrieving cached KV versus recomputing the same prefix. CPU warming can move L2 reads into an idle interval, but the supported actuator does not promise that data is already resident on the GPU.
 
@@ -416,7 +448,7 @@ Dense-attention prefill has a quadratic attention-work term in context length, w
 Python micro-optimization cannot remove a tens-of-GiB working set. Equally, this evidence does not rule out CPU overhead: thousands of chunks and observed event-loop delays justify profiling. Measure per-object CPU cost and critical-path waits before considering a native-language rewrite.
 
 ---PAGE---
-# 19 | Predictive warming: timing matters
+# 21 | Predictive warming: timing matters
 
 ATFM's potential value is to use an agent's tool-running interval to load context before the next LLM request. A useful prediction needs both the right context and the right time. Loading too late exposes transfer delay; loading too early ties up capacity and risks eviction before use.
 
@@ -433,7 +465,7 @@ A practical controller should bound pending jobs, reserve room for demand reads,
 Stage C measured the timing inputs this rule needs (warm time 0.25-9.8 s from 2k to 98k tokens) and stage E tests a forecast-driven controller built on them (sections 11-14). The selected roots lack tool-type signals, so forecasts come from elapsed gap time alone. A policy comparison must include failed/wasted prefetches, eviction of useful data, background bandwidth consumption, and overhead from observation and control.
 
 ---PAGE---
-# 20 | Design choices and their tradeoffs
+# 22 | Design choices and their tradeoffs
 
 There is no hardware-independent best configuration. Separate capacity feasibility, transfer efficiency, and prediction quality so that one cannot hide a weakness in another.
 
@@ -456,7 +488,7 @@ The 29 September ordering has been followed: the large root finishes (round 2), 
 A better policy cannot keep 27.47 GiB of independent tensors simultaneously inside 24 GiB. It can choose which bytes to keep, when to load them, and which requests to admit. Quantization, sharing, compression, or more capacity change the physical footprint; scheduling changes when that footprint is needed.
 
 ---PAGE---
-# 21 | The next experiment, designed to decide
+# 23 | The next experiment, designed to decide
 
 Use the same complete 119-request root, fixed reconstruction seed, model revision, and delays. Keep the measurement horizon long enough for the full root, or predeclare a fixed observation window and explicitly change the claim. Do not rescue a result by silently truncating the workload.
 
@@ -466,9 +498,9 @@ Use the same complete 119-request root, fixed reconstruction seed, model revisio
 | B: capacity | 24 vs 48 GiB | Done: 1.9x duration, 5.7x median TTFT (section 09) |
 | C: retrieval path | Cold recompute; L2 present/L1 empty; verified warm L1 | Done: warmed L1 wins at every length (section 11) |
 | D: granularity | 16 vs 64 vs 256 tokens at fixed L1 | Done: 64/256 lower TTFT 9-17% (section 10) |
-| E: policy | Ordinary LMCache; proxy only; forecast-driven warming | Run: inconclusive; order drift and <2 s gaps (sections 13-14) |
+| E: policy | Ordinary LMCache; proxy only; forecast-driven warming | E inconclusive; E2 positive, pending proxy control (sections 13-16) |
 
-**Next.** Repeat stage E with bracketed orders (A-B-B-A, at least three runs per arm per Pod) and host-load telemetry; replay agents whose tool phases leave several seconds to warm (tool-heavy sessions or recorded long tools); log found/expected keys per warm; measure the proxy hop in isolation; and run the policy at 48 GiB with 64-token chunks, the better baseline, as well as at 24 GiB.
+**Next.** Stage E2 adopted bracketed orders, a long-gap fleet, per-warm key accounting and host load; stage E3 separates the proxy. Remaining: more fleet compositions and Pods, per-request queue tracing, and runs at 48 GiB with 64-token chunks, the better baseline.
 
 ### Instrument the critical path
 
@@ -484,7 +516,7 @@ Choose primary outcomes before running: complete-session duration, request TTFT 
 
 
 ---PAGE---
-# 22 | Reproducibility and fixes
+# 24 | Reproducibility and fixes
 
 The archived artifacts are the authority for experiment claims. This PDF adds analysis and visualizations; it does not replace the raw records. Sources [1-4] link exact configurations, command lines, request exports, counters, source fingerprints, and checksums.
 
@@ -506,7 +538,7 @@ The session stop condition was changed from request count to one complete root. 
 Regression validation recorded with the 29 September experiments was **603 passed, 3 skipped**; at `45bbf93` it was **655 passed, 3 skipped**. Generating this report does not itself run GPU experiments or the test suite.
 
 ---PAGE---
-# 23 | Rental accounting and retained data
+# 25 | Rental accounting and retained data
 
 ### Rental outcome
 
@@ -531,7 +563,7 @@ Rounds 2, 3 and stages C and E keep per-step archives (AIPerf exports, before/af
 Three public-workload archives include the invalid attempts, complete seeded cases, tool matrix, and isolated retry. Their local hashes matched remote copies before shutdown. Model weights and bulk KV tensor files are excluded. The repository retains 24 checksummed curated files in the public H100 evidence bundle, plus separate local/H100 compatibility evidence. Null-filled tails from the quota failure remain original evidence, not silently repaired data.
 
 ---PAGE---
-# 24 | Sources and evidence index
+# 26 | Sources and evidence index
 
 Links [1-9] refer to the committed 29 September record at `739f902`; [10-15] refer to the main branch. Live upstream documentation was consulted on 29 September 2026 for conceptual interpretation; it can describe capabilities newer than the pinned runtime. It is not evidence that a feature was enabled in these runs.
 
@@ -562,6 +594,8 @@ Links [1-9] refer to the committed 29 September record at `739f902`; [10-15] ref
 [13] [Retrieval paths (stage C)](https://github.com/Alexander-Aghili/ATFM/blob/main/docs/research/2026-09-30-retrieval-paths.md) and its [evidence](https://github.com/Alexander-Aghili/ATFM/tree/main/docs/research/results/gpu-retrieval-2026-09-30).
 
 [14] [Stage E design](https://github.com/Alexander-Aghili/ATFM/blob/main/docs/superpowers/specs/2026-09-30-stage-e-design.md) and [runbook](https://github.com/Alexander-Aghili/ATFM/blob/main/docs/development/gpu-public-workloads.md).
+
+[16] [Stage E2 note](https://github.com/Alexander-Aghili/ATFM/blob/main/docs/research/2026-10-01-stage-e2.md) and [evidence](https://github.com/Alexander-Aghili/ATFM/tree/main/docs/research/results/gpu-stage-e2-2026-10-01): bracketed runs, TTFT by preceding gap, per-warm keys, engine phase means.
 
 [15] [Stage E evidence](https://github.com/Alexander-Aghili/ATFM/tree/main/docs/research/results/gpu-stage-e-2026-09-30) and [note](https://github.com/Alexander-Aghili/ATFM/blob/main/docs/research/2026-09-30-stage-e.md): per-arm summaries, gap analysis, archives, plans and SHA-256 index.
 

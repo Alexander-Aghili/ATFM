@@ -49,3 +49,9 @@ def stage_e():
         rows = json.loads((RESULTS / f"gpu-stage-e-2026-09-30/{pod}-summary.json").read_text())
         out += [(pod.upper(), i, r["step"], r) for i, r in enumerate(rows, 1)]
     return out
+
+
+def stage_e2():
+    """Stage E2 runs in bracketed order: [(order, step, summary row with engine phase means)]."""
+    rows = json.loads((RESULTS / "gpu-stage-e2-2026-10-01/summary.json").read_text())
+    return [(i, r["step"], r) for i, r in enumerate(rows, 1)]

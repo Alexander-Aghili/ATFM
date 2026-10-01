@@ -1,6 +1,6 @@
 # Documentation
 
-[GPU results and caching tradeoffs (PDF)](research/gpu-results-report/atfm-gpu-results-2026-09-30.pdf): all GPU rounds through stage E, fourteen figures, capacity, retrieval-path and warming analysis.
+[GPU results and caching tradeoffs (PDF)](research/gpu-results-report/atfm-gpu-results-2026-09-30.pdf): all GPU rounds through stage E2, fifteen figures, capacity, retrieval-path and warming analysis.
 
 ## Start here
 
