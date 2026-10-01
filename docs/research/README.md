@@ -8,6 +8,7 @@ predate today's launchers. Use the [project README](../../README.md) and
 
 | Note | Role |
 | --- | --- |
+| [Stage E2: long-gap fleet](2026-10-01-stage-e2.md) | Bracketed direct/ATFM/ATFM/direct on a four-agent long-gap fleet: ATFM median TTFT ~72% lower; proxy not yet separated. |
 | [Stage E: forecast-driven warming](2026-09-30-stage-e.md) | First live ATFM warming on H100s: pipeline works; inconclusive (run-order drift, <2 s gaps between calls). |
 | [Retrieval paths (stage C)](2026-09-30-retrieval-paths.md) | Cold prefill vs on-demand L2 load vs ATFM-warmed L1 on H100 and A100; break-even is hardware-dependent. |
 | [GPU round 3](2026-09-30-gpu-round3.md) | Randomized 24 vs 48 GiB repeats (1.9x duration gap), chunk-size repeats, Blackwell compatibility. |

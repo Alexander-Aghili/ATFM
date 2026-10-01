@@ -1,0 +1,29 @@
+{
+ "pod": "7ziwqb3kl1wjzb",
+ "data_center": "AP-IN-1",
+ "gpu": "NVIDIA H100 80GB HBM3, 580.126.09, 81559 MiB",
+ "vcpus": 28,
+ "host_ram_gb": 251,
+ "usd_per_hour": 3.49,
+ "window_utc": [
+  "2026-10-01T01:33:03Z",
+  "~03:36Z terminated"
+ ],
+ "failed_attempt": {
+  "pod": "6l2664m9kr6ifo",
+  "data_center": "EUR-IS-3",
+  "window_utc": [
+   "01:13:11Z",
+   "~01:30Z"
+  ],
+  "cause": "AIPerf weka_trace reads one JSON document per file; multi-line fleet.jsonl rejected before any request; fixed in e3b02bd"
+ },
+ "rejected_pod": {
+  "pod": "uysxni9w6iunaa",
+  "reason": "8 vCPU; terminated within seconds"
+ },
+ "estimated_compute_usd": 8.2,
+ "git_revision": "e3b02bd",
+ "train_sha256_prefix": "2a6ef4a72552",
+ "train_rows": 98563
+}

@@ -31,6 +31,7 @@ contracts, use the developer guide and the source code together.
 
 ## Evaluation and evidence
 
+- [Stage E2: long-gap fleet](research/2026-10-01-stage-e2.md): bracketed comparison on four concurrent long-gap agents; ATFM warming cut median TTFT from ~3.8 s to ~1.0 s, pending a proxy-only control.
 - [Stage E: forecast-driven warming](research/2026-09-30-stage-e.md): the full ATFM warming path on H100s; inconclusive because run-order drift exceeded arm effects and calls left under 2 s to warm.
 - [Retrieval paths (stage C)](research/2026-09-30-retrieval-paths.md): warmed L1 beats recompute at every length (up to 21.6x); on-demand L2 loads help only on the slower GPU.
 - [GPU round 3](research/2026-09-30-gpu-round3.md): randomized CPU-tier and chunk-size repeats on H100 SXM and A100, plus RTX PRO 6000 Blackwell.

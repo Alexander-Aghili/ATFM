@@ -1,0 +1,6 @@
+# Stage E2: four long-gap roots replayed concurrently (fleet case) at a 24 GiB CPU tier; bracketed A-B-B-A order
+# so linear drift within the Pod cancels between direct and ATFM warming (q50 trigger, re-warm after 30 s).
+direct-1 replay --case fleet --l1-gb 24 --case-timeout 3000 --total-timeout 3060 --arm direct
+atfm-q50-2 replay --case fleet --l1-gb 24 --case-timeout 3000 --total-timeout 3060 --arm atfm --train runs/train-holdout.parquet --warm-gbps 1.4 --prefetch-trigger q50 --rewarm-after 30
+atfm-q50-3 replay --case fleet --l1-gb 24 --case-timeout 3000 --total-timeout 3060 --arm atfm --train runs/train-holdout.parquet --warm-gbps 1.4 --prefetch-trigger q50 --rewarm-after 30
+direct-4 replay --case fleet --l1-gb 24 --case-timeout 3000 --total-timeout 3060 --arm direct
