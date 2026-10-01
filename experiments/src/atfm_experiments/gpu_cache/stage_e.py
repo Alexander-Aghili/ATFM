@@ -64,11 +64,34 @@ def serving(case):
                 hit_ratio=hits / queries if queries else None)
 
 
+def ttft_stats(values):
+    return dict(n=len(values), ttft_s_p50=statistics.median(values) if values else None,
+                ttft_s_mean=statistics.mean(values) if values else None)
+
+
+def post_gap_ttft(path, threshold_s=10.0):
+    """TTFT of requests that follow an idle gap of at least ``threshold_s`` in their own session (where warming can
+    help) versus all other requests, from AIPerf's per-request export."""
+    by = {}
+    for r in lines(path):
+        meta = r['metadata']
+        if meta.get('benchmark_phase', 'profiling') == 'profiling':
+            by.setdefault(meta['x_correlation_id'], []).append(r)
+    long_gap, other = [], []
+    for rows in by.values():
+        rows.sort(key=lambda r: r['metadata']['request_start_ns'])
+        for prev, cur in zip([None] + rows, rows):
+            gap = None if prev is None else (cur['metadata']['request_start_ns'] - prev['metadata']['request_end_ns']) / 1e9
+            (long_gap if gap is not None and gap >= threshold_s else other).append(cur['metrics']['time_to_first_token']['value'] / 1e3)
+    return dict(after_long_gap=ttft_stats(long_gap), other=ttft_stats(other))
+
+
 def summarize(run):
     run = Path(run)
     warnings = sum('Failed to batched allocate' in line for line in (run / 'lmcache.log').read_text(errors='replace').splitlines())
     case = next(path.parent for path in sorted(run.glob('*/result.json')))
-    out = dict(step=run.name, arm=arm(run.name), case=case.name, l1_warnings=warnings, **serving(case))
+    out = dict(step=run.name, arm=arm(run.name), case=case.name, l1_warnings=warnings, **serving(case),
+               post_gap=post_gap_ttft(case / 'aiperf/profile_export.jsonl'))
     if (run / 'control.jsonl').exists():
         out['warms'] = dict(**warm_timing(directives(run), requests(run)), outcomes=outcomes(run))
     return out

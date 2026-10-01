@@ -19,13 +19,27 @@ FLEET = ('528995cdde1ebf15ccf0b79aec42dba31ce2', '979ae6377c88be0e93531cdb963279
 CASES = (*SELECTED, 'fleet')
 
 
+def case_sha256(source, name, trace_ids=None):
+    """SHA-256 of a single-root case file, or of a fleet directory's traces in the selection's order."""
+    if trace_ids:
+        return hashlib.sha256(b''.join((source / name / f'{i}.json').read_bytes() for i in trace_ids)).hexdigest()
+    return hashlib.sha256((source / f'{name}.jsonl').read_bytes()).hexdigest()
+
+
 def verified(source):
     selection = json.loads((source / 'selection.json').read_text())
-    for name in selection['cases']:
-        actual = hashlib.sha256((source / f'{name}.jsonl').read_bytes()).hexdigest()
-        if actual != selection['cases'][name]['sha256']:
+    for name, case in selection['cases'].items():
+        if case_sha256(source, name, case.get('trace_ids')) != case['sha256']:
             raise ValueError(f'public workload hash mismatch: {name}')
     return selection
+
+
+def write_fleet(output, lines, ids):
+    """AIPerf's weka_trace loader reads one JSON document per file, so a fleet is a directory of roots."""
+    (output / 'fleet').mkdir()
+    for i in ids:
+        (output / 'fleet' / f'{i}.json').write_bytes(lines[i])
+    return hashlib.sha256(b''.join(lines[i] for i in ids)).hexdigest()
 
 
 def describe(trace):
@@ -77,9 +91,8 @@ def select(source, output):
             raise ValueError('whole trace exceeds the configured context')
         (output / f'{name}.jsonl').write_bytes(lines[identifier])
         selected[name] = dict(**details, sha256=hashlib.sha256(lines[identifier]).hexdigest())
-    data, details = fleet_case(lines, FLEET)
-    (output / 'fleet.jsonl').write_bytes(data)
-    selected['fleet'] = dict(**details, sha256=hashlib.sha256(data).hexdigest())
+    _, details = fleet_case(lines, FLEET)
+    selected['fleet'] = dict(**details, sha256=write_fleet(output, lines, FLEET))
     return save(output, 'selection', dict(source_sha256=source_sha, cases=selected,
                 source='https://huggingface.co/datasets/semianalysisai/cc-traces-weka-062126', modified=False))
 

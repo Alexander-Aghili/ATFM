@@ -38,6 +38,11 @@ def command(client, source, output, url=INFERENCE, extra=(), sessions=1):
             '--artifact-dir', str(output / 'aiperf'), '--ui', 'none', '--no-auto-plot', *extra]
 
 
+def case_input(source, name):
+    """A fleet case is a directory of single-root trace files; other cases are one root file."""
+    return source / name if (source / name).is_dir() else source / f'{name}.jsonl'
+
+
 def host_load(output, label):
     """Host load average (shared by co-tenants in a container), to diagnose run-order drift."""
     (output / f'{label}-loadavg.txt').write_text(Path('/proc/loadavg').read_text())
@@ -64,7 +69,7 @@ def inspect(output, expected):
 
 def run_case(client, source, output, name, details, timeout, url=INFERENCE, extra=()):
     output.mkdir()
-    args = command(client, source / f'{name}.jsonl', output, url, extra, details.get('sessions', 1))
+    args = command(client, case_input(source, name), output, url, extra, details.get('sessions', 1))
     save(output, 'command', args)
     snapshot(output, 'before')
     host_load(output, 'before')

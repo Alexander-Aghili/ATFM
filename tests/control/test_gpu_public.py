@@ -150,3 +150,22 @@ def test_fleet_case_concatenates_roots_and_sums_requests():
     assert data == lines['b'] + lines['a']
     assert details['requests'] == 5 and details['sessions'] == 2 and details['trace_ids'] == ['b', 'a']
     assert details['max_context'] == 107
+
+
+def test_fleet_is_written_as_a_directory_of_single_trace_files(tmp_path):
+    import hashlib
+    import json
+    from atfm_experiments.gpu_cache import trace_selection
+
+    lines = {i: json.dumps(dict(id=i, requests=[])).encode() + b'\n' for i in ('a', 'b')}
+    digest = trace_selection.write_fleet(tmp_path, lines, ['b', 'a'])
+    assert sorted(p.name for p in (tmp_path / 'fleet').iterdir()) == ['a.json', 'b.json']
+    assert json.loads((tmp_path / 'fleet/b.json').read_text())['id'] == 'b'
+    assert digest == hashlib.sha256(lines['b'] + lines['a']).hexdigest()
+    assert trace_selection.case_sha256(tmp_path, 'fleet', ['b', 'a']) == digest
+
+
+def test_replay_input_is_the_fleet_directory_or_a_single_root_file(tmp_path):
+    (tmp_path / 'fleet').mkdir()
+    assert replay.case_input(tmp_path, 'fleet') == tmp_path / 'fleet'
+    assert replay.case_input(tmp_path, 'sequential') == tmp_path / 'sequential.jsonl'

@@ -32,3 +32,19 @@ def test_directives_and_requests_are_read_from_run_logs(tmp_path):
 
 def test_arm_names_come_from_step_names():
     assert stage_e.arm('atfm-q10-2') == 'atfm-q10' and stage_e.arm('direct-1') == 'direct'
+
+
+def record(session, start_s, end_s, ttft_ms):
+    return {'metadata': {'x_correlation_id': session, 'request_start_ns': int(start_s * 1e9),
+                         'request_end_ns': int(end_s * 1e9), 'benchmark_phase': 'profiling'},
+            'metrics': {'time_to_first_token': {'value': ttft_ms}}}
+
+
+def test_post_gap_ttft_separates_returns_after_long_idle_gaps(tmp_path):
+    rows = [record('a', 0, 2, 100), record('a', 20, 22, 900), record('a', 23, 24, 200),
+            record('b', 0, 1, 150), record('b', 30, 31, 700)]
+    path = tmp_path / 'profile_export.jsonl'
+    path.write_text('\n'.join(json.dumps(r) for r in rows) + '\n')
+    split = stage_e.post_gap_ttft(path, threshold_s=10)
+    assert split['after_long_gap'] == dict(n=2, ttft_s_p50=0.8, ttft_s_mean=0.8)
+    assert split['other'] == dict(n=3, ttft_s_p50=0.15, ttft_s_mean=pytest.approx(0.15))
