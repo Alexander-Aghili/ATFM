@@ -64,6 +64,16 @@ def serving(case):
                 hit_ratio=hits / queries if queries else None)
 
 
+def engine_phases(case):
+    """Mean per-request vLLM queue, prefill and decode time over the case, from before/after counters."""
+    def delta(name):
+        return counter(case / 'after-vllm.txt', name) - counter(case / 'before-vllm.txt', name)
+    n = delta('vllm:request_queue_time_seconds_count')
+    means = {f'{phase}_s_mean': delta(f'vllm:request_{phase}_time_seconds_sum') / n if n else None
+             for phase in ('queue', 'prefill', 'decode')}
+    return dict(**means, requests=int(n))
+
+
 def ttft_stats(values):
     return dict(n=len(values), ttft_s_p50=statistics.median(values) if values else None,
                 ttft_s_mean=statistics.mean(values) if values else None)
@@ -91,7 +101,7 @@ def summarize(run):
     warnings = sum('Failed to batched allocate' in line for line in (run / 'lmcache.log').read_text(errors='replace').splitlines())
     case = next(path.parent for path in sorted(run.glob('*/result.json')))
     out = dict(step=run.name, arm=arm(run.name), case=case.name, l1_warnings=warnings, **serving(case),
-               post_gap=post_gap_ttft(case / 'aiperf/profile_export.jsonl'))
+               post_gap=post_gap_ttft(case / 'aiperf/profile_export.jsonl'), engine=engine_phases(case))
     if (run / 'control.jsonl').exists():
         out['warms'] = dict(**warm_timing(directives(run), requests(run)), outcomes=outcomes(run))
     return out

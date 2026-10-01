@@ -1,0 +1,5 @@
+# Stage E3 Pod A: does the ATFM proxy alone change the fleet baseline? Bracketed direct, proxy, proxy, direct.
+direct-1 replay --case fleet --l1-gb 24 --case-timeout 3000 --total-timeout 3060 --arm direct
+proxy-2 replay --case fleet --l1-gb 24 --case-timeout 3000 --total-timeout 3060 --arm proxy
+proxy-3 replay --case fleet --l1-gb 24 --case-timeout 3000 --total-timeout 3060 --arm proxy
+direct-4 replay --case fleet --l1-gb 24 --case-timeout 3000 --total-timeout 3060 --arm direct

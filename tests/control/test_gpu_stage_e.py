@@ -48,3 +48,14 @@ def test_post_gap_ttft_separates_returns_after_long_idle_gaps(tmp_path):
     split = stage_e.post_gap_ttft(path, threshold_s=10)
     assert split['after_long_gap'] == dict(n=2, ttft_s_p50=0.8, ttft_s_mean=0.8)
     assert split['other'] == dict(n=3, ttft_s_p50=0.15, ttft_s_mean=pytest.approx(0.15))
+
+
+def test_engine_phase_means_come_from_counter_deltas(tmp_path):
+    before = ('vllm:request_queue_time_seconds_sum{engine="0"} 10.0\nvllm:request_queue_time_seconds_count{engine="0"} 5.0\n'
+              'vllm:request_prefill_time_seconds_sum{engine="0"} 2.0\nvllm:request_prefill_time_seconds_count{engine="0"} 5.0\n'
+              'vllm:request_decode_time_seconds_sum{engine="0"} 1.0\nvllm:request_decode_time_seconds_count{engine="0"} 5.0\n')
+    after = before.replace('10.0', '40.0').replace('2.0', '7.0').replace('1.0', '21.0').replace('5.0', '15.0')
+    (tmp_path / 'before-vllm.txt').write_text(before)
+    (tmp_path / 'after-vllm.txt').write_text(after)
+    phases = stage_e.engine_phases(tmp_path)
+    assert phases == dict(queue_s_mean=3.0, prefill_s_mean=0.5, decode_s_mean=2.0, requests=10)

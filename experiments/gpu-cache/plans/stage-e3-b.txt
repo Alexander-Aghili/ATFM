@@ -1,0 +1,5 @@
+# Stage E3 Pod B: what does forecast-driven warming add beyond the proxy? Bracketed proxy, atfm, atfm, proxy.
+proxy-1 replay --case fleet --l1-gb 24 --case-timeout 3000 --total-timeout 3060 --arm proxy
+atfm-q50-2 replay --case fleet --l1-gb 24 --case-timeout 3000 --total-timeout 3060 --arm atfm --train runs/train-holdout.parquet --warm-gbps 1.4 --prefetch-trigger q50 --rewarm-after 30
+atfm-q50-3 replay --case fleet --l1-gb 24 --case-timeout 3000 --total-timeout 3060 --arm atfm --train runs/train-holdout.parquet --warm-gbps 1.4 --prefetch-trigger q50 --rewarm-after 30
+proxy-4 replay --case fleet --l1-gb 24 --case-timeout 3000 --total-timeout 3060 --arm proxy
